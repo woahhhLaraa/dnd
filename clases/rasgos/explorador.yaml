@@ -1,0 +1,80 @@
+clase: Explorador
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+fidelidad: condensado
+rasgos:
+  - nombre: "Lanzamiento de conjuros"
+    nivel: 1
+    pagina: {pdf: 105, libro: 103}
+    desc: "Espacios de conjuro: los de la tabla Rasgos de explorador, se recuperan tras un descanso largo. Conjuros preparados de nivel 1+: empiezas con 2 conjuros de nivel 1 de explorador (se recomiendan curar heridas y golpe apresador); el número crece según la columna \"Conjuros preparados\". Puedes sustituir un conjuro preparado por otro tras un descanso largo. Aptitud mágica: Sabiduría. Canalizador mágico: un canalizador druídico."
+
+  - nombre: "Enemigo predilecto"
+    nivel: 1
+    pagina: {pdf: 105, libro: 103}
+    desc: "Siempre tienes preparado el conjuro marca del cazador (no cuenta contra tu límite de conjuros preparados). Puedes lanzarlo dos veces sin gastar un espacio de conjuro, y recuperas todos los usos de esta capacidad tras un descanso largo. Los usos sin gastar espacio aumentan con el nivel (columna \"Enemigo predilecto\" de la tabla: 3 en nivel 5, 4 en nivel 9, 5 en nivel 13, 6 en nivel 17)."
+
+  - nombre: "Maestría con armas"
+    nivel: 1
+    pagina: {pdf: 106, libro: 104}
+    desc: "Puedes usar las propiedades de maestría con dos tipos de armas con las que tengas competencia (p. ej. arcos largos y espadas cortas). Tras un descanso largo puedes cambiar los tipos de armas elegidos."
+
+  - nombre: "Estilo de combate"
+    nivel: 2
+    pagina: {pdf: 106, libro: 104}
+    desc: "Obtienes una dote de estilo de combate de tu elección (capítulo 5). En su lugar puedes elegir Guerrero druídico: aprendes dos trucos de druida de tu elección (se recomiendan guía y voluta estelar); cuentan como conjuros de explorador para ti y usas Sabiduría como aptitud mágica para lanzarlos. Puedes sustituir uno de estos trucos al subir de nivel de explorador."
+
+  - nombre: "Explorador hábil"
+    nivel: 2
+    pagina: {pdf: 106, libro: 104}
+    desc: "Idiomas: conoces dos idiomas adicionales de tu elección. Pericia: escoge una de tus competencias en habilidades con la que no tengas pericia; ganas pericia (doblas el bonificador por competencia) en ella."
+
+  - nombre: "Ataque adicional"
+    nivel: 5
+    pagina: {pdf: 106, libro: 104}
+    desc: "Cuando lleves a cabo la acción de atacar en tu turno, puedes hacer dos ataques en lugar de uno."
+
+  - nombre: "Errante"
+    nivel: 6
+    pagina: {pdf: 106, libro: 104}
+    desc: "Tu velocidad aumenta en 3 m si no llevas armadura pesada. Además obtienes una velocidad nadando y una velocidad trepando iguales a tu velocidad."
+
+  - nombre: "Pericia"
+    nivel: 9
+    pagina: {pdf: 106, libro: 104}
+    desc: "Escoge dos de tus competencias en habilidades con las que no tengas pericia. Ganas pericia (doblas el bonificador por competencia) en esas habilidades."
+
+  - nombre: "Infatigable"
+    nivel: 10
+    pagina: {pdf: 107, libro: 105}
+    desc: "Puntos de golpe temporales: como acción de magia, obtienes 1d8 + tu modificador de Sabiduría (mínimo 1) de PG temporales; usos iguales a tu modificador de Sabiduría (mínimo 1) por descanso largo. Disminuir cansancio: tras finalizar un descanso corto, tu nivel de cansancio (si lo tienes) se reduce en 1."
+
+  - nombre: "Cazador persistente"
+    nivel: 13
+    pagina: {pdf: 107, libro: 105}
+    desc: "Sufrir daño ya no rompe tu concentración en el conjuro marca del cazador."
+
+  - nombre: "Velo de la naturaleza"
+    nivel: 14
+    pagina: {pdf: 107, libro: 105}
+    desc: "Acción adicional: te otorgas el estado de invisible hasta el final de tu siguiente turno. Usos: igual a tu modificador de Sabiduría (mínimo 1) por descanso largo."
+
+  - nombre: "Cazador preciso"
+    nivel: 17
+    pagina: {pdf: 107, libro: 105}
+    desc: "Tienes ventaja en las tiradas de ataque contra la criatura que tenga tu marca del cazador sobre ella."
+
+  - nombre: "Sentidos salvajes"
+    nivel: 18
+    pagina: {pdf: 107, libro: 105}
+    desc: "Obtienes visión ciega hasta 9 m."
+
+  - nombre: "Don épico"
+    nivel: 19
+    pagina: {pdf: 107, libro: 105}
+    desc: "Obtienes una dote de don épico (capítulo 5) u otra dote de tu elección para la que cumplas las condiciones. Se recomienda Don del viaje dimensional."
+
+  - nombre: "Azote de enemigos"
+    nivel: 20
+    pagina: {pdf: 107, libro: 105}
+    desc: "El dado de daño de tu conjuro marca del cazador pasa a ser un d10 en lugar de un d6."

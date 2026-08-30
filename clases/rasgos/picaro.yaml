@@ -1,0 +1,90 @@
+clase: Pícaro
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+fidelidad: condensado
+rasgos:
+  - nombre: "Ataque furtivo"
+    nivel: 1
+    pagina: {pdf: 169, libro: 167}
+    desc: "Una vez por turno, puedes infligir daño adicional a una criatura a la que aciertes con una tirada de ataque si tienes ventaja en la tirada y el ataque se hizo con un arma sutil o a distancia. No necesitas tener ventaja si al menos un aliado (sin el estado de incapacitado) está a 1,5 m o menos del objetivo y tú no tienes desventaja en la tirada. El daño adicional es del mismo tipo que el del arma y su cantidad es la que indica la columna \"Ataque furtivo\" de la tabla Rasgos de pícaro: 1d6 en nivel 1, subiendo un dado cada dos niveles hasta 10d6 en nivel 20."
+
+  - nombre: "Jerga de ladrones"
+    nivel: 1
+    pagina: {pdf: 169, libro: 167}
+    desc: "Conoces la jerga de ladrones y otro idioma de tu elección de las tablas de idiomas del capítulo 2."
+
+  - nombre: "Maestría con armas"
+    nivel: 1
+    pagina: {pdf: 169, libro: 167}
+    desc: "Puedes usar las propiedades de maestría con dos tipos de armas de tu elección con las que tengas competencia (p. ej. dagas y arcos cortos). Tras un descanso largo puedes cambiar los tipos de armas elegidos."
+
+  - nombre: "Pericia"
+    nivel: 1
+    pagina: {pdf: 169, libro: 167}
+    desc: "Ganas pericia (doblas el bonificador por competencia) en dos de tus competencias en habilidades de tu elección; se recomiendan Juego de manos y Sigilo si eres competente en ellas."
+
+  - nombre: "Acción astuta"
+    nivel: 2
+    pagina: {pdf: 170, libro: 168}
+    desc: "En tu turno, puedes llevar a cabo una de las siguientes acciones como acción adicional: correr, destrabarse o esconderse."
+
+  - nombre: "Puntería certera"
+    nivel: 3
+    pagina: {pdf: 170, libro: 168}
+    desc: "Acción adicional: te concedes ventaja en tu siguiente tirada de ataque del turno actual. Solo puedes usar este rasgo si no te has movido durante el turno, y tras usarlo tu velocidad es 0 hasta el final del turno."
+
+  - nombre: "Esquiva asombrosa"
+    nivel: 5
+    pagina: {pdf: 170, libro: 168}
+    desc: "Cuando un atacante que puedas ver te acierte con una tirada de ataque, puedes usar una reacción para reducir a la mitad el daño que te causa dicho ataque (redondeando hacia abajo)."
+
+  - nombre: "Golpe astuto"
+    nivel: 5
+    pagina: {pdf: 170, libro: 168}
+    desc: "Cuando infliges daño de Ataque furtivo, puedes añadir uno de estos efectos, pagando su coste renunciando a esa cantidad de dados de daño de Ataque furtivo (se retiran antes de tirar; si un efecto exige salvación, CD 8 + modificador de Destreza + bonificador por competencia): Retirada (coste 1d6; justo después del ataque te mueves hasta la mitad de tu velocidad sin provocar ataques de oportunidad); Tropiezo (coste 1d6; si el objetivo es Grande o menor, salvación de Destreza o queda derribado); Veneno (coste 1d6; requiere llevar útiles de envenenador; salvación de Constitución o el objetivo queda envenenado 1 minuto, repitiendo la salvación al final de cada uno de sus turnos)."
+
+  - nombre: "Pericia"
+    nivel: 6
+    pagina: {pdf: 169, libro: 167}
+    desc: "Ganas pericia en otras dos de tus competencias en habilidades de tu elección (mismo efecto que el rasgo Pericia de nivel 1: doblas el bonificador por competencia en ellas)."
+
+  - nombre: "Evasión"
+    nivel: 7
+    pagina: {pdf: 171, libro: 169}
+    desc: "Cuando sufras un efecto que te permita hacer una tirada de salvación de Destreza para sufrir solo la mitad de daño, no recibes daño alguno si la superas y solo sufres la mitad si la fallas. No puedes usar este rasgo si tienes el estado de incapacitado."
+
+  - nombre: "Talentos fiables"
+    nivel: 7
+    pagina: {pdf: 171, libro: 169}
+    desc: "Cuando hagas una prueba de característica que utilice una de tus competencias en habilidades o con herramientas, puedes sustituir un resultado de 9 o menos en el d20 por un 10."
+
+  - nombre: "Golpe astuto mejorado"
+    nivel: 11
+    pagina: {pdf: 171, libro: 169}
+    desc: "Puedes usar hasta dos efectos de Golpe astuto cuando infliges daño de Ataque furtivo, pagando el coste en dados de cada uno."
+
+  - nombre: "Golpes taimados"
+    nivel: 14
+    pagina: {pdf: 171, libro: 169}
+    desc: "Se añaden estas opciones a Golpe astuto: Confundir (coste 2d6; salvación de Constitución o en su próximo turno el objetivo solo puede moverse, realizar una acción o realizar una acción adicional, no más de una); Noquear (coste 6d6; salvación de Constitución o el objetivo queda inconsciente 1 minuto o hasta recibir daño, repitiendo la salvación al final de cada uno de sus turnos); Ofuscar (coste 3d6; salvación de Destreza o el objetivo queda cegado hasta el final de su siguiente turno)."
+
+  - nombre: "Mente escurridiza"
+    nivel: 15
+    pagina: {pdf: 171, libro: 169}
+    desc: "Ganas competencia en las tiradas de salvación de Sabiduría y Carisma."
+
+  - nombre: "Elusivo"
+    nivel: 18
+    pagina: {pdf: 171, libro: 169}
+    desc: "Ninguna tirada de ataque contra ti tiene ventaja, a menos que tengas el estado de incapacitado."
+
+  - nombre: "Don épico"
+    nivel: 19
+    pagina: {pdf: 171, libro: 169}
+    desc: "Obtienes una dote de don épico (capítulo 5) u otra dote de tu elección para la que cumplas las condiciones. Se recomienda Don del espíritu de la noche."
+
+  - nombre: "Golpe de suerte"
+    nivel: 20
+    pagina: {pdf: 171, libro: 169}
+    desc: "Si fallas una prueba con d20, puedes convertir el resultado de la tirada en un 20. No puedes volver a usar este rasgo hasta finalizar un descanso corto o largo."

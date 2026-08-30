@@ -1,0 +1,114 @@
+# Vocabulario del motor de efectos (Fase 14).
+#
+# Un efecto es un dato citado, no una rama de código. Este fichero declara el
+# vocabulario CERRADO que `efectos.py` acepta y `validar.py` exige: qué
+# variables existen, qué operaciones hay, en qué orden se agregan y qué
+# condiciones puede pedir un efecto. Nada fuera de aquí es válido.
+#
+# Regla del proyecto que lo motiva: `calculo.py` tenía las fórmulas de
+# "Defensa sin armadura" como `lambda` de Python, y por eso conocía 2 de las 4
+# que hay en la base (se le escapaban las de SUBCLASE). Una regla cableada no
+# se puede citar, no se puede validar y no se entera de que hay una quinta.
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf"}
+verificado: {metodo: "derivado-de-registros-ya-citados", fecha: "2026-08-29"}
+fidelidad: estructurado
+
+# ── Variables ────────────────────────────────────────────────────────────
+# `entrada`  = la aporta la ficha o `calculo.py`; ningún efecto la produce.
+# `calculada` = la produce el motor agregando efectos sobre un valor base.
+variables:
+  mod_fue: {tipo: entrada, desc: "modificador de Fuerza"}
+  mod_des: {tipo: entrada, desc: "modificador de Destreza"}
+  mod_con: {tipo: entrada, desc: "modificador de Constitución"}
+  mod_int: {tipo: entrada, desc: "modificador de Inteligencia"}
+  mod_sab: {tipo: entrada, desc: "modificador de Sabiduría"}
+  mod_car: {tipo: entrada, desc: "modificador de Carisma"}
+  nivel_total: {tipo: entrada, desc: "nivel total del personaje"}
+  nivel_clase: {tipo: entrada, desc: "niveles en la clase que concede el efecto"}
+  pb: {tipo: entrada, desc: "bonificador por competencia"}
+
+  ca:
+    tipo: calculada
+    desc: "Clase de Armadura"
+    base_por_defecto: "10 + mod_des"
+    pagina: {pdf: 43, libro: 41}
+    fidelidad: literal
+    literal: >
+      Clase de armadura. Sin armadura ni escudo, tu clase de armadura base es
+      10 más el modificador por Destreza. Si tu equipo inicial incluye una
+      armadura o un escudo (o ambos), calcula tu CA siguiendo las reglas del
+      capítulo 6. Un rasgo de clase podría permitirte calcular la CA de forma
+      distinta.
+    _nota_cita: >
+      Cerrado el 2026-08-30 (deuda 3 del plan). Venía como literal SIN página dentro de
+      `calculo.py` y estuvo declarado como hueco con `_falta_cita: true` hasta
+      que dos lectores independientes leyeron pdf 43 = libro 41 y coincidieron
+      palabra por palabra (agente-CA-E.md, agente-CA-F.md).
+    _nota_escudo: >
+      **La página condiciona la fórmula a «sin armadura NI ESCUDO»**, y remite
+      al capítulo 6 en cuanto hay una u otro. Por eso el efecto por defecto NO
+      lleva `requiere: [sin_escudo]`: no sería «no aplica», sería quedarse sin
+      base ninguna. El modelo lo resuelve como lo resuelve el manual — la
+      armadura aporta su propio `base` y el escudo su `add`, derivados de
+      `equipo/armaduras.yaml`, cuyo bloque `reglas` ES el capítulo 6. La
+      condición de la página queda citada aquí, no perdida.
+  pg_max:
+    tipo: calculada
+    desc: "puntos de golpe máximos"
+    base_por_defecto: null      # la aporta `calculo.puntos_golpe_nivel_1()`
+  velocidad:
+    tipo: calculada
+    desc: "velocidad de desplazamiento, en metros"
+    base_de: "especies/especies.yaml → velocidad_m de la especie del personaje"
+    decimal: true      # 4,5 m no se puede redondear: es media casilla real
+    _nota: >
+      Entró el 2026-08-30 (deuda 4 del plan). Estuvo fuera a propósito porque
+      "Movimiento sin armadura" del Monje (+3 m en el nivel 2, +4,5 en el 6,
+      +6 en el 10…) no es un efecto plano sino una TABLA DISPERSA POR NIVEL con
+      decimales — el `ScaleValue` de Foundry. Se resolvió sin inventar ningún
+      escalado: **la tabla ya existe** como columna `mov_sin_armadura_m` de la
+      progresión del Monje, así que el efecto la LEE con `columna:` en vez de
+      copiarla. Regla 3 del esquema de efectos: lo ya estructurado no se duplica.
+
+# ── Operaciones ──────────────────────────────────────────────────────────
+# Tomadas de DiceCloud v2 (`computeVariable/getAggregatorResult.js`), leídas
+# como concepto y reimplementadas: DiceCloud es GPL-3.0 y no se copia código.
+# Ver ANALISIS_REPOS.md §1.
+operaciones: [base, add, mul, min, max, set]
+
+# Un efecto trae `formula` (aritmética sobre variables) **o** `columna` (el
+# nombre de una columna de la progresión de su clase, que se lee al vuelo con el
+# `nivel_clase` del personaje). Nunca las dos: serían dos fuentes del mismo dato.
+fuentes_de_valor: [formula, columna]
+
+orden_de_agregacion:
+  - "1. base   → sustituye el valor base de la variable (ver `base_multiple`)"
+  - "2. add    → se suman todos"
+  - "3. mul    → se multiplican todos, sobre (base + Σ add)"
+  - "4. min/max→ se acota el resultado entre el mayor `min` y el menor `max`"
+  - "5. set    → si hay alguno, gana sobre todo lo anterior"
+  - "6. floor  → se redondea hacia abajo"
+
+# ── LA divergencia con DiceCloud, y es deliberada ────────────────────────
+base_multiple:
+  regla: elegir
+  cita: {archivo: "reglas/generacion_personaje.yaml", campo: "multiclase.clase_de_armadura"}
+  desc: >
+    DiceCloud agrega varios `base` con `max()`. El manual castellano 2024 dice
+    otra cosa: "Si el personaje tiene varias formas de calcular su CA (p. ej.
+    Defensa sin armadura de monje y Resistencia dracónica de hechicero), solo
+    puede beneficiarse de UNA, A ELEGIR". Elegir no es maximizar. El motor
+    exige que la ficha diga cuál, en `elecciones.ca_base`; si no lo dice y hay
+    más de una aplicable, FALLA RUIDOSAMENTE en vez de escoger la mayor por su
+    cuenta. Coger el máximo acertaría casi siempre y sería indistinguible de
+    acertar por casualidad.
+
+# ── Condiciones ──────────────────────────────────────────────────────────
+# Vocabulario cerrado. Un efecto solo aplica si se cumplen TODAS las suyas.
+# El estado lo deduce `efectos.py` del equipo de la ficha, nunca el LLM.
+condiciones:
+  sin_armadura: "no lleva puesta ninguna armadura (el escudo no es armadura)"
+  con_armadura: "lleva puesta una armadura"
+  sin_escudo: "no embraza escudo"
+  con_escudo: "embraza escudo"

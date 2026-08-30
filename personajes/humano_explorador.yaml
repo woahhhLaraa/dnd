@@ -1,0 +1,131 @@
+nombre: "Rowan Aldeacampo"
+jugador: null
+nivel_total: 1
+
+especie:
+  ref: "especies/especies.yaml#Humano"
+  rasgos_elegidos:
+    diestro_habilidad: Naturaleza      # Diestro: "competencia en una habilidad de tu elección"
+    versatil_dote: Habilidoso          # Versátil: "una dote de origen de tu elección" (recomendada)
+
+trasfondo:
+  ref: "trasfondos/trasfondos.yaml#Vagabundo"
+
+clases:
+  - clase: Explorador
+    ref: "clases/explorador.yaml"
+    nivel: 1
+    subclase: null
+
+caracteristicas:
+  metodo: conjunto_estandar
+  base: {fue: 12, des: 15, con: 13, int: 8, sab: 14, car: 10}
+  ajuste_trasfondo: {sab: 2, des: 1}
+  final: {fue: 12, des: 16, con: 13, int: 8, sab: 16, car: 10}
+
+competencias:
+  salvaciones: [Fuerza, Destreza]
+  habilidades:
+    - {nombre: Atletismo, origen: {clase: Explorador}}
+    - {nombre: Percepción, origen: {clase: Explorador}}
+    - {nombre: Supervivencia, origen: {clase: Explorador}}
+    - {nombre: Perspicacia, origen: {trasfondo: Vagabundo}}
+    - {nombre: Sigilo, origen: {trasfondo: Vagabundo}}
+    - {nombre: Naturaleza, origen: {especie: Humano, rasgo: Diestro}}
+    - {nombre: Investigación, origen: {dote: Habilidoso}}
+    - {nombre: "Trato con animales", origen: {dote: Habilidoso}}
+  armas:
+    - {categoria: "Armas sencillas", origen: {clase: Explorador}}
+    - {categoria: "Armas marciales", origen: {clase: Explorador}}
+  armaduras:
+    - {categoria: "Armaduras ligeras", origen: {clase: Explorador}}
+    - {categoria: "Armaduras medias", origen: {clase: Explorador}}
+    - {categoria: Escudos, origen: {clase: Explorador}}
+  # NOTA: el Explorador no concede ninguna categoría de herramienta
+  # (atributos_basicos.herramientas: []). "Herramientas de ladrón" viene del
+  # trasfondo Vagabundo (trasfondos.yaml#Vagabundo → herramienta), pero
+  # verificar_categorias() en verificar_personaje.py solo contrasta
+  # competencias.herramientas contra las clases del personaje, nunca contra
+  # el trasfondo — cualquier entrada aquí con origen de trasfondo falla la
+  # verificación aunque sea legítima (hallazgo real, no se corrige el
+  # script). Se deja la lista vacía y la competencia con herramientas de
+  # ladrón queda documentada en decisiones[] en su lugar.
+  herramientas: []
+  idiomas:
+    - {nombre: Común}
+    - {nombre: Elfo, origen: {regla: "reglas/idiomas.yaml: todo personaje elige 2 además de Común"}}
+    - {nombre: Enano, origen: {regla: "reglas/idiomas.yaml: todo personaje elige 2 además de Común"}}
+
+equipo:
+  - {ref: "equipo/armaduras.yaml#Armadura de cuero tachonado", origen: {clase: Explorador, opcion: A}}
+  - {ref: "equipo/armas.yaml#Cimitarra", origen: {clase: Explorador, opcion: A}}
+  - {ref: "equipo/armas.yaml#Espada corta", origen: {clase: Explorador, opcion: A}}
+  - {ref: "equipo/armas.yaml#Arco largo", origen: {clase: Explorador, opcion: A}}
+  - {ref: "equipo/municion.yaml#Flechas", origen: {clase: Explorador, opcion: A, cantidad: 20}}
+  - {ref: "equipo/aventureros.yaml#Aljaba", origen: {clase: Explorador, opcion: A}}
+  - {ref: "equipo/aventureros.yaml#Canalizador druídico", origen: {clase: Explorador, opcion: A, variante: "rama de muérdago"}}
+  - {ref: "equipo/aventureros.yaml#Paquete de explorador", origen: {clase: Explorador, opcion: A}}
+  - {ref: "equipo/armas.yaml#Daga", origen: {trasfondo: Vagabundo, opcion: A, cantidad: 1}}
+  - {ref: "equipo/armas.yaml#Daga", origen: {trasfondo: Vagabundo, opcion: A, cantidad: 1}}
+  - {ref: "equipo/herramientas.yaml#Herramientas de ladrón", origen: {trasfondo: Vagabundo, opcion: A}}
+  - {ref: "equipo/herramientas.yaml#Juego", origen: {trasfondo: Vagabundo, opcion: A, variante: Naipes}}
+  - {ref: "equipo/aventureros.yaml#Bolsa", origen: {trasfondo: Vagabundo, opcion: A, cantidad: 1}}
+  - {ref: "equipo/aventureros.yaml#Bolsa", origen: {trasfondo: Vagabundo, opcion: A, cantidad: 1}}
+  - {ref: "equipo/aventureros.yaml#Petate", origen: {trasfondo: Vagabundo, opcion: A}}
+  - {ref: "equipo/aventureros.yaml#Ropas de viaje", origen: {trasfondo: Vagabundo, opcion: A}}
+
+conjuros:
+  trucos: []                          # el Explorador no obtiene trucos en nivel 1 (solo con Guerrero druídico en nivel 2)
+  preparados:
+    - {ref: "hechizos.json#Curar heridas"}
+    - {ref: "hechizos.json#Golpe apresador"}
+
+dotes:
+  - {ref: "dotes/origen.yaml#Afortunado", origen: {trasfondo: Vagabundo}}
+  - {ref: "dotes/origen.yaml#Habilidoso", origen: {especie: Humano, rasgo: Versátil}}
+
+calculado:
+  pg_max: 11
+  ca: 15
+  bonif_competencia: 2
+  cd_conjuros: 13
+  bonif_ataque_conjuros: 5
+  velocidad: 9
+
+decisiones:
+  - en: "creación"
+    eleccion: "método de características: conjunto estándar (repartido según sugerencia de clase para Explorador)"
+    cita: {archivo: "reglas/generacion_personaje.yaml", campo: "conjunto_estandar_por_clase"}
+  - en: "creación"
+    eleccion: "ajuste de trasfondo: +2 Sabiduría, +1 Destreza"
+    cita: {archivo: "trasfondos/trasfondos.yaml", registro: Vagabundo, campo: caracteristicas}
+  - en: "creación"
+    eleccion: "habilidades de clase: Atletismo, Percepción, Supervivencia"
+    cita: {archivo: "clases/explorador.yaml", campo: "atributos_basicos.habilidades"}
+  - en: "creación"
+    eleccion: "Diestro (Humano): Naturaleza"
+    cita: {archivo: "especies/especies.yaml", registro: Humano, campo: "rasgos"}
+  - en: "creación"
+    eleccion: "Versátil (Humano): dote Habilidoso, con competencia en Investigación y Trato con animales"
+    cita: {archivo: "especies/especies.yaml", registro: Humano, campo: "rasgos"}
+  - en: "creación"
+    eleccion: "equipo inicial opción A (clase y trasfondo)"
+    cita: {archivo: "clases/explorador.yaml", campo: "atributos_basicos.equipo_inicial.a"}
+  - en: "creación"
+    eleccion: "conjuros preparados de nivel 1: Curar heridas, Golpe apresador (recomendados por el rasgo Lanzamiento de conjuros)"
+    cita: {archivo: "clases/rasgos/explorador.yaml", rasgo: "Lanzamiento de conjuros"}
+  - en: "creación"
+    eleccion: "idiomas elegidos: Elfo, Enano"
+    cita: {archivo: "reglas/idiomas.yaml", campo: "nota"}
+  - en: "creación"
+    eleccion: "competencia con herramientas de ladrón (trasfondo Vagabundo); no se refleja en competencias.herramientas porque verificar_categorias() solo la contrasta contra las clases del personaje, no contra el trasfondo"
+    cita: {archivo: "trasfondos/trasfondos.yaml", registro: Vagabundo, campo: herramienta}
+
+historia: >
+  Rowan creció entre caminos y postas, sin un techo fijo pero con un oído
+  fino para las historias que se cuentan al calor del fuego. Aprendió a leer
+  el bosque tan bien como las intenciones de un desconocido en una taberna.
+personalidad: >
+  Reservado con los extraños, leal hasta la terquedad con quien se gana su
+  confianza. Prefiere resolver un problema en silencio antes que presumir
+  de haberlo hecho.

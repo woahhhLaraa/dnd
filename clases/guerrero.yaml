@@ -1,0 +1,44 @@
+clase: Guerrero
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", pagina_pdf: 116}
+verificado: {metodo: "vision-directa", tabla: "Rasgos de guerrero", fecha: "2026-08-18"}
+atributos_basicos:
+  fuente: {pagina_pdf: 115, pagina_libro: 113}
+  verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+  caracteristica_principal: "Fuerza o Destreza"
+  dado_golpe: d10
+  salvaciones: [Fuerza, Constitución]
+  habilidades:
+    elige: 2
+    de: [Acrobacias, Atletismo, Historia, Intimidación, Percepción, Perspicacia, Persuasión, Supervivencia, "Trato con animales"]
+  armas: ["Armas sencillas", "Armas marciales"]
+  armaduras: ["Armaduras ligeras", "Armaduras medias", "Armaduras pesadas", Escudos]
+  herramientas: []
+  equipo_inicial:
+    a: "cota de malla, espadón, mangual, 8 jabalinas, paquete de explorador de mazmorras y 4 po"
+    b: "armadura de cuero tachonado, cimitarra, espada corta, arco largo, 20 flechas, aljaba, paquete de explorador de mazmorras y 11 po"
+    c: "155 po"
+lanzador: ninguno   # salvo subclase Caballero arcano (lanzador de subclase)
+columnas_extra: [tomar_aliento, maestria_armas]
+nota: "Clase con mejoras de característica extra en niveles 6 y 14"
+progresion:
+  - {n: 1,  pb: 2, tomar_aliento: 2, maestria_armas: 3, rasgos: ["Estilo de combate", "Maestría con armas", "Tomar aliento"]}
+  - {n: 2,  pb: 2, tomar_aliento: 2, maestria_armas: 3, rasgos: ["Acción súbita (un uso)", "Mente táctica"]}
+  - {n: 3,  pb: 2, tomar_aliento: 2, maestria_armas: 3, rasgos: ["Subclase de guerrero"]}
+  - {n: 4,  pb: 2, tomar_aliento: 3, maestria_armas: 4, rasgos: ["Mejora de característica"]}
+  - {n: 5,  pb: 3, tomar_aliento: 3, maestria_armas: 4, rasgos: ["Ataque adicional", "Desplazamiento táctico"]}
+  - {n: 6,  pb: 3, tomar_aliento: 3, maestria_armas: 4, rasgos: ["Mejora de característica"]}
+  - {n: 7,  pb: 3, tomar_aliento: 3, maestria_armas: 4, rasgos: ["Rasgo de subclase"]}
+  - {n: 8,  pb: 3, tomar_aliento: 3, maestria_armas: 4, rasgos: ["Mejora de característica"]}
+  - {n: 9,  pb: 4, tomar_aliento: 3, maestria_armas: 4, rasgos: ["Indómito (un uso)", "Maestro táctico"]}
+  - {n: 10, pb: 4, tomar_aliento: 4, maestria_armas: 5, rasgos: ["Rasgo de subclase"]}
+  - {n: 11, pb: 4, tomar_aliento: 4, maestria_armas: 5, rasgos: ["Dos ataques adicionales"]}
+  - {n: 12, pb: 4, tomar_aliento: 4, maestria_armas: 5, rasgos: ["Mejora de característica"]}
+  - {n: 13, pb: 5, tomar_aliento: 4, maestria_armas: 5, rasgos: ["Ataques estudiados", "Indómito (dos usos)"]}
+  - {n: 14, pb: 5, tomar_aliento: 4, maestria_armas: 5, rasgos: ["Mejora de característica"]}
+  - {n: 15, pb: 5, tomar_aliento: 4, maestria_armas: 5, rasgos: ["Rasgo de subclase"]}
+  - {n: 16, pb: 5, tomar_aliento: 4, maestria_armas: 6, rasgos: ["Mejora de característica"]}
+  - {n: 17, pb: 6, tomar_aliento: 4, maestria_armas: 6, rasgos: ["Acción súbita (dos usos)", "Indómito (tres usos)"]}
+  - {n: 18, pb: 6, tomar_aliento: 4, maestria_armas: 6, rasgos: ["Rasgo de subclase"]}
+  - {n: 19, pb: 6, tomar_aliento: 4, maestria_armas: 6, rasgos: ["Don épico"]}
+  - {n: 20, pb: 6, tomar_aliento: 4, maestria_armas: 6, rasgos: ["Tres ataques adicionales"]}

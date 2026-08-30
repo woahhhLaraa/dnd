@@ -1,0 +1,90 @@
+nombre: "Kaeryn Val'thraxis"
+jugador: null
+nivel_total: 1
+
+especie:
+  ref: "especies/especies.yaml#Dracónido"
+  rasgos_elegidos:
+    linaje_draconico: "Rojo"
+    resistencia_al_daño: "Fuego"
+
+trasfondo:
+  ref: "trasfondos/trasfondos.yaml#Comerciante"
+
+clases:
+  - clase: Hechicero
+    ref: "clases/hechicero.yaml"
+    nivel: 1
+    subclase: null
+
+caracteristicas:
+  metodo: conjunto_estandar
+  base: {fue: 8, des: 14, con: 13, int: 10, sab: 12, car: 15}
+  ajuste_trasfondo: {car: 2, con: 1}
+  final: {fue: 8, des: 14, con: 14, int: 10, sab: 12, car: 17}
+
+competencias:
+  salvaciones: [Constitución, Carisma]
+  habilidades:
+    - {nombre: "Conocimiento arcano", origen: {clase: Hechicero}}
+    - {nombre: Engaño, origen: {clase: Hechicero}}
+    - {nombre: Persuasión, origen: {trasfondo: Comerciante}}
+    - {nombre: "Trato con animales", origen: {trasfondo: Comerciante}}
+  armas: [{categoria: "Armas sencillas", origen: {clase: Hechicero}}]
+  armaduras: []
+  herramientas:
+    - {categoria: "herramientas de navegante", origen: {trasfondo: Comerciante}}
+  idiomas:
+    - {nombre: Común}
+    - {nombre: Dracónico, origen: {regla: "reglas/idiomas.yaml: todo personaje elige 2 además de Común"}}
+    - {nombre: Enano, origen: {regla: "reglas/idiomas.yaml: todo personaje elige 2 además de Común"}}
+
+equipo:
+  - {ref: "equipo/armas.yaml#Lanza", origen: {clase: Hechicero, opcion: A}}
+  - {ref: "equipo/armas.yaml#Daga", origen: {clase: Hechicero, opcion: A, cantidad: 2}}
+  - {ref: "equipo/aventureros.yaml#Canalizador arcano", origen: {clase: Hechicero, opcion: A, variante: cristal}}
+  - {ref: "equipo/aventureros.yaml#Paquete de explorador de mazmorras", origen: {clase: Hechicero, opcion: A}}
+  - {ref: "equipo/herramientas.yaml#Herramientas de navegante", origen: {trasfondo: Comerciante, opcion: A}}
+  - {ref: "equipo/aventureros.yaml#Bolsa", origen: {trasfondo: Comerciante, opcion: A, cantidad: 2}}
+  - {ref: "equipo/aventureros.yaml#Ropas de viaje", origen: {trasfondo: Comerciante, opcion: A}}
+
+conjuros:
+  trucos:
+    - {ref: "hechizos.json#Rayo de escarcha"}
+    - {ref: "hechizos.json#Mano de mago"}
+    - {ref: "hechizos.json#Prestidigitación"}
+    - {ref: "hechizos.json#Luces danzantes"}
+  preparados:
+    - {ref: "hechizos.json#Proyectil mágico"}
+    - {ref: "hechizos.json#Escudo"}
+
+dotes:
+  - {ref: "dotes/origen.yaml#Afortunado", origen: {trasfondo: Comerciante}}
+
+calculado:
+  pg_max: 8
+  ca: 12
+  bonif_competencia: 2
+  cd_conjuros: 13
+  bonif_ataque_conjuros: 5
+  velocidad: 9
+
+decisiones:
+  - en: "creación"
+    eleccion: "linaje dracónico: Rojo (resistencia a Fuego)"
+    cita: {archivo: "especies/especies.yaml", registro: Dracónido, campo: "ancestros"}
+  - en: "creación"
+    eleccion: "método de características: conjunto estándar"
+    cita: {archivo: "reglas/generacion_personaje.yaml", campo: "metodos_generacion_caracteristicas.conjunto_estandar"}
+  - en: "creación"
+    eleccion: "ajuste de trasfondo: +2 Carisma, +1 Constitución"
+    cita: {archivo: "trasfondos/trasfondos.yaml", registro: Comerciante, campo: caracteristicas}
+  - en: "creación"
+    eleccion: "habilidades de clase: Conocimiento arcano, Engaño"
+    cita: {archivo: "clases/hechicero.yaml", campo: "atributos_basicos.habilidades"}
+  - en: "creación"
+    eleccion: "equipo inicial opción A (clase y trasfondo)"
+    cita: {archivo: "clases/hechicero.yaml", campo: "atributos_basicos.equipo_inicial.a"}
+  - en: "creación"
+    eleccion: "trucos: Rayo de escarcha, Mano de mago, Prestidigitación, Luces danzantes; conjuros preparados: Proyectil mágico, Escudo"
+    cita: {archivo: "clases/rasgos/hechicero.yaml", rasgo: "Lanzamiento de conjuros"}

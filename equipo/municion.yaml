@@ -1,0 +1,60 @@
+# Tabla «Munición» del capítulo 6 (Equipo) del Manual del Jugador 2024.
+#
+# PROCEDENCIA: este fichero NO añade ningún dato nuevo. Reestructura como
+# registros consultables lo que ya estaba transcrito y citado en la Fase 6
+# dentro de `equipo/aventureros.yaml` → `descripciones.Munición`, donde vivía
+# como una única cadena de prosa. La prosa original sigue ahí intacta.
+# Sin este fichero, «20 flechas» / «20 virotes» del equipo inicial de
+# Explorador, Guerrero y Pícaro y de los trasfondos Guía, Soldado y Guardia
+# no resolvían contra ningún registro de equipo/.
+edicion: "2024 (5.5e)"
+fuente:
+  archivo: "Manual_del_Jugador_2024.pdf"
+  paginas_pdf: "222-235"          # misma cita que equipo/aventureros.yaml
+  tabla: "Munición"
+  derivado_de: "equipo/aventureros.yaml → descripciones.Munición"
+fidelidad: "estructurado"   # tabla de datos: cantidad, peso, precio
+verificado:
+  metodo: "reestructuracion-de-transcripcion"
+  fecha: "2026-08-19"
+  nota: "Lectura visual original en la Fase 6 (equipo/aventureros.yaml, 2026-08-19). Aquí no se releyó el manual: solo se convirtió la prosa ya sellada en registros."
+
+regla: "Las armas con la propiedad de munición la requieren para atacar; cada ataque gasta una unidad. La cantidad indicada es la que se obtiene al comprar. El recipiente habitual debe comprarse aparte. Tras un combate se puede dedicar 1 minuto a recuperar la mitad de la munición usada (redondeando abajo)."
+
+municion:
+  - nombre: "Balas de arma de fuego"
+    cantidad: 10
+    recipiente: bolsa
+    recipiente_objeto: "Bolsa"                          # equipo/aventureros.yaml
+    peso_kg: 1
+    precio: "3 po"
+    armas: ["Mosquete", "Pistola"]                      # equipo/armas.yaml: munición (…; bala)
+  - nombre: "Dardos"
+    cantidad: 50
+    recipiente: bolsa
+    recipiente_objeto: "Bolsa"
+    peso_kg: 0.5
+    precio: "1 po"
+    armas: ["Cerbatana"]                                # munición (7,5/30; dardo)
+    nota: "El dardo también existe como arma arrojadiza propia en equipo/armas.yaml (5 pc la unidad); esta fila es la munición de cerbatana."
+  - nombre: "Flechas"
+    cantidad: 20
+    recipiente: aljaba
+    recipiente_objeto: "Aljaba"
+    peso_kg: 0.5
+    precio: "1 po"
+    armas: ["Arco corto", "Arco largo"]                 # munición (…; flecha)
+  - nombre: "Proyectiles de honda"
+    cantidad: 20
+    recipiente: bolsa
+    recipiente_objeto: "Bolsa"
+    peso_kg: 0.75
+    precio: "4 pc"
+    armas: ["Honda"]                                    # munición (9/36; proyectil)
+  - nombre: "Virotes"
+    cantidad: 20
+    recipiente: estuche
+    recipiente_objeto: "Estuche para virotes de ballesta"
+    peso_kg: 0.75
+    precio: "1 po"
+    armas: ["Ballesta ligera", "Ballesta de mano", "Ballesta pesada"]   # munición (…; virote)

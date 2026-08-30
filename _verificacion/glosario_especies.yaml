@@ -1,0 +1,42 @@
+# Puente castellano -> inglés para las especies, usado por verificar_foundry.py
+#
+# Las especies son NOMBRES PROPIOS, no reglas: aquí no hay nada que "consultar
+# en el manual", y por eso este puente puede escribirse a mano — a diferencia
+# de escuelas de magia, tipos de daño o maestrías, que el verificador deduce
+# de los pares emparejados precisamente para no traducirlos de memoria.
+#
+# Aun así, el mapeo NO se da por bueno porque suene bien. Cada pareja se
+# comprueba contra dos números que el SRD publica y nosotros también tenemos:
+#   · velocidad          (9 m = 30 ft · 10,5 m = 35 ft)
+#   · visión en la oscuridad (18 m = 60 ft · 36 m = 120 ft)
+# Esa pareja de cifras distingue de hecho los tres grupos: sin visión en la
+# oscuridad (Goliat/Humano/Mediano), 18 m (la mayoría) y 36 m (Enano/Orco);
+# y la velocidad de 10,5 m aísla al Goliat. Un mapeo cruzado por error salta
+# en `python3 verificar_foundry.py especies`.
+#
+# Ojo con los linajes: el SRD publica un registro por linaje y nosotros uno
+# por especie con los linajes dentro. Se apunta al linaje que lleva los
+# valores BASE de la especie, no al que trae un bonus propio:
+#   · Elfo      -> 'Elf, High'  (el de los bosques tiene 35 ft por su linaje,
+#                                y el drow 120 ft de visión: ambos son la
+#                                excepción, no la base)
+#   · Gnomo     -> 'Gnome, Rock'      (los dos linajes coinciden en base)
+#   · Tiefling  -> 'Tiefling, Infernal' (los tres linajes coinciden en base)
+#
+# `null` = la especie no existe en el SRD. Es un dato, no un hueco: el SRD
+# trae 9 especies y el manual 10.
+
+edicion: "2024 (5.5e)"
+fuente: "_verificacion/foundry_srd52/origins24/species/ (SRD 5.2, CC-BY-4.0)"
+
+especies:
+  Aasimar: null              # no está en el SRD (confirmado en _verificacion/LEEME.md)
+  Dracónido: "Dragonborn"
+  Elfo: "Elf, High"
+  Enano: "Dwarf"
+  Gnomo: "Gnome, Rock"
+  Goliat: "Goliath"
+  Humano: "Human"
+  Mediano: "Halfling"
+  Orco: "Orc"
+  Tiefling: "Tiefling, Infernal"

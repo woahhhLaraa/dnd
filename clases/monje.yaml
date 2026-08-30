@@ -1,0 +1,42 @@
+clase: Monje
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", pagina_pdf: 152}
+verificado: {metodo: "vision-directa", tabla: "Rasgos de monje", fecha: "2026-08-18"}
+atributos_basicos:
+  fuente: {pagina_pdf: 151, pagina_libro: 149}
+  verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+  caracteristica_principal: "Destreza y Sabiduría"
+  dado_golpe: d8
+  salvaciones: [Fuerza, Destreza]
+  habilidades:
+    elige: 2
+    de: [Acrobacias, Atletismo, Historia, Perspicacia, Religión, Sigilo]
+  armas: ["Armas sencillas", "Armas marciales con la propiedad \"ligera\""]
+  armaduras: []
+  herramientas: ["Un tipo de herramientas de artesano o instrumento musical a elección"]
+  equipo_inicial:
+    a: "lanza, 5 dagas, herramientas de artesano o instrumento musical elegido para la competencia con herramientas, paquete de explorador y 11 po"
+    b: "50 po"
+lanzador: ninguno
+columnas_extra: [artes_marciales, puntos_concentracion, mov_sin_armadura_m]
+progresion:
+  - {n: 1,  pb: 2, artes_marciales: d6,  puntos_concentracion: 0,  mov_sin_armadura_m: 0,   rasgos: ["Artes marciales", "Defensa sin armadura"]}
+  - {n: 2,  pb: 2, artes_marciales: d6,  puntos_concentracion: 2,  mov_sin_armadura_m: 3,   rasgos: ["Concentración de monje", "Metabolismo asombroso", "Movimiento sin armadura"]}
+  - {n: 3,  pb: 2, artes_marciales: d6,  puntos_concentracion: 3,  mov_sin_armadura_m: 3,   rasgos: ["Desviar ataques", "Subclase de monje"]}
+  - {n: 4,  pb: 2, artes_marciales: d6,  puntos_concentracion: 4,  mov_sin_armadura_m: 3,   rasgos: ["Caída lenta", "Mejora de característica"]}
+  - {n: 5,  pb: 3, artes_marciales: d8,  puntos_concentracion: 5,  mov_sin_armadura_m: 3,   rasgos: ["Ataque adicional", "Golpe aturdidor"]}
+  - {n: 6,  pb: 3, artes_marciales: d8,  puntos_concentracion: 6,  mov_sin_armadura_m: 4.5, rasgos: ["Golpes potenciados", "Rasgo de subclase"]}
+  - {n: 7,  pb: 3, artes_marciales: d8,  puntos_concentracion: 7,  mov_sin_armadura_m: 4.5, rasgos: ["Evasión"]}
+  - {n: 8,  pb: 3, artes_marciales: d8,  puntos_concentracion: 8,  mov_sin_armadura_m: 4.5, rasgos: ["Mejora de característica"]}
+  - {n: 9,  pb: 4, artes_marciales: d8,  puntos_concentracion: 9,  mov_sin_armadura_m: 4.5, rasgos: ["Movimiento acrobático"]}
+  - {n: 10, pb: 4, artes_marciales: d8,  puntos_concentracion: 10, mov_sin_armadura_m: 6,   rasgos: ["Autorrestablecimiento", "Concentración agudizada"]}
+  - {n: 11, pb: 4, artes_marciales: d10, puntos_concentracion: 11, mov_sin_armadura_m: 6,   rasgos: ["Rasgo de subclase"]}
+  - {n: 12, pb: 4, artes_marciales: d10, puntos_concentracion: 12, mov_sin_armadura_m: 6,   rasgos: ["Mejora de característica"]}
+  - {n: 13, pb: 5, artes_marciales: d10, puntos_concentracion: 13, mov_sin_armadura_m: 6,   rasgos: ["Desviar energía"]}
+  - {n: 14, pb: 5, artes_marciales: d10, puntos_concentracion: 14, mov_sin_armadura_m: 7.5, rasgos: ["Superviviente disciplinado"]}
+  - {n: 15, pb: 5, artes_marciales: d10, puntos_concentracion: 15, mov_sin_armadura_m: 7.5, rasgos: ["Concentración perfecta"]}
+  - {n: 16, pb: 5, artes_marciales: d10, puntos_concentracion: 16, mov_sin_armadura_m: 7.5, rasgos: ["Mejora de característica"]}
+  - {n: 17, pb: 6, artes_marciales: d12, puntos_concentracion: 17, mov_sin_armadura_m: 7.5, rasgos: ["Rasgo de subclase"]}
+  - {n: 18, pb: 6, artes_marciales: d12, puntos_concentracion: 18, mov_sin_armadura_m: 9,   rasgos: ["Defensa superior"]}
+  - {n: 19, pb: 6, artes_marciales: d12, puntos_concentracion: 19, mov_sin_armadura_m: 9,   rasgos: ["Don épico"]}
+  - {n: 20, pb: 6, artes_marciales: d12, puntos_concentracion: 20, mov_sin_armadura_m: 9,   rasgos: ["Cuerpo y mente"]}

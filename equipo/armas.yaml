@@ -1,0 +1,72 @@
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "215-217"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+fidelidad: "estructurado"   # tabla de datos: daño, propiedades, peso, precio
+
+propiedades:
+  "a dos manos": "Requiere el uso de las dos manos."
+  alcance: "El alcance de un arma a distancia aparece entre paréntesis tras 'arrojadiza' o 'munición': primero el alcance normal, luego el alcance largo, ambos en metros. Atacar más allá del alcance normal da desventaja; no se puede atacar más allá del alcance largo."
+  arrojadiza: "Puede lanzarse para hacer un ataque a distancia, y puede desenvainarse como parte del ataque. Si es un arma cuerpo a cuerpo, las tiradas de ataque y de daño usan el mismo modificador de característica que para ataques cuerpo a cuerpo con ella."
+  "gran alcance": "El alcance aumenta 1,5 m tanto al atacar como a efectos de ataques de oportunidad."
+  ligera: "Al llevar a cabo la acción de atacar y atacar con un arma ligera, se puede hacer un ataque extra como acción adicional más adelante en el mismo turno, con otra arma ligera; no se suma el modificador de característica al daño del ataque extra salvo que sea negativo."
+  municion: "Solo se puede atacar a distancia con un arma de munición si se tiene munición para ella; cada ataque gasta una unidad. Cargar un arma de una mano requiere una mano libre. Tras un combate, se puede dedicar 1 minuto a recuperar la mitad de la munición usada (redondeando abajo)."
+  pesada: "Desventaja en tiradas de ataque si es cuerpo a cuerpo y Fuerza < 13, o si es a distancia y Destreza < 13."
+  recarga: "Al atacar con una acción, acción adicional o reacción, solo se puede disparar una unidad de munición, aunque normalmente se pudiera hacer más de un ataque."
+  sutil: "Las tiradas de ataque y de daño pueden hacerse con Fuerza o con Destreza (el mismo modificador para ambas)."
+  versatil: "Puede usarse con una o dos manos; el valor entre paréntesis es el daño al usarse a dos manos para un ataque cuerpo a cuerpo."
+
+propiedades_de_maestria:
+  debilitar: "Si aciertas a una criatura con esta arma, tendrá desventaja en su próxima tirada de ataque antes del principio de tu siguiente turno."
+  derribar: "Si aciertas a una criatura con esta arma, puedes obligarla a un TdS de Constitución (CD 8 + mod. característica de ataque + bonif. competencia); si lo falla, queda derribada."
+  empujar: "Si aciertas a una criatura con esta arma, puedes empujarla hasta 3 m en línea recta si es Grande o más pequeña."
+  hender: "Si aciertas con un ataque cuerpo a cuerpo con esta arma, puedes atacar cuerpo a cuerpo a una segunda criatura a 1,5 m o menos de la primera y a tu alcance; si aciertas, sufre el daño del arma sin tu modificador de característica salvo que sea negativo. Una vez por turno."
+  mellar: "Puedes hacer el ataque extra de la propiedad 'ligera' como parte de la acción de atacar en vez de como acción adicional. Una vez por turno."
+  molestar: "Si aciertas a una criatura con esta arma y le causas daño, tienes ventaja en tu siguiente tirada de ataque contra ella antes del final de tu siguiente turno."
+  ralentizar: "Si aciertas a una criatura con esta arma y le causas daño, puedes reducir su velocidad en 3 m hasta el principio de tu siguiente turno. Con más de un ataque de armas con esta propiedad, la reducción no supera los 3 m."
+  rozar: "Si tu tirada de ataque con esta arma falla contra una criatura, puedes causarle un daño igual a tu modificador de característica usado en el ataque, del mismo tipo que el arma."
+
+armas_cuerpo_a_cuerpo_sencillas:
+  - {nombre: Bastón, dano: "1d6 contundente", propiedades: ["versátil (1d8)"], maestria: Derribar, peso_kg: 2, precio: "2 pp"}
+  - {nombre: Daga, dano: "1d4 perforante", propiedades: ["arrojadiza (6/18)", ligera, sutil], maestria: Mellar, peso_kg: 0.5, precio: "2 po"}
+  - {nombre: Garrote, dano: "1d4 contundente", propiedades: [ligera], maestria: Ralentizar, peso_kg: 1, precio: "1 pp"}
+  - {nombre: "Garrote grande", dano: "1d8 contundente", propiedades: ["a dos manos"], maestria: Empujar, peso_kg: 5, precio: "2 pp"}
+  - {nombre: "Hacha de mano", dano: "1d6 cortante", propiedades: ["arrojadiza (6/18)", ligera], maestria: Molestar, peso_kg: 1, precio: "5 po"}
+  - {nombre: Hoz, dano: "1d4 cortante", propiedades: [ligera], maestria: Mellar, peso_kg: 1, precio: "1 po"}
+  - {nombre: Jabalina, dano: "1d6 perforante", propiedades: ["arrojadiza (9/36)"], maestria: Ralentizar, peso_kg: 1, precio: "5 pp"}
+  - {nombre: Lanza, dano: "1d6 perforante", propiedades: ["arrojadiza (6/18)", "versátil (1d8)"], maestria: Debilitar, peso_kg: 1.5, precio: "1 po"}
+  - {nombre: "Martillo ligero", dano: "1d4 contundente", propiedades: ["arrojadizo (6/18)", ligero], maestria: Mellar, peso_kg: 1, precio: "2 po"}
+  - {nombre: Maza, dano: "1d6 contundente", propiedades: [], maestria: Debilitar, peso_kg: 2, precio: "5 po"}
+
+armas_a_distancia_sencillas:
+  - {nombre: "Arco corto", dano: "1d6 perforante", propiedades: ["a dos manos", "munición (24/96; flecha)"], maestria: Molestar, peso_kg: 1, precio: "25 po"}
+  - {nombre: "Ballesta ligera", dano: "1d8 perforante", propiedades: ["a dos manos", "munición (24/96; virote)", recarga], maestria: Ralentizar, peso_kg: 2.5, precio: "25 po"}
+  - {nombre: Dardo, dano: "1d4 perforante", propiedades: ["arrojadizo (6/18)", sutil], maestria: Molestar, peso_kg: 0.125, precio: "5 pc"}
+  - {nombre: Honda, dano: "1d4 contundente", propiedades: ["munición (9/36; proyectil)"], maestria: Ralentizar, peso_kg: null, precio: "1 pp"}
+
+armas_cuerpo_a_cuerpo_marciales:
+  - {nombre: Alabarda, dano: "1d10 cortante", propiedades: ["a dos manos", "gran alcance", pesada], maestria: Hender, peso_kg: 3, precio: "20 po"}
+  - {nombre: Cimitarra, dano: "1d6 cortante", propiedades: [ligera, sutil], maestria: Mellar, peso_kg: 1.5, precio: "25 po"}
+  - {nombre: "Espada corta", dano: "1d6 perforante", propiedades: [ligera, sutil], maestria: Molestar, peso_kg: 1, precio: "10 po"}
+  - {nombre: "Espada larga", dano: "1d8 cortante", propiedades: ["versátil (1d10)"], maestria: Debilitar, peso_kg: 1.5, precio: "15 po"}
+  - {nombre: Espadón, dano: "2d6 cortante", propiedades: ["a dos manos", pesado], maestria: Rozar, peso_kg: 3, precio: "50 po"}
+  - {nombre: Estoque, dano: "1d8 perforante", propiedades: [sutil], maestria: Molestar, peso_kg: 1, precio: "25 po"}
+  - {nombre: Guja, dano: "1d10 cortante", propiedades: ["a dos manos", "gran alcance", pesada], maestria: Rozar, peso_kg: 3, precio: "20 po"}
+  - {nombre: "Hacha a dos manos", dano: "1d12 cortante", propiedades: ["a dos manos", pesada], maestria: Hender, peso_kg: 3.5, precio: "30 po"}
+  - {nombre: "Hacha de guerra", dano: "1d8 cortante", propiedades: ["versátil (1d10)"], maestria: Derribar, peso_kg: 2, precio: "10 po"}
+  - {nombre: "Lanza de caballería", dano: "1d10 perforante", propiedades: ["a dos manos (salvo montado)", "gran alcance", pesada], maestria: Derribar, peso_kg: 3, precio: "10 po"}
+  - {nombre: Látigo, dano: "1d4 cortante", propiedades: ["gran alcance", sutil], maestria: Ralentizar, peso_kg: 1.5, precio: "2 po"}
+  - {nombre: "Lucero del alba", dano: "1d8 perforante", propiedades: [], maestria: Debilitar, peso_kg: 2, precio: "15 po"}
+  - {nombre: Mangual, dano: "1d8 contundente", propiedades: [], maestria: Debilitar, peso_kg: 1, precio: "10 po"}
+  - {nombre: "Martillo de guerra", dano: "1d8 contundente", propiedades: ["versátil (1d10)"], maestria: Empujar, peso_kg: 2.5, precio: "15 po"}
+  - {nombre: "Maza a dos manos", dano: "2d6 contundente", propiedades: ["a dos manos", pesada], maestria: Derribar, peso_kg: 5, precio: "10 po"}
+  - {nombre: Pica, dano: "1d10 perforante", propiedades: ["a dos manos", "gran alcance", pesada], maestria: Empujar, peso_kg: 9, precio: "5 po"}
+  - {nombre: "Pico de guerra", dano: "1d8 perforante", propiedades: ["versátil (1d10)"], maestria: Debilitar, peso_kg: 1, precio: "5 po"}
+  - {nombre: Tridente, dano: "1d8 perforante", propiedades: ["arrojadizo (6/18)", "versátil (1d10)"], maestria: Derribar, peso_kg: 2, precio: "5 po"}
+
+armas_a_distancia_marciales:
+  - {nombre: "Arco largo", dano: "1d8 perforante", propiedades: ["a dos manos", "munición (45/180; flecha)", pesado], maestria: Ralentizar, peso_kg: 1, precio: "50 po"}
+  - {nombre: "Ballesta de mano", dano: "1d6 perforante", propiedades: [ligera, "munición (9/36; virote)", recarga], maestria: Molestar, peso_kg: 1.5, precio: "75 po"}
+  - {nombre: "Ballesta pesada", dano: "1d10 perforante", propiedades: ["a dos manos", "munición (30/120; virote)", pesada, recarga], maestria: Empujar, peso_kg: 9, precio: "50 po"}
+  - {nombre: Cerbatana, dano: "1 perforante", propiedades: ["munición (7,5/30; dardo)", recarga], maestria: Molestar, peso_kg: 0.5, precio: "10 po"}
+  - {nombre: Mosquete, dano: "1d12 perforante", propiedades: ["a dos manos", "munición (12/36; bala)", recarga], maestria: Ralentizar, peso_kg: 5, precio: "500 po"}
+  - {nombre: Pistola, dano: "1d10 perforante", propiedades: ["munición (9/27; bala)", recarga], maestria: Molestar, peso_kg: 1.5, precio: "250 po"}

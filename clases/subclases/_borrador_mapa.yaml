@@ -1,0 +1,706 @@
+# MAPA DE SUBCLASES — Manual del Jugador 2024 (5.5e)
+#
+# ⚠️  BORRADOR NO VERIFICADO. El mapa de páginas y los niveles sí están
+#     contrastados; los NOMBRES de rasgo vienen de OCR y no se han leído a ojo.
+#     No usar para crear personajes hasta completar la lectura visual.
+#
+# Los niveles se filtraron contra los de nuestras tablas de clase ya validadas:
+# un rasgo en un nivel donde esa clase no gana subclase es ruido de OCR.
+
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", capitulo: 3}
+fidelidad: "condensado"   # mecánica reescrita en frases cortas, no la prosa del manual
+estado: {mapa_paginas: verificado, niveles: verificado, nombres_rasgo: SIN_VERIFICAR}
+cobertura: {subclases: 48, esqueleto_plausible: 39, requieren_lectura: 9, confirmadas_por_srd: 11}
+
+subclases:
+  - clase: Bárbaro
+    subclase: "Senda del Árbol del Mundo"
+    paginas_pdf: [56, 57]
+    estado: INCOMPLETA
+    niveles: [3, 6, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Vitalidad Del Árbol"}
+      - {nivel: 3, nombre: "Frenesí"}
+      - {nivel: 6, nombre: "Ramas Del Árbol"}
+      - {nivel: 6, nombre: "Furia Irracional"}
+      - {nivel: 14, nombre: "Viajar Por El Árbol"}
+      - {nivel: 14, nombre: "Presencia Intimidante"}
+
+  - clase: Bárbaro
+    subclase: "Senda del Berserker"
+    paginas_pdf: [57, 58]
+    estado: confirmada-srd
+    niveles: [3, 6, 10, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Frenesí"}
+      - {nivel: 3, nombre: "Furia De Lo Salvaje"}
+      - {nivel: 3, nombre: "Portavoz De Los Animales"}
+      - {nivel: 6, nombre: "Furia Irracional"}
+      - {nivel: 6, nombre: "Aspecto De Lo Salvaje"}
+      - {nivel: 10, nombre: "Hablante De La Naturaleza"}
+      - {nivel: 14, nombre: "Presencia Intimidante"}
+
+  - clase: Bárbaro
+    subclase: "Senda del Corazón Salvaje"
+    paginas_pdf: [58, 59]
+    estado: plausible
+    niveles: [3, 6, 10, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Furia De Lo Salvaje"}
+      - {nivel: 3, nombre: "Portavoz De Los Animales"}
+      - {nivel: 3, nombre: "Furia Divina"}
+      - {nivel: 3, nombre: "Guerrero De Los Dioses"}
+      - {nivel: 6, nombre: "Aspecto De Lo Salvaje"}
+      - {nivel: 6, nombre: "Foco Fanático"}
+      - {nivel: 10, nombre: "Hablante De La Naturaleza"}
+      - {nivel: 10, nombre: "Presencia Ferviente"}
+      - {nivel: 14, nombre: "Furia De Los Dioses"}
+
+  - clase: Bárbaro
+    subclase: "Senda del Fanático"
+    paginas_pdf: [59, 61]
+    estado: plausible
+    niveles: [3, 6, 10, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Furia Divina"}
+      - {nivel: 3, nombre: "Guerrero De Los Dioses"}
+      - {nivel: 6, nombre: "Foco Fanático"}
+      - {nivel: 10, nombre: "Presencia Ferviente"}
+      - {nivel: 14, nombre: "Furia De Los Dioses"}
+
+  - clase: Bardo
+    subclase: "Colegio de la Danza"
+    paginas_pdf: [66, 67]
+    estado: plausible
+    niveles: [3, 6, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Juego De Pies Deslumbrante"}
+      - {nivel: 3, nombre: "Competencias Adicionales"}
+      - {nivel: 3, nombre: "Palabras Cortantes"}
+      - {nivel: 6, nombre: "Juego De Pies Conjunto"}
+      - {nivel: 6, nombre: "Movimiento Inspirador"}
+      - {nivel: 6, nombre: "Descubrimientos Mágicos"}
+      - {nivel: 14, nombre: "Evasión Dirigida"}
+      - {nivel: 14, nombre: "Habilidad Sin Parangón"}
+
+  - clase: Bardo
+    subclase: "Colegio del Conocimiento"
+    paginas_pdf: [67, 68]
+    estado: confirmada-srd
+    niveles: [3, 6, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Competencias Adicionales"}
+      - {nivel: 3, nombre: "Palabras Cortantes"}
+      - {nivel: 3, nombre: "Magia Cautivadora"}
+      - {nivel: 3, nombre: "Manto De Inspiración"}
+      - {nivel: 6, nombre: "Descubrimientos Mágicos"}
+      - {nivel: 14, nombre: "Evasión Dirigida"}
+      - {nivel: 14, nombre: "Habilidad Sin Parangón"}
+
+  - clase: Bardo
+    subclase: "Colegio del Glamour"
+    paginas_pdf: [68, 69]
+    estado: plausible
+    niveles: [3, 6, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Magia Cautivadora"}
+      - {nivel: 3, nombre: "Manto De Inspiración"}
+      - {nivel: 3, nombre: "Entrenamiento Marcial"}
+      - {nivel: 3, nombre: "Inspiración En Combate"}
+      - {nivel: 6, nombre: "Ataque Adicional"}
+      - {nivel: 14, nombre: "Majestad Inquebrantable"}
+      - {nivel: 14, nombre: "Magia De Batalla"}
+
+  - clase: Bardo
+    subclase: "Colegio del Valor"
+    paginas_pdf: [69, 71]
+    estado: plausible
+    niveles: [3, 6, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Entrenamiento Marcial"}
+      - {nivel: 3, nombre: "Inspiración En Combate"}
+      - {nivel: 6, nombre: "Ataque Adicional"}
+      - {nivel: 14, nombre: "Majestad Inquebrantable"}
+      - {nivel: 14, nombre: "Magia De Batalla"}
+
+  - clase: Brujo
+    subclase: "Patrón Celestial"
+    paginas_pdf: [77, 78]
+    estado: INCOMPLETA
+    niveles: [3, 6, 10]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Luz Sanadora"}
+      - {nivel: 3, nombre: "Conjuros Del Celestial"}
+      - {nivel: 3, nombre: "Conjuros Del Señor Feérico"}
+      - {nivel: 3, nombre: "Pasos Feéricos"}
+      - {nivel: 6, nombre: "Alma Radiante"}
+      - {nivel: 6, nombre: "Escape Brumoso"}
+      - {nivel: 10, nombre: "Resiliencia Celestial"}
+
+  - clase: Brujo
+    subclase: "Patrón Feérico"
+    paginas_pdf: [78, 79]
+    estado: plausible
+    niveles: [3, 6, 10, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Conjuros Del Señor Feérico"}
+      - {nivel: 3, nombre: "Pasos Feéricos"}
+      - {nivel: 3, nombre: "Bendición Del Oscuro"}
+      - {nivel: 3, nombre: "Conjuros Del Infernal"}
+      - {nivel: 6, nombre: "Escape Brumoso"}
+      - {nivel: 10, nombre: "Defensas Seductoras"}
+      - {nivel: 14, nombre: "Magia Embrujadora"}
+
+  - clase: Brujo
+    subclase: "Patrón Infernal"
+    paginas_pdf: [79, 80]
+    estado: confirmada-srd
+    niveles: [3, 6, 10, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Bendición Del Oscuro"}
+      - {nivel: 3, nombre: "Conjuros Del Infernal"}
+      - {nivel: 3, nombre: "Conjuros Del Primigenio"}
+      - {nivel: 6, nombre: "La Suerte Del Oscuro"}
+      - {nivel: 10, nombre: "Defensas Seductoras"}
+      - {nivel: 10, nombre: "Resistencia Infernal"}
+      - {nivel: 14, nombre: "Magia Embrujadora"}
+      - {nivel: 14, nombre: "Arrastrar Por El Infierno"}
+
+  - clase: Brujo
+    subclase: "Patrón Primigenio"
+    paginas_pdf: [80, 83]
+    estado: plausible
+    niveles: [3, 6, 10, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Conjuros Del Primigenio"}
+      - {nivel: 3, nombre: "Conjuros Psíquicos"}
+      - {nivel: 3, nombre: "Mente Iluminada"}
+      - {nivel: 6, nombre: "La Suerte Del Oscuro"}
+      - {nivel: 6, nombre: "Combatiente Clarividente"}
+      - {nivel: 10, nombre: "Resistencia Infernal"}
+      - {nivel: 10, nombre: "Escudo Mental"}
+      - {nivel: 10, nombre: "Maleficio Sobrenatural"}
+      - {nivel: 14, nombre: "Arrastrar Por El Infierno"}
+      - {nivel: 14, nombre: "Crear Siervo"}
+
+  - clase: Clérigo
+    subclase: "Dominio de la Guerra"
+    paginas_pdf: [87, 88]
+    estado: plausible
+    niveles: [3, 6, 17]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Conjuros Del Dominio"}
+      - {nivel: 3, nombre: "Golpe Guiado"}
+      - {nivel: 3, nombre: "Sacerdote Guerrero"}
+      - {nivel: 3, nombre: "Conjuros Del Dominio De La Luz"}
+      - {nivel: 3, nombre: "Fulgor Protector"}
+      - {nivel: 6, nombre: "Bendición Del Dios De La Guerra"}
+      - {nivel: 17, nombre: "Avatar De La Batalla"}
+
+  - clase: Clérigo
+    subclase: "Dominio de la Luz"
+    paginas_pdf: [88, 89]
+    estado: plausible
+    niveles: [3, 6, 17]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Conjuros Del Dominio De La Luz"}
+      - {nivel: 3, nombre: "Fulgor Protector"}
+      - {nivel: 3, nombre: "Resplandor Del Amanecer"}
+      - {nivel: 3, nombre: "Conjuros Del Dominio De La Vida"}
+      - {nivel: 6, nombre: "Bendición Del Dios De La Guerra"}
+      - {nivel: 6, nombre: "Fulgor Protector Mejorado"}
+      - {nivel: 17, nombre: "Avatar De La Batalla"}
+      - {nivel: 17, nombre: "Halo De Luz"}
+
+  - clase: Clérigo
+    subclase: "Dominio de la Vida"
+    paginas_pdf: [89, 90]
+    estado: confirmada-srd
+    niveles: [3, 6, 17]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Resplandor Del Amanecer"}
+      - {nivel: 3, nombre: "Conjuros Del Dominio De La Vida"}
+      - {nivel: 3, nombre: "Discípulo De La Vida"}
+      - {nivel: 3, nombre: "Preservar Vida"}
+      - {nivel: 3, nombre: "Bendición Del Embaucador"}
+      - {nivel: 6, nombre: "Fulgor Protector Mejorado"}
+      - {nivel: 6, nombre: "Sanador Bendito"}
+      - {nivel: 17, nombre: "Halo De Luz"}
+
+  - clase: Clérigo
+    subclase: "Dominio del Engaño"
+    paginas_pdf: [90, 93]
+    estado: plausible
+    niveles: [3, 6, 17]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Discípulo De La Vida"}
+      - {nivel: 3, nombre: "Preservar Vida"}
+      - {nivel: 3, nombre: "Bendición Del Embaucador"}
+      - {nivel: 3, nombre: "Conjuros Del Dominio"}
+      - {nivel: 3, nombre: "Invocar Duplicidad"}
+      - {nivel: 6, nombre: "Sanador Bendito"}
+      - {nivel: 6, nombre: "Transposición Del Embaucador"}
+      - {nivel: 17, nombre: "Duplicidad Mejorada"}
+
+  - clase: Druida
+    subclase: "Círculo de la Luna"
+    paginas_pdf: [99, 100]
+    estado: INCOMPLETA
+    niveles: [3, 6, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Conjuros Del Círculo"}
+      - {nivel: 3, nombre: "Formas Del Círculo"}
+      - {nivel: 3, nombre: "Ayuda De La Tierra"}
+      - {nivel: 6, nombre: "Formas Del Círculo Mejoradas"}
+      - {nivel: 14, nombre: "Forma Lunar"}
+
+  - clase: Druida
+    subclase: "Círculo de la Tierra"
+    paginas_pdf: [100, 102]
+    estado: confirmada-srd
+    niveles: [3, 6, 10, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Ayuda De La Tierra"}
+      - {nivel: 3, nombre: "Conjuros Del Círculo"}
+      - {nivel: 3, nombre: "Forma Estelar"}
+      - {nivel: 3, nombre: "Mapa Estelar"}
+      - {nivel: 6, nombre: "Recuperación Natural"}
+      - {nivel: 6, nombre: "Presagio Cósmico"}
+      - {nivel: 10, nombre: "Protección De La Naturaleza"}
+      - {nivel: 10, nombre: "Constelaciones"}
+      - {nivel: 14, nombre: "Santuario De La Naturaleza"}
+      - {nivel: 14, nombre: "Colmado De Luz Estelar"}
+
+  - clase: Druida
+    subclase: "Círculo de las Estrellas"
+    paginas_pdf: [102, 103]
+    estado: plausible
+    niveles: [3, 6, 10, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Conjuros Del Círculo Del Mar"}
+      - {nivel: 3, nombre: "Ira De Los Mares"}
+      - {nivel: 6, nombre: "Presagio Cósmico"}
+      - {nivel: 6, nombre: "Afinidad Acuática"}
+      - {nivel: 10, nombre: "Constelaciones"}
+      - {nivel: 10, nombre: "Nacido De La Tempestad"}
+      - {nivel: 14, nombre: "Colmado De Luz Estelar"}
+      - {nivel: 14, nombre: "Obsequio Oceánico"}
+
+  - clase: Druida
+    subclase: "Círculo del Mar"
+    paginas_pdf: [103, 105]
+    estado: plausible
+    niveles: [3, 6, 10, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Conjuros Del Círculo Del Mar"}
+      - {nivel: 3, nombre: "Ira De Los Mares"}
+      - {nivel: 6, nombre: "Afinidad Acuática"}
+      - {nivel: 10, nombre: "Nacido De La Tempestad"}
+      - {nivel: 14, nombre: "Obsequio Oceánico"}
+
+  - clase: Explorador
+    subclase: "Acechador en la Penumbra"
+    paginas_pdf: [108, 109]
+    estado: INCOMPLETA
+    niveles: [3, 7, 11]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Conjuros De Acechador"}
+      - {nivel: 3, nombre: "Emboscador Pavoroso"}
+      - {nivel: 3, nombre: "Visión En La Umbra"}
+      - {nivel: 3, nombre: "El Cazador Y La Presa"}
+      - {nivel: 3, nombre: "Sabiduría Del Cazador"}
+      - {nivel: 7, nombre: "Mente De Hierro"}
+      - {nivel: 11, nombre: "Oleada Del Acechador"}
+
+  - clase: Explorador
+    subclase: "Cazador"
+    paginas_pdf: [109, 110]
+    estado: confirmada-srd
+    niveles: [3, 7, 11, 15]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "El Cazador Y La Presa"}
+      - {nivel: 3, nombre: "Sabiduría Del Cazador"}
+      - {nivel: 3, nombre: "Conjuros De Errante Feérico"}
+      - {nivel: 7, nombre: "Mente De Hierro"}
+      - {nivel: 7, nombre: "Tácticas Defensivas"}
+      - {nivel: 11, nombre: "Oleada Del Acechador"}
+      - {nivel: 15, nombre: "Defensa De Cazador Experto"}
+
+  - clase: Explorador
+    subclase: "Errante Feérico"
+    paginas_pdf: [110, 112]
+    estado: plausible
+    niveles: [3, 7, 11, 15]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Conjuros De Errante Feérico"}
+      - {nivel: 3, nombre: "Glamur Sobrenatural"}
+      - {nivel: 3, nombre: "Golpes Pavorosos"}
+      - {nivel: 3, nombre: "Compañero Primigenio"}
+      - {nivel: 7, nombre: "Tácticas Defensivas"}
+      - {nivel: 7, nombre: "Giro Seductor"}
+      - {nivel: 7, nombre: "Entrenamiento Excepcional"}
+      - {nivel: 11, nombre: "Refuerzos Feéricos"}
+      - {nivel: 11, nombre: "Furia Bestial"}
+      - {nivel: 15, nombre: "Defensa De Cazador Experto"}
+      - {nivel: 15, nombre: "Compartir Conjuros"}
+
+  - clase: Explorador
+    subclase: "Señor de las Bestias"
+    paginas_pdf: [112, 115]
+    estado: plausible
+    niveles: [3, 7, 11, 15]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Compañero Primigenio"}
+      - {nivel: 7, nombre: "Entrenamiento Excepcional"}
+      - {nivel: 11, nombre: "Furia Bestial"}
+      - {nivel: 15, nombre: "Compartir Conjuros"}
+
+  - clase: Guerrero
+    subclase: "Caballero Arcano"
+    paginas_pdf: [118, 119]
+    estado: INCOMPLETA
+    niveles: [3, 7, 15, 18]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Vínculo De Guerra"}
+      - {nivel: 3, nombre: "Atleta Sobresaliente"}
+      - {nivel: 7, nombre: "Magia De Guerra"}
+      - {nivel: 15, nombre: "Carga Arcana"}
+      - {nivel: 18, nombre: "Magia De Guerra Mejorada"}
+
+  - clase: Guerrero
+    subclase: "Campeón"
+    paginas_pdf: [119, 120]
+    estado: confirmada-srd
+    niveles: [3, 7, 10, 15, 18]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Vínculo De Guerra"}
+      - {nivel: 3, nombre: "Atleta Sobresaliente"}
+      - {nivel: 3, nombre: "Crítico Mejorado"}
+      - {nivel: 3, nombre: "Poder Psiónico"}
+      - {nivel: 7, nombre: "Magia De Guerra"}
+      - {nivel: 7, nombre: "Estilo De Combate Adicional"}
+      - {nivel: 10, nombre: "Guerrero Heroico"}
+      - {nivel: 15, nombre: "Carga Arcana"}
+      - {nivel: 15, nombre: "Crítico Superior"}
+      - {nivel: 18, nombre: "Magia De Guerra Mejorada"}
+      - {nivel: 18, nombre: "Superviviente"}
+
+  - clase: Guerrero
+    subclase: "Guerrero Psiónico"
+    paginas_pdf: [120, 122]
+    estado: plausible
+    niveles: [3, 7, 10, 15, 18]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Crítico Mejorado"}
+      - {nivel: 3, nombre: "Poder Psiónico"}
+      - {nivel: 3, nombre: "Estudioso De La Guerra"}
+      - {nivel: 3, nombre: "Supremacía En Combate"}
+      - {nivel: 7, nombre: "Estilo De Combate Adicional"}
+      - {nivel: 7, nombre: "Adepto Telequinético"}
+      - {nivel: 7, nombre: "Conoce A Tu Enemigo"}
+      - {nivel: 10, nombre: "Guerrero Heroico"}
+      - {nivel: 10, nombre: "Mente Robusta"}
+      - {nivel: 10, nombre: "Supremacía En Combate"}
+      - {nivel: 15, nombre: "Crítico Superior"}
+      - {nivel: 15, nombre: "Incansable"}
+      - {nivel: 18, nombre: "Superviviente"}
+      - {nivel: 18, nombre: "Maestro Telequinético"}
+      - {nivel: 18, nombre: "Supremacía En Combate"}
+
+  - clase: Guerrero
+    subclase: "Maestro del Combate"
+    paginas_pdf: [122, 125]
+    estado: INCOMPLETA
+    niveles: [7, 10, 15, 18]
+    rasgos_ocr:
+      - {nivel: 7, nombre: "Conoce A Tu Enemigo"}
+      - {nivel: 10, nombre: "Supremacía En Combate"}
+      - {nivel: 15, nombre: "Incansable"}
+      - {nivel: 18, nombre: "Supremacía En Combate"}
+
+  - clase: Hechicero
+    subclase: "Hechicería Aberrante"
+    paginas_pdf: [131, 133]
+    estado: plausible
+    niveles: [3, 6, 14, 18]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Conjuros Psiónicos"}
+      - {nivel: 3, nombre: "Habla Telepática"}
+      - {nivel: 3, nombre: "Mareas Del Caos"}
+      - {nivel: 3, nombre: "Sobrecarga De Magia Salvaje"}
+      - {nivel: 6, nombre: "Defensas Psíquicas"}
+      - {nivel: 6, nombre: "Hechicería Psiónica"}
+      - {nivel: 6, nombre: "Doblegar La Suerte"}
+      - {nivel: 14, nombre: "Revelación En Carne"}
+      - {nivel: 18, nombre: "Implosión Deformadora"}
+      - {nivel: 18, nombre: "Sobrecarga Domada"}
+
+  - clase: Hechicero
+    subclase: "Hechicería de Magia Salvaje"
+    paginas_pdf: [133, 135]
+    estado: INCOMPLETA
+    niveles: []
+    rasgos_ocr:
+
+  - clase: Hechicero
+    subclase: "Hechicería Dracónica"
+    paginas_pdf: [135, 137]
+    estado: confirmada-srd
+    niveles: [3, 6, 14, 18]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Conjuros Dracónicos"}
+      - {nivel: 3, nombre: "Conjuros Mecánicos"}
+      - {nivel: 3, nombre: "Resistencia Dracónica"}
+      - {nivel: 3, nombre: "Restablecer Equilibrio"}
+      - {nivel: 6, nombre: "Afinidad Elemental"}
+      - {nivel: 6, nombre: "Bastión De La Ley"}
+      - {nivel: 14, nombre: "Alas De Dragón"}
+      - {nivel: 14, nombre: "Trance De Orden"}
+      - {nivel: 18, nombre: "Cabalgata Mecánica"}
+
+  - clase: Hechicero
+    subclase: "Hechicería Mecánica"
+    paginas_pdf: [137, 139]
+    estado: plausible
+    niveles: [3, 6, 14, 18]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Restablecer Equilibrio"}
+      - {nivel: 6, nombre: "Bastión De La Ley"}
+      - {nivel: 14, nombre: "Trance De Orden"}
+      - {nivel: 18, nombre: "Cabalgata Mecánica"}
+
+  - clase: Mago
+    subclase: "Abjurador"
+    paginas_pdf: [146, 147]
+    estado: plausible
+    niveles: [3, 6, 10, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Experto En Abjuración"}
+      - {nivel: 3, nombre: "Salvaguarda Arcana"}
+      - {nivel: 3, nombre: "Experto En Adivinación"}
+      - {nivel: 3, nombre: "Presagio"}
+      - {nivel: 6, nombre: "Salvaguarda Proyectada"}
+      - {nivel: 6, nombre: "Adivino Avezado"}
+      - {nivel: 10, nombre: "Rompeconjuros"}
+      - {nivel: 10, nombre: "El Tercer Ojo"}
+      - {nivel: 14, nombre: "Resistenciaa Conjuros"}
+      - {nivel: 14, nombre: "Presagio Mayor"}
+
+  - clase: Mago
+    subclase: "Adivino"
+    paginas_pdf: [147, 148]
+    estado: plausible
+    niveles: [3, 6, 10, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Experto En Adivinación"}
+      - {nivel: 3, nombre: "Presagio"}
+      - {nivel: 3, nombre: "Experto En Evocación"}
+      - {nivel: 3, nombre: "Truco Potente"}
+      - {nivel: 6, nombre: "Adivino Avezado"}
+      - {nivel: 6, nombre: "Esculpir Conjuros"}
+      - {nivel: 10, nombre: "Rompeconjuros"}
+      - {nivel: 10, nombre: "El Tercer Ojo"}
+      - {nivel: 10, nombre: "Evocación Potenciada"}
+      - {nivel: 14, nombre: "Resistenciaa Conjuros"}
+      - {nivel: 14, nombre: "Presagio Mayor"}
+      - {nivel: 14, nombre: "Sobrecanalizar"}
+
+  - clase: Mago
+    subclase: "Evocador"
+    paginas_pdf: [148, 149]
+    estado: confirmada-srd
+    niveles: [3, 6, 10, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Experto En Evocación"}
+      - {nivel: 3, nombre: "Truco Potente"}
+      - {nivel: 3, nombre: "Experto En Ilusionismo"}
+      - {nivel: 3, nombre: "Ilusiones Mejoradas"}
+      - {nivel: 6, nombre: "Esculpir Conjuros"}
+      - {nivel: 6, nombre: "Criaturas Fantasmales"}
+      - {nivel: 10, nombre: "Evocación Potenciada"}
+      - {nivel: 10, nombre: "Yo Ilusorio"}
+      - {nivel: 14, nombre: "Sobrecanalizar"}
+      - {nivel: 14, nombre: "Realidad Ilusoria"}
+
+  - clase: Mago
+    subclase: "Ilusionista"
+    paginas_pdf: [149, 151]
+    estado: plausible
+    niveles: [3, 6, 10, 14]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Experto En Ilusionismo"}
+      - {nivel: 3, nombre: "Ilusiones Mejoradas"}
+      - {nivel: 6, nombre: "Criaturas Fantasmales"}
+      - {nivel: 10, nombre: "Yo Ilusorio"}
+      - {nivel: 14, nombre: "Realidad Ilusoria"}
+
+  - clase: Monje
+    subclase: "Guerrero de la Mano Abierta"
+    paginas_pdf: [154, 154]
+    estado: INCOMPLETA
+    niveles: [3, 6, 17]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Técnica De La Mano Abierta"}
+      - {nivel: 6, nombre: "Plenitud De Cuerpo"}
+      - {nivel: 17, nombre: "Palma Estremecedora"}
+
+  - clase: Monje
+    subclase: "Guerrero de la Misericordia"
+    paginas_pdf: [154, 156]
+    estado: plausible
+    niveles: [3, 6, 11, 17]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Técnica De La Mano Abierta"}
+      - {nivel: 3, nombre: "Instrumentos De Misericordia"}
+      - {nivel: 3, nombre: "Mano De Aflicción"}
+      - {nivel: 3, nombre: "Mano De Curación"}
+      - {nivel: 3, nombre: "Artes Sombrías"}
+      - {nivel: 6, nombre: "Plenitud De Cuerpo"}
+      - {nivel: 6, nombre: "Toque De Galeno"}
+      - {nivel: 6, nombre: "Paso Entre Sombras"}
+      - {nivel: 11, nombre: "Ráfaga De Curación Y Aflicción"}
+      - {nivel: 11, nombre: "Paso Entre Sombras Mejorado"}
+      - {nivel: 17, nombre: "Palma Estremecedora"}
+      - {nivel: 17, nombre: "Mano De Misericordia Suprema"}
+      - {nivel: 17, nombre: "Capa De Sombras"}
+
+  - clase: Monje
+    subclase: "Guerrero de la Sombra"
+    paginas_pdf: [156, 157]
+    estado: plausible
+    niveles: [3, 6, 11, 17]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Artes Sombrías"}
+      - {nivel: 3, nombre: "Armonía Con Los Elementos"}
+      - {nivel: 3, nombre: "Manipular Los Elementos"}
+      - {nivel: 6, nombre: "Paso Entre Sombras"}
+      - {nivel: 6, nombre: "Explosión Elemental"}
+      - {nivel: 11, nombre: "Paso Entre Sombras Mejorado"}
+      - {nivel: 11, nombre: "Paso De Los Elementos"}
+      - {nivel: 17, nombre: "Capa De Sombras"}
+      - {nivel: 17, nombre: "Paradigma Elemental"}
+
+  - clase: Monje
+    subclase: "Guerrero de los Elementos"
+    paginas_pdf: [157, 159]
+    estado: plausible
+    niveles: [3, 6, 11, 17]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Armonía Con Los Elementos"}
+      - {nivel: 3, nombre: "Manipular Los Elementos"}
+      - {nivel: 6, nombre: "Explosión Elemental"}
+      - {nivel: 11, nombre: "Paso De Los Elementos"}
+      - {nivel: 17, nombre: "Paradigma Elemental"}
+
+  - clase: Paladín
+    subclase: "Juramento de Entrega"
+    paginas_pdf: [163, 164]
+    estado: confirmada-srd
+    niveles: [3, 7, 15, 20]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Arma Sagrada"}
+      - {nivel: 3, nombre: "Conjuros Del"}
+      - {nivel: 7, nombre: "Aura De Entrega"}
+      - {nivel: 15, nombre: "Castigo Protector"}
+      - {nivel: 20, nombre: "Halo Sagrado"}
+
+  - clase: Paladín
+    subclase: "Juramento de Gloria"
+    paginas_pdf: [164, 166]
+    estado: plausible
+    niveles: [3, 7, 15, 20]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Atleta Sin Parangón"}
+      - {nivel: 3, nombre: "Castigo Inspirador"}
+      - {nivel: 3, nombre: "Conjuros Del Juramento"}
+      - {nivel: 3, nombre: "Ira De La Naturaleza"}
+      - {nivel: 7, nombre: "Aura De Entrega"}
+      - {nivel: 7, nombre: "Aura De Celeridad"}
+      - {nivel: 7, nombre: "Aura De Salvaguarda"}
+      - {nivel: 15, nombre: "Castigo Protector"}
+      - {nivel: 15, nombre: "Centinela Imperecedero"}
+      - {nivel: 20, nombre: "Halo Sagrado"}
+      - {nivel: 20, nombre: "Leyenda Viviente"}
+      - {nivel: 20, nombre: "Campeón Ancestral"}
+
+  - clase: Paladín
+    subclase: "Juramento de los Antiguos"
+    paginas_pdf: [166, 167]
+    estado: plausible
+    niveles: [3, 7, 15, 20]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Conjuros Del Juramento"}
+      - {nivel: 3, nombre: "Voto De Enemistad"}
+      - {nivel: 7, nombre: "Aura De Salvaguarda"}
+      - {nivel: 7, nombre: "Vengador Implacable"}
+      - {nivel: 15, nombre: "Centinela Imperecedero"}
+      - {nivel: 15, nombre: "Espíritu Vengativo"}
+      - {nivel: 20, nombre: "Campeón Ancestral"}
+      - {nivel: 20, nombre: "Ángel Vengador"}
+
+  - clase: Paladín
+    subclase: "Juramento de Venganza"
+    paginas_pdf: [167, 169]
+    estado: plausible
+    niveles: [3, 7, 15, 20]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Voto De Enemistad"}
+      - {nivel: 7, nombre: "Vengador Implacable"}
+      - {nivel: 15, nombre: "Espíritu Vengativo"}
+      - {nivel: 20, nombre: "Ángel Vengador"}
+
+  - clase: Pícaro
+    subclase: "Asesino"
+    paginas_pdf: [172, 173]
+    estado: plausible
+    niveles: [3, 9, 13, 17]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Asesinar"}
+      - {nivel: 3, nombre: "Herramientas De Asesino"}
+      - {nivel: 3, nombre: "Lanzamiento De Conjuros"}
+      - {nivel: 9, nombre: "Pericia En Infiltrarse"}
+      - {nivel: 13, nombre: "Envenenar Armas"}
+      - {nivel: 17, nombre: "Golpe Mortal"}
+
+  - clase: Pícaro
+    subclase: "Embaucador Arcano"
+    paginas_pdf: [173, 175]
+    estado: plausible
+    niveles: [3, 9, 13, 17]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Lanzamiento De Conjuros"}
+      - {nivel: 3, nombre: "Destreza Con Mano De Mago"}
+      - {nivel: 3, nombre: "Balconero"}
+      - {nivel: 3, nombre: "Manos Rápidas"}
+      - {nivel: 9, nombre: "Emboscada Mágica"}
+      - {nivel: 9, nombre: "Sigilo Supremo"}
+      - {nivel: 13, nombre: "Embaucador Versátil"}
+      - {nivel: 13, nombre: "Usar Objetos Mágicos"}
+      - {nivel: 17, nombre: "Labrón De Conjuros"}
+      - {nivel: 17, nombre: "Reflejos De Ladrón"}
+
+  - clase: Pícaro
+    subclase: "Ladrón"
+    paginas_pdf: [175, 176]
+    estado: confirmada-srd
+    niveles: [3, 9, 13, 17]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Balconero"}
+      - {nivel: 3, nombre: "Manos Rápidas"}
+      - {nivel: 3, nombre: "Cuchillas Psíquicas"}
+      - {nivel: 3, nombre: "Poder Psiónico"}
+      - {nivel: 9, nombre: "Sigilo Supremo"}
+      - {nivel: 13, nombre: "Usar Objetos Mágicos"}
+      - {nivel: 17, nombre: "Reflejos De Ladrón"}
+
+  - clase: Pícaro
+    subclase: "Rebanaalmas"
+    paginas_pdf: [176, 178]
+    estado: INCOMPLETA
+    niveles: [3, 9, 17]
+    rasgos_ocr:
+      - {nivel: 3, nombre: "Cuchillas Psíquicas"}
+      - {nivel: 3, nombre: "Poder Psiónico"}
+      - {nivel: 9, nombre: "Cuchillas Del Alma"}
+      - {nivel: 17, nombre: "Desgarro Mental"}

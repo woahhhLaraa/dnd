@@ -1,0 +1,100 @@
+clase: Bárbaro
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+fidelidad: condensado
+rasgos:
+  - nombre: "Defensa sin armadura"
+    nivel: 1
+    pagina: {pdf: 53, libro: 51}
+    desc: "Mientras no lleves armadura alguna, tu clase de armadura base es 10 + modificador de Destreza + modificador de Constitución. Obtienes este beneficio aunque lleves un escudo."
+    # Fase 14 · el manual dice "aunque lleves un escudo", así que NO pide
+    # `sin_escudo`: el +2 del escudo se suma encima. El Monje, dos ficheros
+    # más allá, sí lo pide — y `calculo.ca()` no distinguía los dos casos.
+    efectos:
+      - {objetivo: ca, op: base, formula: "10 + mod_des + mod_con", requiere: [sin_armadura], pagina: {pdf: 53, libro: 51}}
+
+  - nombre: "Furia"
+    nivel: 1
+    pagina: {pdf: 53, libro: 51}
+    desc: "Puedes imbuirte de furia como acción adicional si no llevas puesta una armadura pesada. Usos por descanso: los indica la columna \"N.º de furias\" de la tabla Rasgos de bárbaro (2 en nivel 1, sube con el nivel hasta 6 en nivel 20); recuperas uno tras un descanso corto y todos tras uno largo. Mientras estás enfurecido: resistencia a daño contundente, cortante y perforante; al acertar con un ataque basado en Fuerza obtienes un bonificador al daño según la columna \"Daño por furia\" de la tabla (+2 en nivel 1, hasta +4 en nivel 20); ventaja en pruebas de Fuerza y en tiradas de salvación de Fuerza; no puedes mantener la concentración ni lanzar conjuros. Duración: hasta el final de tu siguiente turno, terminando antes si te pones una armadura pesada o quedas incapacitado; si sigue activa en tu siguiente turno, la prolongas un asalto más si atacas, obligas a un enemigo a salvar, o usas una acción adicional para prolongarla. Máximo 10 minutos por furia."
+
+  - nombre: "Maestría con armas"
+    nivel: 1
+    pagina: {pdf: 53, libro: 51}
+    desc: "Puedes usar las propiedades de maestría con dos tipos de armas cuerpo a cuerpo sencillas o marciales de tu elección. Tras un descanso largo puedes cambiar una de esas elecciones. El número de armas con maestría disponible aumenta con el nivel según la columna \"Maestría con armas\" de la tabla Rasgos de bárbaro (2 en nivel 1, hasta 4 desde nivel 10)."
+
+  - nombre: "Ataque temerario"
+    nivel: 2
+    pagina: {pdf: 54, libro: 52}
+    desc: "Al hacer tu primera tirada de ataque del turno puedes decidir atacar temerariamente: tienes ventaja en las tiradas de ataque basadas en Fuerza hasta el principio de tu siguiente turno, pero las tiradas de ataque contra ti también tienen ventaja durante ese tiempo."
+
+  - nombre: "Sentir el peligro"
+    nivel: 2
+    pagina: {pdf: 54, libro: 52}
+    desc: "Ventaja en las tiradas de salvación de Destreza, salvo que tengas el estado de incapacitado."
+
+  - nombre: "Conocimiento primigenio"
+    nivel: 3
+    pagina: {pdf: 54, libro: 52}
+    desc: "Ganas competencia en otra habilidad de la lista disponible para bárbaros en nivel 1. Además, mientras estés enfurecido, puedes hacer pruebas de Acrobacias, Intimidación, Percepción, Sigilo o Supervivencia como pruebas de Fuerza en vez de la característica habitual."
+
+  - nombre: "Ataque adicional"
+    nivel: 5
+    pagina: {pdf: 54, libro: 52}
+    desc: "Cuando llevas a cabo la acción de atacar en tu turno, puedes hacer dos ataques en lugar de uno."
+
+  - nombre: "Movimiento rápido"
+    nivel: 5
+    pagina: {pdf: 54, libro: 52}
+    desc: "Tu velocidad aumenta en 3 m mientras no lleves armadura pesada."
+
+  - nombre: "Instinto salvaje"
+    nivel: 7
+    pagina: {pdf: 54, libro: 52}
+    desc: "Tienes ventaja en las tiradas de iniciativa."
+
+  - nombre: "Salto instintivo"
+    nivel: 7
+    pagina: {pdf: 55, libro: 53}
+    desc: "Como parte de la acción adicional para dejarte llevar por la furia, puedes moverte hasta la mitad de tu velocidad."
+
+  - nombre: "Golpe brutal"
+    nivel: 9
+    pagina: {pdf: 55, libro: 53}
+    desc: "Si usas Ataque temerario, puedes renunciar a cualquier ventaja en una tirada de ataque de tu elección basada en Fuerza en tu turno (la tirada elegida no debe tener desventaja); si acierta, el objetivo sufre 1d10 de daño adicional del mismo tipo que el arma o el ataque sin armas, y puedes causar un efecto de Golpe brutal a tu elección: Golpe enérgico (el objetivo es empujado 4,5 m en línea recta respecto a ti; luego puedes moverte hasta la mitad de tu velocidad hacia él sin provocar ataques de oportunidad) o Golpe ralentizador (la velocidad del objetivo se reduce en 4,5 m hasta el principio de tu siguiente turno; solo el golpe ralentizador más reciente aplica)."
+
+  - nombre: "Furia implacable"
+    nivel: 11
+    pagina: {pdf: 55, libro: 53}
+    desc: "Si tus puntos de golpe se reducen a 0 mientras estás enfurecido, pero no mueres inmediatamente, haces una tirada de salvación de Constitución CD 10; si la superas, tus PG pasan a ser una cantidad igual al doble de tu nivel de bárbaro. Cada vez que uses este rasgo después de la primera, la CD aumenta en 5; vuelve a 10 tras un descanso corto o largo."
+
+  - nombre: "Golpe brutal mejorado"
+    nivel: 13
+    pagina: {pdf: 55, libro: 53}
+    desc: "Entre las opciones de Golpe brutal se añaden: Golpe abrumador (el objetivo tiene desventaja en su siguiente tirada de salvación y no puede hacer ataques de oportunidad hasta el principio de tu siguiente turno) y Golpe desgarrador (antes del principio de tu siguiente turno, la próxima tirada de ataque de otra criatura contra el objetivo obtiene +5; un objetivo solo puede sufrir un bonificador de golpe desgarrador)."
+
+  - nombre: "Furia persistente"
+    nivel: 15
+    pagina: {pdf: 55, libro: 53}
+    desc: "Al tirar iniciativa, puedes recuperar todos los usos gastados de la furia; no puedes volver a hacerlo hasta finalizar un descanso largo. Además tu furia dura 10 minutos sin necesidad de nada para prolongarla de un asalto a otro, y solo termina antes si recibes el estado de inconsciente (no incapacitado) o te pones una armadura pesada."
+
+  - nombre: "Golpe brutal mejorado"
+    nivel: 17
+    pagina: {pdf: 55, libro: 53}
+    desc: "El daño adicional de tu Golpe brutal aumenta a 2d10. Además, puedes utilizar dos efectos diferentes de Golpe brutal cada vez que uses ese rasgo."
+
+  - nombre: "Poderío indómito"
+    nivel: 18
+    pagina: {pdf: 55, libro: 53}
+    desc: "Si el resultado de una prueba de Fuerza o una tirada de salvación de Fuerza es inferior a tu puntuación de Fuerza, puedes usar esa puntuación en lugar del resultado."
+
+  - nombre: "Don épico"
+    nivel: 19
+    pagina: {pdf: 55, libro: 53}
+    desc: "Obtienes una dote de don épico (capítulo 5) u otra dote de tu elección para la que cumplas las condiciones. El manual recomienda Don del ataque imparable."
+
+  - nombre: "Campeón primordial"
+    nivel: 20
+    pagina: {pdf: 55, libro: 53}
+    desc: "Encarnas un poder primigenio. Tus puntuaciones de Fuerza y Constitución aumentan en 4, hasta un máximo de 25."

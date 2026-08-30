@@ -1,0 +1,272 @@
+tema: "Generación de personaje: puntuaciones de característica y multiclase"
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: [40, 41, 44, 46, 47]}
+verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+
+metodos_generacion_caracteristicas:
+  fuente: {pagina_pdf: 40, libro: 38, capitulo: 2, seccion: "Paso 3: determinar las puntuaciones de característica"}
+  conjunto_estandar:
+    descripcion: "Usa estas seis puntuaciones fijas para tus características."
+    puntuaciones: [15, 14, 13, 12, 10, 8]
+  generacion_aleatoria:
+    descripcion: "Tira 4d6 y apunta la suma de los tres dados más altos. Repite seis veces."
+  coste_en_puntos:
+    descripcion: "27 puntos para invertir en las seis puntuaciones, según la tabla de costes."
+    puntos_totales: 27
+    tabla_coste:
+      8: 0
+      9: 1
+      10: 2
+      11: 3
+      12: 4
+      13: 5
+      14: 7
+      15: 9
+  ajuste_por_trasfondo:
+    descripcion: >
+      Tras asignar las puntuaciones, ajústalas conforme al trasfondo: aumenta
+      una de las tres características del trasfondo en 2 y otra distinta en 1,
+      o aumenta las tres en 1. Ningún ajuste puede superar 20.
+  modificadores_por_puntuacion:
+    formula: "(puntuación - 10) / 2, redondeando hacia abajo"
+    tabla:
+      3: -4
+      "4-5": -3
+      "6-7": -2
+      "8-9": -1
+      "10-11": 0
+      "12-13": 1
+      "14-15": 2
+      "16-17": 3
+      "18-19": 4
+      20: 5
+
+conjunto_estandar_por_clase:
+  fuente: {pagina_pdf: 40, libro: 38, tabla: "Conjunto estándar por clase"}
+  descripcion: "Cómo repartir 15/14/13/12/10/8 según la clase. Orden de columnas: Fue, Des, Con, Int, Sab, Car."
+  filas:
+    - {clase: Bárbaro,    fue: 15, des: 13, con: 14, int: 10, sab: 12, car: 8}
+    - {clase: Bardo,      fue: 8,  des: 14, con: 12, int: 13, sab: 10, car: 15}
+    - {clase: Brujo,      fue: 8,  des: 14, con: 13, int: 12, sab: 10, car: 15}
+    - {clase: Clérigo,    fue: 14, des: 8,  con: 13, int: 10, sab: 15, car: 12}
+    - {clase: Druida,     fue: 8,  des: 12, con: 14, int: 13, sab: 15, car: 10}
+    - {clase: Explorador, fue: 12, des: 15, con: 13, int: 8,  sab: 14, car: 10}
+    - {clase: Guerrero,   fue: 15, des: 14, con: 13, int: 8,  sab: 10, car: 12}
+    - {clase: Hechicero,  fue: 10, des: 13, con: 14, int: 8,  sab: 12, car: 15}
+    - {clase: Mago,       fue: 8,  des: 12, con: 13, int: 15, sab: 14, car: 10}
+    - {clase: Monje,      fue: 12, des: 15, con: 13, int: 10, sab: 14, car: 8}
+    - {clase: Paladín,    fue: 15, des: 10, con: 13, int: 8,  sab: 12, car: 14}
+    - {clase: Pícaro,     fue: 12, des: 15, con: 13, int: 14, sab: 10, car: 8}
+
+multiclase:
+  fuente: {pagina_pdf: [46, 47], libro: [44, 45], seccion: "Multiclase"}
+
+  requisitos_por_clase:
+    descripcion: >
+      Para optar a una clase nueva (u obtener un nivel adicional en ella siendo
+      multiclase) necesitas 13 o más en la(s) característica(s) principal(es)
+      TANTO de tu clase actual COMO de la nueva. Cuando una clase lista dos
+      características unidas por "o", basta con 13 en una de ellas; unidas por
+      "y", hacen falta 13 en ambas. Esta característica principal es la misma
+      que figura en "Atributos básicos de <clase>" de cada clases/<clase>.yaml.
+    tabla:
+      Bárbaro: {requisito: "Fuerza 13+"}
+      Bardo: {requisito: "Carisma 13+"}
+      Brujo: {requisito: "Carisma 13+"}
+      Clérigo: {requisito: "Sabiduría 13+"}
+      Druida: {requisito: "Sabiduría 13+"}
+      Explorador: {requisito: "Destreza 13+ y Sabiduría 13+"}
+      Guerrero: {requisito: "Fuerza 13+ o Destreza 13+"}
+      Hechicero: {requisito: "Carisma 13+"}
+      Mago: {requisito: "Inteligencia 13+"}
+      Monje: {requisito: "Destreza 13+ y Sabiduría 13+"}
+      Paladín: {requisito: "Fuerza 13+ y Carisma 13+"}
+      Pícaro: {requisito: "Destreza 13+"}
+
+  puntos_experiencia:
+    regla: >
+      El coste en PX de subir de nivel se basa en el nivel TOTAL del personaje
+      (suma de niveles de todas sus clases), no en el nivel de una clase
+      concreta. Ejemplo: un clérigo 6/guerrero 1 necesita los PX de nivel 8
+      para poder subir a guerrero 2 o clérigo 7.
+
+  puntos_golpe_y_dados_golpe:
+    regla: >
+      Se obtienen los puntos de golpe de la nueva clase como los de "niveles
+      siguientes al 1" (nunca se repiten los puntos de golpe fijos/máximos del
+      nivel 1, salvo que el nivel total del personaje sea 1). El total de
+      dados de golpe es la suma de los dados de golpe de todas las clases;
+      si coinciden en tipo se acumulan (p. ej. guerrero 5/paladín 5 = 10d10),
+      si no, se llevan por separado (p. ej. clérigo 5/paladín 5 = 5d8 + 5d10).
+
+  bonificador_por_competencia:
+    regla: >
+      Se basa en el nivel TOTAL del personaje (tabla "Progreso de los
+      personajes"), no en el nivel de una clase concreta.
+
+  competencias_al_multiclasear:
+    regla: >
+      Al obtener el primer nivel en una clase que no es la inicial, se
+      obtienen solo ALGUNAS de las competencias iniciales de esa clase (las
+      listadas en el bloque "Como personaje multiclase" de cada
+      "Atributos básicos de <clase>"), nunca el equipo inicial.
+
+  clase_de_armadura:
+    regla: >
+      Si el personaje tiene varias formas de calcular su CA (p. ej. Defensa
+      sin armadura de monje y Resistencia dracónica de hechicero), solo puede
+      beneficiarse de una, a elegir.
+
+  ataque_adicional:
+    regla: >
+      El rasgo Ataque adicional no se acumula entre clases: tenerlo por dos
+      clases distintas no permite más de dos ataques con este rasgo, salvo
+      que otro rasgo diga explícitamente que sí (p. ej. Dos ataques
+      adicionales de guerrero). La invocación Filo sediento del brujo tampoco
+      se acumula con un Ataque adicional que ya se posea.
+
+  lanzamiento_de_conjuros_multiclase:
+    regla_general: >
+      Si el rasgo Lanzamiento de conjuros se tiene por una sola clase, se
+      siguen las reglas normales de esa clase. Si se tiene por más de una,
+      aplican las reglas de abajo.
+    conjuros_preparados: >
+      Se determinan por separado para cada clase, como si el personaje
+      perteneciera solo a ella; cada conjuro preparado usa la aptitud mágica
+      de la clase a la que está asociado.
+    trucos: >
+      Si un truco mejora en niveles superiores, la mejora se basa en el nivel
+      TOTAL del personaje, no en el nivel de una clase concreta, salvo que el
+      conjuro diga otra cosa.
+    calculo_nivel_para_tabla:
+      regla: >
+        Nivel de bardo, clérigo, druida, hechicero y mago cuenta completo;
+        la mitad (redondeando arriba) de los niveles de explorador y
+        paladín; un tercio (redondeando abajo) de los niveles de guerrero y
+        pícaro, y solo si tienen la subclase caballero arcano o embaucador
+        arcano respectivamente. La suma de todo esto es el "nivel" con el que
+        se consulta la tabla de espacios de conjuro de abajo.
+    magia_del_pacto: >
+      Si el personaje tiene el rasgo Magia del pacto de brujo además de
+      Lanzamiento de conjuros de otra clase, los espacios de Magia del pacto
+      sirven para lanzar cualquier conjuro preparado de una clase con
+      Lanzamiento de conjuros, y los espacios de conjuro "normales" sirven
+      para lanzar los conjuros de brujo preparados.
+    tabla_espacios_de_conjuro:
+      fuente: {pagina_pdf: 47, libro: 45, tabla: "Lanzador de conjuros multiclase: espacios de conjuro por cada nivel de conjuro"}
+      columnas: [nivel, "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+      filas:
+        - {nivel: 1,  "1": 2, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0}
+        - {nivel: 2,  "1": 3, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0}
+        - {nivel: 3,  "1": 4, "2": 2, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0}
+        - {nivel: 4,  "1": 4, "2": 3, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0}
+        - {nivel: 5,  "1": 4, "2": 3, "3": 2, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0}
+        - {nivel: 6,  "1": 4, "2": 3, "3": 3, "4": 0, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0}
+        - {nivel: 7,  "1": 4, "2": 3, "3": 3, "4": 1, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0}
+        - {nivel: 8,  "1": 4, "2": 3, "3": 3, "4": 2, "5": 0, "6": 0, "7": 0, "8": 0, "9": 0}
+        - {nivel: 9,  "1": 4, "2": 3, "3": 3, "4": 3, "5": 1, "6": 0, "7": 0, "8": 0, "9": 0}
+        - {nivel: 10, "1": 4, "2": 3, "3": 3, "4": 3, "5": 2, "6": 0, "7": 0, "8": 0, "9": 0}
+        - {nivel: 11, "1": 4, "2": 3, "3": 3, "4": 3, "5": 2, "6": 1, "7": 0, "8": 0, "9": 0}
+        - {nivel: 12, "1": 4, "2": 3, "3": 3, "4": 3, "5": 2, "6": 1, "7": 0, "8": 0, "9": 0}
+        - {nivel: 13, "1": 4, "2": 3, "3": 3, "4": 3, "5": 2, "6": 1, "7": 1, "8": 0, "9": 0}
+        - {nivel: 14, "1": 4, "2": 3, "3": 3, "4": 3, "5": 2, "6": 1, "7": 1, "8": 0, "9": 0}
+        - {nivel: 15, "1": 4, "2": 3, "3": 3, "4": 3, "5": 2, "6": 1, "7": 1, "8": 1, "9": 0}
+        - {nivel: 16, "1": 4, "2": 3, "3": 3, "4": 3, "5": 2, "6": 1, "7": 1, "8": 1, "9": 0}
+        - {nivel: 17, "1": 4, "2": 3, "3": 3, "4": 3, "5": 2, "6": 1, "7": 1, "8": 1, "9": 1}
+        - {nivel: 18, "1": 4, "2": 3, "3": 3, "4": 3, "5": 3, "6": 1, "7": 1, "8": 1, "9": 1}
+        - {nivel: 19, "1": 4, "2": 3, "3": 3, "4": 3, "5": 3, "6": 2, "7": 1, "8": 1, "9": 1}
+        - {nivel: 20, "1": 4, "2": 3, "3": 3, "4": 3, "5": 3, "6": 2, "7": 2, "8": 1, "9": 1}
+
+# ── Puntos de golpe ───────────────────────────────────────────────────────
+# Añadido el 2026-08-30. Hasta hoy la base NO tenía la regla de PG de los
+# niveles posteriores al 1: solo `dado_golpe` en las 12 clases y una mención de
+# refilón dentro de `multiclase.puntos_golpe_y_dados_golpe`, que remitía a «los
+# de niveles siguientes al 1» — una sección que nadie había escrito.
+#
+# Verificado por DOS lectores independientes de la misma página (pdf 44 =
+# libro 42), sin verse los informes: `_verificacion/_auditoria_rasgos/
+# agente-PG-A.md` y `agente-PG-B.md`. Coinciden literalmente.
+puntos_golpe:
+  nivel_1:
+    regla: >
+      Máximo del dado de golpe + modificador por Constitución.
+    pagina: {pdf: 42, libro: 40}
+    _nota: >
+      Ya estaba implementada en `calculo.puntos_golpe_nivel_1()` con esta cita.
+      Los dos lectores de pdf 44 confirman que esta regla NO aparece en la
+      página de "Subir de nivel": son dos reglas distintas, en dos sitios.
+
+  niveles_siguientes_al_1:
+    pagina: {pdf: 44, libro: 42}
+    seccion: "Subir de nivel, paso 2: Ajustar los puntos de golpe y los dados de golpe"
+    fidelidad: literal
+    literal: >
+      Cada vez que subas un nivel, obtendrás un dado de golpe adicional. Tira
+      ese dado, suma tu modificador por Constitución al resultado y añade el
+      total (mínimo de 1) a tus puntos de golpe máximos. En vez de tirar,
+      puedes utilizar el valor establecido que se muestra en la tabla "Puntos
+      de golpe establecidos por clase".
+    metodos:
+      - id: tirar
+        desc: "Tirar el dado de golpe y sumar el modificador por Constitución."
+        minimo: 1        # el MÍNIMO es del TOTAL (dado + mod), no del dado
+      - id: valor_establecido
+        desc: >
+          Usar el valor fijo de la tabla "Puntos de golpe establecidos por
+          clase" en vez de tirar. Es una opción del jugador, no un promedio
+          que la base pueda calcular por su cuenta.
+    tabla_valores_establecidos:
+      titulo: "Puntos de golpe establecidos por clase"
+      columnas: ["Clase", "Puntos de golpe por nivel"]
+      filas:
+        - {clases: [Bárbaro], valor: 7}
+        - {clases: [Explorador, Guerrero, Paladín], valor: 6}
+        - {clases: [Bardo, Brujo, Clérigo, Druida, Monje, Pícaro], valor: 5}
+        - {clases: [Hechicero, Mago], valor: 4}
+      _todas_las_clases: true   # las 12; validar.py lo comprueba
+
+  aumento_de_constitucion:
+    pagina: {pdf: 44, libro: 42}
+    seccion: "Subir de nivel, paso 5: Ajustar los modificadores por característica"
+    fidelidad: literal
+    literal: >
+      Cuando tu modificador por Constitución aumente en 1, tus puntos de golpe
+      máximos también aumentarán en 1 por cada nivel que hayas alcanzado. Por
+      ejemplo, si un personaje alcanza el nivel 8 y aumenta su puntuación de
+      Constitución de 17 a 18, el modificador por Constitución pasará a ser de
+      +4. Los puntos de golpe máximos del personaje aumentarán en 8, más los
+      puntos de golpe obtenidos al alcanzar el nivel 8.
+    _es_retroactivo: true
+    _nota_para_el_motor: >
+      Esto es lo que rompe el modelo plano y conviene leerlo antes de escribir
+      nada: los PG máximos NO son la suma de lo que se obtuvo en cada nivel.
+      El término de Constitución es `nivel_total × mod_con` y se recalcula
+      entero cuando el modificador sube; solo el término del dado es historia
+      acumulada. Un motor que sume "lo ganado en el nivel N" y lo guarde da el
+      número correcto hasta la primera dote que suba Constitución, y a partir
+      de ahí se equivoca en silencio.
+
+px_por_nivel:
+  fuente: {pagina_pdf: 43, pagina_libro: 41, tabla: "Progreso de los personajes", capitulo: 2, seccion: "Progresión de niveles"}
+  verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+  filas:
+    - {nivel: 1,  px: 0,      pb: 2}
+    - {nivel: 2,  px: 300,    pb: 2}
+    - {nivel: 3,  px: 900,    pb: 2}
+    - {nivel: 4,  px: 2700,   pb: 2}
+    - {nivel: 5,  px: 6500,   pb: 3}
+    - {nivel: 6,  px: 14000,  pb: 3}
+    - {nivel: 7,  px: 23000,  pb: 3}
+    - {nivel: 8,  px: 34000,  pb: 3}
+    - {nivel: 9,  px: 48000,  pb: 4}
+    - {nivel: 10, px: 64000,  pb: 4}
+    - {nivel: 11, px: 85000,  pb: 4}
+    - {nivel: 12, px: 100000, pb: 4}
+    - {nivel: 13, px: 120000, pb: 5}
+    - {nivel: 14, px: 140000, pb: 5}
+    - {nivel: 15, px: 165000, pb: 5}
+    - {nivel: 16, px: 195000, pb: 5}
+    - {nivel: 17, px: 225000, pb: 6}
+    - {nivel: 18, px: 265000, pb: 6}
+    - {nivel: 19, px: 305000, pb: 6}
+    - {nivel: 20, px: 355000, pb: 6}

@@ -1,0 +1,106 @@
+{
+ "M1": {
+  "241": [
+   "Alterar los recuerdos"
+  ],
+  "247": [
+   "Aura mágica de Nystul"
+  ],
+  "259": [
+   "Conjurar elemental"
+  ],
+  "274": [
+   "Don de lenguas"
+  ],
+  "287": [
+   "Golpe de viento acerado"
+  ],
+  "311": [
+   "Moldear la piedra"
+  ],
+  "324": [
+   "Rayo abrasador",
+   "Puerta dimensional"
+  ],
+  "342": [
+   "Ver invisibilidad",
+   "Vigor arcano"
+  ]
+ },
+ "M2": {
+  "243": [
+   "Antipatía/simpatía"
+  ],
+  "248": [
+   "Barrera de cuchillas"
+  ],
+  "261": [
+   "Conjurar lluvia de flechas"
+  ],
+  "275": [
+   "Dulce descanso"
+  ],
+  "298": [
+   "Invocar bestia"
+  ],
+  "314": [
+   "Nube incendiaria"
+  ],
+  "330": [
+   "Saber druídico",
+   "Rociada venenosa"
+  ],
+  "343": [
+   "Visión en la oscuridad"
+  ]
+ },
+ "M3": {
+  "244": [
+   "Arma espiritual"
+  ],
+  "249": [
+   "Bola de fuego"
+  ],
+  "263": [
+   "Controlar agua",
+   "Contingencia"
+  ],
+  "276": [
+   "Encontrar familiar"
+  ],
+  "301": [
+   "Invocar feérico"
+  ],
+  "319": [
+   "Perdición"
+  ],
+  "337": [
+   "Tentáculos negros de Evard",
+   "Terremoto"
+  ]
+ },
+ "M4": {
+  "246": [
+   "Asesino fantasmal"
+  ],
+  "252": [
+   "Campo antimagia"
+  ],
+  "264": [
+   "Controlar el clima"
+  ],
+  "284": [
+   "Flecha de relámpago",
+   "Forma gaseosa"
+  ],
+  "305": [
+   "Llama permanente"
+  ],
+  "320": [
+   "Polimorfar"
+  ],
+  "338": [
+   "Terror"
+  ]
+ }
+}

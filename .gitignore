@@ -1,0 +1,7 @@
+# Artefactos de Python
+__pycache__/
+*.py[cod]
+
+# Barridos y fichas de prueba: se regeneran con
+#   python3 generar_ficha.py --barrido --exhaustivo
+/tmp/

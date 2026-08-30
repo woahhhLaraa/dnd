@@ -1,0 +1,60 @@
+clase: Bardo
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+fidelidad: condensado
+rasgos:
+  - nombre: "Inspiración bárdica"
+    nivel: 1
+    pagina: {pdf: 61, libro: 59}
+    desc: "Como acción adicional, inspiras a otra criatura a 18 m o menos que te pueda ver u oír, dándole un dado de Inspiración bárdica (d6). Una sola vez durante la siguiente hora, cuando esa criatura falle una prueba con d20, puede tirar el dado y sumar el resultado, lo que podría hacerle superar la prueba; el dado se gasta al tirarlo. Cada criatura no puede tener más de un dado de Inspiración bárdica a la vez. Usos: igual a tu modificador de Carisma (mínimo 1), se recuperan tras un descanso largo. El dado cambia con el nivel (columna \"Dado bárdico\" de la tabla Rasgos de bardo): d8 en nivel 5, d10 en nivel 10, d12 en nivel 15."
+
+  - nombre: "Lanzamiento de conjuros"
+    nivel: 1
+    pagina: {pdf: 61, libro: 59}
+    desc: "Trucos: conoces 2 trucos de la lista de conjuros de bardo (se recomiendan burla dañina y luces danzantes); puedes cambiar uno al subir de nivel, y aprendes trucos adicionales en niveles 4 y 10 (columna \"Trucos\" de la tabla). Espacios de conjuro: los de la tabla Rasgos de bardo, se recuperan tras un descanso largo. Conjuros preparados de nivel 1+: empiezas eligiendo 4 conjuros de nivel 1 de la lista de bardo (se recomiendan hechizar persona, palabra de curación, rociada de color y susurros discordantes); el número preparado crece según la columna \"Conjuros preparados\" de la tabla. Puedes sustituir un conjuro preparado por otro cada vez que subes de nivel. Aptitud mágica: Carisma. Canalizador mágico: puedes usar un instrumento musical."
+
+  - nombre: "Aprendiz de mucho"
+    nivel: 2
+    pagina: {pdf: 62, libro: 60}
+    desc: "Puedes sumar la mitad de tu bonificador por competencia (redondeando hacia abajo) a cualquier prueba de característica que hagas que utilice una habilidad en la que no seas competente y que no use ya de otro modo tu bonificador por competencia."
+
+  - nombre: "Pericia"
+    nivel: 2
+    pagina: {pdf: 62, libro: 60}
+    desc: "Ganas pericia (el doble de tu bonificador por competencia) en dos de tus competencias en habilidades de tu elección (se recomiendan Interpretación y Persuasión si eres competente en ellas)."
+
+  - nombre: "Fuente de inspiración"
+    nivel: 5
+    pagina: {pdf: 63, libro: 61}
+    desc: "Recuperas todos los usos gastados de Inspiración bárdica tras finalizar un descanso corto o largo (antes solo tras uno largo). Además, puedes gastar un espacio de conjuro (sin acción) para recuperar un uso gastado de Inspiración bárdica."
+
+  - nombre: "Contraencantamiento"
+    nivel: 7
+    pagina: {pdf: 63, libro: 61}
+    desc: "Reacción. Si tú o una criatura a 9 m o menos falláis una tirada de salvación contra un efecto que aplique el estado de asustado o hechizado, puedes hacer que se repita la tirada de salvación, con ventaja."
+
+  - nombre: "Pericia"
+    nivel: 9
+    pagina: {pdf: 62, libro: 60}
+    desc: "En el nivel 9 de bardo ganas pericia en otras dos competencias en habilidades de tu elección (mismo efecto que el rasgo Pericia de nivel 2: doblas el bonificador por competencia en esas dos)."
+
+  - nombre: "Secretos mágicos"
+    nivel: 10
+    pagina: {pdf: 63, libro: 61}
+    desc: "Cada vez que alcances un nivel de bardo (incluido este) que aumente la cantidad de conjuros preparados según la tabla Rasgos de bardo, puedes elegir los conjuros nuevos de entre las listas de conjuros de bardo, clérigo, druida o mago. Cuentan como conjuros de bardo para ti. Al sustituir un conjuro preparado, también puedes hacerlo con uno de esas listas."
+
+  - nombre: "Inspiración superior"
+    nivel: 18
+    pagina: {pdf: 63, libro: 61}
+    desc: "Cuando tires iniciativa, recuperas usos gastados de Inspiración bárdica hasta tener dos, si tenías menos de esa cifra."
+
+  - nombre: "Don épico"
+    nivel: 19
+    pagina: {pdf: 63, libro: 61}
+    desc: "Obtienes una dote de don épico (capítulo 5) u otra dote de tu elección para la que cumplas las condiciones. Se recomienda Don del recuerdo de conjuros."
+
+  - nombre: "Palabras de creación"
+    nivel: 20
+    pagina: {pdf: 63, libro: 61}
+    desc: "Dominas las palabras de la vida y de la muerte: siempre tienes preparados los conjuros palabra de poder: sanar y palabra de poder: matar (no cuentan contra tu límite de conjuros preparados). Cuando lances uno de estos conjuros, puedes hacer objetivo a una segunda criatura si está a 3 m o menos del primer objetivo."

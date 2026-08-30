@@ -1,0 +1,64 @@
+clase: Druida
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "99-104"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-18", cobertura: "4/4"}
+fidelidad: "condensado"   # mecánica reescrita en frases cortas, no la prosa del manual
+niveles_de_subclase: [3, 6, 10, 14]
+
+subclases:
+  - nombre: Círculo de la Luna
+    lema: "Aprovecha la magia lunar para potenciar tu Forma salvaje."
+    pagina: {pdf: 99, libro: 97}
+    conjuros_siempre_preparados:
+      3: ["Curar heridas", "Rayo de luna", "Voluta estelar"]
+      5: ["Conjurar animales"]
+      7: ["Fuente de luz lunar"]
+      9: ["Curar heridas en masa"]
+    rasgos:
+      - {nivel: 3, nombre: "Conjuros del círculo de la luna", desc: "Siempre tienes preparados los conjuros de la tabla al alcanzar el nivel de druida indicado. Además puedes lanzar los conjuros de este rasgo mientras utilizas tu Forma salvaje."}
+      - {nivel: 3, nombre: "Formas del círculo", desc: "Al usar Forma salvaje: Valor de desafío (máximo igual a tu nivel de druida dividido entre 3, redondeando abajo); Clase de armadura (tu CA pasa a ser 13 + mod. Sabiduría si es superior a la de la bestia); Puntos de golpe temporales (obtienes el triple de tu nivel de druida)."}
+      - {nivel: 6, nombre: "Formas del círculo mejoradas", desc: "Mientras uses Forma salvaje: Resplandor lunar (tus ataques pueden causar su daño normal o radiante, eliges cada vez que aciertas); Aguante aumentado (sumas tu modificador por Sabiduría a tus TdS de Constitución)."}
+      - {nivel: 10, nombre: "Paso de la luz lunar", desc: "Acción adicional: te teletransportas hasta 9 m a un espacio libre que veas y tienes ventaja en la siguiente tirada de ataque de este turno. Usos iguales a tu modificador por Sabiduría (mínimo 1), recuperados tras un descanso largo; también puedes recuperar usos gastando un espacio de nivel 2 o superior por cada uso (no requiere acción)."}
+      - {nivel: 14, nombre: "Forma lunar", desc: "Luz lunar compartida: al usar Paso de la luz lunar puedes teletransportar también a una criatura voluntaria a 3 m o menos de ti, a un espacio libre a 3 m o menos de tu destino. Resplandor lunar mejorado: una vez por turno causas 2d10 de daño radiante adicional a un objetivo al que aciertes mientras usas tu Forma salvaje."}
+
+  - nombre: Círculo de la Tierra
+    lema: "Celebra el vínculo con el mundo natural."
+    pagina: {pdf: 100, libro: 98}
+    confirmada_srd: true
+    conjuros_por_terreno:
+      árido:    {3: ["Contorno borroso", "Descarga de fuego", "Manos ardientes"], 5: ["Bola de fuego"], 7: [Marchitar], 9: ["Muro de piedra"]}
+      polar:    {3: ["Inmovilizar persona", "Nube de oscurecimiento", "Rayo de escarcha"], 5: ["Tormenta de aguanieve"], 7: ["Tormenta de hielo"], 9: ["Cono de frío"]}
+      templado: {3: ["Agarre electrizante", Dormir, "Paso brumoso"], 5: [Relámpago], 7: ["Libertad de movimiento"], 9: ["Paso arbóreo"]}
+      tropical: {3: ["Rayo nauseabundo", "Salpicadura ácida", Telaraña], 5: ["Nube apestosa"], 7: [Polimorfar], 9: ["Plaga de insectos"]}
+    resistencia_por_terreno: {árido: Fuego, polar: Frío, templado: Relámpago, tropical: Veneno}
+    rasgos:
+      - {nivel: 3, nombre: "Ayuda de la tierra", desc: "Acción de magia: gastas un uso de Forma salvaje y eliges un punto a 18 m o menos. En una esfera de 3 m de radio centrada ahí, las criaturas de tu elección hacen TdS de Constitución contra tu CD de salvación de conjuros: 2d6 de daño necrótico si la fallan, mitad si la superan. Además una criatura de tu elección en la zona recupera 2d6 PG. El daño y la curación aumentan en 1d6 a los niveles 10 (3d6) y 14 (4d6)."}
+      - {nivel: 3, nombre: "Conjuros del círculo de la tierra", desc: "Tras un descanso largo eliges un tipo de terreno (árido, polar, templado o tropical). Tendrás preparados los conjuros de esa tabla para tu nivel de druida e inferiores."}
+      - {nivel: 6, nombre: "Recuperación natural", desc: "Puedes lanzar sin gastar espacio un conjuro de nivel 1 o superior que tengas preparado por Conjuros de círculo; debes finalizar un descanso largo antes de repetirlo. Además, tras un descanso corto recuperas espacios gastados cuya suma de niveles sea igual o inferior a la mitad de tu nivel de druida (redondeando arriba), ninguno de nivel 6 o más; no puedes repetirlo hasta un descanso largo."}
+      - {nivel: 10, nombre: "Protección de la naturaleza", desc: "Inmune al estado de envenenado y resistencia a un tipo de daño según tu terreno actual (árido: fuego; polar: frío; templado: relámpago; tropical: veneno)."}
+      - {nivel: 14, nombre: "Santuario de la naturaleza", desc: "Acción de magia: gastas un uso de Forma salvaje y aparecen árboles y enredaderas espectrales en un cubo de 4,5 m de lado sobre el suelo a 36 m o menos. Permanecen 1 minuto o hasta que quedes incapacitado o mueras. Tus aliados y tú tenéis cobertura media dentro y tus aliados obtienen tu resistencia actual de Protección de la naturaleza mientras estén ahí. Como acción adicional puedes mover el cubo hasta 18 m a otra parte del suelo a 36 m o menos."}
+
+  - nombre: Círculo de las Estrellas
+    lema: "Utiliza los secretos que se ocultan en las constelaciones."
+    pagina: {pdf: 101, libro: 99}
+    rasgos:
+      - {nivel: 3, nombre: "Forma estelar", desc: "Acción adicional: gastas un uso de Forma salvaje para adoptar forma estelar en vez de transformarte en bestia. Mantienes tu perfil pero tu cuerpo se vuelve luminoso; emite luz brillante 3 m y tenue 3 m más. Dura 10 minutos; termina si la cancelas (no requiere acción), quedas incapacitado, mueres o vuelves a usar el rasgo. Eliges una constelación: Arquero (acción adicional para un ataque de conjuro a distancia a 18 m, 1d8 + mod. Sabiduría de daño radiante); Cáliz (al gastar espacio para lanzar un conjuro curativo, tú u otra criatura a 9 m o menos recuperáis 1d8 + mod. Sabiduría PG); Dragón (en pruebas de Inteligencia o Sabiduría y en TdS de Constitución para mantener concentración, sustituyes un resultado de 9 o menos en el d20 por un 10)."}
+      - {nivel: 3, nombre: "Mapa estelar", desc: "Objeto Diminuto que usas como canalizador mágico de druida. Mientras lo sostienes tienes preparados guía y saeta guía, y puedes lanzar saeta guía sin gastar espacio tantas veces como tu modificador por Sabiduría (mínimo 1), recuperando los usos tras un descanso largo. Si lo pierdes, una ceremonia de 1 hora durante un descanso corto o largo crea un sustituto y destruye el anterior."}
+      - {nivel: 6, nombre: "Presagio cósmico", desc: "Tras un descanso largo consultas el mapa y tiras un dado. Hasta tu próximo descanso largo dispones de una reacción especial: Desdicha (impar) — cuando una criatura que veas a 9 m o menos vaya a hacer una prueba con d20, tiras 1d6 y restas el resultado; Fortuna (par) — igual pero sumando. Usos iguales a tu modificador por Sabiduría (mínimo 1), recuperados tras un descanso largo."}
+      - {nivel: 10, nombre: "Constelaciones centelleantes", desc: "El 1d8 del arquero y el cáliz pasa a 2d8, y mientras el dragón está activo tienes velocidad volando de 6 m y puedes levitar. Además, al principio de cada turno tuyo en forma estelar puedes cambiar de constelación."}
+      - {nivel: 14, nombre: "Colmado de luz estelar", desc: "Mientras estés en forma estelar te vuelves parcialmente incorpóreo: resistencia al daño contundente, cortante y perforante."}
+
+  - nombre: Círculo del Mar
+    lema: "Fúndete con las mareas y las tormentas."
+    pagina: {pdf: 102, libro: 100}
+    conjuros_siempre_preparados:
+      3: ["Hacer añicos", "Nube de oscurecimiento", "Ola atronadora", "Ráfaga de viento", "Rayo de escarcha"]
+      5: ["Relámpago", "Respirar bajo el agua"]
+      7: ["Controlar agua", "Tormenta de hielo"]
+      9: ["Conjurar elemental", "Inmovilizar monstruo"]
+    rasgos:
+      - {nivel: 3, nombre: "Conjuros del círculo del mar", desc: "Cuando alcances un nivel de druida especificado en la tabla «Conjuros del círculo del mar», a partir de entonces siempre tendrás preparados los conjuros que se indican."}
+      - {nivel: 3, nombre: "Ira de los mares", desc: "Acción adicional: gastas un uso de Forma salvaje para generar una emanación de 1,5 m con forma de espuma de mar que te rodea durante 10 minutos. Termina antes de tiempo si la disipas (no requiere acción), si la generas de nuevo o si quedas incapacitado. Al generarla, y como acción adicional en tus siguientes turnos, eliges a otra criatura que puedas ver en la emanación: debe superar un TdS de Constitución contra tu CD de salvación de conjuros o sufre daño de frío y, si es Grande o más pequeña, es empujada hasta 4,5 m respecto a ti. El daño se determina tirando una cantidad de d6 igual a tu modificador por Sabiduría (mínimo 1 dado)."}
+      - {nivel: 6, nombre: "Afinidad acuática", desc: "El tamaño de la emanación creada con Ira de los mares aumenta a 3 m. Además, obtienes una velocidad nadando igual a tu velocidad."}
+      - {nivel: 10, nombre: "Nacido de la tempestad", desc: "Mientras tu rasgo Ira de los mares está activo, obtienes dos beneficios adicionales: Resistencia (resistencia al daño de frío, relámpago y trueno) y Vuelo (velocidad volando igual a tu velocidad)."}
+      - {nivel: 14, nombre: "Obsequio oceánico", desc: "En vez de generar la emanación de Ira de los mares alrededor de ti, puedes generarla alrededor de una criatura voluntaria a 18 m o menos; esa criatura obtiene todos los beneficios de la emanación usando tu CD de salvación de conjuros y tu modificador por Sabiduría. Además, gastando dos usos de Forma salvaje en vez de uno al manifestarla, puedes generar la emanación alrededor de ti y de la otra criatura simultáneamente."}

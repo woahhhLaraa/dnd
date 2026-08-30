@@ -1,0 +1,60 @@
+clase: Druida
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+fidelidad: condensado
+rasgos:
+  - nombre: "Lanzamiento de conjuros"
+    nivel: 1
+    pagina: {pdf: 93, libro: 91}
+    desc: "Trucos: conoces 2 trucos de tu elección de la lista de druida (se recomiendan crear llama y saber druídico); puedes cambiar uno al subir de nivel, y aprendes trucos adicionales en niveles 4 y 10 (columna \"Trucos\"). Espacios de conjuro: los de la tabla Rasgos de druida, se recuperan tras un descanso largo. Conjuros preparados de nivel 1+: empiezas con 4 conjuros de nivel 1 de druida (se recomiendan curar heridas, encantar animal, fuego feérico y ola atronadora); el número crece según la columna \"Conjuros preparados\". Puedes cambiar los conjuros preparados tras un descanso largo. Aptitud mágica: Sabiduría. Canalizador mágico: un canalizador druídico."
+
+  - nombre: "Druídico"
+    nivel: 1
+    pagina: {pdf: 94, libro: 92}
+    desc: "Conoces druídico, el idioma secreto de los druidas; siempre tienes preparado el conjuro hablar con los animales (no cuenta contra tu límite de conjuros preparados). Puedes usar druídico para dejar mensajes ocultos: tú y quien conozca el idioma lo detecta automáticamente; los demás necesitan superar una prueba de Inteligencia (Investigación) CD 15 para detectarlo, y no pueden descifrarlo sin magia."
+
+  - nombre: "Orden primigenia"
+    nivel: 1
+    pagina: {pdf: 94, libro: 92}
+    desc: "Te consagras a una de estas dos funciones, a tu elección: Guardián (competencia con armas marciales y entrenamiento con armaduras medias) o Naturalista (conoces un truco adicional de la lista de druida, y obtienes un bonificador igual a tu modificador de Sabiduría, mínimo +1, a las pruebas de Inteligencia (Conocimiento arcano y Naturaleza))."
+
+  - nombre: "Compañero salvaje"
+    nivel: 2
+    pagina: {pdf: 94, libro: 92}
+    desc: "Como acción de magia, puedes gastar un espacio de conjuro o un uso de Forma salvaje para lanzar encontrar familiar sin componentes materiales. El familiar invocado así es un feérico y desaparece tras finalizar un descanso largo."
+
+  - nombre: "Forma salvaje"
+    nivel: 2
+    pagina: {pdf: 94, libro: 92}
+    desc: "Acción adicional: adoptas la forma de una bestia de tus formas conocidas (4 formas, VD máx. 1/4 y sin velocidad volando en nivel 2; según tabla \"Formas de bestia\": 6 formas/VD 1/2 en nivel 4; 8 formas/VD 1, con velocidad volando permitida, en nivel 8). Duras en la forma tantas horas como la mitad de tu nivel de druida, o hasta que vuelvas a usar Forma salvaje, quedes incapacitado o mueras; puedes volver a tu forma antes como acción adicional. Usos: 2 por descanso (columna \"Forma salvaje\" de la tabla, sube a 3 en nivel 6 y 4 en nivel 17); recuperas uno tras un descanso corto y todos tras uno largo. Obtienes PG temporales iguales a tu nivel de druida al transformarte; conservas tipo de criatura, PG, dados de golpe, Int/Sab/Car, rasgos de clase, idiomas y dotes; no puedes lanzar conjuros en esta forma (aunque mantienes la concentración en uno ya lanzado)."
+
+  - nombre: "Resurgimiento salvaje"
+    nivel: 5
+    pagina: {pdf: 95, libro: 93}
+    desc: "Una vez en cada uno de tus turnos, si no te quedan usos de Forma salvaje, puedes obtener un uso gastando un espacio de conjuro (no requiere acción). Además, puedes gastar un uso de Forma salvaje (no requiere acción) para obtener un espacio de conjuro de nivel 1; no puedes volver a hacerlo hasta finalizar un descanso largo."
+
+  - nombre: "Furia elemental"
+    nivel: 7
+    pagina: {pdf: 95, libro: 93}
+    desc: "Eliges una opción, a tu elección: Golpe primordial (una vez en cada uno de tus turnos, al acertar con una tirada de ataque usando un arma o un ataque de bestia en Forma salvaje, el objetivo sufre 1d8 de daño adicional de frío, fuego, relámpago o trueno, a elegir al acertar) o Lanzamiento potente (sumas tu modificador de Sabiduría al daño que causas con cualquier truco de druida)."
+
+  - nombre: "Furia elemental mejorada"
+    nivel: 15
+    pagina: {pdf: 95, libro: 93}
+    desc: "La opción elegida para Furia elemental mejora: Golpe primordial aumenta su daño adicional a 2d8; con Lanzamiento potente, al lanzar un truco de druida con alcance de 3 m o más, el alcance del conjuro aumenta en 90 m."
+
+  - nombre: "Conjurar como bestia"
+    nivel: 18
+    pagina: {pdf: 95, libro: 93}
+    desc: "Mientras utilices Forma salvaje, puedes lanzar conjuros en forma de bestia, salvo cualquier conjuro que tenga un componente material con coste especificado o que se consuma como parte del conjuro."
+
+  - nombre: "Don épico"
+    nivel: 19
+    pagina: {pdf: 95, libro: 93}
+    desc: "Obtienes una dote de don épico (capítulo 5) u otra dote de tu elección para la que cumplas las condiciones. Se recomienda Don del viaje dimensional."
+
+  - nombre: "Archidruida"
+    nivel: 20
+    pagina: {pdf: 96, libro: 94}
+    desc: "Forma salvaje perenne: al tirar iniciativa, si no te quedan usos de Forma salvaje, recuperas uno. Mago de la naturaleza: puedes convertir usos no gastados de Forma salvaje en un único espacio de conjuro (no requiere acción); cada uso convertido aporta 2 niveles de conjuro (p. ej. 2 usos = espacio de nivel 4); no puedes volver a hacerlo hasta finalizar un descanso largo. Longevidad: por cada diez años que pasen, tu cuerpo envejece solo uno."

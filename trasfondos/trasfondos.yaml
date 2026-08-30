@@ -1,0 +1,138 @@
+# Trasfondos del Manual del Jugador 2024 (5.5e) — los 16
+# En 2024 el trasfondo otorga las mejoras de característica y una dote de origen.
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", capitulo: 4, paginas_pdf: "180-187"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-18", cobertura: "16/16"}
+reparto_caracteristicas: "+2 a una y +1 a otra, o +1 a cada una de las tres (cap. 2)"
+fidelidad: "estructurado"   # no es prosa: características, dote, habilidades y equipo son campos y listas
+
+trasfondos:
+  - nombre: Acólito
+    pagina: {pdf: 180, libro: 178}
+    caracteristicas: [Inteligencia, Sabiduría, Carisma]
+    dote: "Iniciado en la magia (clérigo)"
+    habilidades: [Perspicacia, Religión]
+    herramienta: "suministros de calígrafo"
+    equipo_a: "suministros de calígrafo, libro (de oraciones), pergamino (10 hojas), símbolo sagrado, túnica, 8 po"
+    equipo_b: "50 po"
+  - nombre: Animador
+    pagina: {pdf: 180, libro: 178}
+    caracteristicas: [Fuerza, Destreza, Carisma]
+    dote: "Músico"
+    habilidades: [Acrobacias, Interpretación]
+    herramienta: "elige un tipo de instrumento musical"
+    equipo_a: "instrumento musical (el mismo que arriba), 2 disfraces, espejo, perfume, ropas de viaje, 11 po"
+    equipo_b: "50 po"
+  - nombre: Artesano
+    pagina: {pdf: 181, libro: 179}
+    caracteristicas: [Fuerza, Destreza, Inteligencia]
+    dote: "Fabricante"
+    habilidades: [Investigación, Persuasión]
+    herramienta: "elige un tipo de herramientas de artesano"
+    equipo_a: "herramientas de artesano (las mismas que arriba), 2 bolsas, ropas de viaje, 32 po"
+    equipo_b: "50 po"
+  - nombre: Campesino
+    pagina: {pdf: 181, libro: 179}
+    caracteristicas: [Fuerza, Constitución, Sabiduría]
+    dote: "Duro"
+    habilidades: [Naturaleza, "Trato con animales"]
+    herramienta: "herramientas de carpintero"
+    equipo_a: "hoz, herramientas de carpintero, útiles de sanador, olla de hierro, pala, ropas de viaje, 30 po"
+    equipo_b: "50 po"
+  - nombre: Charlatán
+    pagina: {pdf: 182, libro: 180}
+    caracteristicas: [Destreza, Constitución, Carisma]
+    dote: "Habilidoso"
+    habilidades: [Engaño, "Juego de manos"]
+    herramienta: "útiles para falsificar"
+    equipo_a: "útiles para falsificar, disfraz, ropas de calidad, 15 po"
+    equipo_b: "50 po"
+  - nombre: Comerciante
+    pagina: {pdf: 182, libro: 180}
+    caracteristicas: [Constitución, Inteligencia, Carisma]
+    dote: "Afortunado"
+    habilidades: [Persuasión, "Trato con animales"]
+    herramienta: "herramientas de navegante"
+    equipo_a: "herramientas de navegante, 2 bolsas, ropas de viaje, 22 po"
+    equipo_b: "50 po"
+  - nombre: Criminal
+    pagina: {pdf: 183, libro: 181}
+    caracteristicas: [Destreza, Constitución, Inteligencia]
+    dote: "Alerta"
+    habilidades: ["Juego de manos", Sigilo]
+    herramienta: "herramientas de ladrón"
+    equipo_a: "2 dagas, herramientas de ladrón, 2 bolsas, palanqueta, ropas de viaje, 16 po"
+    equipo_b: "50 po"
+  - nombre: Ermitaño
+    pagina: {pdf: 183, libro: 181}
+    caracteristicas: [Constitución, Sabiduría, Carisma]
+    dote: "Sanador"
+    habilidades: [Medicina, Religión]
+    herramienta: "útiles de herborista"
+    equipo_a: "bastón, útiles de herborista, aceite (3 frascos), lámpara, libro (de filosofía), petate, ropas de viaje, 16 po"
+    equipo_b: "50 po"
+  - nombre: Erudito
+    pagina: {pdf: 184, libro: 182}
+    caracteristicas: [Constitución, Inteligencia, Sabiduría]
+    dote: "Iniciado en la magia (mago)"
+    habilidades: ["Conocimiento arcano", Historia]
+    herramienta: "suministros de calígrafo"
+    equipo_a: "bastón, suministros de calígrafo, libro (de historia), pergamino (8 hojas), túnica, 8 po"
+    equipo_b: "50 po"
+    _nota: "El OCR perdió Constitución e Inteligencia y leyó 3 hojas en vez de 8; corregido por lectura visual."
+  - nombre: Escriba
+    pagina: {pdf: 184, libro: 182}
+    caracteristicas: [Destreza, Inteligencia, Sabiduría]
+    dote: "Habilidoso"
+    habilidades: [Investigación, Percepción]
+    herramienta: "suministros de calígrafo"
+    equipo_a: "suministros de calígrafo, aceite (3 frascos), lámpara, pergamino (12 hojas), ropas de calidad, 23 po"
+    equipo_b: "50 po"
+  - nombre: Guardia
+    pagina: {pdf: 185, libro: 183}
+    caracteristicas: [Fuerza, Inteligencia, Sabiduría]
+    dote: "Alerta"
+    habilidades: [Atletismo, Percepción]
+    herramienta: "elige un tipo de juego"
+    equipo_a: "lanza, ballesta ligera, 20 virotes, juego (el mismo que arriba), aljaba, esposas, linterna sorda, ropas de viaje, 12 po"
+    equipo_b: "50 po"
+  - nombre: Guía
+    pagina: {pdf: 185, libro: 183}
+    caracteristicas: [Destreza, Constitución, Sabiduría]
+    dote: "Iniciado en la magia (druida)"
+    habilidades: [Sigilo, Supervivencia]
+    herramienta: "herramientas de cartógrafo"
+    equipo_a: "arco corto, 20 flechas, herramientas de cartógrafo, aljaba, petate, tienda, ropas de viaje, 3 po"
+    equipo_b: "50 po"
+  - nombre: Marinero
+    pagina: {pdf: 186, libro: 184}
+    caracteristicas: [Fuerza, Destreza, Sabiduría]
+    dote: "Matón de taberna"
+    habilidades: [Acrobacias, Percepción]
+    herramienta: "herramientas de navegante"
+    equipo_a: "daga, herramientas de navegante, cuerda, ropas de viaje, 20 po"
+    equipo_b: "50 po"
+  - nombre: Noble
+    pagina: {pdf: 186, libro: 184}
+    caracteristicas: [Fuerza, Inteligencia, Carisma]
+    dote: "Habilidoso"
+    habilidades: [Historia, Persuasión]
+    herramienta: "elige un tipo de juego"
+    equipo_a: "juego (el mismo que arriba), perfume, ropas de calidad, 29 po"
+    equipo_b: "50 po"
+  - nombre: Soldado
+    pagina: {pdf: 187, libro: 185}
+    caracteristicas: [Fuerza, Destreza, Constitución]
+    dote: "Atacante salvaje"
+    habilidades: [Atletismo, Intimidación]
+    herramienta: "elige un tipo de juego"
+    equipo_a: "lanza, arco corto, 20 flechas, aljaba, juego (el mismo que arriba), útiles de sanador, ropas de viaje, 14 po"
+    equipo_b: "50 po"
+  - nombre: Vagabundo
+    pagina: {pdf: 187, libro: 185}
+    caracteristicas: [Destreza, Sabiduría, Carisma]
+    dote: "Afortunado"
+    habilidades: [Perspicacia, Sigilo]
+    herramienta: "herramientas de ladrón"
+    equipo_a: "2 dagas, herramientas de ladrón, juego (cualquiera), 2 bolsas, petate, ropas de viaje, 16 po"
+    equipo_b: "50 po"

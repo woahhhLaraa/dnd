@@ -1,0 +1,65 @@
+clase: Explorador
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "106-113"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-18", cobertura: "4/4"}
+fidelidad: "condensado"   # mecánica reescrita en frases cortas, no la prosa del manual
+niveles_de_subclase: [3, 7, 11, 15]
+
+subclases:
+  - nombre: Acechador en la Penumbra
+    lema: "Recurre a la magia de las sombras para luchar contra tus enemigos."
+    pagina: {pdf: 108, libro: 106}
+    conjuros_siempre_preparados:
+      3: ["Disfrazarse"]
+      5: ["Truco de la cuerda"]
+      9: ["Terror"]
+      13: ["Invisibilidad mejorada"]
+      17: ["Apariencia"]
+    rasgos:
+      - {nivel: 3, nombre: "Conjuros de acechador en la penumbra", desc: "Cuando alcances un nivel de explorador especificado en la tabla «Conjuros de acechador en la penumbra», a partir de entonces siempre tendrás preparados los conjuros que se indican."}
+      - {nivel: 3, nombre: "Emboscador pavoroso", desc: "Bonificador de iniciativa: sumas tu modificador por Sabiduría a la tirada de iniciativa. Golpe pavoroso: cuando ataques a una criatura con un arma y aciertes, puedes infligir 2d6 de daño psíquico adicional (una vez por turno); usos iguales a tu modificador por Sabiduría (mínimo 1), recuperados tras un descanso largo. Salto emboscador: al comienzo de tu primer turno de cada combate, tu velocidad aumenta en 3 m hasta el final de ese turno."}
+      - {nivel: 3, nombre: "Visión en la umbra", desc: "Obtienes visión en la oscuridad hasta 18 m; si ya la posees, su alcance aumenta en 18 m. Además, mientras estés en oscuridad total, tienes el estado de invisible frente a cualquier criatura que dependa de visión en la oscuridad para verte en esas tinieblas."}
+      - {nivel: 7, nombre: "Mente de hierro", desc: "Ganas competencia en tiradas de salvación de Sabiduría. Si ya la tienes, obtienes competencia en tiradas de salvación de Inteligencia o Carisma (a tu elección)."}
+      - {nivel: 11, nombre: "Oleada del acechador", desc: "El daño psíquico de tu golpe pavoroso pasa a 2d8. Además, al usar el efecto de golpe pavoroso, puedes provocar uno de estos efectos adicionales: Ataque súbito (otro ataque con la misma arma contra una criatura distinta a 1,5 m o menos del objetivo original, dentro del alcance del arma); Terror masivo (el objetivo y las criaturas a 3 m o menos de él hacen TdS de Sabiduría contra tu CD de salvación de conjuros o quedan asustadas hasta el principio de tu siguiente turno)."}
+      - {nivel: 15, nombre: "Esquiva de las sombras", desc: "Cuando una criatura haga una tirada de ataque contra ti, puedes usar una reacción para darle desventaja en la tirada. Tanto si el ataque acierta como si no, después puedes teletransportarte hasta 9 m a un espacio sin ocupar que puedas ver."}
+
+  - nombre: Cazador
+    lema: "Protege la naturaleza y a la gente contra la destrucción."
+    pagina: {pdf: 109, libro: 107}
+    confirmada_srd: true
+    rasgos:
+      - {nivel: 3, nombre: "El cazador y la presa", desc: "Obtienes una de estas opciones (cambiable tras un descanso corto o largo): Azote de colosos (cuando aciertes a una criatura con un arma, esta sufre 1d8 de daño adicional si no tiene todos sus PG; una vez por turno) o Destructor de hordas (una vez por turno, al hacer un ataque con arma, puedes hacer otro con la misma arma contra una criatura distinta a 1,5 m o menos del objetivo original, si no la has atacado este turno y está dentro del alcance del arma)."}
+      - {nivel: 3, nombre: "Sabiduría del cazador", desc: "Mientras una criatura tenga tu marca del cazador, sabrás si tiene alguna inmunidad, resistencia o vulnerabilidad, y cuáles son."}
+      - {nivel: 7, nombre: "Tácticas defensivas", desc: "Obtienes una de estas opciones (cambiable tras un descanso corto o largo): Defensa contra ataques múltiples (cuando una criatura te acierte con un ataque, esa criatura tiene desventaja en las demás tiradas de ataque contra ti ese turno) o Escapar de la horda (los ataques de oportunidad tienen desventaja contra ti)."}
+      - {nivel: 11, nombre: "El cazador experto y la presa", desc: "Una vez por turno, cuando inflijas daño a una criatura con tu marca del cazador, también puedes hacer el daño adicional del conjuro a una criatura distinta que puedas ver a 9 m o menos de la primera."}
+      - {nivel: 15, nombre: "Defensa de cazador experto", desc: "Cuando recibas daño, puedes usar una reacción para concederte resistencia a ese daño y a cualquier otro del mismo tipo hasta el final de ese turno."}
+
+  - nombre: Errante Feérico
+    lema: "Sírvete del júbilo y la furia feéricos."
+    pagina: {pdf: 110, libro: 108}
+    conjuros_siempre_preparados:
+      3: ["Hechizar persona"]
+      5: ["Paso brumoso"]
+      9: ["Invocar feérico"]
+      13: ["Puerta dimensional"]
+      17: ["Engañar"]
+    rasgos:
+      - {nivel: 3, nombre: "Conjuros de errante feérico", desc: "Cuando alcances un nivel de explorador especificado en la tabla «Conjuros de errante feérico», a partir de entonces siempre tendrás preparados los conjuros que se indican. Además obtienes una bendición feérica, elegida o determinada al azar en la tabla «Dádivas de los Parajes Feéricos» (cosmética: mariposas ilusorias, flores en el pelo, olor a especias, sombra que baila, cuernos o astas, o piel y cabello que cambian de color)."}
+      - {nivel: 3, nombre: "Glamur sobrenatural", desc: "Siempre que hagas una prueba de Carisma, obtienes un bonificador igual a tu modificador por Sabiduría (mínimo +1). Ganas competencia en Engaño, Interpretación o Persuasión (a tu elección)."}
+      - {nivel: 3, nombre: "Golpes pavorosos", desc: "Cuando aciertes a una criatura con un arma, puedes infligirle 1d4 de daño psíquico adicional (una vez por turno). El daño adicional aumenta a 1d6 al alcanzar el nivel 11 de explorador."}
+      - {nivel: 7, nombre: "Giro seductor", desc: "Ventaja en tiradas de salvación para evitar o poner fin a los estados de asustado o hechizado. Además, siempre que tú u otra criatura que puedas ver a 36 m o menos tengáis éxito en una de esas tiradas, puedes usar una reacción para obligar a otra criatura distinta que puedas ver a 36 m o menos a hacer un TdS de Sabiduría contra tu CD de salvación de conjuros; si falla, queda asustada o hechizada (a tu elección) durante 1 minuto, con nueva tirada al final de cada uno de sus turnos."}
+      - {nivel: 11, nombre: "Refuerzos feéricos", desc: "Puedes lanzar invocar feérico sin componente material, y una vez sin gastar espacio de conjuro (recuperas esta capacidad tras un descanso largo). Al lanzarlo puedes modificarlo para que no requiera concentración; si lo haces, dura 1 minuto para ese lanzamiento."}
+      - {nivel: 15, nombre: "Errante brumoso", desc: "Puedes lanzar paso brumoso sin gastar espacio de conjuro, una cantidad de veces igual a tu modificador por Sabiduría (mínimo 1), recuperado tras un descanso largo. Además, siempre que lo lances, puedes elegir a una criatura voluntaria a 1,5 m o menos de ti para que te acompañe, teletransportándose a un espacio sin ocupar a 1,5 m de tu espacio de destino."}
+
+  - nombre: Señor de las Bestias
+    lema: "Estrecha lazos con una bestia primigenia."
+    pagina: {pdf: 112, libro: 110}
+    rasgos:
+      - {nivel: 3, nombre: "Compañero primigenio", desc: "Invocas a una bestia primigenia eligiendo un perfil: bestia de los mares, bestia de tierra firme o bestia del cielo (ver estadísticas abajo), y el tipo de animal, coherente con el perfil. Es amistosa contigo y tus aliados y obedece tus órdenes; desaparece si mueres. En combate actúa en tu turno: se mueve y usa su reacción por cuenta propia, pero solo esquiva salvo que gastes una acción adicional para ordenarle otra acción de su perfil, o sacrifiques uno de tus ataques al atacar para que use golpe de bestia. Si estás incapacitado, actúa por su cuenta sin limitarse a esquivar. Si murió en la última hora, una acción de magia gastando un espacio de conjuro la devuelve a la vida tras 1 minuto con todos sus PG. Tras un descanso largo puedes invocar una bestia primigenia distinta (perfil y aspecto a elección), sustituyendo a la anterior."}
+      - {nivel: 7, nombre: "Entrenamiento excepcional", desc: "Al ordenar a la bestia una acción con tu acción adicional, también puede realizar ayudar, correr, destrabarse o esquivar con su propia acción adicional. Además, siempre que acierte con un ataque y cause daño, eliges si hace daño de fuerza o su tipo normal."}
+      - {nivel: 11, nombre: "Furia bestial", desc: "Al ordenar a la bestia la acción de golpe de bestia, puede usarla dos veces. Además, la primera vez cada turno que acierte a una criatura bajo el efecto de tu conjuro marca del cazador, inflige daño de fuerza adicional igual al daño adicional de ese conjuro."}
+      - {nivel: 15, nombre: "Compartir conjuros", desc: "Cuando lances un conjuro que te haga objetivo, puedes hacer que también afecte a tu bestia primigenia si se encuentra a 9 m o menos de ti."}
+    perfiles_bestia_primigenia:
+      bestia_de_los_mares: {tamaño: Mediana, ca: "13 + mod. Sabiduría", pg: "5 + 5×nivel de explorador (d8)", velocidad: "1,5 m, nadar 18 m", atributos: ["Anfibia: respira dentro y fuera del agua", "Vínculo primigenio: suma tu bonificador por competencia a sus pruebas y salvaciones"], accion: "Golpe de bestia: cuerpo a cuerpo, alcance 1,5 m, bonificador de ataque = mod. de ataque de conjuros; 1d6+2+mod. Sabiduría contundente o perforante (a elección al invocar) y el objetivo queda agarrado (CD = tu CD de salvación de conjuros)"}
+      bestia_del_cielo: {tamaño: Pequeña, ca: "13 + mod. Sabiduría", pg: "4 + 4×nivel de explorador (d6)", velocidad: "3 m, volar 18 m", atributos: ["Pasar volando: no provoca ataques de oportunidad al volar fuera del alcance de un enemigo", "Vínculo primigenio: suma tu bonificador por competencia a sus pruebas y salvaciones"], accion: "Golpe de bestia: cuerpo a cuerpo, alcance 1,5 m, bonificador de ataque = mod. de ataque de conjuros; 1d4+3+mod. Sabiduría cortante"}
+      bestia_de_tierra_firme: {tamaño: Mediana, ca: "13 + mod. Sabiduría", pg: "5 + 5×nivel de explorador (d8)", velocidad: "12 m, trepar 12 m", atributos: ["Vínculo primigenio: suma tu bonificador por competencia a sus pruebas y salvaciones"], accion: "Golpe de bestia: cuerpo a cuerpo, alcance 1,5 m, bonificador de ataque = mod. de ataque de conjuros; 1d8+2+mod. Sabiduría contundente, cortante o perforante (a elección al invocar); si se movió 6 m o más en línea recta hacia el objetivo antes de acertar, +1d6 de daño del mismo tipo y, si es Grande o menor, queda derribado"}

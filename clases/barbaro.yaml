@@ -1,0 +1,42 @@
+clase: Bárbaro
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", pagina_pdf: 54}
+verificado: {metodo: "vision-directa", tabla: "Rasgos de bárbaro", fecha: "2026-08-18"}
+atributos_basicos:
+  fuente: {pagina_pdf: 53, pagina_libro: 51}
+  verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+  caracteristica_principal: Fuerza
+  dado_golpe: d12
+  salvaciones: [Fuerza, Constitución]
+  habilidades:
+    elige: 2
+    de: [Atletismo, Intimidación, Naturaleza, Percepción, Supervivencia, "Trato con animales"]
+  armas: ["Armas sencillas", "Armas marciales"]
+  armaduras: ["Armaduras ligeras", "Armaduras medias", Escudos]
+  herramientas: []
+  equipo_inicial:
+    a: "hacha a dos manos, 4 hachas de mano, paquete de explorador y 15 po"
+    b: "75 po"
+lanzador: ninguno
+columnas_extra: [furias, dano_furia, maestria_armas]
+progresion:
+  - {n: 1,  pb: 2, furias: 2, dano_furia: 2, maestria_armas: 2, rasgos: ["Defensa sin armadura", "Furia", "Maestría con armas"]}
+  - {n: 2,  pb: 2, furias: 2, dano_furia: 2, maestria_armas: 2, rasgos: ["Ataque temerario", "Sentir el peligro"]}
+  - {n: 3,  pb: 2, furias: 3, dano_furia: 2, maestria_armas: 2, rasgos: ["Conocimiento primigenio", "Subclase de bárbaro"]}
+  - {n: 4,  pb: 2, furias: 3, dano_furia: 2, maestria_armas: 3, rasgos: ["Mejora de característica"]}
+  - {n: 5,  pb: 3, furias: 3, dano_furia: 2, maestria_armas: 3, rasgos: ["Ataque adicional", "Movimiento rápido"]}
+  - {n: 6,  pb: 3, furias: 4, dano_furia: 2, maestria_armas: 3, rasgos: ["Rasgo de subclase"]}
+  - {n: 7,  pb: 3, furias: 4, dano_furia: 2, maestria_armas: 3, rasgos: ["Instinto salvaje", "Salto instintivo"]}
+  - {n: 8,  pb: 3, furias: 4, dano_furia: 2, maestria_armas: 3, rasgos: ["Mejora de característica"]}
+  - {n: 9,  pb: 4, furias: 4, dano_furia: 3, maestria_armas: 3, rasgos: ["Golpe brutal"]}
+  - {n: 10, pb: 4, furias: 4, dano_furia: 3, maestria_armas: 4, rasgos: ["Rasgo de subclase"]}
+  - {n: 11, pb: 4, furias: 4, dano_furia: 3, maestria_armas: 4, rasgos: ["Furia implacable"]}
+  - {n: 12, pb: 4, furias: 5, dano_furia: 3, maestria_armas: 4, rasgos: ["Mejora de característica"]}
+  - {n: 13, pb: 5, furias: 5, dano_furia: 3, maestria_armas: 4, rasgos: ["Golpe brutal mejorado"]}
+  - {n: 14, pb: 5, furias: 5, dano_furia: 3, maestria_armas: 4, rasgos: ["Rasgo de subclase"]}
+  - {n: 15, pb: 5, furias: 5, dano_furia: 3, maestria_armas: 4, rasgos: ["Furia persistente"]}
+  - {n: 16, pb: 5, furias: 5, dano_furia: 4, maestria_armas: 4, rasgos: ["Mejora de característica"]}
+  - {n: 17, pb: 6, furias: 6, dano_furia: 4, maestria_armas: 4, rasgos: ["Golpe brutal mejorado"]}
+  - {n: 18, pb: 6, furias: 6, dano_furia: 4, maestria_armas: 4, rasgos: ["Poderío indómito"]}
+  - {n: 19, pb: 6, furias: 6, dano_furia: 4, maestria_armas: 4, rasgos: ["Don épico"]}
+  - {n: 20, pb: 6, furias: 6, dano_furia: 4, maestria_armas: 4, rasgos: ["Campeón primordial"]}

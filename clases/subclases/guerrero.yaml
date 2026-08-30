@@ -1,0 +1,81 @@
+clase: Guerrero
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "117-123"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-18", cobertura: "4/4"}
+fidelidad: "condensado"   # mecánica reescrita en frases cortas, no la prosa del manual
+niveles_de_subclase: [3, 7, 10, 15, 18]
+
+subclases:
+  - nombre: Caballero Arcano
+    lema: "Refuerza tus habilidades de combate con magia arcana."
+    pagina: {pdf: 117, libro: 115}
+    lanzador_subclase: {tipo: "medio (hasta nivel 4 de espacio)", aptitud: Inteligencia, canalizador: "canalizador arcano"}
+    rasgos:
+      - {nivel: 3, nombre: "Lanzamiento de conjuros", desc: "Trucos: conoces dos trucos de tu elección de la lista de conjuros de mago (recomendados agarre electrizante y rayo de escarcha); puedes reemplazar uno al subir de nivel de guerrero, y aprendes otro truco de mago al nivel 10. Conjuros preparados de nivel 1+: eliges 3 conjuros de nivel 1 de la lista de mago (recomendados escudo, manos ardientes y salto); tu lista de conjuros preparados crece según la tabla «Lanzamiento de conjuros del caballero arcano» y puedes sustituir un conjuro al subir de nivel. Aptitud mágica: Inteligencia. Canalizador mágico: puedes usar un canalizador arcano."}
+      - {nivel: 3, nombre: "Vínculo de guerra", desc: "Ritual de 1 hora (posible en descanso corto) para vincularte mágicamente a un arma a tu alcance; falla si otro guerrero está vinculado a ella o si es un objeto mágico sintonizado por otra persona. No pueden desarmarte del arma vinculada salvo que estés incapacitado. Si está en tu mismo plano, puedes invocarla como acción adicional y se teletransporta a tu mano. Puedes tener hasta dos armas vinculadas, pero solo invocar una a la vez; vincular una tercera rompe el vínculo con una de las otras dos."}
+      - {nivel: 7, nombre: "Magia de guerra", desc: "Al llevar a cabo la acción de atacar, puedes sustituir uno de los ataques por el lanzamiento de uno de tus trucos de mago con tiempo de lanzamiento de una acción."}
+      - {nivel: 10, nombre: "Golpe sobrenatural", desc: "Cuando aciertes a una criatura con un ataque de arma, tendrá desventaja en la siguiente tirada de salvación que haga contra un conjuro que lances antes del final de tu siguiente turno."}
+      - {nivel: 15, nombre: "Carga arcana", desc: "Al usar tu rasgo Acción súbita, puedes teletransportarte hasta 9 m a un espacio sin ocupar que puedas ver, antes o después de la acción adicional."}
+      - {nivel: 18, nombre: "Magia de guerra mejorada", desc: "Al llevar a cabo la acción de atacar, puedes sustituir dos de los ataques por el lanzamiento de un conjuro de mago de nivel 1 o 2 con tiempo de lanzamiento de una acción."}
+
+  - nombre: Campeón
+    lema: "Aspira a la excelencia física en combate."
+    pagina: {pdf: 119, libro: 117}
+    confirmada_srd: true
+    rasgos:
+      - {nivel: 3, nombre: "Atleta sobresaliente", desc: "Ventaja en tiradas de iniciativa y en pruebas de Fuerza (Atletismo). Además, justo después de causar un crítico, puedes moverte hasta la mitad de tu velocidad sin provocar ataques de oportunidad."}
+      - {nivel: 3, nombre: "Crítico mejorado", desc: "Tus tiradas de ataque con armas y tus ataques sin armas pueden causar críticos con un resultado de 19 o 20 en el d20."}
+      - {nivel: 7, nombre: "Estilo de combate adicional", desc: "Obtienes otra dote de estilo de combate de tu elección."}
+      - {nivel: 10, nombre: "Guerrero heroico", desc: "Durante un combate, puedes otorgarte inspiración heroica siempre que empieces tu turno sin ella."}
+      - {nivel: 15, nombre: "Crítico superior", desc: "Tus tiradas de ataque con armas y tus ataques sin armas pueden causar críticos con un resultado de 18 a 20 en el d20."}
+      - {nivel: 18, nombre: "Superviviente", desc: "Desafiar a la muerte: ventaja en tiradas de salvación contra muerte, y al sacar 18-20 en una obtienes el beneficio de un 20 natural. Mejoría heroica: al principio de cada uno de tus turnos, recuperas 5 + tu modificador por Constitución PG si estás maltrecho y tienes al menos 1 PG."}
+
+  - nombre: Guerrero Psiónico
+    lema: "Aumenta tu poderío físico con el poder psiónico."
+    pagina: {pdf: 120, libro: 118}
+    dados_de_energia_psionica:
+      3: {dado: d6, cantidad: 4}
+      5: {dado: d8, cantidad: 6}
+      9: {dado: d8, cantidad: 8}
+      11: {dado: d10, cantidad: 8}
+      13: {dado: d10, cantidad: 10}
+      17: {dado: d12, cantidad: 12}
+    rasgos:
+      - {nivel: 3, nombre: "Poder psiónico", desc: "Posees dados de energía psiónica (tamaño y cantidad según la tabla). Recuperas uno tras un descanso corto y todos tras un descanso largo. Campo protector: reacción al recibir daño tú u otra criatura a 9 m o menos, gastando un dado para reducir el daño en el resultado + tu modificador por Inteligencia. Golpe psiónico: una vez por turno, tras acertar con un ataque de arma a un objetivo a 9 m o menos, gasta un dado e inflige daño de fuerza adicional igual al resultado + mod. Inteligencia. Movimiento telequinético: acción de magia para mover un objeto suelto Grande o menor, o una criatura voluntaria que no seas tú, hasta 9 m a un espacio sin ocupar que veas (o un objeto Diminuto hacia/desde tu mano); no se repite hasta un descanso corto o largo salvo que gastes un dado."}
+      - {nivel: 7, nombre: "Adepto telequinético", desc: "Empujón telequinético: al infligir daño con Golpe psiónico, puedes obligar un TdS de Fuerza (CD 8 + mod. Inteligencia + bonif. competencia); si falla, el objetivo queda derribado o es transportado hasta 3 m en horizontal. Salto psiónico: acción adicional, velocidad volando igual al doble de tu velocidad hasta el final del turno; no se repite hasta un descanso corto o largo salvo que gastes un dado."}
+      - {nivel: 10, nombre: "Mente robusta", desc: "Resistencia al daño psíquico. Si comienzas tu turno asustado o hechizado, puedes gastar un dado de energía psiónica (no requiere acción) y poner fin a todos los efectos que te causen esos estados."}
+      - {nivel: 15, nombre: "Bastión de fuerza", desc: "Acción adicional: eliges hasta un número de criaturas (incluido tú) a 9 m o menos igual a tu modificador por Inteligencia (mínimo 1); cada una tiene cobertura media durante 1 minuto o hasta que quedes incapacitado. No puedes reutilizarlo hasta un descanso largo salvo que gastes un dado de energía psiónica."}
+      - {nivel: 18, nombre: "Maestro telequinético", desc: "Siempre tienes preparado telequinesis; puedes lanzarlo sin espacio de conjuro ni componentes (aptitud Inteligencia). Cada turno que mantengas la concentración en él, incluido el de lanzarlo, puedes hacer un ataque de arma como acción adicional. No se repite hasta un descanso largo salvo que gastes un dado de energía psiónica."}
+
+  - nombre: Maestro del Combate
+    lema: "Domina maniobras de combate avanzadas."
+    pagina: {pdf: 121, libro: 119}
+    dados_de_supremacia: {nivel_3: {dado: d8, cantidad: 4}, nivel_7: {cantidad: 5}, nivel_10: {dado: d10}, nivel_15: {cantidad: 6}, nivel_18: {dado: d12}}
+    rasgos:
+      - {nivel: 3, nombre: "Estudioso de la guerra", desc: "Ganas competencia con un tipo de herramientas de artesano de tu elección y en una habilidad de las disponibles para guerreros de nivel 1."}
+      - {nivel: 3, nombre: "Supremacía en combate", desc: "Aprendes tres maniobras de tu elección (ver «Opciones de maniobras»); aprendes dos maniobras adicionales al alcanzar los niveles 7, 10 y 15, pudiendo sustituir maniobras conocidas por otras al aprender nuevas. Posees cuatro dados de supremacía d8 que se gastan al usarlos y se recuperan tras un descanso corto o largo; obtienes un dado más a los niveles 7 (cinco en total) y 15 (seis en total). Si una maniobra requiere TdS, la CD es 8 + mod. Fuerza o Destreza (a elección) + bonif. competencia."}
+      - {nivel: 7, nombre: "Conoce a tu enemigo", desc: "Acción adicional: distingues fortalezas y debilidades de una criatura a 9 m o menos (inmunidades, resistencias o vulnerabilidades). No se repite hasta un descanso largo, salvo que gastes un dado de supremacía (no requiere acción)."}
+      - {nivel: 10, nombre: "Supremacía en combate mejorada", desc: "Tu dado de supremacía se convierte en un d10."}
+      - {nivel: 15, nombre: "Incansable", desc: "Una vez por turno, al usar una maniobra, puedes tirar 1d8 y usar el resultado en vez de gastar un dado de supremacía."}
+      - {nivel: 18, nombre: "Supremacía en combate definitiva", desc: "Tu dado de supremacía se convierte en un d12."}
+    opciones_de_maniobras:
+      - {nombre: Arremetida, desc: "Acción adicional: gasta un dado de supremacía y lleva a cabo la acción de correr. Si te mueves 1,5 m o más en línea recta antes de acertar con un ataque cuerpo a cuerpo este turno, suma el dado a la tirada de daño."}
+      - {nombre: "Ataque amenazador", desc: "Al acertar con una tirada de ataque, gasta un dado y súmalo al daño; el objetivo hace TdS de Sabiduría o queda asustado hasta el final de tu siguiente turno."}
+      - {nombre: "Ataque de barrido", desc: "Al acertar cuerpo a cuerpo, gasta un dado para dañar a otra criatura a 1,5 m o menos del objetivo si el ataque original la habría acertado; sufre el resultado del dado del mismo tipo de daño."}
+      - {nombre: "Ataque preciso", desc: "Al fallar un ataque, gasta un dado, tíralo y súmalo a la tirada de ataque, pudiendo convertirlo en acierto."}
+      - {nombre: "Ataque provocador", desc: "Al acertar, gasta un dado y súmalo al daño; TdS de Sabiduría o el objetivo tiene desventaja atacando a quien no seas tú hasta tu siguiente turno."}
+      - {nombre: "Ataque y derribo", desc: "Al acertar, gasta un dado y súmalo al daño; si el objetivo es Grande o menor, TdS de Fuerza o queda derribado."}
+      - {nombre: "Ataque y desarme", desc: "Al acertar, gasta un dado y súmalo al daño; TdS de Fuerza o el objetivo suelta un objeto elegido por ti."}
+      - {nombre: "Ataque y distracción", desc: "Al acertar, gasta un dado y súmalo al daño; el siguiente ataque de otro atacante contra el objetivo tiene ventaja si se lleva a cabo antes de tu siguiente turno."}
+      - {nombre: "Ataque y empujón", desc: "Al acertar, gasta un dado y súmalo al daño; si el objetivo es Grande o menor, TdS de Fuerza o es empujado hasta 4,5 m."}
+      - {nombre: "Ataque y maniobra", desc: "Al acertar, gasta un dado y súmalo al daño; un compañero voluntario que te vea u oiga puede usar su reacción para moverse hasta la mitad de su velocidad sin provocar ataques de oportunidad del objetivo."}
+      - {nombre: "Cambio de posición ventajoso", desc: "A 1,5 m o menos de una criatura, gasta un dado y al menos 1,5 m de movimiento para cambiar tu posición por la suya (voluntaria, sin incapacitar); no provoca ataques de oportunidad. Tira el dado: tú o la criatura obtenéis bonificador a la CA igual al resultado hasta tu siguiente turno."}
+      - {nombre: Contraataque, desc: "Reacción cuando una criatura falla un ataque cuerpo a cuerpo contra ti: gasta un dado para atacarla cuerpo a cuerpo; si aciertas, suma el dado al daño."}
+      - {nombre: Emboscada, desc: "En una prueba de Destreza (Sigilo) o tirada de iniciativa, gasta un dado y súmalo (salvo incapacitado)."}
+      - {nombre: "Evaluación táctica", desc: "En una prueba de Inteligencia (Historia o Investigación) o Sabiduría (Perspicacia), gasta un dado y súmalo."}
+      - {nombre: Finta, desc: "Acción adicional: gasta un dado contra un objetivo a 1,5 m o menos; ventaja en tu siguiente ataque contra él este turno, y si acierta, suma el dado al daño."}
+      - {nombre: "Juego de pies evasivo", desc: "Acción adicional: gasta un dado y lleva a cabo destrabarse; suma el resultado del dado a tu CA hasta tu siguiente turno."}
+      - {nombre: "Orden de ataque", desc: "Al atacar, renuncia a uno de tus ataques y gasta un dado para que un compañero voluntario que veas u oigas use su reacción para atacar, sumando el dado al daño si acierta."}
+      - {nombre: Parada, desc: "Reacción cuando otra criatura te daña cuerpo a cuerpo: gasta un dado para reducir el daño en el resultado + tu modificador por Fuerza o Destreza."}
+      - {nombre: "Presencia imponente", desc: "En una prueba de Carisma (Interpretación, Intimidación o Persuasión), gasta un dado y súmalo."}
+      - {nombre: Reagrupar, desc: "Acción adicional: gasta un dado para dar a un aliado a 9 m o menos que te vea u oiga PG temporales iguales al resultado + la mitad de tu nivel de guerrero (redondeando abajo)."}

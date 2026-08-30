@@ -1,0 +1,48 @@
+clase: Monje
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "154-157"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-18", cobertura: "4/4"}
+fidelidad: "condensado"   # mecánica reescrita en frases cortas, no la prosa del manual
+niveles_de_subclase: [3, 6, 11, 17]
+
+subclases:
+  - nombre: Guerrero de la Mano Abierta
+    lema: "Domina las técnicas de combate sin armas."
+    pagina: {pdf: 154, libro: 152}
+    confirmada_srd: true
+    rasgos:
+      - {nivel: 3, nombre: "Técnica de la mano abierta", desc: "Siempre que aciertes a una criatura con un ataque proporcionado por Ráfaga de golpes, puedes imponerle uno de estos efectos: Derribar (TdS de Destreza o queda derribada), Desconcertar (no puede hacer ataques de oportunidad hasta el principio de su siguiente turno) o Empujar (TdS de Fuerza o es empujada hasta 4,5 m respecto a ti)."}
+      - {nivel: 6, nombre: "Plenitud de cuerpo", desc: "Acción adicional: tiras tu dado de Artes marciales y recuperas PG iguales al resultado + tu modificador por Sabiduría (mínimo 1 PG). Usos iguales a tu modificador por Sabiduría (mínimo 1), recuperados tras un descanso largo."}
+      - {nivel: 11, nombre: "Paso veloz", desc: "Cuando utilices una acción adicional que no sea Paso del viento, podrás usar también Paso del viento inmediatamente después de esa acción adicional."}
+      - {nivel: 17, nombre: "Palma estremecedora", desc: "Cuando aciertes a una criatura con un ataque sin armas, puedes gastar 4 puntos de concentración para iniciar vibraciones letales imperceptibles que duran tantos días como tu nivel de monje. Son inofensivas salvo que uses tu acción para que terminen, o renuncies a uno de tus ataques al llevar a cabo la acción de atacar (mismo plano de existencia requerido). Al terminarlas, el objetivo hace un TdS de Constitución: 10d12 de daño de fuerza si falla, mitad si supera. Solo puedes tener a una criatura bajo este efecto a la vez; puedes ponerles fin de forma inocua sin gastar acción."}
+
+  - nombre: Guerrero de la Misericordia
+    lema: "Manipula las fuerzas de la vida y la muerte."
+    pagina: {pdf: 154, libro: 152}
+    rasgos:
+      - {nivel: 3, nombre: "Instrumentos de misericordia", desc: "Ganas competencia en las habilidades Medicina y Perspicacia y con los útiles de herborista."}
+      - {nivel: 3, nombre: "Mano de aflicción", desc: "Una vez por turno, cuando aciertes a una criatura con un ataque sin armas y le causes daño, puedes gastar 1 punto de concentración para infligir daño necrótico adicional igual al resultado de tu dado de Artes marciales + tu modificador por Sabiduría."}
+      - {nivel: 3, nombre: "Mano de curación", desc: "Acción de magia: gasta 1 punto de concentración para tocar a una criatura y hacer que recupere PG iguales al resultado de tu dado de Artes marciales + tu modificador por Sabiduría. Al usar Ráfaga de golpes, puedes sustituir uno de los ataques sin armas por un uso de este rasgo sin gastar punto de concentración."}
+      - {nivel: 6, nombre: "Toque de galeno", desc: "Mano de aflicción: también puedes infligir el estado de envenenada hasta el final de tu siguiente turno. Mano de curación: también puedes poner fin a uno de estos estados en la criatura curada: aturdida, cegada, ensordecida, envenenada o paralizada."}
+      - {nivel: 11, nombre: "Ráfaga de curación y aflicción", desc: "Al usar Ráfaga de golpes, puedes sustituir cada uno de los ataques sin armas por un uso de Mano de curación sin gastar puntos de concentración. Además, cuando hagas un ataque sin armas con Ráfaga de golpes y causes daño, puedes usar Mano de aflicción sin gastar un punto de concentración (una vez por turno). Usos iguales a tu modificador por Sabiduría (mínimo 1), recuperados tras un descanso largo."}
+      - {nivel: 17, nombre: "Mano de misericordia suprema", desc: "Acción de magia: tocas el cadáver de una criatura muerta en las últimas 24 horas y gastas 5 puntos de concentración. La criatura vuelve a la vida con PG iguales a 4d10 + tu modificador por Sabiduría, revive sin los estados aturdida, cegada, ensordecida, envenenada o paralizada si los tenía al morir. No se repite hasta un descanso largo."}
+
+  - nombre: Guerrero de la Sombra
+    lema: "Utiliza el poder de la sombra para el sigilo y el subterfugio."
+    pagina: {pdf: 156, libro: 154}
+    confirmada_srd: true
+    rasgos:
+      - {nivel: 3, nombre: "Artes sombrías", desc: "Ilusiones sombrías: conoces el truco ilusión menor (aptitud mágica Sabiduría). Oscuridad: gasta 1 punto de concentración para lanzar oscuridad sin componentes; puedes ver dentro de la zona y, mientras se mantenga el conjuro, moverla a un espacio a 18 m o menos al principio de cada uno de tus turnos. Visión en la oscuridad: obtienes visión en la oscuridad hasta 18 m (o +18 m si ya la tenías)."}
+      - {nivel: 6, nombre: "Paso entre sombras", desc: "Estando por completo en una zona de luz tenue u oscuridad, acción adicional para teletransportarte hasta 18 m a un espacio sin ocupar que veas y que también esté en luz tenue u oscuridad; luego tienes ventaja en el siguiente ataque cuerpo a cuerpo que hagas antes del final de ese turno."}
+      - {nivel: 11, nombre: "Paso entre sombras mejorado", desc: "Al usar Paso entre sombras, puedes gastar 1 punto de concentración para eliminar el requisito de comenzar y terminar en zona de luz tenue u oscuridad, y hacer un ataque sin armas inmediatamente después de teletransportarte."}
+      - {nivel: 17, nombre: "Capa de sombras", desc: "Acción de magia estando por completo en luz tenue u oscuridad: gasta 3 puntos de concentración para envolverte en sombras durante 1 minuto (hasta que quedes incapacitado o termines tu turno en luz brillante). Mientras dure: Incorporeidad parcial (atraviesas espacios ocupados como terreno difícil; si terminas el turno en uno, vas al último espacio libre en el que estuviste), Invisibilidad (estado invisible) y Ráfaga de sombras (usas Ráfaga de golpes sin gastar puntos de concentración)."}
+
+  - nombre: Guerrero de los Elementos
+    lema: "Emplea ataques y explosiones de poder elemental."
+    pagina: {pdf: 157, libro: 155}
+    rasgos:
+      - {nivel: 3, nombre: "Armonía con los elementos", desc: "Al principio de tu turno, gasta 1 punto de concentración para imbuirte de energía elemental durante 10 minutos (o hasta quedar incapacitado). Mientras esté activo: Alcance (tus ataques sin armas tienen 3 m de alcance adicional) y Golpes elementales (tus ataques sin armas pueden causar ácido, frío, fuego, relámpago o trueno en vez de su daño normal; al infligir uno de esos tipos, puedes obligar un TdS de Fuerza al objetivo, y si falla, moverlo hasta 3 m hacia ti o en dirección contraria)."}
+      - {nivel: 3, nombre: "Manipular los elementos", desc: "Conoces el conjuro elementalismo. La Sabiduría es tu aptitud mágica para lanzarlo."}
+      - {nivel: 6, nombre: "Explosión elemental", desc: "Acción de magia: gasta 2 puntos de concentración para que la energía elemental explote en una esfera de 6 m de radio a 36 m o menos, con un tipo de daño elegido (ácido, frío, fuego, relámpago o trueno). Las criaturas en la esfera hacen TdS de Destreza: sufren el resultado de tres tiradas de tu dado de Artes marciales si fallan, mitad si superan."}
+      - {nivel: 11, nombre: "Paso de los elementos", desc: "Mientras Armonía con los elementos esté activa, obtienes también velocidad nadando y velocidad volando iguales a tu velocidad."}
+      - {nivel: 17, nombre: "Paradigma elemental", desc: "Mientras Armonía con los elementos esté activa: Golpes potenciados (una vez por turno, daño adicional igual al resultado de tu dado de Artes marciales del mismo tipo al acertar un ataque sin armas), Paso destructivo (al usar Paso del viento, tu velocidad aumenta 6 m hasta el final del turno, y cualquier criatura elegida sufre el resultado de tu dado de Artes marciales del tipo elegido al entrar en un espacio a 1,5 m o menos de ella, una vez por turno) y Resistencia al daño (resistencia a un tipo elemental a tu elección, cambiable al principio de cada uno de tus turnos)."}

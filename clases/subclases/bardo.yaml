@@ -1,0 +1,78 @@
+clase: Bardo
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "66-69"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-18", cobertura: "4/4"}
+fidelidad: "condensado"   # mecánica reescrita en frases cortas, no la prosa del manual
+niveles_de_subclase: [3, 6, 14]
+
+subclases:
+  - nombre: Colegio de la Danza
+    lema: "Muévete en armonía con el cosmos."
+    pagina: {pdf: 66, libro: 64}
+    rasgos:
+      - nivel: 3
+        nombre: Juego de pies deslumbrante
+        desc: "Mientras no lleves armadura ni escudo: Virtuoso de la danza (ventaja en pruebas de Carisma (Interpretación) que impliquen bailar); Defensa sin armadura (CA base = 10 + mod. Destreza + mod. Carisma); Ataques ágiles (al gastar Inspiración bárdica como parte de una acción, acción adicional o reacción, puedes hacer un ataque sin armas como parte de ella); Daño bárdico (usas Destreza en vez de Fuerza para ataques sin armas y puedes causar daño contundente igual a una tirada de tu dado de Inspiración bárdica + mod. Destreza en lugar del daño normal, sin gastar el dado)."
+        efectos:
+          - {objetivo: ca, op: base, formula: "10 + mod_des + mod_car", requiere: [sin_armadura, sin_escudo], pagina: {pdf: 66, libro: 64}}
+      - nivel: 6
+        nombre: Juego de pies conjunto
+        desc: "Al tirar iniciativa puedes gastar un uso de Inspiración bárdica si no estás incapacitado. Tira el dado: tú y los aliados a 9 m o menos que puedan verte u oírte ganáis ese resultado como bonificador a la iniciativa."
+      - nivel: 6
+        nombre: Movimiento inspirador
+        desc: "Cuando un enemigo que veas termine su turno a 1,5 m o menos de ti, puedes usar una reacción y gastar un uso de Inspiración bárdica para moverte hasta la mitad de tu velocidad. Después, un aliado a 9 m o menos puede moverse hasta la mitad de su velocidad usando su reacción. Estos movimientos no provocan ataques de oportunidad."
+      - nivel: 14
+        nombre: Evasión dirigida
+        desc: "Cuando un efecto te permita hacer una TdS de Destreza para sufrir la mitad de daño, no recibes daño si la superas y solo la mitad si la fallas. Si una criatura a 1,5 m hace la misma TdS, puedes compartirle este beneficio. No puedes usarlo si estás incapacitado."
+
+  - nombre: Colegio del Conocimiento
+    lema: "Explora las profundidades del conocimiento mágico."
+    pagina: {pdf: 67, libro: 65}
+    confirmada_srd: true
+    rasgos:
+      - nivel: 3
+        nombre: Competencias adicionales
+        desc: "Ganas competencia en tres habilidades de tu elección."
+      - nivel: 3
+        nombre: Palabras cortantes
+        desc: "Cuando una criatura que veas a 18 m o menos haga una tirada de daño, o tenga éxito en una prueba de característica o una tirada de ataque, puedes usar una reacción y gastar un uso de Inspiración bárdica: tira el dado y resta el resultado a su tirada, reduciendo el daño o convirtiendo el éxito en fallo."
+      - nivel: 6
+        nombre: Descubrimientos mágicos
+        desc: "Aprendes dos conjuros de las listas de clérigo, druida o mago (o combinación). Deben ser trucos o conjuros para los que tengas espacios. Siempre los tienes preparados y al subir de nivel de bardo puedes reemplazar uno por otro que cumpla los requisitos."
+      - nivel: 14
+        nombre: Habilidad sin parangón
+        desc: "Cuando falles una prueba de característica o una tirada de ataque, puedes gastar un uso de Inspiración bárdica: tira el dado y suma el resultado al d20, lo que podría convertir el fallo en éxito. Si aun así fallas, la Inspiración bárdica no se gasta."
+
+  - nombre: Colegio del Glamour
+    lema: "Urde la magia cautivadora de los feéricos."
+    pagina: {pdf: 68, libro: 66}
+    rasgos:
+      - nivel: 3
+        nombre: Magia cautivadora
+        desc: "Siempre tienes preparados hechizar persona e imagen múltiple. Además, justo después de lanzar un conjuro de encantamiento o ilusionismo con un espacio, una criatura que veas a 18 m o menos hace una TdS de Sabiduría contra tu CD de salvación de conjuros o queda asustada o hechizada (a tu elección) 1 minuto, repitiendo la TdS al final de cada turno suyo. 1 vez por descanso largo; puedes restablecerlo gastando un uso de Inspiración bárdica (no requiere acción)."
+      - nivel: 3
+        nombre: Manto de inspiración
+        desc: "Acción adicional: gastas un uso de Inspiración bárdica y tiras el dado. Eliges hasta tantas otras criaturas a 18 m o menos como tu modificador por Carisma (mínimo una). Cada una obtiene PG temporales iguales al doble del resultado y puede usar su reacción para moverse hasta su velocidad sin provocar ataques de oportunidad."
+      - nivel: 6
+        nombre: Manto de majestad
+        desc: "Siempre tienes preparado orden imperiosa. Como acción adicional puedes lanzarlo sin gastar espacio y adoptar una apariencia sobrenatural 1 minuto o hasta perder la concentración; durante ese tiempo puedes lanzar orden imperiosa como acción adicional sin gastar espacio. Las criaturas que hayas hechizado fallan automáticamente su TdS contra esa orden imperiosa. 1 vez por descanso largo; puedes restablecerlo gastando un espacio de nivel 3 o superior (no requiere acción)."
+      - nivel: 14
+        nombre: Majestad inquebrantable
+        desc: "Acción adicional: aspecto majestuoso 1 minuto o hasta quedar incapacitado. Cuando una criatura te acierte con una tirada de ataque por primera vez en un turno, debe superar una TdS de Carisma contra tu CD de salvación de conjuros o el ataque falla. 1 vez por descanso corto o largo."
+
+  - nombre: Colegio del Valor
+    lema: "Canta las hazañas de los héroes de antaño."
+    pagina: {pdf: 69, libro: 67}
+    rasgos:
+      - nivel: 3
+        nombre: Entrenamiento marcial
+        desc: "Competencia con armas marciales y entrenamiento con armaduras medias y escudos. Además puedes usar un arma sencilla o marcial como canalizador mágico para tus conjuros de bardo."
+      - nivel: 3
+        nombre: Inspiración en combate
+        desc: "Una criatura que tenga uno de tus dados de Inspiración bárdica puede usarlo para: Defensa (cuando un ataque la acierte, usa su reacción para tirar el dado y sumarlo a su CA contra ese ataque, pudiendo hacer que falle) u Ofensiva (justo después de acertar con una tirada de ataque, tira el dado y suma el resultado al daño)."
+      - nivel: 6
+        nombre: Ataque adicional
+        desc: "Al llevar a cabo la acción de atacar en tu turno haces dos ataques en vez de uno. Además puedes lanzar uno de tus trucos con tiempo de lanzamiento de una acción en vez de uno de esos ataques."
+      - nivel: 14
+        nombre: Magia de batalla
+        desc: "Tras lanzar un conjuro con tiempo de lanzamiento de una acción, puedes hacer un ataque con un arma como acción adicional."

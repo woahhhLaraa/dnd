@@ -1,0 +1,266 @@
+nombre: Korrath Pico de Piedra
+jugador: null
+nivel_total: 1
+especie:
+  ref: especies/especies.yaml#Goliat
+  rasgos_elegidos:
+    linaje_gigante: Resistencia de la piedra
+trasfondo:
+  ref: trasfondos/trasfondos.yaml#Guía
+clases:
+- clase: Druida
+  ref: clases/druida.yaml
+  nivel: 1
+  subclase: null
+caracteristicas:
+  metodo: conjunto_estandar
+  base:
+    fue: 8
+    des: 12
+    con: 14
+    int: 13
+    sab: 15
+    car: 10
+  ajuste_trasfondo:
+    sab: 2
+    con: 1
+  final:
+    fue: 8
+    des: 12
+    con: 15
+    int: 13
+    sab: 17
+    car: 10
+competencias:
+  salvaciones:
+  - Inteligencia
+  - Sabiduría
+  habilidades:
+  - nombre: Naturaleza
+    origen:
+      clase: Druida
+  - nombre: Trato con animales
+    origen:
+      clase: Druida
+  - nombre: Sigilo
+    origen:
+      trasfondo: Guía
+  - nombre: Supervivencia
+    origen:
+      trasfondo: Guía
+  armas:
+  - categoria: Armas sencillas
+    origen:
+      clase: Druida
+  armaduras:
+  - categoria: Armaduras ligeras
+    origen:
+      clase: Druida
+  - categoria: Escudos
+    origen:
+      clase: Druida
+  herramientas:
+  - categoria: Útiles de herborista
+    origen:
+      clase: Druida
+  - categoria: herramientas de cartógrafo
+    origen:
+      trasfondo: Guía
+  idiomas:
+  - nombre: Común
+  - nombre: Druídico
+    origen:
+      clase: Druida
+      rasgo: Druídico
+  - nombre: Gigante
+    origen:
+      regla: 'reglas/idiomas.yaml: todo personaje elige 2 además de Común'
+  - nombre: Elfo
+    origen:
+      regla: 'reglas/idiomas.yaml: todo personaje elige 2 además de Común'
+equipo:
+- ref: equipo/armaduras.yaml#Armadura de cuero
+  origen:
+    clase: Druida
+    opcion: A
+- ref: equipo/armaduras.yaml#Escudo
+  origen:
+    clase: Druida
+    opcion: A
+- ref: equipo/armas.yaml#Hoz
+  origen:
+    clase: Druida
+    opcion: A
+- ref: equipo/aventureros.yaml#Canalizador druídico
+  origen:
+    clase: Druida
+    opcion: A
+    variante: Bastón de madera (también bastón)
+- ref: equipo/aventureros.yaml#Paquete de explorador
+  origen:
+    clase: Druida
+    opcion: A
+- ref: equipo/herramientas.yaml#Útiles de herborista
+  origen:
+    clase: Druida
+    opcion: A
+- ref: equipo/armas.yaml#Arco corto
+  origen:
+    trasfondo: Guía
+    opcion: A
+- ref: equipo/municion.yaml#Flechas
+  origen:
+    trasfondo: Guía
+    opcion: A
+    nota: 20, guardadas en la aljaba
+- ref: equipo/herramientas.yaml#Herramientas de cartógrafo
+  origen:
+    trasfondo: Guía
+    opcion: A
+- ref: equipo/aventureros.yaml#Aljaba
+  origen:
+    trasfondo: Guía
+    opcion: A
+- ref: equipo/aventureros.yaml#Petate
+  origen:
+    trasfondo: Guía
+    opcion: A
+- ref: equipo/aventureros.yaml#Tienda
+  origen:
+    trasfondo: Guía
+    opcion: A
+- ref: equipo/aventureros.yaml#Ropas de viaje
+  origen:
+    trasfondo: Guía
+    opcion: A
+conjuros:
+  trucos:
+  - ref: hechizos.json#Crear llama
+    origen:
+      clase: Druida
+      rasgo: Lanzamiento de conjuros
+  - ref: hechizos.json#Saber druídico
+    origen:
+      clase: Druida
+      rasgo: Lanzamiento de conjuros
+  - ref: hechizos.json#Guía
+    origen:
+      clase: Druida
+      rasgo: Orden primigenia (Naturalista)
+  - ref: hechizos.json#Rociada venenosa
+    origen:
+      dote: Iniciado en la magia
+  - ref: hechizos.json#Resistencia
+    origen:
+      dote: Iniciado en la magia
+  preparados:
+  - ref: hechizos.json#Curar heridas
+    origen:
+      clase: Druida
+      rasgo: Lanzamiento de conjuros
+  - ref: hechizos.json#Encantar animal
+    origen:
+      clase: Druida
+      rasgo: Lanzamiento de conjuros
+  - ref: hechizos.json#Fuego feérico
+    origen:
+      clase: Druida
+      rasgo: Lanzamiento de conjuros
+  - ref: hechizos.json#Ola atronadora
+    origen:
+      clase: Druida
+      rasgo: Lanzamiento de conjuros
+  - ref: hechizos.json#Hablar con los animales
+    origen:
+      clase: Druida
+      rasgo: Druídico
+      nota: siempre preparado, no cuenta contra el límite
+  - ref: hechizos.json#Buenas bayas
+    origen:
+      dote: Iniciado en la magia
+      nota: siempre preparado, se lanza 1 vez sin gastar espacio, recuperable tras descanso largo
+dotes:
+- ref: dotes/origen.yaml#Iniciado en la magia
+  origen:
+    trasfondo: Guía
+    lista: Druida
+    aptitud_elegida: Sabiduría
+calculado:
+  pg_max: 10
+  ca: 14
+  bonif_competencia: 2
+  cd_conjuros: 13
+  bonif_ataque_conjuros: 5
+  velocidad: 10.5
+historia: 'Korrath creció entre los pasos de altura de su clan goliat, donde aprendió a leer el clima y las rutas
+  antes que las letras. Se hizo guía de caravanas y peregrinos, y en ese oficio encontró a los círculos druídicos
+  que custodian los pasos más antiguos; con ellos aprendió que guiar a los vivos y guiar a la tierra son la misma
+  tarea.
+
+  '
+personalidad: 'Callado hasta que hace falta hablar, decide rápido y no repite el argumento dos veces.
+
+  '
+decisiones:
+- en: creación
+  eleccion: 'método de características: conjunto estándar (reparto sugerido por clase para Druida)'
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: conjunto_estandar_por_clase
+- en: creación
+  eleccion: 'ajuste de trasfondo: +2 Sabiduría, +1 Constitución (de las tres que ofrece Guía: Destreza, Constitución,
+    Sabiduría)'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Guía
+    campo: caracteristicas
+- en: creación
+  eleccion: 'linaje gigante de Goliat: Resistencia de la piedra'
+  cita:
+    archivo: especies/especies.yaml
+    registro: Goliat
+    campo: rasgos.Linaje gigante
+- en: creación
+  eleccion: 'habilidades de clase: Naturaleza, Trato con animales (sin repetir Supervivencia, que ya da el trasfondo)'
+  cita:
+    archivo: clases/druida.yaml
+    campo: atributos_basicos.habilidades
+- en: creación
+  eleccion: 'Orden primigenia: Naturalista (truco adicional + bonificador de Sabiduría a Conocimiento arcano y Naturaleza)'
+  cita:
+    archivo: clases/rasgos/druida.yaml
+    rasgo: Orden primigenia
+- en: creación
+  eleccion: 'equipo inicial de clase: opción A; equipo inicial de trasfondo: opción A'
+  cita:
+    archivo: clases/druida.yaml
+    campo: atributos_basicos.equipo_inicial
+- en: creación
+  eleccion: 'trucos: Crear llama, Saber druídico (recomendados por el rasgo), Guía (por Naturalista)'
+  cita:
+    archivo: clases/rasgos/druida.yaml
+    rasgo: Lanzamiento de conjuros
+- en: creación
+  eleccion: 'conjuros preparados de nivel 1: Curar heridas, Encantar animal, Fuego feérico, Ola atronadora (los
+    cuatro recomendados por el rasgo)'
+  cita:
+    archivo: clases/rasgos/druida.yaml
+    rasgo: Lanzamiento de conjuros
+- en: creación
+  eleccion: Druídico concede, sin contar contra el límite, hablar con los animales siempre preparado
+  cita:
+    archivo: clases/rasgos/druida.yaml
+    rasgo: Druídico
+- en: creación
+  eleccion: 'dote de trasfondo Guía: Iniciado en la magia, lista druida, aptitud Sabiduría; trucos Rociada venenosa
+    y Resistencia, conjuro Buenas bayas'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Guía
+    campo: dote
+- en: creación
+  eleccion: 'idiomas libres adicionales: Gigante y Elfo, más Común y Druídico (este último por el rasgo, no por
+    la regla general)'
+  cita:
+    archivo: reglas/idiomas.yaml
+    campo: nota

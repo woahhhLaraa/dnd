@@ -1,0 +1,43 @@
+clase: Pícaro
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", pagina_pdf: 170}
+verificado: {metodo: "vision-directa", tabla: "Rasgos de pícaro", fecha: "2026-08-18"}
+atributos_basicos:
+  fuente: {pagina_pdf: 169, pagina_libro: 167}
+  verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+  caracteristica_principal: Destreza
+  dado_golpe: d8
+  salvaciones: [Destreza, Inteligencia]
+  habilidades:
+    elige: 4
+    de: [Acrobacias, Atletismo, Engaño, Intimidación, Investigación, "Juego de manos", Percepción, Perspicacia, Persuasión, Sigilo]
+  armas: ["Armas sencillas", "Armas marciales con la propiedad \"ligera\" o \"sutil\""]
+  armaduras: ["Armaduras ligeras"]
+  herramientas: ["Herramientas de ladrón"]
+  equipo_inicial:
+    a: "armadura de cuero, 2 dagas, espada corta, arco corto, 20 flechas, aljaba, herramientas de ladrón, paquete de ladrón y 8 po"
+    b: "100 po"
+lanzador: ninguno   # salvo subclase Ladrón arcano (lanzador de subclase)
+columnas_extra: [ataque_furtivo]
+nota: "Mejora de característica extra en nivel 10 (además de 4, 8, 12 y 16). El nivel 6 concede Pericia por segunda vez, no una mejora de característica."
+progresion:
+  - {n: 1,  pb: 2, ataque_furtivo: "1d6",  rasgos: ["Ataque furtivo", "Jerga de ladrones", "Maestría con armas", "Pericia"]}
+  - {n: 2,  pb: 2, ataque_furtivo: "1d6",  rasgos: ["Acción astuta"]}
+  - {n: 3,  pb: 2, ataque_furtivo: "2d6",  rasgos: ["Puntería certera", "Subclase de pícaro"]}
+  - {n: 4,  pb: 2, ataque_furtivo: "2d6",  rasgos: ["Mejora de característica"]}
+  - {n: 5,  pb: 3, ataque_furtivo: "3d6",  rasgos: ["Esquiva asombrosa", "Golpe astuto"]}
+  - {n: 6,  pb: 3, ataque_furtivo: "3d6",  rasgos: ["Pericia"]}
+  - {n: 7,  pb: 3, ataque_furtivo: "4d6",  rasgos: ["Evasión", "Talentos fiables"]}
+  - {n: 8,  pb: 3, ataque_furtivo: "4d6",  rasgos: ["Mejora de característica"]}
+  - {n: 9,  pb: 4, ataque_furtivo: "5d6",  rasgos: ["Rasgo de subclase"]}
+  - {n: 10, pb: 4, ataque_furtivo: "5d6",  rasgos: ["Mejora de característica"]}
+  - {n: 11, pb: 4, ataque_furtivo: "6d6",  rasgos: ["Golpe astuto mejorado"]}
+  - {n: 12, pb: 4, ataque_furtivo: "6d6",  rasgos: ["Mejora de característica"]}
+  - {n: 13, pb: 5, ataque_furtivo: "7d6",  rasgos: ["Rasgo de subclase"]}
+  - {n: 14, pb: 5, ataque_furtivo: "7d6",  rasgos: ["Golpes taimados"]}
+  - {n: 15, pb: 5, ataque_furtivo: "8d6",  rasgos: ["Mente escurridiza"]}
+  - {n: 16, pb: 5, ataque_furtivo: "8d6",  rasgos: ["Mejora de característica"]}
+  - {n: 17, pb: 6, ataque_furtivo: "9d6",  rasgos: ["Rasgo de subclase"]}
+  - {n: 18, pb: 6, ataque_furtivo: "9d6",  rasgos: ["Elusivo"]}
+  - {n: 19, pb: 6, ataque_furtivo: "10d6", rasgos: ["Don épico"]}
+  - {n: 20, pb: 6, ataque_furtivo: "10d6", rasgos: ["Golpe de suerte"]}

@@ -1,0 +1,58 @@
+clase: Pícaro
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "172-177"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-18", cobertura: "4/4"}
+fidelidad: "condensado"   # mecánica reescrita en frases cortas, no la prosa del manual
+niveles_de_subclase: [3, 9, 13, 17]
+
+subclases:
+  - nombre: Asesino
+    lema: "Practica el sombrío arte de la muerte."
+    pagina: {pdf: 172, libro: 170}
+    confirmada_srd: true
+    rasgos:
+      - {nivel: 3, nombre: "Asesinar", desc: "Golpes sorprendentes: durante el primer asalto de cada combate, tienes ventaja en tiradas de ataque contra cualquier criatura que aún no haya jugado un turno; si tu Ataque furtivo acierta a un objetivo durante ese asalto, recibe daño adicional del tipo del arma igual a tu nivel de pícaro. Iniciativa: ventaja en tiradas de iniciativa."}
+      - {nivel: 3, nombre: "Herramientas de asesino", desc: "Consigues útiles de envenenador y útiles para disfrazarse, y tienes competencia con ellos."}
+      - {nivel: 9, nombre: "Pericia en infiltrarse", desc: "Imitación magistral: imitas a la perfección el habla, la caligrafía o ambas de otra persona si pasas al menos 1 hora estudiándolas. Puntería ambulante: tu velocidad no se reduce a 0 cuando usas Puntería certera."}
+      - {nivel: 13, nombre: "Envenenar armas", desc: "Cuando utilizas la opción de veneno de tu Golpe astuto, el objetivo también recibe 2d6 de daño de veneno si falla el TdS. Este daño ignora la resistencia al daño de veneno."}
+      - {nivel: 17, nombre: "Golpe mortal", desc: "Cuando aciertes con tu Ataque furtivo en el primer asalto de un combate, el objetivo hace un TdS de Constitución (CD 8 + tu modificador por Destreza + tu bonificador por competencia); si lo falla, se duplica el daño del ataque contra él."}
+
+  - nombre: Embaucador Arcano
+    lema: "Mejora tu sigilo mediante conjuros arcanos."
+    pagina: {pdf: 173, libro: 171}
+    confirmada_srd: true
+    lanzador_subclase: {tipo: "hasta espacios de nivel 4", aptitud: Inteligencia, canalizador: "canalizador arcano"}
+    rasgos:
+      - {nivel: 3, nombre: "Lanzamiento de conjuros", desc: "Trucos: conoces mano de mago y otros dos trucos de tu elección de la lista de mago (recomendados fragmento mental e ilusión menor); puedes sustituir uno (excepto mano de mago) al subir de nivel de pícaro, y aprendes otro truco al nivel 10. Conjuros preparados de nivel 1+: eliges 3 conjuros de mago de nivel 1 (recomendados disfrazarse, hechizar persona y nube de oscurecimiento); tu lista crece según la tabla «Lanzamiento de conjuros del embaucador arcano», con sustitución al subir de nivel. Aptitud mágica: Inteligencia. Canalizador mágico: puedes usar un canalizador arcano."}
+      - {nivel: 3, nombre: "Destreza con mano de mago", desc: "Puedes lanzar mano de mago como acción adicional y hacer que la mano espectral sea invisible. Puedes controlar la mano como acción adicional y usarla para pruebas de Destreza (Juego de manos)."}
+      - {nivel: 9, nombre: "Emboscada mágica", desc: "Si tienes el estado de invisible cuando lances un conjuro sobre una criatura, esta tiene desventaja en cualquier TdS contra el conjuro ese mismo turno."}
+      - {nivel: 13, nombre: "Embaucador versátil", desc: "Cuando utilizas la opción de tropiezo de tu Golpe astuto sobre una criatura, también puedes usar esa opción sobre otra criatura a 1,5 m o menos de tu mano de mago."}
+      - {nivel: 17, nombre: "Ladrón de conjuros", desc: "Inmediatamente después de que una criatura te haga objetivo de un conjuro (o su área te incluya), puedes usar una reacción para obligarla a un TdS de Inteligencia (tu CD de salvación de conjuros); si falla, anulas los efectos del conjuro sobre ti y robas el conocimiento de cómo lanzarlo (si es de nivel 1 o superior y de un nivel que puedas lanzar). Durante las siguientes 8 horas tienes el conjuro preparado, y la criatura no puede lanzarlo hasta que pasen esas 8 horas. No se repite hasta un descanso largo."}
+
+  - nombre: Ladrón
+    lema: "Busca tesoros como los aventureros clásicos."
+    pagina: {pdf: 175, libro: 173}
+    confirmada_srd: true
+    rasgos:
+      - {nivel: 3, nombre: "Balconero", desc: "Escalador: obtienes una velocidad trepando igual a tu velocidad. Saltador: puedes determinar tu distancia de salto empleando Destreza en vez de Fuerza."}
+      - {nivel: 3, nombre: "Manos rápidas", desc: "Acción adicional para hacer una de estas cosas: Juego de manos (prueba de Destreza (Juego de manos) para robarle a alguien o usar herramientas de ladrón para forzar una cerradura o desarmar una trampa) o Usar un objeto (acción de utilizar/de magia para usar un objeto mágico que necesite una acción)."}
+      - {nivel: 9, nombre: "Sigilo supremo", desc: "Obtienes la opción de Golpe astuto Ataque sigiloso (coste 1d6): si tienes el estado de invisible por una acción de esconderse, este ataque no pone fin a ese estado si terminas el turno tras una cobertura tres cuartos o completa."}
+      - {nivel: 13, nombre: "Usar objetos mágicos", desc: "Cargas: siempre que uses una propiedad de objeto mágico que gaste cargas, tiras 1d6; con un 6, usas la propiedad sin gastar cargas. Pergaminos: puedes usar cualquier pergamino de conjuro con Inteligencia como aptitud mágica; si es de nivel 1 o un truco, lo lanzas de forma fiable, si es de mayor nivel, superas antes una prueba de Inteligencia (Conocimiento arcano) CD 10 + nivel del conjuro (si falla, el pergamino se desintegra). Sintonización: puedes sintonizarte con hasta cuatro objetos mágicos a la vez."}
+      - {nivel: 17, nombre: "Reflejos de ladrón", desc: "Puedes actuar dos turnos durante el primer asalto de cualquier combate: el primero según tu iniciativa normal y el segundo en tu iniciativa menos 10."}
+
+  - nombre: Rebanaalmas
+    lema: "Golpea a tus enemigos con cuchillas psiónicas."
+    pagina: {pdf: 176, libro: 174}
+    dados_de_energia_psionica:
+      3: {dado: d6, cantidad: 4}
+      5: {dado: d8, cantidad: 6}
+      9: {dado: d8, cantidad: 8}
+      11: {dado: d10, cantidad: 8}
+      13: {dado: d10, cantidad: 10}
+      17: {dado: d12, cantidad: 12}
+    rasgos:
+      - {nivel: 3, nombre: "Cuchillas psíquicas", desc: "Al usar la acción de atacar o hacer un ataque de oportunidad, puedes hacer que aparezca una cuchilla psíquica en tu mano libre y atacar con ella: arma cuerpo a cuerpo sencilla, 1d6 de daño psíquico + mod. de característica al acertar, propiedades arrojadiza (alcance 18/36 m) y sutil, maestría molestar (no cuenta para tu límite de Maestría con armas). La cuchilla se desvanece tras el ataque. Tras atacar con ella en tu turno, puedes hacer un segundo ataque con otra cuchilla psíquica como acción adicional si tu otra mano está libre (1d4 de daño en vez de 1d6)."}
+      - {nivel: 3, nombre: "Poder psiónico", desc: "Posees dados de energía psiónica (tamaño y cantidad según la tabla); recuperas uno tras un descanso corto y todos tras un descanso largo. Don psirreforzado: si fallas una prueba de característica con habilidad o herramienta en la que seas competente, puedes tirar un dado y sumarlo a la prueba (se gasta solo si tiene éxito). Susurros psíquicos: acción de magia, eliges criaturas que veas hasta tu bonificador por competencia y tiras un dado; durante esas horas podéis hablar telepáticamente a 1,5 km o menos (la primera vez tras un descanso largo no gasta el dado). Golpes teledirigidos: si fallas un ataque con cuchilla psíquica, tiras un dado y lo sumas a la tirada; si acierta, se gasta el dado. Teletransporte psíquico: acción adicional, manifiestas una cuchilla psíquica, gastas un dado y la lanzas a un espacio libre que veas hasta 3× el resultado en metros, teletransportándote a ese espacio (la cuchilla desaparece)."}
+      - {nivel: 9, nombre: "Cuchillas del alma", desc: "Puedes usar Golpes teledirigidos y Teletransporte psíquico (ver Poder psiónico)."}
+      - {nivel: 13, nombre: "Velo psíquico", desc: "Acción de magia: obtienes el estado de invisible durante 1 hora o hasta que lo disipes (no requiere acción); termina de inmediato si infliges daño u obligas a un TdS. No se repite hasta un descanso largo salvo que gastes un dado de energía psiónica (no requiere acción)."}
+      - {nivel: 17, nombre: "Desgarro mental", desc: "Cuando uses tus cuchillas psíquicas para infligir daño de Ataque furtivo a una criatura, puedes obligarla a un TdS de Sabiduría (CD 8 + mod. Destreza + bonif. competencia); si lo falla, queda aturdida durante 1 minuto, repitiendo la salvación al final de cada uno de sus turnos. No se repite hasta un descanso largo salvo que gastes tres dados de energía psiónica (no requiere acción)."}

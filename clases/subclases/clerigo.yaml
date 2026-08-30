@@ -1,0 +1,68 @@
+clase: Clérigo
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "87-91"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-18", cobertura: "4/4"}
+fidelidad: "condensado"   # mecánica reescrita en frases cortas, no la prosa del manual
+niveles_de_subclase: [3, 6, 17]
+
+subclases:
+  - nombre: Dominio de la Guerra
+    lema: "Inspira valor y castiga a los enemigos."
+    pagina: {pdf: 87, libro: 85}
+    conjuros_siempre_preparados:
+      3: ["Arma espiritual", "Arma mágica", "Escudo de fe", "Saeta guía"]
+      5: ["Espíritus guardianes", "Manto del cruzado"]
+      7: ["Escudo de fuego", "Libertad del movimiento"]
+      9: ["Golpe de viento acerado", "Inmovilizar monstruo"]
+    rasgos:
+      - {nivel: 3, nombre: "Conjuros del dominio de la guerra", desc: "Siempre tienes preparados los conjuros de la tabla al alcanzar el nivel de clérigo indicado."}
+      - {nivel: 3, nombre: "Golpe guiado", desc: "Cuando tú o una criatura a 9 m o menos falléis una tirada de ataque, gastas un uso de Canalizar divinidad para conceder +10 a la tirada. Si es para otra criatura, debes usar una reacción."}
+      - {nivel: 3, nombre: "Sacerdote guerrero", desc: "Acción adicional: haces un ataque con un arma o sin armas. Usos iguales a tu modificador por Sabiduría (mínimo 1); se recuperan tras un descanso corto o largo."}
+      - {nivel: 6, nombre: "Bendición del dios de la guerra", desc: "Gastas un uso de Canalizar divinidad para lanzar arma espiritual o escudo de fe sin gastar espacio. Lanzado así no requiere concentración: dura 1 minuto, y termina antes si lo relanzas, quedas incapacitado o mueres."}
+      - {nivel: 17, nombre: "Avatar de la batalla", desc: "Resistencia al daño contundente, cortante y perforante."}
+
+  - nombre: Dominio de la Luz
+    lema: "Trae la luz para repeler la oscuridad."
+    pagina: {pdf: 88, libro: 86}
+    conjuros_siempre_preparados:
+      3: ["Fuego feérico", "Manos ardientes", "Rayo abrasador", "Ver invisibilidad"]
+      5: ["Bola de fuego", "Luz del día"]
+      7: ["Muro de fuego", "Ojo arcano"]
+      9: [Escudriñar, "Golpe flamígero"]
+    rasgos:
+      - {nivel: 3, nombre: "Conjuros del dominio de la luz", desc: "Siempre tienes preparados los conjuros de la tabla al alcanzar el nivel de clérigo indicado."}
+      - {nivel: 3, nombre: "Fulgor protector", desc: "Cuando una criatura que veas a 9 m o menos haga una tirada de ataque, usas una reacción para imponerle desventaja haciendo resplandecer una luz ante ella. Usos iguales a tu modificador por Sabiduría (mínimo 1); se recuperan tras un descanso largo."}
+      - {nivel: 3, nombre: "Resplandor del amanecer", desc: "Acción de magia: muestras tu símbolo sagrado y gastas un uso de Canalizar divinidad para emitir un destello en emanación de 9 m. Disipa la oscuridad mágica de la zona. Las criaturas de tu elección hacen TdS de Constitución: 2d10 + tu nivel de clérigo de daño radiante si la fallan, mitad si la superan."}
+      - {nivel: 6, nombre: "Fulgor protector mejorado", desc: "Recuperas todos los usos de Fulgor protector tras un descanso corto o largo. Además, al usarlo puedes conceder al objetivo del ataque PG temporales iguales a 2d6 + tu modificador por Sabiduría."}
+      - {nivel: 17, nombre: "Halo de luz", desc: "Acción de magia: aura de luz solar 1 minuto o hasta que la disipes (no requiere acción). Luz brillante en radio de 18 m y tenue 9 m más. Los enemigos en la luz brillante tienen desventaja en las TdS contra Resplandor del amanecer o contra cualquier conjuro que cause daño de fuego o radiante. Usos iguales a tu modificador por Sabiduría (mínimo 1); se recuperan tras un descanso largo."}
+
+  - nombre: Dominio de la Vida
+    lema: "Alivia las penas del mundo."
+    pagina: {pdf: 89, libro: 87}
+    confirmada_srd: true
+    conjuros_siempre_preparados:
+      3: [Auxilio, Bendición, "Curar heridas", "Restablecimiento menor"]
+      5: ["Palabra de curación en masa", Revivir]
+      7: ["Aura de vida", "Guarda contra la muerte"]
+      9: ["Curar heridas en masa", "Restablecimiento mayor"]
+    rasgos:
+      - {nivel: 3, nombre: "Conjuros del dominio de la vida", desc: "Siempre tienes preparados los conjuros de la tabla al alcanzar el nivel de clérigo indicado."}
+      - {nivel: 3, nombre: "Discípulo de la vida", desc: "Cuando uses un espacio de conjuro para lanzar un conjuro que restaure PG a una criatura, esta recupera PG adicionales iguales a 2 + el nivel del espacio, en el turno en que lo lances."}
+      - {nivel: 3, nombre: "Preservar vida", desc: "Acción de magia: muestras tu símbolo sagrado y gastas un uso de Canalizar divinidad para restaurar PG iguales a cinco veces tu nivel de clérigo, repartidos entre criaturas maltrechas a 9 m o menos (puedes incluirte). No puede llevar a ninguna por encima de la mitad de sus PG máximos."}
+      - {nivel: 6, nombre: "Sanador bendito", desc: "Justo después de usar un espacio para lanzar un conjuro que restaure PG a una o varias criaturas que no seas tú, recuperas PG iguales a 2 + el nivel del espacio."}
+      - {nivel: 17, nombre: "Sanación suprema", desc: "En vez de tirar dados de curación con un conjuro o con Canalizar divinidad, usas el número más alto de cada dado. Por ejemplo, en lugar de 2d6 PG, la criatura recupera 12."}
+
+  - nombre: Dominio del Engaño
+    lema: "Comete travesuras y desafía a las autoridades."
+    pagina: {pdf: 90, libro: 88}
+    conjuros_siempre_preparados:
+      3: [Disfrazarse, "Hechizar persona", Invisibilidad, "Pasar sin rastro"]
+      5: [Indetectable, "Patrón hipnótico"]
+      7: [Confusión, "Puerta dimensional"]
+      9: ["Alterar los recuerdos", "Dominar persona"]
+    rasgos:
+      - {nivel: 3, nombre: "Bendición del embaucador", desc: "Acción de magia: te eliges a ti o a una criatura voluntaria a 9 m o menos para que tenga ventaja en las pruebas de Destreza (Sigilo). Dura hasta que finalices un descanso largo o hasta que vuelvas a usar el rasgo."}
+      - {nivel: 3, nombre: "Conjuros del dominio del engaño", desc: "Siempre tienes preparados los conjuros de la tabla al alcanzar el nivel de clérigo indicado."}
+      - {nivel: 3, nombre: "Invocar duplicidad", desc: "Acción adicional: gastas un uso de Canalizar divinidad para crear un duplicado ilusorio tuyo en un espacio libre que veas a 9 m o menos. No es tangible ni ocupa espacio. Dura 1 minuto; termina si la disipas (no requiere acción) o quedas incapacitado. Beneficios: Distraer (ventaja al atacar a una criatura si tú y la ilusión estáis a 1,5 m o menos de ella y puede verla); Lanzar conjuros (puedes lanzar como si estuvieras en el espacio de la ilusión, usando tus propios sentidos); Mover (acción adicional para moverla hasta 9 m a un espacio libre que veas a 36 m o menos)."}
+      - {nivel: 6, nombre: "Transposición del embaucador", desc: "Siempre que uses una acción adicional para crear o mover la ilusión de Invocar duplicidad, puedes teletransportarte intercambiando tu lugar con el de la ilusión."}
+      - {nivel: 17, nombre: "Duplicidad mejorada", desc: "Distracción compartida: tus aliados y tú tenéis ventaja en las tiradas de ataque contra criaturas a 1,5 m o menos de la ilusión. Ilusión sanadora: cuando la ilusión desaparezca, tú o una criatura de tu elección a 1,5 m o menos recuperáis PG iguales a tu nivel de clérigo."}

@@ -1,0 +1,66 @@
+# Vocabulario de los prerrequisitos de dote (Fase 15).
+#
+# 75 dotes · 65 con prerrequisito · **11 formas distintas**, y todas se
+# descomponen en 4 átomos y 2 conectores. Esto no es un diseño: es lo que salió
+# de inventariar los 65 literales que ya estaban en `dotes/*.yaml`.
+#
+# **Decisión que ahorra trabajo, y conviene dejarla escrita.**
+# `ANALISIS_REPOS.md` §5 propone copiar la idea de PCGen: prerrequisitos
+# componibles con negación (`!`) y «N de M» (`PREMULT:N`). **No hace falta.** En
+# los 65 prerrequisitos reales **no hay ni una sola negación ni un solo «N de
+# M»**. Copiar ese vocabulario sería inventar expresividad que nada usa, y una
+# gramática con ramas que ningún dato ejercita es una gramática sin probar. Si
+# algún día aparece un caso, se añade entonces — con su dote de ejemplo delante.
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", nota: "los literales ya estaban transcritos y auditados en la Fase 13n (dotes: 0,72 % de defecto); la Fase 15 los estructura, no los relee"}
+verificado: {metodo: "derivado-de-texto-ya-auditado", fecha: "2026-08-30"}
+fidelidad: estructurado
+
+# ── Los cuatro átomos ────────────────────────────────────────────────────
+atomos:
+  nivel:
+    forma: "nivel <N> o más"
+    campos: {minimo: "entero"}
+    ejemplo: "nivel 4 o más"
+  caracteristica:
+    forma: "<CAR>[, <CAR>][ o <CAR>] <N> o más"
+    campos: {cualquiera_de: "lista de características", minimo: "entero"}
+    semantica: "basta con que UNA de las listadas llegue al mínimo"
+    ejemplo: "Fuerza o Destreza 13 o más"
+  rasgo:
+    forma: "rasgo <Nombre>[ o <Nombre>]"
+    campos: {cualquiera_de: "lista de nombres de rasgo"}
+    semantica: "basta con tener UNO de los listados"
+    ejemplo: "rasgo Lanzamiento de conjuros o Magia del pacto"
+  entrenamiento:
+    forma: "entrenamiento con <categoria>"
+    campos: {categoria: "una de `categorias_entrenamiento`"}
+    ejemplo: "entrenamiento con armaduras medias"
+
+# ── Los dos conectores ───────────────────────────────────────────────────
+conectores:
+  y:
+    separadores: [", ", "; "]
+    semantica: "se exigen TODOS los términos"
+    nota_del_punto_y_coma: >
+      El «;» aparece **una sola vez** en los 65, y por una razón real: el término
+      que lo sigue lleva comas dentro («nivel 4 o más; Inteligencia, Sabiduría o
+      Carisma 13 o más»). No son dos conectores distintos: es el mismo «y»,
+      escrito con el separador que no genera ambigüedad. El renderizador aplica
+      exactamente ese criterio, y por eso el ida y vuelta reproduce el original.
+  o:
+    forma: "dentro de un término, con « o »"
+    semantica: "basta con UNO"
+
+categorias_entrenamiento:
+  - "armaduras ligeras"
+  - "armaduras medias"
+  - "armaduras pesadas"
+  - "escudos"
+_nota_categorias: >
+  Las clases las escriben capitalizadas en `atributos_basicos.armaduras`
+  («Armaduras ligeras», «Escudos») y los prerrequisitos en minúscula. Se
+  comparan sin distinguir mayúsculas; `validar_prerrequisitos()` exige que cada
+  categoría citada exista de verdad en alguna clase.
+
+caracteristicas: [Fuerza, Destreza, Constitución, Inteligencia, Sabiduría, Carisma]

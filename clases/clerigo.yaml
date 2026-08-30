@@ -1,0 +1,43 @@
+clase: Clérigo
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", pagina_pdf: 84}
+verificado: {metodo: "vision-directa", tabla: "Rasgos de clérigo", fecha: "2026-08-18"}
+atributos_basicos:
+  fuente: {pagina_pdf: 83, pagina_libro: 81}
+  verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+  caracteristica_principal: Sabiduría
+  dado_golpe: d8
+  salvaciones: [Sabiduría, Carisma]
+  habilidades:
+    elige: 2
+    de: [Historia, Medicina, Perspicacia, Persuasión, Religión]
+  armas: ["Armas sencillas"]
+  armaduras: ["Armaduras ligeras", "Armaduras medias", Escudos]
+  herramientas: []
+  equipo_inicial:
+    a: "camisa de malla, escudo, maza, paquete de sacerdote, símbolo sagrado y 7 po"
+    b: "110 po"
+lanzador: completo
+aptitud_magica: Sabiduría
+columnas_extra: [canalizar, trucos, prep]
+progresion:
+  - {n: 1,  pb: 2, canalizar: 0, trucos: 3, prep: 4,  slots: [2,0,0,0,0,0,0,0,0], rasgos: ["Lanzamiento de conjuros", "Orden divina"]}
+  - {n: 2,  pb: 2, canalizar: 2, trucos: 3, prep: 5,  slots: [3,0,0,0,0,0,0,0,0], rasgos: ["Canalizar divinidad"]}
+  - {n: 3,  pb: 2, canalizar: 2, trucos: 3, prep: 6,  slots: [4,2,0,0,0,0,0,0,0], rasgos: ["Subclase de clérigo"]}
+  - {n: 4,  pb: 2, canalizar: 2, trucos: 4, prep: 7,  slots: [4,3,0,0,0,0,0,0,0], rasgos: ["Mejora de característica"]}
+  - {n: 5,  pb: 3, canalizar: 2, trucos: 4, prep: 9,  slots: [4,3,2,0,0,0,0,0,0], rasgos: ["Abrasar muertos vivientes"]}
+  - {n: 6,  pb: 3, canalizar: 3, trucos: 4, prep: 10, slots: [4,3,3,0,0,0,0,0,0], rasgos: ["Rasgo de subclase"]}
+  - {n: 7,  pb: 3, canalizar: 3, trucos: 4, prep: 11, slots: [4,3,3,1,0,0,0,0,0], rasgos: ["Golpes benditos"]}
+  - {n: 8,  pb: 3, canalizar: 3, trucos: 4, prep: 12, slots: [4,3,3,2,0,0,0,0,0], rasgos: ["Mejora de característica"]}
+  - {n: 9,  pb: 4, canalizar: 3, trucos: 4, prep: 14, slots: [4,3,3,3,1,0,0,0,0], rasgos: []}
+  - {n: 10, pb: 4, canalizar: 3, trucos: 5, prep: 15, slots: [4,3,3,3,2,0,0,0,0], rasgos: ["Intercesión divina"]}
+  - {n: 11, pb: 4, canalizar: 3, trucos: 5, prep: 16, slots: [4,3,3,3,2,1,0,0,0], rasgos: []}
+  - {n: 12, pb: 4, canalizar: 3, trucos: 5, prep: 16, slots: [4,3,3,3,2,1,0,0,0], rasgos: ["Mejora de característica"]}
+  - {n: 13, pb: 5, canalizar: 3, trucos: 5, prep: 17, slots: [4,3,3,3,2,1,1,0,0], rasgos: []}
+  - {n: 14, pb: 5, canalizar: 3, trucos: 5, prep: 17, slots: [4,3,3,3,2,1,1,0,0], rasgos: ["Golpes benditos mejorados"]}
+  - {n: 15, pb: 5, canalizar: 3, trucos: 5, prep: 18, slots: [4,3,3,3,2,1,1,1,0], rasgos: []}
+  - {n: 16, pb: 5, canalizar: 3, trucos: 5, prep: 18, slots: [4,3,3,3,2,1,1,1,0], rasgos: ["Mejora de característica"]}
+  - {n: 17, pb: 6, canalizar: 3, trucos: 5, prep: 19, slots: [4,3,3,3,2,1,1,1,1], rasgos: ["Rasgo de subclase"]}
+  - {n: 18, pb: 6, canalizar: 4, trucos: 5, prep: 20, slots: [4,3,3,3,3,1,1,1,1], rasgos: []}
+  - {n: 19, pb: 6, canalizar: 4, trucos: 5, prep: 21, slots: [4,3,3,3,3,2,1,1,1], rasgos: ["Don épico"]}
+  - {n: 20, pb: 6, canalizar: 4, trucos: 5, prep: 22, slots: [4,3,3,3,3,2,2,1,1], rasgos: ["Intercesión divina mayor"]}

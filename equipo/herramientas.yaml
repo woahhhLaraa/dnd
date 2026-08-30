@@ -1,0 +1,62 @@
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "222-223", paginas_libro: "220-221"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+fidelidad: "estructurado"   # tabla de datos: característica, peso, precio
+
+reglas:
+  competencia: "Si eres competente con una herramienta, sumas tu bonificador por competencia a cualquier prueba de característica que hagas empleándola. Si además eres competente en una habilidad que se use en esa prueba, tienes ventaja al hacerla."
+
+herramientas_de_artesano:
+  - {nombre: "Herramientas de albañil", caracteristica: Fuerza, peso_kg: 4, precio: "10 po", utilizar: "esculpir un símbolo o un agujero en la piedra (CD 10)", fabricar: "polipasto"}
+  - {nombre: "Herramientas de alfarero", caracteristica: Inteligencia, peso_kg: 1.5, precio: "10 po", utilizar: "distinguir lo que ha contenido un objeto de cerámica durante las últimas 24 horas (CD 15)", fabricar: "jarro, lámpara"}
+  - {nombre: "Herramientas de carpintero", caracteristica: Fuerza, peso_kg: 3, precio: "8 po", utilizar: "sellar o forzar una puerta o un recipiente (CD 20)", fabricar: "bastón, garrote, garrote grande, antorcha, ariete portátil, barril, cofre, escalera, vara"}
+  - {nombre: "Herramientas de cartógrafo", caracteristica: Sabiduría, peso_kg: 3, precio: "15 po", utilizar: "dibujar un mapa de una zona pequeña (CD 15)", fabricar: "mapa"}
+  - {nombre: "Herramientas de curtidor", caracteristica: Destreza, peso_kg: 2.5, precio: "5 po", utilizar: "añadir un diseño a un objeto de cuero (CD 10)", fabricar: "honda, látigo, armadura de cuero, armadura de cuero tachonado, armadura de pieles, aljaba, bolsa, cantimplora, estuche para mapas o pergaminos, estuche para virotes de ballesta, mochila, pergamino"}
+  - {nombre: "Herramientas de ebanista", caracteristica: Destreza, peso_kg: 2.5, precio: "1 po", utilizar: "tallar un dibujo en madera (CD 10)", fabricar: "bastón, garrote, garrote grande, armas a distancia (salvo honda, mosquete y pistola), canalizador arcano, canalizador druídico, dardos, flechas, pluma, virotes"}
+  - {nombre: "Herramientas de herrero", caracteristica: Fuerza, peso_kg: 4, precio: "20 po", utilizar: "forzar una puerta o un recipiente (CD 20)", fabricar: "cualquier arma cuerpo a cuerpo (salvo bastón, garrote, garrote grande y látigo), armaduras medias (salvo de pieles), armaduras pesadas, abrojos, balas de arma de fuego, bolas de metal, cadena, cubo, garfio de escalada, olla de hierro, palanqueta, proyectiles de honda, puntas de hierro"}
+  - {nombre: "Herramientas de joyero", caracteristica: Inteligencia, peso_kg: 1, precio: "25 po", utilizar: "discernir el valor de una gema (CD 15)", fabricar: "canalizador arcano, símbolo sagrado"}
+  - {nombre: "Herramientas de manitas", caracteristica: Destreza, peso_kg: 5, precio: "50 po", utilizar: "montar un objeto Diminuto compuesto de chatarra, que se desarmará tras 1 minuto (CD 20)", fabricar: "mosquete, pistola, campana, cerradura, espejo, esposas, frasco, linterna de ojo de buey, linterna sorda, pala, silbato de supervivencia, trampa para cazar, yesquero"}
+  - {nombre: "Herramientas de soplador de vidrio", caracteristica: Inteligencia, peso_kg: 2.5, precio: "30 po", utilizar: "distinguir lo que ha contenido un objeto de vidrio durante las últimas 24 horas (CD 15)", fabricar: "botella de cristal, catalejo, lupa, vial"}
+  - {nombre: "Herramientas de tejedor", caracteristica: Destreza, peso_kg: 2.5, precio: "1 po", utilizar: "remendar un roto en una prenda (CD 10) o coser un diseño Diminuto (CD 10)", fabricar: "armadura acolchada, cesta, cordel, cuerda, manta, petate, red, ropas de calidad, ropas de viaje, saco, tienda, túnica"}
+  - {nombre: "Herramientas de zapatero", caracteristica: Destreza, peso_kg: 2.5, precio: "5 po", utilizar: "modificar calzado para dar ventaja a la siguiente prueba de Destreza (Acrobacias) de quien lo lleve (CD 10)", fabricar: "útiles de escalada"}
+  - {nombre: "Suministros de alquimista", caracteristica: Inteligencia, peso_kg: 4, precio: "50 po", utilizar: "identificar una sustancia (CD 15) o encender un fuego (CD 15)", fabricar: "aceite, ácido, fuego de alquimista, papel, perfume, saquito de componentes"}
+  - {nombre: "Suministros de calígrafo", caracteristica: Destreza, peso_kg: 2.5, precio: "10 po", utilizar: "escribir texto lleno de florituras que no se pueda falsificar (CD 15)", fabricar: "pergamino de conjuro, tinta"}
+  - {nombre: "Suministros de cervecero", caracteristica: Inteligencia, peso_kg: 4.5, precio: "20 po", utilizar: "detectar bebida envenenada (CD 15) o identificar alcohol (CD 10)", fabricar: "antitoxina"}
+  - {nombre: "Suministros de pintor", caracteristica: Sabiduría, peso_kg: 2.5, precio: "10 po", utilizar: "pintar una imagen reconocible de algo que hayas visto (CD 10)", fabricar: "canalizador druídico, símbolo sagrado"}
+  - {nombre: "Útiles de cocinero", caracteristica: Sabiduría, peso_kg: 4, precio: "1 po", utilizar: "mejorar el sabor de la comida (CD 10) o detectar alimentos podridos o envenenados (CD 15)", fabricar: "raciones"}
+
+otras_herramientas:
+  - {nombre: "Herramientas de ladrón", caracteristica: Destreza, peso_kg: 0.5, precio: "25 po", utilizar: "forzar una cerradura (CD 15) o desarmar una trampa (CD 15)", fabricar: null}
+  - {nombre: "Herramientas de navegante", caracteristica: Sabiduría, peso_kg: 1, precio: "25 po", utilizar: "trazar un rumbo (CD 10) o determinar la posición contemplando las estrellas (CD 15)", fabricar: null}
+  - nombre: "Instrumento musical"
+    caracteristica: Carisma
+    peso_kg: variable
+    precio: variable
+    utilizar: "tocar una melodía conocida (CD 10) o improvisar una canción (CD 15)"
+    fabricar: null
+    variantes:
+      - {nombre: Chirimía, precio: "2 po", peso_kg: 0.5}
+      - {nombre: Cuerno, precio: "3 po", peso_kg: 1}
+      - {nombre: Dulcémele, precio: "25 po", peso_kg: 5}
+      - {nombre: Flauta, precio: "2 po", peso_kg: 0.5}
+      - {nombre: "Flauta de pan", precio: "12 po", peso_kg: 1}
+      - {nombre: Gaita, precio: "30 po", peso_kg: 3}
+      - {nombre: Laúd, precio: "35 po", peso_kg: 1}
+      - {nombre: Lira, precio: "30 po", peso_kg: 1}
+      - {nombre: Tambor, precio: "6 po", peso_kg: 1.5}
+      - {nombre: Viola, precio: "30 po", peso_kg: 0.5}
+  - nombre: Juego
+    caracteristica: Sabiduría
+    peso_kg: variable
+    precio: variable
+    utilizar: "distinguir si alguien hace trampas (CD 10) o ganar la partida (CD 20)"
+    fabricar: null
+    variantes:
+      - {nombre: "Ajedrez dragón", precio: "1 po", peso_kg: null}
+      - {nombre: "Apuesta de los tres dragones", precio: "1 po", peso_kg: null}
+      - {nombre: Dados, precio: "1 pp", peso_kg: null}
+      - {nombre: Naipes, precio: "5 pp", peso_kg: null}
+  - {nombre: "Útiles de envenenador", caracteristica: Inteligencia, peso_kg: 1, precio: "50 po", utilizar: "detectar un objeto envenenado (CD 10)", fabricar: "veneno básico"}
+  - {nombre: "Útiles de herborista", caracteristica: Inteligencia, peso_kg: 1.5, precio: "5 po", utilizar: "identificar una planta (CD 10)", fabricar: "antitoxina, poción de curación, útiles de sanador, vela"}
+  - {nombre: "Útiles para disfrazarse", caracteristica: Carisma, peso_kg: 1.5, precio: "25 po", utilizar: "maquillar (CD 10)", fabricar: "disfraz"}
+  - {nombre: "Útiles para falsificar", caracteristica: Destreza, peso_kg: 2.5, precio: "15 po", utilizar: "escribir 10 o menos palabras imitando la letra de otra persona (CD 15) o duplicar un sello de cera (CD 20)", fabricar: null}
