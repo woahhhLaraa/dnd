@@ -19,6 +19,18 @@
 
 ---
 
+## Dónde vive esto (nuevo, 2026-08-30)
+
+**El proyecto está en git**, en un repositorio privado:
+`git@github.com:woahhhLaraa/dnd.git`, rama `master`. Hasta el 2026-08-30 no
+tenía control de versiones ninguno, que era su mayor fragilidad operativa: un
+`sed` mal escrito sobre 391 conjuros no tenía vuelta atrás, y este documento
+llevaba semanas siendo la única memoria del proyecto.
+
+`.gitignore` solo excluye `__pycache__` y `.pyc`. **El SRD de `_verificacion/`
+va dentro a propósito** (13 de los 16 MB): sin él los contrastes externos no son
+reproducibles, y es CC-BY-4.0.
+
 ## Qué es esto
 
 Una base de datos canónica de **D&D 2024 (5.5e) en castellano**, transcrita del

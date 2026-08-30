@@ -105,7 +105,16 @@ reproducen con los cinco comandos del final.
    **20/20 por mutación**. **Queda un hueco declarado**, no tapado: la CA de
    quien no lleva nada (`10 + mod_des`) no tiene página citada en esta base, y
    el validador avisa hasta que se cierre.
-6. **`hechizos.json` pesa 564 KB.** Cargarlo entero es el fallo «lost in the
+6. **~~El proyecto no tenía control de versiones~~ → ✅ resuelto (2026-08-30).**
+   Era la mayor fragilidad **operativa**, y no aparecía en ninguna lista porque
+   no es un defecto de datos: durante semanas, un `sed` mal escrito sobre los
+   391 conjuros no tenía vuelta atrás, y cada corrección de esta sesión se hizo
+   sobre ficheros sin red. Hoy está en un repositorio privado con su historia.
+   **Lo que esto habilita**, y es la razón de haberlo hecho ahora: revisión de
+   código independiente sobre el diff — las ~1.400 líneas de módulos nuevos de
+   la última tanda **no las ha revisado nadie**, y en ellas ya aparecieron
+   cuatro defectos, **dos de ellos silenciosos**.
+7. **`hechizos.json` pesa 564 KB.** Cargarlo entero es el fallo «lost in the
    middle». `buscar.py` lo evita, pero hay que usarlo siempre.
 
 ## 🚀 Oportunidades
