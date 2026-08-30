@@ -1,0 +1,70 @@
+clase: Brujo
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "77-81"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-18", cobertura: "4/4"}
+fidelidad: "condensado"   # mecánica reescrita en frases cortas, no la prosa del manual
+niveles_de_subclase: [3, 6, 10, 14]
+
+subclases:
+  - nombre: Patrón Celestial
+    lema: "Invoca el poder de los cielos."
+    pagina: {pdf: 77, libro: 75}
+    conjuros_siempre_preparados:
+      3: [Auxilio, "Curar heridas", "Llama sagrada", Luz, "Restablecimiento menor", "Saeta guía"]
+      5: ["Luz del día", Revivir]
+      7: ["Guardián de la fe", "Muro de fuego"]
+      9: ["Invocar celestial", "Restablecimiento mayor"]
+    rasgos:
+      - {nivel: 3, nombre: "Conjuros del celestial", desc: "Siempre tienes preparados los conjuros de la tabla al alcanzar el nivel de brujo indicado."}
+      - {nivel: 3, nombre: "Luz sanadora", desc: "Reserva de d6 igual a 1 + tu nivel de brujo. Como acción adicional gastas dados para curarte a ti o a una criatura que veas a 18 m o menos; el máximo de dados por uso es tu modificador por Carisma (mínimo 1). La reserva se restablece tras un descanso largo."}
+      - {nivel: 6, nombre: "Alma radiante", desc: "Resistencia al daño radiante. Una vez por turno, si causas daño radiante o de fuego con un conjuro, sumas tu modificador por Carisma al daño contra uno de sus objetivos."}
+      - {nivel: 10, nombre: "Resiliencia celestial", desc: "Obtienes PG temporales iguales a tu nivel de brujo + mod. Carisma siempre que uses Astucia mágica o finalices un descanso corto o largo. Además eliges hasta cinco criaturas que veas: cada una obtiene PG temporales iguales a la mitad de tu nivel de brujo + mod. Carisma."}
+      - {nivel: 14, nombre: "Venganza ardiente", desc: "Cuando tú o un aliado a 18 m o menos vayáis a hacer una TdS contra muerte, esa criatura recupera PG iguales a la mitad de sus PG máximos y puede poner fin al estado de derribada. Las criaturas de tu elección a 9 m o menos sufren 2d8 + mod. Carisma de daño radiante y quedan cegadas hasta el final del turno. 1 vez por descanso largo."}
+
+  - nombre: Patrón Feérico
+    lema: "Negocia con feéricos extravagantes."
+    pagina: {pdf: 78, libro: 76}
+    conjuros_siempre_preparados:
+      3: ["Calmar emociones", Dormir, "Fuego feérico", "Fuerza fantasmal", "Paso brumoso"]
+      5: ["Crecimiento vegetal", Desplazamiento]
+      7: ["Dominar bestia", "Invisibilidad mejorada"]
+      9: [Apariencia, "Dominar persona"]
+    rasgos:
+      - {nivel: 3, nombre: "Conjuros del señor feérico", desc: "Siempre tienes preparados los conjuros de la tabla al alcanzar el nivel de brujo indicado."}
+      - {nivel: 3, nombre: "Pasos feéricos", desc: "Puedes lanzar paso brumoso sin gastar espacio tantas veces como tu modificador por Carisma (mínimo 1), recuperando los usos tras un descanso largo. Al lanzarlo eliges un efecto adicional: Paso burlón (las criaturas a 1,5 m del espacio que abandonas superan TdS de Sabiduría o tienen desventaja al atacar a otros que no seas tú hasta tu siguiente turno) o Paso refrescante (tú o una criatura que veas a 3 m o menos obtenéis 1d10 PG temporales)."}
+      - {nivel: 6, nombre: "Escape brumoso", desc: "Puedes lanzar paso brumoso como reacción al recibir daño. Además añades a Pasos feéricos: Paso aterrador (las criaturas a 1,5 m del espacio que abandonas o en el que apareces, a tu elección, superan TdS de Sabiduría o sufren 2d10 de daño psíquico) y Paso desvanecedor (quedas invisible hasta tu siguiente turno o hasta que ataques, causes daño o lances un conjuro)."}
+      - {nivel: 10, nombre: "Defensas seductoras", desc: "Inmune al estado de hechizado. Además, justo después de que una criatura que veas te acierte, puedes usar una reacción para reducir a la mitad el daño recibido (redondeando abajo) y obligarla a una TdS de Sabiduría; si la falla sufre daño psíquico igual al que tú recibas. 1 vez por descanso largo, o gastando un espacio de Magia del pacto (no requiere acción)."}
+      - {nivel: 14, nombre: "Magia embrujadora", desc: "Justo después de lanzar un conjuro de encantamiento o ilusionismo usando una acción y un espacio, puedes lanzar paso brumoso como parte de la misma acción sin gastar otro espacio."}
+
+  - nombre: Patrón Infernal
+    lema: "Haz un trato con los Planos Inferiores."
+    pagina: {pdf: 79, libro: 77}
+    confirmada_srd: true
+    conjuros_siempre_preparados:
+      3: ["Manos ardientes", "Orden imperiosa", "Rayo abrasador", Sugestión]
+      5: ["Bola de fuego", "Nube apestosa"]
+      7: ["Escudo de fuego", "Muro de fuego"]
+      9: [Geas, "Plaga de insectos"]
+    rasgos:
+      - {nivel: 3, nombre: "Bendición del oscuro", desc: "Cuando reduzcas a 0 los PG de un enemigo obtienes PG temporales iguales a tu modificador por Carisma + tu nivel de brujo (mínimo 1). También lo obtienes si otra criatura reduce a 0 los PG de un enemigo a 3 m o menos de ti."}
+      - {nivel: 3, nombre: "Conjuros del infernal", desc: "Siempre tienes preparados los conjuros de la tabla al alcanzar el nivel de brujo indicado."}
+      - {nivel: 6, nombre: "La suerte del oscuro", desc: "Cuando hagas una prueba de característica o una TdS puedes sumar 1d10, incluso tras ver el resultado pero antes de sus efectos. Usos iguales a tu modificador por Carisma (mínimo 1), no más de uno por tirada; se recuperan tras un descanso largo."}
+      - {nivel: 10, nombre: "Resistencia infernal", desc: "Tras un descanso corto o largo eliges un tipo de daño que no sea de fuerza; tienes resistencia a ese tipo hasta que elijas otro."}
+      - {nivel: 14, nombre: "Arrastrar por el infierno", desc: "Una vez por turno, al acertar a una criatura, puede hacer una TdS de Carisma o desaparece a los Planos Inferiores. Si no es un infernal sufre 8d10 de daño psíquico y queda incapacitado hasta el final de tu siguiente turno, cuando vuelve a su espacio o al libre más cercano. 1 vez por descanso largo, o gastando un espacio de Magia del pacto (no requiere acción)."}
+
+  - nombre: Patrón Primigenio
+    lema: "Desentierra saberes ocultos de seres inenarrables."
+    pagina: {pdf: 80, libro: 78}
+    conjuros_siempre_preparados:
+      3: ["Detectar pensamientos", "Fuerza fantasmal", "Risa horrible de Tasha", "Susurros discordantes"]
+      5: [Clarividencia, "Hambre de Hadar"]
+      7: [Confusión, "Invocar aberración"]
+      9: ["Alterar los recuerdos", Telequinesis]
+    rasgos:
+      - {nivel: 3, nombre: "Conjuros del primigenio", desc: "Siempre tienes preparados los conjuros de la tabla al alcanzar el nivel de brujo indicado."}
+      - {nivel: 3, nombre: "Conjuros psíquicos", desc: "Cuando lances un conjuro de brujo que cause daño puedes cambiar su tipo de daño a psíquico. Además, los conjuros de brujo de encantamiento o ilusionismo puedes lanzarlos sin componentes verbales ni somáticos."}
+      - {nivel: 3, nombre: "Mente iluminada", desc: "Acción adicional: eliges una criatura que veas a 9 m o menos y os comunicáis telepáticamente a una distancia máxima de 1,5 km × tu modificador por Carisma (mínimo 1,5 km), en un idioma que ambos conozcáis. Dura tantos minutos como tu nivel de brujo, o hasta que uses el rasgo con otra criatura."}
+      - {nivel: 6, nombre: "Combatiente clarividente", desc: "Al formar el enlace con Mente iluminada, la criatura hace una TdS de Sabiduría; si la falla tiene desventaja al atacarte y tú ventaja al atacarla mientras dure el enlace. 1 vez por descanso corto o largo, o gastando un espacio de Magia del pacto (no requiere acción)."}
+      - {nivel: 10, nombre: "Escudo mental", desc: "Tus pensamientos no se pueden leer sin tu permiso. Resistencia al daño psíquico, y cuando una criatura te cause daño psíquico ella recibe la misma cantidad."}
+      - {nivel: 10, nombre: "Maleficio sobrenatural", desc: "Siempre tienes preparado maleficio. Al lanzarlo y elegir una característica, el objetivo también tiene desventaja en las TdS de esa característica mientras dure el conjuro."}
+      - {nivel: 14, nombre: "Crear siervo", desc: "Al lanzar invocar aberración puedes modificarlo para que no requiera concentración; entonces dura 1 minuto y la aberración obtiene PG temporales iguales a tu nivel de brujo + mod. Carisma. Además, la primera vez en cada turno que la aberración acierte a una criatura afectada por tu maleficio, le inflige daño psíquico extra igual al daño adicional del conjuro."}

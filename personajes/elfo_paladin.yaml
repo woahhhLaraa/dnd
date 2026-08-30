@@ -1,0 +1,197 @@
+nombre: Faelar Brisamar
+jugador: null
+nivel_total: 1
+especie:
+  ref: especies/especies.yaml#Elfo
+  rasgos_elegidos:
+    linaje_elfico: Elfo de los bosques
+    aptitud_magica_linaje: Carisma
+    sentidos_agudos: Perspicacia
+trasfondo:
+  ref: trasfondos/trasfondos.yaml#Marinero
+clases:
+- clase: Paladín
+  ref: clases/paladin.yaml
+  nivel: 1
+  subclase: null
+caracteristicas:
+  metodo: conjunto_estandar
+  base:
+    fue: 14
+    des: 10
+    con: 12
+    int: 8
+    sab: 13
+    car: 15
+  ajuste_trasfondo:
+    fue: 2
+    des: 1
+  final:
+    fue: 16
+    des: 11
+    con: 12
+    int: 8
+    sab: 13
+    car: 15
+competencias:
+  salvaciones:
+  - Sabiduría
+  - Carisma
+  habilidades:
+  - nombre: Atletismo
+    origen:
+      clase: Paladín
+  - nombre: Religión
+    origen:
+      clase: Paladín
+  - nombre: Acrobacias
+    origen:
+      trasfondo: Marinero
+  - nombre: Percepción
+    origen:
+      trasfondo: Marinero
+  - nombre: Perspicacia
+    origen:
+      especie: Elfo
+      rasgo: Sentidos agudos
+  armas:
+  - categoria: Armas sencillas
+    origen:
+      clase: Paladín
+  - categoria: Armas marciales
+    origen:
+      clase: Paladín
+  armaduras:
+  - categoria: Armaduras ligeras
+    origen:
+      clase: Paladín
+  - categoria: Armaduras medias
+    origen:
+      clase: Paladín
+  - categoria: Armaduras pesadas
+    origen:
+      clase: Paladín
+  - categoria: Escudos
+    origen:
+      clase: Paladín
+  herramientas:
+  - categoria: herramientas de navegante
+    origen:
+      trasfondo: Marinero
+  idiomas:
+  - nombre: Común
+  - nombre: Elfo
+    origen:
+      regla: 'reglas/idiomas.yaml: todo personaje elige 2 además de Común'
+  - nombre: Enano
+    origen:
+      regla: 'reglas/idiomas.yaml: todo personaje elige 2 además de Común'
+equipo:
+- ref: equipo/armaduras.yaml#Cota de malla
+  origen:
+    clase: Paladín
+    opcion: A
+- ref: equipo/armaduras.yaml#Escudo
+  origen:
+    clase: Paladín
+    opcion: A
+- ref: equipo/armas.yaml#Espada larga
+  origen:
+    clase: Paladín
+    opcion: A
+- ref: equipo/armas.yaml#Jabalina
+  origen:
+    clase: Paladín
+    opcion: A
+  cantidad: 6
+- ref: equipo/aventureros.yaml#Símbolo sagrado
+  origen:
+    clase: Paladín
+    opcion: A
+    nota: canalizador mágico del Paladín
+- ref: equipo/aventureros.yaml#Paquete de sacerdote
+  origen:
+    clase: Paladín
+    opcion: A
+- ref: equipo/armas.yaml#Daga
+  origen:
+    trasfondo: Marinero
+    opcion: A
+- ref: equipo/herramientas.yaml#Herramientas de navegante
+  origen:
+    trasfondo: Marinero
+    opcion: A
+- ref: equipo/aventureros.yaml#Cuerda
+  origen:
+    trasfondo: Marinero
+    opcion: A
+- ref: equipo/aventureros.yaml#Ropas de viaje
+  origen:
+    trasfondo: Marinero
+    opcion: A
+conjuros:
+  trucos: []
+  preparados:
+  - ref: hechizos.json#Bendición
+  - ref: hechizos.json#Curar heridas
+dotes:
+- ref: dotes/origen.yaml#Matón de taberna
+  origen:
+    trasfondo: Marinero
+calculado:
+  pg_max: 11
+  ca: 18
+  bonif_competencia: 2
+  cd_conjuros: 12
+  bonif_ataque_conjuros: 4
+  velocidad: 9
+decisiones:
+- en: creación
+  eleccion: 'método de características: conjunto estándar (15/14/13/12/10/8), asignado Car 15, Fue 14, Sab 13, Con
+    12, Des 10, Int 8'
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: metodos_generacion_caracteristicas.conjunto_estandar
+- en: creación
+  eleccion: 'ajuste de trasfondo: +2 Fuerza, +1 Destreza (de las tres permitidas: Fuerza, Destreza, Sabiduría)'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Marinero
+    campo: caracteristicas
+- en: creación
+  eleccion: 'linaje élfico: Elfo de los bosques; aptitud mágica del linaje: Carisma (coincide con la del Paladín)'
+  cita:
+    archivo: especies/especies.yaml
+    registro: Elfo
+    campo: linajes
+- en: creación
+  eleccion: 'Sentidos agudos: Perspicacia (evita duplicar Percepción, ya fija por el trasfondo)'
+  cita:
+    archivo: especies/especies.yaml
+    registro: Elfo
+    campo: rasgos
+- en: creación
+  eleccion: 'habilidades de clase: Atletismo, Religión'
+  cita:
+    archivo: clases/paladin.yaml
+    campo: atributos_basicos.habilidades
+- en: creación
+  eleccion: equipo inicial opción A (clase y trasfondo)
+  cita:
+    archivo: clases/paladin.yaml
+    campo: atributos_basicos.equipo_inicial.a
+- en: creación
+  eleccion: 'idiomas elegidos: Elfo, Enano (además de Común; ningún rasgo de especie regala idioma en esta base)'
+  cita:
+    archivo: reglas/idiomas.yaml
+    campo: nota
+- en: creación
+  eleccion: 'conjuros preparados nivel 1: Bendición, Curar heridas (prep=2 en progresion nivel 1)'
+  cita:
+    archivo: clases/paladin.yaml
+    campo: progresion[0].prep
+- en: creación
+  eleccion: 'sin trucos: el Paladín no tiene columna de trucos en su progresión'
+  cita:
+    archivo: clases/paladin.yaml
+    campo: progresion

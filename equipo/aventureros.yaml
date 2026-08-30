@@ -1,0 +1,334 @@
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "222-235"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-19", cobertura: "completo: tabla de objetos, descripciones A-Z, monturas y vehículos, servicios, objetos mágicos, fabricar equipo"}
+fidelidad: "condensado"   # las `descripciones` usan taquigrafía nuestra («TdS de Destreza CD 15», «mod. Destreza + bonif. competencia») de forma uniforme en las 81 entradas
+
+tabla_peso_precio:
+  - {nombre: Abrojos, peso_kg: 1, precio: "1 po"}
+  - {nombre: Aceite, peso_kg: 0.5, precio: "1 pp"}
+  - {nombre: Ácido, peso_kg: 0.5, precio: "25 po"}
+  - {nombre: "Agua bendita", peso_kg: 0.5, precio: "25 po"}
+  - {nombre: Aljaba, peso_kg: 0.5, precio: "1 po"}
+  - {nombre: Antitoxina, peso_kg: null, precio: "50 po"}
+  - {nombre: Antorcha, peso_kg: 0.5, precio: "1 pc"}
+  - {nombre: "Ariete portátil", peso_kg: 17.5, precio: "4 po"}
+  - {nombre: Barril, peso_kg: 35, precio: "2 po"}
+  - {nombre: "Bolas de metal", peso_kg: 1, precio: "1 po"}
+  - {nombre: Bolsa, peso_kg: 0.5, precio: "5 pp"}
+  - {nombre: "Botella de cristal", peso_kg: 1, precio: "2 po"}
+  - {nombre: Cadena, peso_kg: 5, precio: "5 po"}
+  - {nombre: Campana, peso_kg: null, precio: "1 po"}
+  - {nombre: "Canalizador arcano", peso_kg: variable, precio: variable}
+  - {nombre: "Canalizador druídico", peso_kg: variable, precio: variable}
+  - {nombre: Cantimplora, peso_kg: "2,5 kg (llena)", precio: "2 pp"}
+  - {nombre: Catalejo, peso_kg: 0.5, precio: "1000 po"}
+  - {nombre: Cerradura, peso_kg: 0.5, precio: "10 po"}
+  - {nombre: Cesta, peso_kg: 1, precio: "4 pp"}
+  - {nombre: Cofre, peso_kg: 12.5, precio: "5 po"}
+  - {nombre: Cordel, peso_kg: null, precio: "1 pp"}
+  - {nombre: Cubo, peso_kg: 1, precio: "5 pc"}
+  - {nombre: Cuerda, peso_kg: 2.5, precio: "1 po"}
+  - {nombre: Disfraz, peso_kg: 2, precio: "5 po"}
+  - {nombre: Escalera, peso_kg: 12.5, precio: "1 pp"}
+  - {nombre: Espejo, peso_kg: 0.25, precio: "5 po"}
+  - {nombre: Esposas, peso_kg: 3, precio: "2 po"}
+  - {nombre: "Estuche para mapas o pergaminos", peso_kg: 0.5, precio: "1 po"}
+  - {nombre: "Estuche para virotes de ballesta", peso_kg: 0.5, precio: "1 po"}
+  - {nombre: Frasco, peso_kg: 0.5, precio: "2 pc"}
+  - {nombre: "Fuego de alquimista", peso_kg: 0.5, precio: "50 po"}
+  - {nombre: "Garfio de escalada", peso_kg: 2, precio: "2 po"}
+  - {nombre: Jarro, peso_kg: 2, precio: "2 pc"}
+  - {nombre: Lámpara, peso_kg: 0.5, precio: "5 pp"}
+  - {nombre: Libro, peso_kg: 2.5, precio: "25 po"}
+  - {nombre: "Linterna de ojo de buey", peso_kg: 1, precio: "10 po"}
+  - {nombre: "Linterna sorda", peso_kg: 1, precio: "5 po"}
+  - {nombre: Lupa, peso_kg: null, precio: "100 po"}
+  - {nombre: Manta, peso_kg: 1.5, precio: "5 pp"}
+  - {nombre: Mapa, peso_kg: null, precio: "1 po"}
+  - {nombre: Mochila, peso_kg: 2.5, precio: "2 po"}
+  - {nombre: Munición, peso_kg: variable, precio: variable, ver: "equipo/municion.yaml"}
+  - {nombre: "Olla de hierro", peso_kg: 5, precio: "2 po"}
+  - {nombre: Pala, peso_kg: 2.5, precio: "2 po"}
+  - {nombre: Palanqueta, peso_kg: 2.5, precio: "2 po"}
+  - {nombre: Papel, peso_kg: null, precio: "2 pp"}
+  - {nombre: "Paquete de artista", peso_kg: 29.25, precio: "40 po"}
+  - {nombre: "Paquete de diplomático", peso_kg: 19.5, precio: "39 po"}
+  - {nombre: "Paquete de erudito", peso_kg: 11, precio: "40 po"}
+  - {nombre: "Paquete de explorador", peso_kg: 27.5, precio: "10 po"}
+  - {nombre: "Paquete de explorador de mazmorras", peso_kg: 27.5, precio: "12 po"}
+  - {nombre: "Paquete de ladrón", peso_kg: 21, precio: "16 po"}
+  - {nombre: "Paquete de sacerdote", peso_kg: 14.5, precio: "33 po"}
+  - {nombre: Perfume, peso_kg: null, precio: "5 po"}
+  - {nombre: Pergamino, peso_kg: null, precio: "1 pp"}
+  - {nombre: "Pergamino de conjuro (nivel 1)", peso_kg: null, precio: "50 po"}
+  - {nombre: "Pergamino de conjuro (truco)", peso_kg: null, precio: "30 po"}
+  - {nombre: Petate, peso_kg: 3.5, precio: "1 po"}
+  - {nombre: Pluma, peso_kg: null, precio: "2 pc"}
+  - {nombre: "Poción de curación", peso_kg: 0.25, precio: "50 po"}
+  - {nombre: Polipasto, peso_kg: 2.5, precio: "1 po"}
+  - {nombre: "Puntas de hierro", peso_kg: 2.5, precio: "1 po"}
+  - {nombre: Raciones, peso_kg: 1, precio: "5 pp"}
+  - {nombre: Red, peso_kg: 1.5, precio: "1 po"}
+  - {nombre: "Ropas de calidad", peso_kg: 3, precio: "15 po"}
+  - {nombre: "Ropas de viaje", peso_kg: 2, precio: "2 po"}
+  - {nombre: Saco, peso_kg: 0.25, precio: "1 pc"}
+  - {nombre: "Saquito de componentes", peso_kg: 1, precio: "25 po"}
+  - {nombre: "Silbato de supervivencia", peso_kg: null, precio: "5 pc"}
+  - {nombre: "Símbolo sagrado", peso_kg: variable, precio: variable}
+  - {nombre: Tienda, peso_kg: 10, precio: "2 po"}
+  - {nombre: Tinta, peso_kg: null, precio: "10 po"}
+  - {nombre: "Trampa para cazar", peso_kg: 12.5, precio: "5 po"}
+  - {nombre: Túnica, peso_kg: 2, precio: "1 po"}
+  - {nombre: "Útiles de escalada", peso_kg: 6, precio: "25 po"}
+  - {nombre: "Útiles de sanador", peso_kg: 1.5, precio: "5 po"}
+  - {nombre: Vara, peso_kg: 3.5, precio: "5 pc"}
+  - {nombre: Vela, peso_kg: null, precio: "1 pc"}
+  - {nombre: "Veneno básico", peso_kg: null, precio: "100 po"}
+  - {nombre: Vial, peso_kg: null, precio: "1 po"}
+  - {nombre: Yesquero, peso_kg: 0.5, precio: "5 pp"}
+
+canalizadores_arcanos:
+  - {nombre: Bastón, peso_kg: 2, precio: "5 po"}
+  - {nombre: Cristal, peso_kg: 0.5, precio: "10 po"}
+  - {nombre: Orbe, peso_kg: 1.5, precio: "20 po"}
+  - {nombre: Vara, peso_kg: 1, precio: "10 po"}
+  - {nombre: Varita, peso_kg: 0.5, precio: "10 po"}
+
+canalizadores_druidicos:
+  - {nombre: "Bastón de madera (también bastón)", peso_kg: 2, precio: "5 po"}
+  - {nombre: "Rama de muérdago", peso_kg: null, precio: "1 po"}
+  - {nombre: "Varita de tejo", peso_kg: 0.5, precio: "10 po"}
+
+descripciones:
+  Abrojos: "Acción de utilizar: esparces los abrojos de tu bolsa para cubrir una zona cuadrada de 1,5 m de lado a 1,5 m o menos de ti. Las criaturas que entren en la zona por primera vez en un turno hacen TdS de Destreza CD 15 o sufren 1 de daño perforante y su velocidad se reduce a 0 hasta el principio de su siguiente turno. Se tarda 10 minutos en recuperarlos."
+  Aceite: "Puedes empapar a una criatura, un objeto o un espacio, o usarlo como combustible. Empapar a una criatura u objeto: sustituyes uno de tus ataques por lanzar un frasco a un objetivo a 6 m o menos; TdS de Destreza (CD 8 + mod. Destreza + bonif. competencia) o queda cubierto de aceite, y si sufre daño de fuego antes de que se seque (1 minuto), recibe 5 de daño de fuego adicional. Empapar un espacio: acción de utilizar para cubrir una zona cuadrada de 1,5 m de lado a 1,5 m o menos de ti; si se prende, arde 2 asaltos e inflige 5 de daño de fuego a quien entre o termine su turno ahí (una vez por turno). Combustible: un frasco prendido arde 6 horas en lámpara o linterna (no necesariamente consecutivas)."
+  Ácido: "Al llevar a cabo la acción de atacar, puedes sustituir uno de tus ataques por lanzar un vial de ácido a una criatura u objeto a 6 m o menos. TdS de Destreza (CD 8 + mod. Destreza + bonif. competencia) o sufre 2d6 de daño de ácido."
+  "Agua bendita": "Sustituyes uno de tus ataques por lanzar un frasco a una criatura a 6 m o menos. TdS de Destreza (CD 8 + mod. Destreza + bonif. competencia) o sufre 2d8 de daño radiante si es un infernal o un muerto viviente."
+  Aljaba: "En una aljaba caben hasta 20 flechas."
+  Antitoxina: "Acción adicional para beber un vial y obtener ventaja en TdS para evitar o poner fin al estado de envenenado durante 1 hora."
+  Antorcha: "Arde 1 hora, luz brillante 6 m y tenue 6 m más. Puede usarse como arma cuerpo a cuerpo sencilla; si acierta, 1 de daño de fuego."
+  "Ariete portátil": "Bonificador de +4 a la prueba de Fuerza para derribar puertas. Con ayuda de otro personaje, ventaja en la prueba."
+  Barril: "Caben 160 l de líquido o 120 l de mercancías secas."
+  "Bolas de metal": "Acción de utilizar para esparcirlas y cubrir una zona cuadrada y plana de 3 m de lado a 3 m o menos de ti. Quien entre por primera vez en un turno hace TdS de Destreza CD 10 o queda derribado. Se tarda 10 minutos en recuperarlas."
+  Bolsa: "Soporta hasta 3 kg en un volumen de 6 l."
+  "Botella de cristal": "Caben hasta 0,75 l de líquido."
+  Cadena: "Acción de utilizar para atar a una criatura no voluntaria a 1,5 m o menos que esté agarrada, apresada o incapacitada, si superas Fuerza (Atletismo) CD 13. Si tiene las piernas atadas, queda apresada hasta liberarse (Destreza [Acrobacias] CD 18 como acción). Romperla requiere Fuerza (Atletismo) CD 20 como acción."
+  Campana: "Al tañerla (acción de utilizar) produce un sonido audible a 18 m."
+  "Canalizador arcano": "Objeto de la tabla 'Canalizadores arcanos', ornamentado para canalizar magia arcana. Brujos, hechiceros o magos pueden usarlo como canalizador mágico."
+  "Canalizador druídico": "Objeto de la tabla 'Canalizadores druídicos', tallado, atado con un lazo o pintado para canalizar magia primigenia. Druidas o exploradores pueden usarlo como canalizador mágico."
+  Cantimplora: "Caben hasta 2 l de líquido. No beber suficiente agua arriesga deshidratación."
+  Catalejo: "Los objetos vistos a través de él se ven al doble de su tamaño real."
+  Cerradura: "Viene con una llave. Sin ella, se puede forzar con herramientas de ladrón superando Destreza (Juego de manos) CD 15."
+  Cesta: "Soporta hasta 20 kg en un volumen de 60 l."
+  Cofre: "Cabe un volumen de hasta 360 l de contenido."
+  Cordel: "Mide 3 m de longitud. Acción de utilizar para atar un nudo."
+  Cubo: "Cabe un volumen de 15 l de contenido."
+  Cuerda: "Acción de utilizar para hacer un nudo (Destreza [Juego de manos] CD 10) o romperla (Fuerza [Atletismo] CD 20). Puede atar a una criatura no voluntaria solo si está agarrada, apresada o incapacitada; con las piernas atadas queda apresada hasta liberarse (Destreza [Acrobacias] CD 15 como acción)."
+  Disfraz: "Ventaja en pruebas de característica para hacerte pasar por la persona o tipo de persona que representa, mientras lo lleves puesto."
+  Escalera: "Mide 3 m de altura. Hay que trepar para subir o bajar por ella."
+  Espejo: "Espejito de acero portátil; útil para arreglarse, mirar por esquinas o reflejar luz como señal."
+  Esposas: "Acción de utilizar para esposar a una criatura Pequeña o Mediana no voluntaria a 1,5 m o menos que esté agarrada, apresada o incapacitada, si superas Destreza (Juego de manos) CD 13. Mientras esté esposada, desventaja en tiradas de ataque, y apresada si las esposas están sujetas a algo fijo. Liberarse: Destreza (Juego de manos) CD 20 como acción; romperlas: Fuerza (Atletismo) CD 25 como acción. Vienen con llave; sin ella, herramientas de ladrón y Destreza (Juego de manos) CD 15."
+  "Estuche para mapas o pergaminos": "Caben hasta 10 hojas de papel o 5 hojas de pergamino."
+  "Estuche para virotes de ballesta": "Caben hasta 20 virotes."
+  Frasco: "Caben hasta 0,5 l de líquido."
+  "Fuego de alquimista": "Sustituyes uno de tus ataques por lanzar un frasco a una criatura u objeto a 6 m o menos. TdS de Destreza (CD 8 + mod. Destreza + bonif. competencia) o sufre 1d4 de daño de fuego y comienza a arder."
+  "Garfio de escalada": "Acción de utilizar para lanzarlo a una barandilla, cornisa u otro saliente a 15 m o menos; se engancha si superas Destreza (Acrobacias) CD 13. Con una cuerda atada, permite escalar."
+  Jarro: "Caben hasta 4 l de líquido."
+  Lámpara: "Quema aceite como combustible para emitir luz brillante en un radio de 4,5 m y luz tenue 9 m más allá."
+  Libro: "Contiene ficción o no ficción. Si consultas un libro veraz de no ficción sobre su materia, ganas +5 a las pruebas de Inteligencia (Conocimiento arcano, Historia, Naturaleza o Religión) que hagas sobre esa materia."
+  "Linterna de ojo de buey": "Quema aceite como combustible para emitir luz brillante en un cono de 18 m y luz tenue 18 m más allá."
+  "Linterna sorda": "Quema aceite como combustible para emitir luz brillante en un radio de 9 m y luz tenue 9 m más allá. Acción adicional para cubrir la abertura con la tapa y que solo emita luz tenue en un radio de 1,5 m, o abrirla de nuevo."
+  Lupa: "Ventaja en pruebas de característica para tasar o inspeccionar un objeto muy detallado. Para encender un fuego con ella se necesita luz tan brillante como la del sol, yesca y unos 5 minutos."
+  Manta: "Envuelto en ella, ventaja en TdS contra el frío extremo."
+  Mapa: "Si consultas un mapa preciso, +5 a las pruebas de Sabiduría (Supervivencia) para orientarte en el lugar representado."
+  Mochila: "Soporta hasta 15 kg en un volumen de 30 l. También puede servir de alforja."
+  # La tabla «Munición» que cita este párrafo está desglosada como registros
+  # consultables en equipo/municion.yaml (mismos datos, sin reinterpretar).
+  Munición: "Las armas con la propiedad de munición la requieren para atacar; la tabla 'Munición' indica tipos, cantidad obtenida al comprar, y el recipiente habitual (que debe comprarse aparte): balas de arma de fuego (10, bolsa, 1 kg, 3 po), dardos (50, bolsa, 0,5 kg, 1 po), flechas (20, aljaba, 0,5 kg, 1 po), proyectiles de honda (20, bolsa, 0,75 kg, 4 pc), virotes (20, estuche, 0,75 kg, 1 po)."
+  "Olla de hierro": "Caben hasta 4 l."
+  Pala: "Con 1 hora de trabajo, cava un agujero cúbico de 1,5 m de lado en tierra o material similar."
+  Palanqueta: "Da ventaja en pruebas de Fuerza en las que se pueda hacer palanca."
+  Papel: "En una hoja caben unas 250 palabras escritas a mano."
+  "Paquete de artista": "Contiene: campana, cantimplora, 3 disfraces, espejo, 8 frascos de aceite, linterna de ojo de buey, mochila, petate, raciones para 9 días y yesquero."
+  "Paquete de diplomático": "Contiene: cofre, 2 estuches para mapas o pergaminos, 4 frascos de aceite, 5 hojas de papel, 5 hojas de pergamino, lámpara, perfume, 5 plumas, ropas de calidad, tinta y yesquero."
+  "Paquete de erudito": "Contiene: 10 frascos de aceite, 10 hojas de pergamino, lámpara, libro, mochila, pluma, tinta y yesquero."
+  "Paquete de explorador": "Contiene: 10 antorchas, cantimplora, cuerda, 2 frascos de aceite, mochila, petate, raciones para 10 días y yesquero."
+  "Paquete de explorador de mazmorras": "Contiene: abrojos, 10 antorchas, cantimplora, cuerda, 2 frascos de aceite, mochila, palanqueta, raciones para 10 días y yesquero."
+  "Paquete de ladrón": "Contiene: bolas de metal, campana, cantimplora, cuerda, 7 frascos de aceite, linterna sorda, mochila, palanqueta, raciones para 5 días, 10 velas y yesquero."
+  "Paquete de sacerdote": "Contiene: agua bendita, lámpara, manta, mochila, raciones para 7 días, túnica y yesquero."
+  Perfume: "Viene en un vial de 120 ml. Tras ponértelo, durante 1 hora tienes ventaja en pruebas de Carisma (Persuasión) para influir en un humanoide indiferente a 1,5 m o menos."
+  Pergamino: "En una hoja caben unas 250 palabras escritas a mano."
+  "Pergamino de conjuro": "Objeto mágico que contiene las palabras de un truco (30 po) o de un conjuro de nivel 1 (50 po). Si el conjuro está en la lista de tu clase, puedes leerlo y lanzarlo con su tiempo de lanzamiento normal sin componentes materiales. Si requiere TdS o tirada de ataque, la CD es 13 y el bonificador de ataque +5. Se desintegra al completarse el lanzamiento."
+  Petate: "Puede dormir en él una criatura Pequeña o Mediana. Mientras estés en uno, superas automáticamente los TdS contra el frío extremo."
+  Pluma: "Sirve para escribir o dibujar con tinta."
+  "Poción de curación": "Objeto mágico. Acción adicional para beberla o administrarla a otra criatura a 1,5 m o menos; recupera 2d4 + 2 PG."
+  Polipasto: "Permite levantar hasta cuatro veces el peso que normalmente puedes levantar."
+  "Puntas de hierro": "Vienen en lotes de diez. Acción de utilizar con un objeto romo para clavar una en madera, tierra u otra materia similar; sirve para atrancar una puerta o atar después una cuerda o cadena."
+  Raciones: "Alimentos propicios para viajar: cecina, fruta deshidratada, galletas y frutos secos."
+  Red: "Sustituyes uno de tus ataques por lanzarla a una criatura a 4,5 m o menos. TdS de Destreza (CD 8 + mod. Destreza + bonif. competencia) o queda apresada hasta liberarse (automático si es Enorme o más grande). Liberarse: acción y Fuerza [Atletismo] CD 10 (el objetivo o alguien a 1,5 m o menos). Se puede destruir (CA 10, 5 PG; inmune a contundente, psíquico y veneno)."
+  "Ropas de calidad": "Confeccionadas con telas caras y detalles elaborados. Algunos eventos y lugares admiten solo a quien las lleve."
+  "Ropas de viaje": "Prendas resistentes diseñadas para viajar por diversos entornos."
+  Saco: "Soporta hasta 15 kg en un volumen de 30 l."
+  "Saquito de componentes": "Bolsa hermética con compartimentos que contiene todos los componentes materiales gratuitos para tus conjuros."
+  "Silbato de supervivencia": "Al soplarlo (acción de utilizar) produce un sonido audible a 180 m."
+  "Símbolo sagrado": "Objeto de la tabla 'Símbolos sagrados' (amuleto puesto o sostenido, emblema en tela o escudo, relicario sostenido), ornamentado para canalizar magia divina. Clérigos o paladines pueden usarlo como canalizador mágico."
+  Tienda: "Pueden dormir hasta dos criaturas Pequeñas o Medianas."
+  Tinta: "Viene en un frasco de 30 ml que basta para escribir unas 500 páginas."
+  "Trampa para cazar": "Acción de utilizar para ponerla: anilla dentada de acero que se cierra al pisar una placa de presión central, fijada con una cadena a un objeto inmóvil. Quien la pise hace TdS de Destreza CD 13 o sufre 1d4 de daño perforante y su velocidad se reduce a 0 hasta el principio de su siguiente turno; después su movimiento queda limitado por la cadena (normalmente 90 cm). Liberarse (a sí misma u otra a su alcance): acción y Fuerza (Atletismo) CD 13; cada fallo causa 1 de daño perforante."
+  Túnica: "Tiene significado vocacional y ceremonial. Algunos eventos y lugares admiten solo a quien la vista con determinados colores o símbolos."
+  "Útiles de escalada": "Incluyen arnés, guantes, pitones y puntas para las botas. Acción de utilizar para anclarte: mientras estés anclado, no puedes caer más de 7,5 m desde el punto de anclaje ni alejarte más de 7,5 m sin quitar la sujeción (acción adicional)."
+  "Útiles de sanador": "Tienen diez usos. Acción de utilizar para gastar uno y estabilizar a una criatura inconsciente con 0 PG sin necesidad de prueba de Sabiduría (Medicina)."
+  Vara: "Mide 3 m. Sirve para tocar algo a hasta 3 m de distancia. En un salto de altura o longitud, impulsarte con ella da ventaja en la prueba de Fuerza (Atletismo)."
+  Vela: "Durante 1 hora emite luz brillante en un radio de 1,5 m y luz tenue 1,5 m más allá."
+  "Veneno básico": "Acción adicional para impregnar un arma o hasta tres unidades de munición. Quien sufra daño cortante o perforante del arma o munición envenenadas recibe 1d4 de daño de veneno adicional. Mantiene su efectividad 1 minuto o hasta infligir su daño."
+  Vial: "Caben 120 ml de líquido."
+  Yesquero: "Pequeño recipiente con pedernal, chispero y yesca; sirve para encender fuego. Acción adicional para prender con él una antorcha, lámpara, linterna o vela (u otra cosa con combustible expuesto). Encender cualquier otro fuego lleva 1 minuto."
+
+monturas_y_vehiculos:
+  reglas:
+    - "Un animal enganchado a una carreta, carro, carro de guerra, carruaje o trineo puede tirar de hasta cinco veces su capacidad de carga base, incluido el peso del vehículo. Si varios animales tiran del mismo vehículo, se suman sus capacidades de carga."
+    - "Barda: armadura diseñada para una montura. Cualquier tipo de la tabla de armaduras puede comprarse en forma de barda; cuesta el cuádruple de lo normal y pesa el doble."
+    - "Silla militar: da ventaja en cualquier prueba de característica para permanecer montado. Se necesita silla exótica para montar en una montura acuática o voladora."
+  monturas_y_otros_animales:
+    - {nombre: "Caballo de guerra", capacidad_carga_kg: 270, precio: "400 po"}
+    - {nombre: "Caballo de monta", capacidad_carga_kg: 240, precio: "75 po"}
+    - {nombre: "Caballo de tiro", capacidad_carga_kg: 270, precio: "50 po"}
+    - {nombre: Camello, capacidad_carga_kg: 225, precio: "50 po"}
+    - {nombre: Elefante, capacidad_carga_kg: 660, precio: "200 po"}
+    - {nombre: Mastín, capacidad_carga_kg: 97.5, precio: "25 po"}
+    - {nombre: Mula, capacidad_carga_kg: 210, precio: "8 po"}
+    - {nombre: Poni, capacidad_carga_kg: 112.5, precio: "30 po"}
+  arreos_arneses_y_vehiculos_tirados:
+    - {elemento: "Alimento por día", peso_kg: 5, precio: "5 pc"}
+    - {elemento: Carreta, peso_kg: 100, precio: "15 po"}
+    - {elemento: Carro, peso_kg: 200, precio: "35 po"}
+    - {elemento: "Carro de guerra", peso_kg: 50, precio: "250 po"}
+    - {elemento: Carruaje, peso_kg: 300, precio: "100 po"}
+    - {elemento: "Estabulado por día", peso_kg: null, precio: "5 pp"}
+    - {elemento: "Silla de monta", peso_kg: 12.5, precio: "10 po"}
+    - {elemento: "Silla exótica", peso_kg: 20, precio: "60 po"}
+    - {elemento: "Silla militar", peso_kg: 15, precio: "20 po"}
+    - {elemento: Trineo, peso_kg: 150, precio: "20 po"}
+  vehiculos_acuaticos_y_aereos:
+    notas:
+      - "Velocidad: una embarcación que navega contra un viento fuerte se desplaza a mitad de velocidad. Con calma chicha debe recurrir a los remos. Los botes de remos y barcazas usados en ríos suman la velocidad de la corriente (normalmente 4,5 km/h) si van a favor; no pueden remar contra una corriente significativa, aunque animales de tiro podrían arrastrarlos río arriba desde la orilla."
+      - "Tripulación: los vehículos más grandes que una barcaza o un bote de remos necesitan una tripulación mínima de asalariados cualificados para manejarlos."
+      - "Pasajeros: cantidad de pasajeros Pequeños o Medianos que el vehículo aloja en hamacas; con camarotes privados, una quinta parte de esa cifra. Una hamaca suele costar 5 pp/día; un camarote privado pequeño, 2 po/día."
+      - "Reparación: mientras esté atracado, reparar 1 PG de daño requiere 1 día y 20 po de materiales y mano de obra; con suficientes suministros y personal cualificado (como el astillero de una ciudad), tiempo y precio se reducen a la mitad."
+    tabla:
+      - {nombre: Aeronave, velocidad: "12 km/h", tripulacion: 10, pasajeros: 20, cargamento_toneladas: 1, ca: 13, pg: 300, umbral_dano: null, precio: "40000 po"}
+      - {nombre: Barcaza, velocidad: "1,5 km/h", tripulacion: 1, pasajeros: 6, cargamento_toneladas: 0.5, ca: 15, pg: 100, umbral_dano: 10, precio: "3000 po"}
+      - {nombre: "Bote de remos", velocidad: "2,25 km/h", tripulacion: 1, pasajeros: 3, cargamento_toneladas: null, ca: 11, pg: 50, umbral_dano: null, precio: "50 po"}
+      - {nombre: Drakkar, velocidad: "4,5 km/h", tripulacion: 40, pasajeros: 150, cargamento_toneladas: 10, ca: 15, pg: 300, umbral_dano: 15, precio: "10000 po"}
+      - {nombre: Galera, velocidad: "6 km/h", tripulacion: 80, pasajeros: null, cargamento_toneladas: 150, ca: 15, pg: 500, umbral_dano: 20, precio: "30000 po"}
+      - {nombre: "Navío de guerra", velocidad: "3,75 km/h", tripulacion: 60, pasajeros: 60, cargamento_toneladas: 200, ca: 15, pg: 500, umbral_dano: 20, precio: "25000 po"}
+      - {nombre: Velero, velocidad: "3 km/h", tripulacion: 20, pasajeros: 20, cargamento_toneladas: 100, ca: 15, pg: 300, umbral_dano: 15, precio: "10000 po"}
+
+servicios:
+  gastos_nivel_de_vida:
+    regla: "Al principio de cada semana o mes (a elección del DM), eliges un estilo de vida y pagas el precio para mantenerlo. Sin consecuencias intrínsecas, pero el DM podría tenerlo en cuenta para riesgos o cómo te perciben."
+    niveles:
+      - {nombre: Deplorable, precio: gratis, desc: "Vives de la caridad y de las oportunidades; te expones a peligros naturales por dormir en el exterior."}
+      - {nombre: Miserable, precio: "1 pp al día", desc: "Gastas lo mínimo para cubrir tus necesidades; riesgo de condiciones insalubres y delincuentes oportunistas."}
+      - {nombre: Pobre, precio: "2 pp al día", desc: "Gastas con mesura para cubrir tus necesidades."}
+      - {nombre: Modesto, precio: "1 po al día", desc: "Nivel medio de vida."}
+      - {nombre: Cómodo, precio: "2 po al día", desc: "Inviertes modestamente en tus necesidades y disfrutas de ciertos lujos."}
+      - {nombre: Lujoso, precio: "4 po al día", desc: "Acostumbras a disfrutar de los placeres de la vida y podrías tener sirvientes."}
+      - {nombre: Aristocrático, precio: "10 po al día", desc: "Pagas por lo mejor de lo mejor; podrías tener empleados para asistirte."}
+  comida_bebida_y_alojamiento:
+    - {elemento: "Cerveza (jarra)", precio: "4 pc"}
+    - {elemento: "Comida miserable", precio: "1 pc"}
+    - {elemento: "Comida pobre", precio: "2 pc"}
+    - {elemento: "Comida modesta", precio: "1 pp"}
+    - {elemento: "Comida copiosa", precio: "2 pp"}
+    - {elemento: "Comida lujosa", precio: "3 pp"}
+    - {elemento: "Comida aristocrática", precio: "6 pp"}
+    - {elemento: "Estancia en posada, miserable", precio: "7 pc"}
+    - {elemento: "Estancia en posada, pobre", precio: "1 pp"}
+    - {elemento: "Estancia en posada, modesta", precio: "5 pp"}
+    - {elemento: "Estancia en posada, cómoda", precio: "8 pp"}
+    - {elemento: "Estancia en posada, lujosa", precio: "2 po"}
+    - {elemento: "Estancia en posada, aristocrática", precio: "4 po"}
+    - {elemento: "Pan (hogaza)", precio: "2 pc"}
+    - {elemento: "Queso (cuña)", precio: "1 pp"}
+    - {elemento: "Vino, común (botella)", precio: "2 pp"}
+    - {elemento: "Vino, de calidad (botella)", precio: "10 po"}
+  viajes:
+    - {servicio: "Pasaje en un barco", remuneracion: "6 pc por kilómetro"}
+    - {servicio: "Peaje por camino o entrada", remuneracion: "1 pc"}
+    - {servicio: "Viaje en carruaje dentro de una ciudad", remuneracion: "1 pc por kilómetro"}
+    - {servicio: "Viaje en carruaje entre poblaciones", remuneracion: "2 pc por kilómetro"}
+  asalariados:
+    - {servicio: "Asalariado cualificado", remuneracion: "2 po al día", desc: "Presta un servicio que precisa competencia (armas, herramientas o habilidades): mercenarios, artesanos, escribas, etc. La remuneración es un mínimo; asalariados con experiencia podrían exigir más."}
+    - {servicio: "Asalariado no cualificado", remuneracion: "2 pp al día", desc: "Trabajos que no precisan competencias concretas, como obreros o porteadores."}
+    - {servicio: Mensajero, remuneracion: "1 o 2 pc por kilómetro"}
+  lanzamiento_de_conjuros:
+    regla: "Si el conjuro tiene componentes caros, se suma su precio a la remuneración. Cuanto mayor el nivel del conjuro, más difícil encontrar a alguien que lo lance."
+    tabla:
+      - {nivel: Truco, disponibilidad: "Aldea, pueblo o ciudad", remuneracion: "30 po"}
+      - {nivel: 1, disponibilidad: "Aldea, pueblo o ciudad", remuneracion: "50 po"}
+      - {nivel: 2, disponibilidad: "Aldea, pueblo o ciudad", remuneracion: "200 po"}
+      - {nivel: 3, disponibilidad: "Solo pueblo o ciudad", remuneracion: "300 po"}
+      - {nivel: "4-5", disponibilidad: "Solo pueblo o ciudad", remuneracion: "2000 po"}
+      - {nivel: "6-8", disponibilidad: "Solo ciudad", remuneracion: "20000 po"}
+      - {nivel: 9, disponibilidad: "Solo ciudad", remuneracion: "100000 po"}
+
+objetos_magicos:
+  identificar: "El conjuro identificar revela las propiedades de un objeto mágico. Alternativamente, concentrarte en él durante un descanso corto en contacto físico revela sus propiedades y cómo usarlas (pero no si tiene una maldición). Algunas propiedades se descubren poniéndose o experimentando con el objeto (p. ej., probar una poción, o que el DM dé una pista narrativa al usarlo)."
+  sintonizacion:
+    regla: "Algunos objetos mágicos requieren sintonización antes de usar sus propiedades mágicas; sin sintonizarte, solo obtienes sus beneficios no mágicos (salvo que el objeto indique otra cosa)."
+    proceso: "Se logra pasando un descanso corto entero concentrándote solo en el objeto en contacto físico con él (no puede ser el mismo descanso usado para identificarlo). Si el descanso se interrumpe, falla."
+    limite: "No puedes sintonizarte con más de tres objetos mágicos a la vez, ni con más de una copia del mismo objeto."
+    terminar: "La sintonización termina si dejas de cumplir sus requisitos, si el objeto pasa 24 horas a más de 30 m de ti, si mueres, si otra criatura se sintoniza con él, o voluntariamente dedicando otro descanso corto (salvo que el objeto esté maldito)."
+  vestir_y_empuñar: "Un objeto diseñado para vestirse debe llevarse de la forma adecuada (botas en los pies, anillos en los dedos, etc.); las armas deben empuñarse. Normalmente vale para cualquier tamaño o complexión. No puedes llevar más de un objeto del mismo tipo emparejado (un par de botas, guantes, brazales, una armadura, un objeto de cabeza o una capa), salvo excepción del DM. Los objetos que vienen en pares (botas, brazales, guanteletes, guantes) solo dan sus beneficios si se llevan los dos del mismo par."
+
+fabricar_equipo:
+  objetos_no_magicos:
+    herramientas: "Se necesita la herramienta indicada en el apartado 'Herramientas' de este capítulo (o la que asigne el DM) y ser competente con ella; cualquiera que ayude también debe serlo."
+    materias_primas: "Se necesitan materias primas que valgan la mitad del precio de compra del objeto (redondeando abajo)."
+    tiempo: "Divide el precio de compra en po entre 10 (redondeando fracciones hacia arriba como un día entero) para saber los días necesarios, dedicando 8 horas al día; no tienen por qué ser consecutivos. Varios personajes pueden repartirse el tiempo dividiéndolo entre el número de trabajadores (normalmente solo puede ayudar uno más, salvo que el DM permita más)."
+  pociones_de_curacion: "Quien tenga competencia con útiles de herborista puede crear pociones de curación invirtiendo 25 po de materias primas y 1 día (8 horas) de trabajo con los útiles."
+  pergaminos_de_conjuro:
+    requisitos: "Ser competente en Conocimiento arcano o con suministros de calígrafo, y tener el conjuro preparado cada día de trabajo, con cualquier componente material que requiera a mano (se consume solo al terminar el pergamino si el conjuro los consume)."
+    trucos: "La versión en pergamino de un truco funciona como si el lanzador tuviera el nivel del creador."
+    mecanica: "Usa la CD de salvación de conjuros y el bonificador de ataque de conjuros del creador."
+    costes:
+      - {nivel: Truco, tiempo: "1 día", coste: "15 po"}
+      - {nivel: 1, tiempo: "1 día", coste: "25 po"}
+      - {nivel: 2, tiempo: "3 días", coste: "100 po"}
+      - {nivel: 3, tiempo: "5 días", coste: "150 po"}
+      - {nivel: 4, tiempo: "10 días", coste: "1000 po"}
+      - {nivel: 5, tiempo: "25 días", coste: "1500 po"}
+      - {nivel: 6, tiempo: "40 días", coste: "10000 po"}
+      - {nivel: 7, tiempo: "50 días", coste: "12500 po"}
+      - {nivel: 8, tiempo: "60 días", coste: "15000 po"}
+      - {nivel: 9, tiempo: "120 días", coste: "50000 po"}
+
+# Objetos que un rasgo de clase concede y el manual NO vende en ninguna tabla.
+# No tienen precio: no es que falte el dato, es que no existe. Registrarlos
+# aquí los hace consultables sin inventarles un coste.
+objetos_de_rasgo_de_clase:
+  - nombre: "Libro de conjuros"
+    concedido_por: {clase: Mago, rasgo: "Lanzamiento de conjuros", nivel: 1}
+    fuente: {pagina_pdf: 139, pagina_libro: 137}
+    verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+    tamano: Diminuto
+    peso_kg: 1.5
+    paginas: 100
+    precio: null
+    precio_nota: >-
+      No se vende. La tabla «Equipo de aventureros» (pdf 225 = libro 223) pasa
+      de «Libro» a «Linterna de ojo de buey» sin entrada intermedia, y la
+      descripción de «Libro» (25 po, pdf 228 = libro 226) es un libro de
+      ficción o no ficción que da +5 a pruebas de Inteligencia: no es un libro
+      de conjuros. El del Mago nace del rasgo, no de la bolsa.
+    desc: >-
+      Objeto Diminuto de 1,5 kg y 100 páginas; solo puedes leerlo tú o quien
+      lance identificar. Tú decides su apariencia y materiales. Contiene los
+      conjuros de nivel 1 y superiores que conoces. Sirve también como
+      canalizador mágico del Mago.
+    ampliar:
+      copiar_conjuro_hallado: "2 horas y 50 po por nivel del conjuro"
+      copiar_libro_propio: "1 hora y 10 po por nivel del conjuro"
+      libro_perdido: "Puedes transcribir a un libro nuevo los conjuros que tuvieras preparados, por el mismo procedimiento."
+    referencia_rasgo: {archivo: "clases/rasgos/mago.yaml", rasgo: "Lanzamiento de conjuros"}

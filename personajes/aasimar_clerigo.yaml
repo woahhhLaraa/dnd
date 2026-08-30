@@ -1,0 +1,220 @@
+nombre: Ithariel Solvane
+jugador: null
+nivel_total: 1
+historia:
+- Criado desde niño en un templo de montaña, tras aparecer envuelto en luz al nacer.
+- Tomó los votos de acólito en cuanto tuvo edad para ello.
+- Su marca celestial despertó poco después, y los sacerdotes lo leyeron como un augurio.
+- Lo enviaron al mundo a poner esa luz al servicio de quien la necesite.
+personalidad:
+- Sereno y metódico; habla poco, pero escucha mucho.
+- Lleva un registro escrito de cada persona a la que ayuda.
+- Cree que la fe se honra con memoria, no solo con oraciones.
+especie:
+  ref: especies/especies.yaml#Aasimar
+  rasgos_elegidos:
+    tamano: Mediano
+trasfondo:
+  ref: trasfondos/trasfondos.yaml#Acólito
+clases:
+- clase: Clérigo
+  ref: clases/clerigo.yaml
+  nivel: 1
+  subclase: null
+caracteristicas:
+  metodo: conjunto_estandar
+  base:
+    fue: 13
+    des: 12
+    con: 14
+    int: 8
+    sab: 15
+    car: 10
+  ajuste_trasfondo:
+    sab: 2
+    car: 1
+  final:
+    fue: 13
+    des: 12
+    con: 14
+    int: 8
+    sab: 17
+    car: 11
+competencias:
+  salvaciones:
+  - Sabiduría
+  - Carisma
+  habilidades:
+  - nombre: Historia
+    origen:
+      clase: Clérigo
+  - nombre: Medicina
+    origen:
+      clase: Clérigo
+  - nombre: Perspicacia
+    origen:
+      trasfondo: Acólito
+  - nombre: Religión
+    origen:
+      trasfondo: Acólito
+  armas:
+  - categoria: Armas sencillas
+    origen:
+      clase: Clérigo
+  armaduras:
+  - categoria: Armaduras medias
+    origen:
+      clase: Clérigo
+  - categoria: Escudos
+    origen:
+      clase: Clérigo
+  herramientas:
+  - categoria: suministros de calígrafo
+    origen:
+      trasfondo: Acólito
+  idiomas:
+  - nombre: Común
+  - nombre: Elfo
+    origen:
+      regla: reglas/idiomas.yaml#nota
+  - nombre: Enano
+    origen:
+      regla: reglas/idiomas.yaml#nota
+equipo:
+- ref: equipo/armaduras.yaml#Camisa de malla
+  origen:
+    clase: Clérigo
+    opcion: A
+- ref: equipo/armaduras.yaml#Escudo
+  origen:
+    clase: Clérigo
+    opcion: A
+- ref: equipo/armas.yaml#Maza
+  origen:
+    clase: Clérigo
+    opcion: A
+- ref: equipo/aventureros.yaml#Paquete de sacerdote
+  origen:
+    clase: Clérigo
+    opcion: A
+- ref: equipo/aventureros.yaml#Símbolo sagrado
+  origen:
+    clase: Clérigo
+    opcion: A
+    nota: canalizador mágico del Clérigo
+- ref: equipo/herramientas.yaml#Suministros de calígrafo
+  origen:
+    trasfondo: Acólito
+    opcion: A
+- ref: equipo/aventureros.yaml#Libro
+  origen:
+    trasfondo: Acólito
+    opcion: A
+    nota: de oraciones
+- ref: equipo/aventureros.yaml#Pergamino
+  origen:
+    trasfondo: Acólito
+    opcion: A
+  cantidad: 10
+- ref: equipo/aventureros.yaml#Símbolo sagrado
+  origen:
+    trasfondo: Acólito
+    opcion: A
+- ref: equipo/aventureros.yaml#Túnica
+  origen:
+    trasfondo: Acólito
+    opcion: A
+conjuros:
+  trucos:
+  - ref: hechizos.json#Guía
+  - ref: hechizos.json#Llama sagrada
+  - ref: hechizos.json#Taumaturgia
+  - ref: hechizos.json#Piedad con los moribundos
+    origen:
+      dote: Iniciado en la magia
+  - ref: hechizos.json#Palabra de resplandor
+    origen:
+      dote: Iniciado en la magia
+  preparados:
+  - ref: hechizos.json#Bendición
+  - ref: hechizos.json#Curar heridas
+  - ref: hechizos.json#Escudo de fe
+  - ref: hechizos.json#Saeta guía
+  - ref: hechizos.json#Santuario
+    origen:
+      dote: Iniciado en la magia
+      nota: siempre preparado, no cuenta contra el límite de conjuros preparados del Clérigo
+dotes:
+- ref: dotes/origen.yaml#Iniciado en la magia
+  origen:
+    trasfondo: Acólito
+    lista: Clérigo
+    aptitud: Sabiduría
+calculado:
+  pg_max: 10
+  ca: 16
+  bonif_competencia: 2
+  cd_conjuros: 13
+  bonif_ataque_conjuros: 5
+  velocidad: 9
+decisiones:
+- en: creación
+  eleccion: 'método de características: conjunto estándar (15/14/13/12/10/8)'
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: metodos_generacion_caracteristicas.conjunto_estandar
+- en: creación
+  eleccion: 'tamaño de especie: Mediano'
+  cita:
+    archivo: especies/especies.yaml
+    registro: Aasimar
+    campo: tamano
+- en: creación
+  eleccion: 'ajuste de trasfondo: +2 Sabiduría, +1 Carisma'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Acólito
+    campo: caracteristicas
+- en: creación
+  eleccion: 'habilidades de clase: Historia, Medicina (evitando duplicar Perspicacia/Religión, ya fijas por el trasfondo)'
+  cita:
+    archivo: clases/clerigo.yaml
+    campo: atributos_basicos.habilidades
+- en: creación
+  eleccion: equipo inicial opción A (clase)
+  cita:
+    archivo: clases/clerigo.yaml
+    campo: atributos_basicos.equipo_inicial.a
+- en: creación
+  eleccion: equipo inicial opción A (trasfondo)
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Acólito
+    campo: equipo_a
+- en: creación
+  eleccion: 'trucos de clase: Guía, Llama sagrada, Taumaturgia (opciones recomendadas por el rasgo)'
+  cita:
+    archivo: clases/rasgos/clerigo.yaml
+    rasgo: Lanzamiento de conjuros
+- en: creación
+  eleccion: 'preparados de clase: Bendición, Curar heridas, Escudo de fe, Saeta guía (recomendados por el rasgo)'
+  cita:
+    archivo: clases/rasgos/clerigo.yaml
+    rasgo: Lanzamiento de conjuros
+- en: creación
+  eleccion: 'dote de trasfondo: Iniciado en la magia (lista clérigo, aptitud Sabiduría)'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Acólito
+    campo: dote
+- en: creación
+  eleccion: 'trucos y conjuro extra de la dote: Piedad con los moribundos, Palabra de resplandor, Santuario'
+  cita:
+    archivo: dotes/origen.yaml
+    registro: Iniciado en la magia
+    campo: descripcion
+- en: creación
+  eleccion: 'idiomas: Común más Elfo y Enano, elección libre'
+  cita:
+    archivo: reglas/idiomas.yaml
+    campo: nota

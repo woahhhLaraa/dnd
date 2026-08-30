@@ -1,0 +1,50 @@
+clase: Clérigo
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+fidelidad: condensado
+rasgos:
+  - nombre: "Lanzamiento de conjuros"
+    nivel: 1
+    pagina: {pdf: 83, libro: 81}
+    desc: "Trucos: conoces 3 trucos de tu elección de la lista de clérigo (se recomiendan guía, llama sagrada y taumaturgia); puedes cambiar uno al subir de nivel, y aprendes trucos adicionales en niveles 4 y 10 (columna \"Trucos\" de la tabla Rasgos de clérigo). Espacios de conjuro: los de la tabla, se recuperan tras un descanso largo. Conjuros preparados de nivel 1+: empiezas con 4 conjuros de nivel 1 de clérigo (se recomiendan bendición, curar heridas, escudo de fe y saeta guía); el número preparado crece según la columna \"Conjuros preparados\". Puedes cambiar los conjuros preparados tras un descanso largo. Aptitud mágica: Sabiduría. Canalizador mágico: un símbolo sagrado."
+
+  - nombre: "Orden divina"
+    nivel: 1
+    pagina: {pdf: 84, libro: 82}
+    desc: "Te consagras a una de estas dos funciones sacras, a tu elección: Protector (ganas competencia con armas marciales y entrenamiento con armaduras pesadas) o Taumaturgo (conoces un truco adicional de la lista de clérigo, y obtienes un bonificador igual a tu modificador de Sabiduría, mínimo +1, a las pruebas de Inteligencia (Conocimiento arcano y Religión))."
+
+  - nombre: "Canalizar divinidad"
+    nivel: 2
+    pagina: {pdf: 84, libro: 82}
+    desc: "Puedes canalizar energía divina para alimentar efectos mágicos. Empiezas con dos opciones: Chispa divina (acción de magia; diriges tu símbolo sagrado a una criatura a 9 m o menos; tira 1d8 + modificador de Sabiduría y puedes curar esa cantidad de PG o, con salvación de Constitución CD igual a tu CD de conjuros, causar esa cantidad de daño necrótico o radiante si falla, mitad si supera; dado adicional en niveles 7 (2d8), 13 (3d8) y 18 (4d8)) y Expulsar muertos vivientes (acción de magia; cada muerto viviente de tu elección a 9 m o menos hace salvación de Sabiduría o queda asustado e incapacitado 1 minuto, tratando de alejarse; termina antes si recibe daño, si tú quedas incapacitado o si mueres). Usos: 2 por descanso (columna \"Canalizar divinidad\" de la tabla, sube a 3 en nivel 6 y 4 en nivel 18); recuperas uno tras un descanso corto y todos tras uno largo."
+
+  - nombre: "Abrasar muertos vivientes"
+    nivel: 5
+    pagina: {pdf: 85, libro: 83}
+    desc: "Cuando uses Expulsar muertos vivientes, tira una cantidad de d8 igual a tu modificador de Sabiduría (mínimo 1d8) y suma los resultados: todos los muertos vivientes que fallen la salvación contra ese uso sufren esa cantidad de daño radiante, sin que ello ponga fin al efecto de expulsión."
+
+  - nombre: "Golpes benditos"
+    nivel: 7
+    pagina: {pdf: 85, libro: 83}
+    desc: "Eliges una opción (si ya la obtuviste por una subclase de un libro antiguo, usas solo la de este rasgo): Golpe divino (una vez en cada uno de tus turnos, al acertar con una tirada de ataque con un arma, el objetivo sufre 1d8 de daño necrótico o radiante adicional a tu elección; sube a 2d8 en nivel 14) o Lanzamiento potente (sumas tu modificador de Sabiduría al daño que causas con cualquier truco de clérigo; en nivel 14, al causar daño con un truco puedes además dar puntos de golpe temporales iguales al doble de tu modificador de Sabiduría a ti o a otra criatura a 18 m o menos)."
+
+  - nombre: "Intercesión divina"
+    nivel: 10
+    pagina: {pdf: 85, libro: 83}
+    desc: "Acción de magia: eliges cualquier conjuro de clérigo de nivel 5 o inferior que no requiera una reacción para lanzarlo, y lo lanzas sin gastar espacio de conjuro ni componentes materiales. No puedes volver a usar este rasgo hasta finalizar un descanso largo."
+
+  - nombre: "Golpes benditos mejorados"
+    nivel: 14
+    pagina: {pdf: 85, libro: 83}
+    desc: "La opción elegida para Golpes benditos se vuelve más poderosa: Golpe divino causa 2d8 de daño adicional; Lanzamiento potente, al causar daño con un truco de clérigo, concede puntos de golpe temporales (iguales al doble de tu modificador de Sabiduría) a ti o a otra criatura a 18 m o menos."
+
+  - nombre: "Don épico"
+    nivel: 19
+    pagina: {pdf: 85, libro: 83}
+    desc: "Obtienes una dote de don épico (capítulo 5) u otra dote de tu elección para la que cumplas las condiciones. Se recomienda Don del destino."
+
+  - nombre: "Intercesión divina mayor"
+    nivel: 20
+    pagina: {pdf: 85, libro: 83}
+    desc: "Cuando uses Intercesión divina, puedes elegir el conjuro deseo al seleccionar el conjuro. Si lo haces, no podrás volver a usar Intercesión divina hasta finalizar 2d4 descansos largos."

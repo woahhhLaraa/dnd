@@ -1,0 +1,206 @@
+nombre: Borin Piedraforja (prueba nivel 1)
+jugador: null
+nivel_total: 1
+especie:
+  ref: especies/especies.yaml#Enano
+  rasgos_elegidos: {}
+trasfondo:
+  ref: trasfondos/trasfondos.yaml#Guardia
+clases:
+- clase: Guerrero
+  ref: clases/guerrero.yaml
+  nivel: 1
+  subclase: null
+caracteristicas:
+  metodo: conjunto_estandar
+  base:
+    fue: 15
+    des: 13
+    con: 14
+    int: 8
+    sab: 10
+    car: 12
+  ajuste_trasfondo:
+    fue: 2
+    sab: 1
+  final:
+    fue: 17
+    des: 13
+    con: 14
+    int: 8
+    sab: 11
+    car: 12
+competencias:
+  salvaciones:
+  - Fuerza
+  - Constitución
+  habilidades:
+  - nombre: Intimidación
+    origen:
+      clase: Guerrero
+  - nombre: Perspicacia
+    origen:
+      clase: Guerrero
+  - nombre: Atletismo
+    origen:
+      trasfondo: Guardia
+  - nombre: Percepción
+    origen:
+      trasfondo: Guardia
+  armas:
+  - categoria: Armas sencillas
+    origen:
+      clase: Guerrero
+  - categoria: Armas marciales
+    origen:
+      clase: Guerrero
+  armaduras:
+  - categoria: Armaduras ligeras
+    origen:
+      clase: Guerrero
+  - categoria: Armaduras medias
+    origen:
+      clase: Guerrero
+  - categoria: Armaduras pesadas
+    origen:
+      clase: Guerrero
+  - categoria: Escudos
+    origen:
+      clase: Guerrero
+  herramientas:
+  - categoria: Juego
+    origen:
+      trasfondo: Guardia
+    variante: Dados
+  idiomas:
+  - nombre: Común
+  - nombre: Enano
+    origen:
+      regla: 'reglas/idiomas.yaml: todo personaje elige 2 además de Común'
+  - nombre: Goblin
+    origen:
+      regla: 'reglas/idiomas.yaml: todo personaje elige 2 además de Común'
+equipo:
+- ref: equipo/armaduras.yaml#Cota de malla
+  origen:
+    clase: Guerrero
+    opcion: A
+- ref: equipo/armas.yaml#Espadón
+  origen:
+    clase: Guerrero
+    opcion: A
+- ref: equipo/armas.yaml#Mangual
+  origen:
+    clase: Guerrero
+    opcion: A
+- ref: equipo/armas.yaml#Jabalina
+  origen:
+    clase: Guerrero
+    opcion: A
+    nota: x8
+- ref: equipo/aventureros.yaml#Paquete de explorador de mazmorras
+  origen:
+    clase: Guerrero
+    opcion: A
+- ref: equipo/armas.yaml#Lanza
+  origen:
+    trasfondo: Guardia
+    opcion: A
+- ref: equipo/armas.yaml#Ballesta ligera
+  origen:
+    trasfondo: Guardia
+    opcion: A
+- ref: equipo/municion.yaml#Virotes
+  origen:
+    trasfondo: Guardia
+    opcion: A
+  cantidad: 20
+- ref: equipo/herramientas.yaml#Juego
+  origen:
+    trasfondo: Guardia
+    opcion: A
+  variante: Dados
+- ref: equipo/aventureros.yaml#Aljaba
+  origen:
+    trasfondo: Guardia
+    opcion: A
+- ref: equipo/aventureros.yaml#Esposas
+  origen:
+    trasfondo: Guardia
+    opcion: A
+- ref: equipo/aventureros.yaml#Linterna sorda
+  origen:
+    trasfondo: Guardia
+    opcion: A
+- ref: equipo/aventureros.yaml#Ropas de viaje
+  origen:
+    trasfondo: Guardia
+    opcion: A
+dotes:
+- ref: dotes/origen.yaml#Alerta
+  origen:
+    trasfondo: Guardia
+- ref: dotes/estilo_de_combate.yaml#Combate con armas a dos manos
+  origen:
+    clase: Guerrero
+    rasgo: Estilo de combate
+calculado:
+  pg_max: 13
+  ca: 16
+  bonif_competencia: 2
+  velocidad: 9
+decisiones:
+- en: corrección 2026-08-29 (Fase 14)
+  eleccion: 'pg_max 12 → 13: el rasgo "Aguante enano" sube los PG máximos en 1 (y en 1 más por nivel) y esta ficha
+    no lo aplicaba. Lo cazó el motor de efectos: antes el bono vivía en el campo-parche `bonus_pg_especie`, que
+    nadie obligaba a rellenar, así que la ficha verificaba en verde con los PG mal.
+
+    '
+  cita:
+    archivo: especies/especies.yaml
+    registro: Enano
+    campo: rasgos[Aguante enano]
+- en: creación
+  eleccion: 'método de características: conjunto estándar, intercambiando Des y Con del reparto sugerido para Guerrero
+    (armadura pesada no usa mod. Des en la CA)'
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: conjunto_estandar_por_clase
+- en: creación
+  eleccion: 'ajuste de trasfondo: +2 Fuerza, +1 Sabiduría'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Guardia
+    campo: caracteristicas
+- en: creación
+  eleccion: 'habilidades de clase: Intimidación, Perspicacia (sin solapar con Atletismo/Percepción del trasfondo)'
+  cita:
+    archivo: clases/guerrero.yaml
+    campo: atributos_basicos.habilidades
+- en: creación
+  eleccion: 'herramienta de trasfondo: Juego, variante Dados'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Guardia
+    campo: herramienta
+- en: creación
+  eleccion: equipo inicial opción A de clase y de trasfondo
+  cita:
+    archivo: clases/guerrero.yaml
+    campo: atributos_basicos.equipo_inicial.a
+- en: creación
+  eleccion: 'oro sobrante sin gastar: 4 po (clase, opción A) + 12 po (trasfondo, opción A) = 16 po'
+  cita:
+    archivo: clases/guerrero.yaml
+    campo: atributos_basicos.equipo_inicial.a
+- en: creación
+  eleccion: 'dote de Estilo de combate (rasgo de nivel 1): Combate con armas a dos manos, por el espadón a dos manos'
+  cita:
+    archivo: clases/rasgos/guerrero.yaml
+    rasgo: Estilo de combate
+- en: creación
+  eleccion: 'maestría con armas (rasgo de nivel 1, 3 armas): Espadón, Mangual, Jabalina — sin campo dedicado en
+    el esquema de ficha, se registra solo aquí'
+  cita:
+    archivo: clases/rasgos/guerrero.yaml
+    rasgo: Maestría con armas

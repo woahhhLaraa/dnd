@@ -1,0 +1,103 @@
+{
+ "K1": {
+  "242": [
+   "Amistad"
+  ],
+  "259": [
+   "Conjurar descarga de proyectiles"
+  ],
+  "269": [
+   "Desintegrar"
+  ],
+  "278": [
+   "Entender idiomas"
+  ],
+  "283": [
+   "Fingir muerte"
+  ],
+  "304": [
+   "Látigo de espinas"
+  ],
+  "311": [
+   "Mover la tierra"
+  ],
+  "318": [
+   "Pasar sin rastro"
+  ],
+  "325": [
+   "Rayo de hechicería"
+  ],
+  "335": [
+   "Telepatía"
+  ],
+  "342": [
+   "Ver invisibilidad"
+  ]
+ },
+ "K2": {
+  "245": [
+   "Armadura de Agathys"
+  ],
+  "261": [
+   "Conjurar lluvia de flechas"
+  ],
+  "271": [
+   "Disco flotante de Tenser"
+  ],
+  "279": [
+   "Esfera congelante de Otiluke"
+  ],
+  "284": [
+   "Flecha ácida de Melf"
+  ],
+  "307": [
+   "Mano de Bigby"
+  ],
+  "314": [
+   "Nube de dagas",
+   "Nube apestosa"
+  ],
+  "319": [
+   "Pequeña choza de Leomund"
+  ],
+  "329": [
+   "Risa horrible de Tasha"
+  ],
+  "337": [
+   "Tentáculos negros de Evard"
+  ]
+ },
+ "K3": {
+  "247": [
+   "Aura mágica de Nystul"
+  ],
+  "265": [
+   "Cordón de flechas"
+  ],
+  "277": [
+   "Enlace telepático de Rary"
+  ],
+  "280": [
+   "Esfera elástica de Otiluke"
+  ],
+  "290": [
+   "Hambre de Hadar"
+  ],
+  "310": [
+   "Mastín fiel de Mordenkainen"
+  ],
+  "317": [
+   "Palabra de resplandor"
+  ],
+  "321": [
+   "Presencia regia de Yolande"
+  ],
+  "331": [
+   "Salto",
+   "Sanctasanctórum privado de Mordenkainen"
+  ],
+  "340": [
+   "Tormenta resplandeciente de Jallarzi"
+  ]
+ }
+}

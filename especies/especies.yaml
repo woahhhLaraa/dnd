@@ -1,0 +1,145 @@
+# Especies del Manual del Jugador 2024 (5.5e) — las 10
+# En 2024 la especie NO otorga mejoras de característica (eso lo da el trasfondo).
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", capitulo: 4, paginas_pdf: "188-199"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-18", cobertura: "10/10"}
+fidelidad: "condensado"   # los `desc` de rasgo son mecánica reescrita en frases telegráficas («Visión en la oscuridad: 18 m.»), no la prosa del manual
+
+especies:
+  - nombre: Aasimar
+    pagina: {pdf: 188, libro: 186}
+    tipo: humanoide
+    tamano: "Mediano (1,2-2,1 m) o Pequeño (60 cm-1,2 m), elegido al seleccionar la especie"
+    velocidad_m: 9
+    rasgos:
+      - {nombre: "Manos curativas", desc: "Acción de magia: tocas a una criatura y tiras tantos d4 como tu bonificador por competencia; recupera esos PG. 1 vez por descanso largo."}
+      - {nombre: "Portador de luz", desc: "Conoces el truco luz. El Carisma es tu aptitud mágica para lanzarlo."}
+      - {nombre: "Resistencia celestial", desc: "Resistencia al daño necrótico y al radiante."}
+      - {nombre: "Visión en la oscuridad", desc: "18 m."}
+      - {nombre: "Revelación celestial", nivel: 3, desc: "Acción adicional para transformarte 1 minuto, 1 vez por descanso largo. Una vez por turno infliges daño adicional igual a tu bonificador por competencia. Opciones: Alas celestiales (velocidad volando igual a tu velocidad, daño radiante); Fulgor interior (luz brillante 3 m y tenue 3 m más; al final de cada turno tuyo, cada criatura a 3 m recibe daño radiante igual a tu PB); Mortaja necrótica (criaturas no aliadas a 3 m superan TdS de Carisma CD 8 + mod. Carisma + PB o quedan asustadas hasta el final de tu siguiente turno; daño necrótico)."}
+
+  - nombre: Dracónido
+    pagina: {pdf: 189, libro: 187}
+    tipo: humanoide
+    tamano: "Mediano (1,5-2,1 m)"
+    velocidad_m: 9
+    rasgos:
+      - {nombre: "Linaje dracónico", desc: "Elige un tipo de dragón en la tabla Ancestros dracónicos. Determina tu Ataque de aliento y tu Resistencia al daño."}
+      - {nombre: "Ataque de aliento", desc: "Al atacar, sustituye un ataque por una exhalación en cono de 4,5 m o línea de 9 m x 1,5 m. TdS de Destreza CD 8 + mod. Constitución + PB. 1d10 del tipo de tu linaje (mitad si la superan). Aumenta a 2d10 (nivel 5), 3d10 (11) y 4d10 (17). Usos iguales a tu PB por descanso largo."}
+      - {nombre: "Resistencia al daño", desc: "Resistencia al tipo de daño de tu Linaje dracónico."}
+      - {nombre: "Visión en la oscuridad", desc: "18 m."}
+      - {nombre: "Vuelo dracónico", nivel: 5, desc: "Acción adicional: alas espectrales 10 minutos, velocidad volando igual a tu velocidad. 1 vez por descanso largo."}
+    ancestros:
+      Azul: Relámpago
+      Blanco: Frío
+      Bronce: Relámpago
+      Cobre: Ácido
+      Negro: Ácido
+      Oro: Fuego
+      Oropel: Fuego
+      Plata: Frío
+      Rojo: Fuego
+      Verde: Veneno
+
+  - nombre: Elfo
+    pagina: {pdf: 191, libro: 189}
+    tipo: humanoide
+    tamano: "Mediano (1,5-1,8 m)"
+    velocidad_m: 9
+    rasgos:
+      - {nombre: "Linaje élfico", desc: "Elige un linaje. Obtienes su beneficio de nivel 1 y aprendes un conjuro a los niveles 3 y 5, siempre preparado, lanzable 1 vez sin gastar espacio por descanso largo. Inteligencia, Sabiduría o Carisma es tu aptitud mágica (elige al seleccionar el linaje)."}
+      - {nombre: "Linaje feérico", desc: "Ventaja en las TdS para evitar o poner fin al estado de hechizado."}
+      - {nombre: "Sentidos agudos", desc: "Competencia en Percepción, Perspicacia o Supervivencia."}
+      - {nombre: "Trance", desc: "No necesitas dormir y la magia no puede dormirte. Finalizas un descanso largo en 4 horas de meditación consciente."}
+      - {nombre: "Visión en la oscuridad", desc: "18 m."}
+    linajes:
+      - {nombre: "Alto elfo", nivel_1: "Truco prestidigitación (sustituible por otro truco de mago tras descanso largo)", nivel_3: "Detectar magia", nivel_5: "Paso brumoso"}
+      - {nombre: "Drow", nivel_1: "Visión en la oscuridad aumenta a 36 m; truco luces danzantes", nivel_3: "Fuego feérico", nivel_5: "Oscuridad"}
+      - {nombre: "Elfo de los bosques", nivel_1: "Velocidad aumenta a 10,5 m; truco saber druídico", nivel_3: "Zancada prodigiosa", nivel_5: "Pasar sin rastro"}
+
+  - nombre: Enano
+    pagina: {pdf: 192, libro: 190}
+    tipo: humanoide
+    tamano: "Mediano (1,2-1,5 m)"
+    velocidad_m: 9
+    rasgos:
+      - {nombre: "Afinidad con la piedra", desc: "Acción adicional: sientes vibraciones en 18 m durante 10 minutos (debes estar sobre piedra o en contacto con ella). Usos iguales a tu PB por descanso largo."}
+      - {nombre: "Aguante enano", desc: "Tus PG máximos aumentan en 1, y en 1 más cada vez que subes de nivel.", efectos: [{objetivo: pg_max, op: add, formula: "nivel_total", pagina: {pdf: 192, libro: 190}}]}
+      - {nombre: "Resistencia enana", desc: "Resistencia al daño de veneno y ventaja en las TdS contra el estado de envenenado."}
+      - {nombre: "Visión en la oscuridad", desc: "36 m."}
+
+  - nombre: Gnomo
+    pagina: {pdf: 193, libro: 191}
+    tipo: humanoide
+    tamano: "Pequeño (90 cm-1,2 m)"
+    velocidad_m: 9
+    rasgos:
+      - {nombre: "Astucia gnoma", desc: "Ventaja en las TdS de Inteligencia, Sabiduría y Carisma."}
+      - {nombre: "Linaje gnomo", desc: "Elige un linaje. Inteligencia, Sabiduría o Carisma es tu aptitud mágica (elige al seleccionar el linaje)."}
+      - {nombre: "Visión en la oscuridad", desc: "18 m."}
+    linajes:
+      - {nombre: "Gnomo de las rocas", desc: "Trucos prestidigitación y reparar. Puedes pasar 10 minutos lanzando prestidigitación para crear un dispositivo mecánico Diminuto (CA 5, 1 pg) que reproduce un efecto de prestidigitación al activarlo con un toque (acción adicional). Hasta tres activos; se desarman a las 8 horas."}
+      - {nombre: "Gnomo de los bosques", desc: "Truco ilusión menor. Siempre tienes preparado hablar con los animales; lo lanzas sin gastar espacio tantas veces como tu PB por descanso largo."}
+
+  - nombre: Goliat
+    pagina: {pdf: 194, libro: 192}
+    tipo: humanoide
+    tamano: "Mediano (2,1-2,4 m)"
+    velocidad_m: 10.5
+    rasgos:
+      - {nombre: "Constitución poderosa", desc: "Ventaja en cualquier prueba de característica para poner fin al estado de agarrado. Cuentas como una categoría de tamaño superior para tu capacidad de carga."}
+      - {nombre: "Forma grande", nivel: 5, desc: "Acción adicional: cambias a tamaño Grande 10 minutos. Ventaja en las pruebas de Fuerza y tu velocidad aumenta en 3 m. 1 vez por descanso largo."}
+      - {nombre: "Linaje gigante", desc: "Elige un beneficio; usos iguales a tu PB por descanso largo."}
+    linajes:
+      - {nombre: "Abrasión del fuego (gigante de fuego)", desc: "Al acertar un ataque y causar daño, también causas 1d10 de daño de fuego."}
+      - {nombre: "Caída de las colinas (gigante de las colinas)", desc: "Al acertar a una criatura Grande o menor y causarle daño, puedes infligirle el estado de derribada."}
+      - {nombre: "Excursión de las nubes (gigante de las nubes)", desc: "Acción adicional: te teletransportas hasta 9 m a un espacio sin ocupar que veas."}
+      - {nombre: "Frío de la escarcha (gigante de escarcha)", desc: "Al acertar y causar daño, también causas 1d6 de frío y reduces su velocidad en 3 m hasta el principio de tu siguiente turno."}
+      - {nombre: "Resistencia de la piedra (gigante de piedra)", desc: "Reacción al recibir daño: tiras 1d12 y sumas tu modificador por Constitución; reduces el daño en ese total."}
+      - {nombre: "Trueno de la tormenta (gigante de las tormentas)", desc: "Reacción cuando una criatura a 18 m o menos te cause daño: le infliges 1d8 de daño de trueno."}
+
+  - nombre: Humano
+    pagina: {pdf: 195, libro: 193}
+    tipo: humanoide
+    tamano: "Mediano (1,2-2,1 m) o Pequeño (60 cm-1,2 m), elegido al seleccionar la especie"
+    velocidad_m: 9
+    rasgos:
+      - {nombre: "Diestro", desc: "Competencia en una habilidad de tu elección."}
+      - {nombre: "Ingenioso", desc: "Obtienes inspiración heroica tras finalizar un descanso largo."}
+      - {nombre: "Versátil", desc: "Obtienes una dote de origen de tu elección (cap. 5). Se recomienda Habilidoso."}
+
+  - nombre: Mediano
+    pagina: {pdf: 196, libro: 194}
+    tipo: humanoide
+    tamano: "Pequeño (60-90 cm)"
+    velocidad_m: 9
+    rasgos:
+      - {nombre: "Agilidad de mediano", desc: "Puedes moverte a través del espacio de cualquier criatura de tamaño superior al tuyo, pero no detenerte en él."}
+      - {nombre: "Fortuna", desc: "Cuando saques un 1 en una prueba con d20, repites la tirada y debes usar el nuevo resultado."}
+      - {nombre: "Sigiloso por naturaleza", desc: "Puedes esconderte incluso tras una criatura de tamaño al menos una categoría superior al tuyo."}
+      - {nombre: "Valiente", desc: "Ventaja en las TdS para evitar o poner fin al estado de asustado."}
+
+  - nombre: Orco
+    pagina: {pdf: 197, libro: 195}
+    tipo: humanoide
+    tamano: "Mediano (1,8-2,1 m)"
+    velocidad_m: 9
+    rasgos:
+      - {nombre: "Aguante incansable", desc: "Cuando tus PG se reducen a 0 pero no mueres, recuperas 1 PG. 1 vez por descanso largo."}
+      - {nombre: "Descarga de adrenalina", desc: "Puedes correr como acción adicional y obtienes PG temporales iguales a tu bonificador por competencia. Usos iguales a tu PB por descanso corto o largo."}
+      - {nombre: "Visión en la oscuridad", desc: "36 m."}
+
+  - nombre: Tiefling
+    pagina: {pdf: 199, libro: 197}
+    tipo: humanoide
+    tamano: "Mediano (1,2-2,1 m) o Pequeño (90 cm-1,2 m), elegido al seleccionar la especie"
+    velocidad_m: 9
+    _nota: "El OCR cortó la velocidad; confirmada en 9 m por lectura visual."
+    rasgos:
+      - {nombre: "Legado infernal", desc: "Elige un legado. Obtienes su beneficio de nivel 1 y aprendes un conjuro a los niveles 3 y 5, siempre preparado, lanzable 1 vez sin gastar espacio por descanso largo. Inteligencia, Sabiduría o Carisma es tu aptitud mágica (elige al seleccionar el legado)."}
+      - {nombre: "Presencia sobrenatural", desc: "Conoces el truco taumaturgia; usa la misma aptitud mágica que tu Legado infernal."}
+      - {nombre: "Visión en la oscuridad", desc: "18 m."}
+    linajes:
+      - {nombre: "Abisal", nivel_1: "Resistencia al daño de veneno; truco rociada venenosa", nivel_3: "Rayo nauseabundo", nivel_5: "Inmovilizar persona"}
+      - {nombre: "Ctónico", nivel_1: "Resistencia al daño necrótico; truco toque helado", nivel_3: "Falsa vida", nivel_5: "Rayo debilitador"}
+      - {nombre: "Infernal", nivel_1: "Resistencia al daño de fuego; truco descarga de fuego", nivel_3: "Reprensión infernal", nivel_5: "Oscuridad"}

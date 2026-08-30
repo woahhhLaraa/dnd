@@ -1,0 +1,264 @@
+categoria: General
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "204-211"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-18", cobertura: "42/42"}
+fidelidad: "condensado"   # mecánica reescrita en frases cortas, no la prosa del manual
+
+dotes:
+  - nombre: Acechador
+    pagina: {pdf: 204, libro: 202}
+    prerrequisito: "nivel 4 o más, Destreza 13 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Destreza +1 (máx. 20). Visión ciega hasta 3 m. Niebla de guerra: ventaja en pruebas de Destreza (Sigilo) al esconderte durante el combate. En la sombra: si haces una tirada de ataque mientras estás escondido y no acierta, la tirada no revela tu ubicación."
+
+  - nombre: Actor
+    pagina: {pdf: 204, libro: 202}
+    prerrequisito: "nivel 4 o más, Carisma 13 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Carisma +1 (máx. 20). Suplantación: ventaja en pruebas de Carisma (Engaño o Interpretación) para hacerte pasar por alguien mientras te disfraces de esa persona. Imitación: imitas sonidos y habla de otras criaturas; quien lo escuche puede superar Sabiduría (Perspicacia) CD 8 + mod. Carisma + bonif. competencia para notar el engaño."
+
+  - nombre: Apresador
+    pagina: {pdf: 204, libro: 202}
+    prerrequisito: "nivel 4 o más, Fuerza o Destreza 13 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Fuerza o Destreza +1 (máx. 20). Golpear y agarrar: al acertar con un ataque sin armas como parte de la acción de atacar, puedes usar las opciones de daño y agarre simultáneamente (una vez por turno). Ventaja al atacar: ventaja en tiradas de ataque contra una criatura que estés agarrando. Luchador rápido: no gastas movimiento adicional al mover a una criatura agarrada de tu tamaño o menor."
+
+  - nombre: "Atacante a la carga"
+    pagina: {pdf: 205, libro: 203}
+    prerrequisito: "nivel 4 o más, Fuerza o Destreza 13 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Fuerza o Destreza +1 (máx. 20). Carrera mejorada: al correr, tu velocidad aumenta 3 m para esa acción. Ataque con carga: si te mueves al menos 3 m en línea recta hacia un objetivo antes de acertarle cuerpo a cuerpo como parte de la acción de atacar, elige un efecto (una vez por turno): +1d8 al daño, o empujar al objetivo hasta 3 m si su tamaño es como mucho una categoría mayor que el tuyo."
+
+  - nombre: Atleta
+    pagina: {pdf: 205, libro: 203}
+    prerrequisito: "nivel 4 o más, Fuerza o Destreza 13 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Fuerza o Destreza +1 (máx. 20). Velocidad trepando igual a tu velocidad. Levantarse de un salto: te pones en pie desde derribado con solo 1,5 m de movimiento. Saltar: haces saltos de longitud o altura con carrerilla tras moverte solo 1,5 m."
+
+  - nombre: "Azote de magos"
+    pagina: {pdf: 205, libro: 203}
+    prerrequisito: "nivel 4 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Fuerza o Destreza +1 (máx. 20). Anticoncentración: cuando dañas a una criatura concentrada, tiene desventaja en el TdS para mantener la concentración. Mente robusta: si fallas un TdS de Inteligencia, Sabiduría o Carisma, puedes hacer que lo superes; no repetible hasta un descanso corto o largo."
+
+  - nombre: Centinela
+    pagina: {pdf: 205, libro: 203}
+    prerrequisito: "nivel 4 o más, Fuerza o Destreza 13 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Fuerza o Destreza +1 (máx. 20). Guardián: reacción inmediatamente después de que una criatura a 1,5 m o menos de ti se destrabe o acierte a un objetivo que no seas tú, para hacerle un ataque de oportunidad. Detener: al acertar con un ataque de oportunidad, la velocidad del objetivo pasa a 0 el resto del turno."
+
+  - nombre: Chef
+    pagina: {pdf: 205, libro: 203}
+    prerrequisito: "nivel 4 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Constitución o Sabiduría +1 (máx. 20). Útiles de cocinero (si no los tenías). Comida reconstituyente: tras un descanso corto, con ingredientes y útiles a mano, preparas comida para 4 + tu bonificador por competencia criaturas; quien la coma y gaste dados de PG al final del descanso recupera 1d8 PG adicionales. Tentempiés tonificantes: con 1 hora de trabajo o tras un descanso largo, preparas tentempiés (cantidad = bonif. competencia) que duran 8 horas; comer uno como acción adicional da PG temporales iguales a tu bonif. competencia."
+
+  - nombre: "Combatiente con dos armas"
+    pagina: {pdf: 205, libro: 203}
+    prerrequisito: "nivel 4 o más, Fuerza o Destreza 13 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Fuerza o Destreza +1 (máx. 20). Manejo doble mejorado: al atacar con un arma con la propiedad ligera, puedes hacer el ataque extra con acción adicional usando un arma cuerpo a cuerpo distinta sin la propiedad a dos manos; no sumas modificador de característica al daño del ataque extra salvo que sea negativo. Desenvainar rápido: desenvainas o envainas dos armas sin la propiedad a dos manos donde normalmente solo podrías una."
+
+  - nombre: "Combatiente montado"
+    pagina: {pdf: 206, libro: 204}
+    prerrequisito: "nivel 4 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Fuerza, Destreza o Sabiduría +1 (máx. 20). Golpe montado: ventaja en ataques contra criaturas no montadas a 1,5 m o menos de tu montura si son al menos una categoría más pequeñas que ella. Esquivar de un salto: si tu montura debe hacer un TdS de Destreza para sufrir la mitad de daño, no recibe daño si lo supera y solo la mitad si falla (estando montado, ninguno incapacitado). Girar bruscamente: puedes redirigir a ti un ataque que acierte a tu montura mientras la montas (si no estás incapacitado)."
+
+  - nombre: "Duelista defensivo"
+    pagina: {pdf: 206, libro: 204}
+    prerrequisito: "nivel 4 o más, Destreza 13 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Destreza +1 (máx. 20). Parada: si empuñas un arma sutil y otra criatura te acierta cuerpo a cuerpo, reacción para sumar tu bonificador por competencia a tu CA, pudiendo hacer que el ataque falle (dura hasta tu siguiente turno, solo contra ataques cuerpo a cuerpo)."
+
+  - nombre: "Entrenamiento con armas marciales"
+    pagina: {pdf: 206, libro: 204}
+    prerrequisito: "nivel 4 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Fuerza o Destreza +1 (máx. 20). Competencia con armas marciales."
+
+  - nombre: Envenenador
+    pagina: {pdf: 206, libro: 204}
+    prerrequisito: "nivel 4 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Destreza o Inteligencia +1 (máx. 20). Veneno potente: tus tiradas de daño de veneno ignoran la resistencia a ese daño. Preparar veneno: competencia con útiles de envenenador; con 1 hora de trabajo y 50 po en materiales, creas dosis de veneno iguales a tu bonif. competencia. Aplicar veneno como acción adicional sobre un arma o munición; conserva potencia 1 minuto o hasta infligir daño. Al recibir daño del objeto envenenado, TdS de Constitución (CD 8 + mod. característica aumentada por esta dote + bonif. competencia) o 2d8 de daño de veneno y estado de envenenada hasta el final de tu siguiente turno."
+
+  - nombre: "Experto en ballestas"
+    pagina: {pdf: 206, libro: 204}
+    prerrequisito: "nivel 4 o más, Destreza 13 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Destreza +1 (máx. 20). Ignorar la recarga: ignoras la propiedad de recarga de ballestas de mano, ligeras y pesadas; puedes cargarlas sin mano libre. Disparar cuerpo a cuerpo: sin desventaja al atacar con ballesta estando a 1,5 m o menos de un enemigo. Manejo doble: sumas modificador de característica al daño del ataque extra de la propiedad ligera si es con ballesta ligera y aún no lo sumas."
+
+  - nombre: "Experto en habilidades"
+    pagina: {pdf: 206, libro: 204}
+    prerrequisito: "nivel 4 o más"
+    repetible: false
+    descripcion: "Mejora de característica: una a elección +1 (máx. 20). Competencia en una habilidad de tu elección. Pericia: elige una habilidad en la que tengas competencia pero no pericia; ganas pericia en ella."
+
+  - nombre: "Influencia feérica"
+    pagina: {pdf: 207, libro: 205}
+    prerrequisito: "nivel 4 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Inteligencia, Sabiduría o Carisma +1 (máx. 20). Magia feérica: eliges un conjuro de nivel 1 de adivinación o encantamiento; siempre tienes ese conjuro y paso brumoso preparados, lanzables una vez cada uno sin gastar espacio (recuperable tras descanso largo) o con espacios de conjuro del nivel apropiado. Aptitud mágica: la característica aumentada por esta dote."
+
+  - nombre: "Influencia sombría"
+    pagina: {pdf: 207, libro: 205}
+    prerrequisito: "nivel 4 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Inteligencia, Sabiduría o Carisma +1 (máx. 20). Magia de las sombras: eliges un conjuro de nivel 1 de ilusionismo o nigromancia; siempre tienes ese conjuro e invisibilidad preparados, lanzables una vez cada uno sin gastar espacio (recuperable tras descanso largo) o con espacios de conjuro del nivel apropiado. Aptitud mágica: la característica aumentada por esta dote."
+
+  - nombre: "Lanzador en combate"
+    pagina: {pdf: 207, libro: 205}
+    prerrequisito: "nivel 4 o más, rasgo Lanzamiento de conjuros o Magia del pacto"
+    repetible: false
+    descripcion: "Mejora de característica: Inteligencia, Sabiduría o Carisma +1 (máx. 20). Concentración: ventaja en TdS de Constitución para mantener la concentración. Conjuro reactivo: cuando una criatura provoque un ataque de oportunidad al salir de tu alcance, puedes usar una reacción para lanzarle un conjuro (tiempo de lanzamiento de una acción, solo puede hacerla objetivo) en vez de atacarla. Componentes somáticos: puedes ejecutarlos aunque tengas armas o escudo en las manos."
+
+  - nombre: "Lanzador preciso"
+    pagina: {pdf: 207, libro: 205}
+    prerrequisito: "nivel 4 o más, rasgo Lanzamiento de conjuros o Magia del pacto"
+    repetible: false
+    descripcion: "Mejora de característica: Inteligencia, Sabiduría o Carisma +1 (máx. 20). Sortear la cobertura: tus tiradas de ataque con conjuros ignoran coberturas media y tres cuartos. Lanzar conjuros cuerpo a cuerpo: sin desventaja al lanzar conjuros de ataque estando a 1,5 m o menos de un enemigo. Alcance aumentado: al lanzar un conjuro de alcance 3 m o más que requiera tirada de ataque, puedes aumentar su alcance en 18 m."
+
+  - nombre: "Lanzador ritual"
+    pagina: {pdf: 207, libro: 205}
+    prerrequisito: "nivel 4 o más; Inteligencia, Sabiduría o Carisma 13 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Inteligencia, Sabiduría o Carisma +1 (máx. 20). Conjuros rituales: eliges una cantidad de conjuros de nivel 1 marcados «ritual» igual a tu bonif. competencia; siempre preparados, lanzables con cualquier espacio de conjuro que tengas. Aptitud mágica: la característica aumentada. Cada vez que tu bonif. competencia aumente, puedes añadir otro conjuro ritual de nivel 1. Ritual rápido: puedes lanzar un conjuro ritual preparado con su tiempo de lanzamiento habitual en vez del plazo largo de ritual, sin gastar espacio; no repetible hasta un descanso largo."
+
+  - nombre: "Líder inspirador"
+    pagina: {pdf: 207, libro: 205}
+    prerrequisito: "nivel 4 o más, Sabiduría o Carisma 13 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Sabiduría o Carisma +1 (máx. 20). Interpretación fortalecedora: tras un descanso corto o largo, con un discurso, canción o baile, hasta seis aliados (incluido tú) a 9 m o menos que la presencien ganan PG temporales iguales a tu nivel de personaje + el modificador de la característica aumentada por esta dote."
+
+  - nombre: "Ligeramente acorazado"
+    pagina: {pdf: 208, libro: 206}
+    prerrequisito: "nivel 4 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Fuerza o Destreza +1 (máx. 20). Entrenamiento con armaduras ligeras y escudos."
+
+  - nombre: "Maestro de armas"
+    pagina: {pdf: 208, libro: 206}
+    prerrequisito: "nivel 4 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Fuerza o Destreza +1 (máx. 20). Propiedad de maestría: puedes usar la propiedad de maestría con un tipo de arma sencilla o marcial de tu elección con la que tengas competencia. Tras un descanso largo, puedes cambiar el tipo de arma elegida por otro que cumpla el requisito."
+
+  - nombre: "Maestro en armaduras medias"
+    pagina: {pdf: 208, libro: 206}
+    prerrequisito: "nivel 4 o más, entrenamiento con armaduras medias"
+    repetible: false
+    descripcion: "Mejora de característica: Fuerza o Destreza +1 (máx. 20). Portador diestro: mientras lleves armadura media, sumas 3 (en vez de 2) a tu CA por Destreza si tu puntuación de Destreza es 16 o más."
+
+  - nombre: "Maestro en armaduras pesadas"
+    pagina: {pdf: 208, libro: 206}
+    prerrequisito: "nivel 4 o más, entrenamiento con armaduras pesadas"
+    repetible: false
+    descripcion: "Mejora de característica: Constitución o Fuerza +1 (máx. 20). Reducción de daño: cuando te acierten llevando armadura pesada, el daño contundente, cortante y perforante recibido se reduce en una cantidad igual a tu bonificador por competencia."
+
+  - nombre: "Maestro en armas de asta"
+    pagina: {pdf: 208, libro: 206}
+    prerrequisito: "nivel 4 o más, Fuerza o Destreza 13 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Destreza o Fuerza +1 (máx. 20). Golpe con asta: inmediatamente después de la acción de atacar con bastón, lanza, o arma con «gran alcance» y «pesada», acción adicional para un ataque cuerpo a cuerpo con el otro extremo (daño contundente, dado d4). Golpe reactivo: mientras empuñes una de esas armas, reacción para atacar cuerpo a cuerpo a una criatura que entre en tu alcance con ella."
+
+  - nombre: "Maestro en armas pesadas"
+    pagina: {pdf: 208, libro: 206}
+    prerrequisito: "nivel 4 o más, Fuerza 13 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Fuerza +1 (máx. 20). Maestría con armas pesadas: al golpear con un arma con propiedad pesada como parte de la acción de atacar, puedes infligir daño adicional igual a tu bonificador por competencia. Avasallar: inmediatamente después de causar un crítico cuerpo a cuerpo o reducir a una criatura a 0 PG con una, acción adicional para atacar con la misma arma."
+
+  - nombre: "Maestro en escudos"
+    pagina: {pdf: 209, libro: 207}
+    prerrequisito: "nivel 4 o más, entrenamiento con escudos"
+    repetible: false
+    descripcion: "Mejora de característica: Fuerza +1 (máx. 20). Golpe con escudo: al acertar cuerpo a cuerpo a una criatura a 1,5 m o menos como parte de la acción de atacar, puedes golpearla también con el escudo (una vez por turno) obligándola a TdS de Fuerza (CD 8 + mod. Fuerza + bonif. competencia); si falla, la empujas 1,5 m o la derribas (a elección). Interponer escudo: reacción para no recibir daño si superas un TdS de Destreza que normalmente te daría la mitad de daño, embrazando un escudo."
+
+  - nombre: "Mejora de característica"
+    pagina: {pdf: 209, libro: 207}
+    prerrequisito: "nivel 4 o más"
+    repetible: true
+    descripcion: "Aumenta en 2 una puntuación de característica de tu elección, o aumenta dos en 1 cada una. No puede superar 20."
+
+  - nombre: "Mente aguda"
+    pagina: {pdf: 209, libro: 207}
+    prerrequisito: "nivel 4 o más, Inteligencia 13 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Inteligencia +1 (máx. 20). Sabiduría popular: elige Conocimiento arcano, Historia, Investigación, Naturaleza o Religión; ganas competencia si no la tienes, o pericia si ya la tienes. Estudio rápido: puedes llevar a cabo la acción de estudiar como acción adicional."
+
+  - nombre: "Moderadamente acorazado"
+    pagina: {pdf: 209, libro: 207}
+    prerrequisito: "nivel 4 o más, entrenamiento con armaduras ligeras"
+    repetible: false
+    descripcion: "Mejora de característica: Fuerza o Destreza +1 (máx. 20). Entrenamiento con armaduras medias."
+
+  - nombre: "Muy acorazado"
+    pagina: {pdf: 209, libro: 207}
+    prerrequisito: "nivel 4 o más, entrenamiento con armaduras medias"
+    repetible: false
+    descripcion: "Mejora de característica: Constitución o Fuerza +1 (máx. 20). Entrenamiento con armaduras pesadas."
+
+  - nombre: Observador
+    pagina: {pdf: 209, libro: 207}
+    prerrequisito: "nivel 4 o más, Inteligencia o Sabiduría 13 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Inteligencia o Sabiduría +1 (máx. 20). Observador perspicaz: elige Investigación, Percepción o Perspicacia; ganas competencia si no la tienes, o pericia si ya la tienes. Búsqueda rápida: puedes llevar a cabo la acción de buscar como acción adicional."
+
+  - nombre: Perforador
+    pagina: {pdf: 209, libro: 207}
+    prerrequisito: "nivel 4 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Fuerza o Destreza +1 (máx. 20). Horadar: una vez por turno, al acertar con un ataque que cause daño perforante, puedes repetir uno de los dados de daño (debes usar el nuevo resultado). Crítico potenciado: al causar un crítico con daño perforante, tiras un dado de daño adicional en el daño extra."
+
+  - nombre: Rebanador
+    pagina: {pdf: 210, libro: 208}
+    prerrequisito: "nivel 4 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Fuerza o Destreza +1 (máx. 20). Lacerar: una vez por turno, al acertar con daño cortante, reduces la velocidad del objetivo en 3 m hasta el principio de tu siguiente turno. Crítico potenciado: al causar un crítico con daño cortante, el objetivo tiene desventaja en tiradas de ataque hasta el principio de tu siguiente turno."
+
+  - nombre: Resiliente
+    pagina: {pdf: 210, libro: 208}
+    prerrequisito: "nivel 4 o más"
+    repetible: false
+    descripcion: "Mejora de característica: +1 (máx. 20) a una característica en la que no tengas competencia en TdS. Competencia en tiradas de salvación de esa característica."
+
+  - nombre: Resistente
+    pagina: {pdf: 210, libro: 208}
+    prerrequisito: "nivel 4 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Constitución +1 (máx. 20). Desafiar a la muerte: ventaja en TdS contra muerte. Recuperación rápida: acción adicional para gastar un dado de PG, tirarlo y recuperar PG iguales al resultado."
+
+  - nombre: Telepático
+    pagina: {pdf: 210, libro: 208}
+    prerrequisito: "nivel 4 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Inteligencia, Sabiduría o Carisma +1 (máx. 20). Habla telepática: hablas telepáticamente a cualquier criatura que veas a 18 m o menos, en un idioma que conoces; la criatura solo entiende si conoce ese idioma, y no puede responder. Detectar pensamientos: siempre preparado, lanzable una vez sin espacio ni componentes (recuperable tras descanso largo) o con espacios del nivel apropiado. Aptitud mágica: la característica aumentada."
+
+  - nombre: Telequinético
+    pagina: {pdf: 210, libro: 208}
+    prerrequisito: "nivel 4 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Inteligencia, Sabiduría o Carisma +1 (máx. 20). Telequinesis menor: aprendes mano de mago, lanzable sin componentes verbales ni somáticos; la mano puede ser invisible y su alcance/distancia aumentan 9 m. Aptitud mágica: la característica aumentada. Empellón telequinético: acción adicional para empujar telepáticamente a una criatura a 9 m o menos; TdS de Fuerza (CD 8 + mod. característica + bonif. competencia) o se mueve 1,5 m hacia ti o lejos de ti."
+
+  - nombre: "Tirador de primera"
+    pagina: {pdf: 210, libro: 208}
+    prerrequisito: "nivel 4 o más, Destreza 13 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Destreza +1 (máx. 20). Sortear la cobertura: tus ataques a distancia con armas ignoran coberturas media y tres cuartos. Disparar cuerpo a cuerpo: sin desventaja al atacar a distancia estando a 1,5 m o menos de un enemigo. Tiros lejanos: sin desventaja al atacar con alcance largo."
+
+  - nombre: Triturador
+    pagina: {pdf: 210, libro: 208}
+    prerrequisito: "nivel 4 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Fuerza o Constitución +1 (máx. 20). Empujar: una vez por turno, al acertar con daño contundente, mueves al objetivo 1,5 m a un espacio libre si su tamaño es como mucho una categoría mayor que el tuyo. Crítico potenciado: al causar un crítico con daño contundente, las tiradas de ataque contra ese objetivo tienen ventaja hasta el principio de tu siguiente turno."
+
+  - nombre: Veloz
+    pagina: {pdf: 211, libro: 209}
+    prerrequisito: "nivel 4 o más, Destreza o Constitución 13 o más"
+    repetible: false
+    descripcion: "Mejora de característica: Destreza o Constitución +1 (máx. 20). Aumento de velocidad: tu velocidad aumenta 3 m. Correr por terreno difícil: al correr, el terreno difícil no cuesta movimiento adicional el resto del turno. Movimiento ágil: los ataques de oportunidad tienen desventaja contra ti."
+
+  - nombre: "Versado en un elemento"
+    pagina: {pdf: 211, libro: 209}
+    prerrequisito: "nivel 4 o más, rasgo Lanzamiento de conjuros o Magia del pacto"
+    repetible: true
+    descripcion: "Mejora de característica: Inteligencia, Sabiduría o Carisma +1 (máx. 20). Dominio de la energía: eliges un tipo (ácido, frío, fuego, relámpago o trueno); tus conjuros ignoran la resistencia a ese tipo de daño, y puedes tratar cualquier 1 en dados de daño de ese tipo como un 2. Repetible eligiendo un tipo de daño distinto cada vez."

@@ -1,0 +1,186 @@
+nombre: Grosh Colmillo Roto
+jugador: null
+nivel_total: 1
+especie:
+  ref: especies/especies.yaml#Orco
+  rasgos_elegidos: {}
+trasfondo:
+  ref: trasfondos/trasfondos.yaml#Soldado
+clases:
+- clase: Bárbaro
+  ref: clases/barbaro.yaml
+  nivel: 1
+  subclase: null
+caracteristicas:
+  metodo: conjunto_estandar
+  base:
+    fue: 15
+    des: 13
+    con: 14
+    int: 10
+    sab: 12
+    car: 8
+  ajuste_trasfondo:
+    fue: 2
+    con: 1
+  final:
+    fue: 17
+    des: 13
+    con: 15
+    int: 10
+    sab: 12
+    car: 8
+competencias:
+  salvaciones:
+  - Fuerza
+  - Constitución
+  habilidades:
+  - nombre: Percepción
+    origen:
+      clase: Bárbaro
+  - nombre: Supervivencia
+    origen:
+      clase: Bárbaro
+  - nombre: Atletismo
+    origen:
+      trasfondo: Soldado
+  - nombre: Intimidación
+    origen:
+      trasfondo: Soldado
+  armas:
+  - categoria: Armas sencillas
+    origen:
+      clase: Bárbaro
+  - categoria: Armas marciales
+    origen:
+      clase: Bárbaro
+  armaduras:
+  - categoria: Armaduras ligeras
+    origen:
+      clase: Bárbaro
+  - categoria: Armaduras medias
+    origen:
+      clase: Bárbaro
+  - categoria: Escudos
+    origen:
+      clase: Bárbaro
+  herramientas:
+  - categoria: Juego
+    origen:
+      trasfondo: Soldado
+    variante: Dados
+  idiomas:
+  - nombre: Común
+  - nombre: Orco
+  - nombre: Goblin
+equipo:
+- ref: equipo/armas.yaml#Hacha a dos manos
+  origen:
+    clase: Bárbaro
+    opcion: A
+- ref: equipo/armas.yaml#Hacha de mano
+  origen:
+    clase: Bárbaro
+    opcion: A
+    nota: x4
+- ref: equipo/aventureros.yaml#Paquete de explorador
+  origen:
+    clase: Bárbaro
+    opcion: A
+- ref: equipo/armas.yaml#Lanza
+  origen:
+    trasfondo: Soldado
+    opcion: A
+- ref: equipo/armas.yaml#Arco corto
+  origen:
+    trasfondo: Soldado
+    opcion: A
+- ref: equipo/aventureros.yaml#Aljaba
+  origen:
+    trasfondo: Soldado
+    opcion: A
+    nota: 20 flechas
+- ref: equipo/herramientas.yaml#Juego
+  origen:
+    trasfondo: Soldado
+    opcion: A
+  variante: Dados
+- ref: equipo/aventureros.yaml#Útiles de sanador
+  origen:
+    trasfondo: Soldado
+    opcion: A
+- ref: equipo/aventureros.yaml#Ropas de viaje
+  origen:
+    trasfondo: Soldado
+    opcion: A
+dotes:
+- ref: dotes/origen.yaml#Atacante salvaje
+  origen:
+    trasfondo: Soldado
+calculado:
+  pg_max: 14
+  ca: 13
+  bonif_competencia: 2
+  velocidad: 9
+decisiones:
+- en: creación
+  eleccion: 'características: conjunto estándar, orden sugerido de clase'
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: conjunto_estandar_por_clase
+- en: creación
+  eleccion: 'ajuste de trasfondo: +2 Fuerza, +1 Constitución'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Soldado
+    campo: caracteristicas
+- en: creación
+  eleccion: 'habilidades de clase: Percepción, Supervivencia (sin solapar con Atletismo/Intimidación del trasfondo)'
+  cita:
+    archivo: clases/barbaro.yaml
+    campo: atributos_basicos.habilidades
+- en: creación
+  eleccion: 'herramienta de trasfondo: Juego (variante Dados)'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Soldado
+    campo: herramienta
+- en: creación
+  eleccion: 'equipo inicial de clase: opción A'
+  cita:
+    archivo: clases/barbaro.yaml
+    campo: atributos_basicos.equipo_inicial
+- en: creación
+  eleccion: 'equipo inicial de trasfondo: opción A'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Soldado
+    campo: equipo_a
+- en: creación
+  eleccion: 'dote de trasfondo: Atacante salvaje (fija, no es elección)'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Soldado
+    campo: dote
+- en: creación
+  eleccion: 'idiomas libres adicionales: Orco y Goblin'
+  cita:
+    archivo: reglas/idiomas.yaml
+    campo: nota
+- en: creación
+  eleccion: defensa sin armadura, sin escudo ni armadura equipados
+  cita:
+    archivo: clases/rasgos/barbaro.yaml
+    rasgo: Defensa sin armadura
+historia:
+- Grosh sirvió una década en la guardia fronteriza de una ciudad humana
+- que nunca terminó de confiar en él.
+- Dejó las filas cuando su capitán cayó en una emboscada que Grosh
+- predijo y nadie escuchó.
+- Desde entonces vende su hacha al mejor postor, pero conserva la
+- disciplina y la lealtad de quien fue soldado.
+personalidad:
+- Directo hasta la brusquedad, desconfía de las promesas bonitas y
+- confía en las acciones.
+- 'Bajo la furia de batalla hay un sentido del deber casi obsesivo:'
+- no abandona a un compañero caído, cueste lo que cueste.

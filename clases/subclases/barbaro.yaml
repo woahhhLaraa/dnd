@@ -1,0 +1,82 @@
+clase: Bárbaro
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "56-59"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-18", cobertura: "4/4"}
+fidelidad: "condensado"   # mecánica reescrita en frases cortas, no la prosa del manual
+niveles_de_subclase: [3, 6, 10, 14]
+
+subclases:
+  - nombre: Senda del Árbol del Mundo
+    lema: "Localiza las raíces y las ramas del multiverso."
+    pagina: {pdf: 56, libro: 54}
+    rasgos:
+      - nivel: 3
+        nombre: Vitalidad del árbol
+        desc: "Oleada de vitalidad: al enfurecerte obtienes PG temporales iguales a tu nivel de bárbaro. Fuerza revitalizante: al principio de cada turno tuyo mientras estés enfurecido, eliges otra criatura a 3 m o menos y le das PG temporales tirando tantos d6 como tu bonificación de daño por furia. Estos PG temporales se desvanecen al dejar de estar enfurecido."
+      - nivel: 6
+        nombre: Ramas del árbol
+        desc: "Cuando una criatura que veas empiece su turno a 9 m o menos mientras estás enfurecido, puedes usar una reacción: TdS de Fuerza (CD 8 + mod. Fuerza + PB) o se teletransporta a un espacio libre a 1,5 m de ti, o al más cercano que puedas ver. Tras teletransportarse puedes reducir su velocidad a 0 hasta el final del turno."
+      - nivel: 10
+        nombre: Raíces apaleadoras
+        desc: "En tu turno tu alcance es 3 m mayor con armas cuerpo a cuerpo con propiedad pesada o versátil. Al acertar con un arma así en tu turno puedes activar la maestría de derribar o empujar, además de otra propiedad de maestría distinta que uses con esa arma."
+      - nivel: 14
+        nombre: Viajar por el árbol
+        desc: "Al enfurecerte y como acción adicional mientras estés enfurecido, te teletransportas hasta 18 m a un espacio libre que veas. Una vez por furia puedes aumentar el alcance a 45 m; si lo haces, transportas hasta seis criaturas voluntarias a 3 m o menos de ti, cada una a un espacio libre a 3 m o menos de tu destino."
+
+  - nombre: Senda del Berserker
+    lema: "Canaliza la furia en una violencia indómita."
+    pagina: {pdf: 57, libro: 55}
+    confirmada_srd: true
+    rasgos:
+      - nivel: 3
+        nombre: Frenesí
+        desc: "Si usas Ataque temerario mientras estás enfurecido, causas daño adicional al primer objetivo al que aciertes en tu turno con un ataque basado en Fuerza: tira tantos d6 como tu bonificación de daño por furia. El daño es del mismo tipo que el del arma o ataque sin armas."
+      - nivel: 6
+        nombre: Furia irracional
+        desc: "Inmunidad a los estados de asustado y hechizado mientras estés enfurecido. Si estás asustado o hechizado al enfurecerte, el estado termina para ti."
+      - nivel: 10
+        nombre: Represalia
+        desc: "Cuando recibas daño de una criatura a 1,5 m o menos, puedes usar una reacción para hacerle un ataque cuerpo a cuerpo con un arma o sin armas."
+      - nivel: 14
+        nombre: Presencia intimidante
+        desc: "Acción adicional: criaturas de tu elección en una emanación de 9 m hacen TdS de Sabiduría (CD 8 + mod. Fuerza + PB) o quedan asustadas 1 minuto, repitiendo la TdS al final de cada turno suyo. Tras usarlo no puedes repetirlo hasta un descanso largo, salvo que gastes un uso de furia (no requiere acción) para restablecerlo."
+
+  - nombre: Senda del Corazón Salvaje
+    lema: "Camina en comunión con el mundo animal."
+    pagina: {pdf: 58, libro: 56}
+    rasgos:
+      - nivel: 3
+        nombre: Furia de lo salvaje
+        desc: "Al enfurecerte eliges una opción. Águila: al enfurecerte puedes destrabarte y correr como parte de esa acción adicional, y mientras estés enfurecido puedes usar una acción adicional para ambas. Lobo: tus aliados tienen ventaja en las tiradas de ataque contra enemigos a 1,5 m o menos de ti. Oso: resistencia a todos los tipos de daño salvo fuerza, necrótico, psíquico y radiante."
+      - nivel: 3
+        nombre: Portavoz de los animales
+        desc: "Puedes lanzar hablar con los animales y sentidos de la bestia, solo como rituales. La Sabiduría es tu aptitud mágica."
+      - nivel: 6
+        nombre: Aspecto de lo salvaje
+        desc: "Eliges una opción, cambiable tras un descanso largo. Búho: visión en la oscuridad 18 m (o +18 m si ya la tienes). Pantera: velocidad trepando igual a tu velocidad. Salmón: velocidad nadando igual a tu velocidad."
+      - nivel: 10
+        nombre: Hablante de la naturaleza
+        desc: "Puedes lanzar comunión con la naturaleza, solo como ritual. La Sabiduría es tu aptitud mágica."
+      - nivel: 14
+        nombre: Poder de lo salvaje
+        desc: "Al enfurecerte eliges una opción. Carnero: puedes derribar a una criatura Grande o menor al acertarle con un ataque cuerpo a cuerpo. Halcón: velocidad volando igual a tu velocidad si no llevas armadura. León: los enemigos a 1,5 m o menos tienen desventaja al atacar a objetivos que no seáis tú u otro bárbaro con esta opción activa."
+
+  - nombre: Senda del Fanático
+    lema: "Expresa tu furia en una eufórica unión con una divinidad."
+    pagina: {pdf: 59, libro: 57}
+    rasgos:
+      - nivel: 3
+        nombre: Furia divina
+        desc: "En cada turno tuyo mientras estés enfurecido, la primera criatura a la que aciertes con un arma o ataque sin armas sufre daño adicional igual a 1d6 más la mitad de tu nivel de bárbaro (redondeando hacia abajo). El daño es necrótico o radiante, a tu elección cada vez."
+      - nivel: 3
+        nombre: Guerrero de los dioses
+        desc: "Reserva de cuatro d12 para curarte. Como acción adicional gastas dados, los tiras y recuperas esos PG. La reserva se restablece tras un descanso largo. El máximo aumenta a 5 dados (nivel 6), 6 (nivel 12) y 7 (nivel 17)."
+      - nivel: 6
+        nombre: Foco fanático
+        desc: "Una vez por furia, si fallas una TdS puedes repetirla con un bonificador igual a tu bonificación de daño por furia, y debes usar el nuevo resultado."
+      - nivel: 10
+        nombre: Presencia ferviente
+        desc: "Acción adicional: hasta diez criaturas de tu elección a 18 m o menos obtienen ventaja en tiradas de ataque y TdS hasta el principio de tu siguiente turno. Tras usarlo no puedes repetirlo hasta un descanso largo, salvo que gastes un uso de furia (no requiere acción)."
+      - nivel: 14
+        nombre: Furia de los dioses
+        desc: "Al enfurecerte adoptas forma de guerrero divino 1 minuto o hasta que tus PG lleguen a 0; 1 vez por descanso largo. Beneficios: Resistencia (al daño necrótico, psíquico y radiante); Revitalización (reacción cuando los PG de una criatura a 9 m o menos vayan a reducirse a 0: gastas un uso de furia y sus PG pasan a ser iguales a tu nivel de bárbaro); Vuelo (velocidad volando igual a tu velocidad y puedes levitar)."

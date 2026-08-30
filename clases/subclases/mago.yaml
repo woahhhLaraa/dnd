@@ -1,0 +1,51 @@
+clase: Mago
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "144-149"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-18", cobertura: "4/4"}
+fidelidad: "condensado"   # mecánica reescrita en frases cortas, no la prosa del manual
+niveles_de_subclase: [3, 6, 10, 14]
+
+subclases:
+  - nombre: Abjurador
+    lema: "Protege a tus compañeros y destierra a tus enemigos."
+    pagina: {pdf: 146, libro: 144}
+    confirmada_srd: true
+    rasgos:
+      - {nivel: 3, nombre: "Experto en abjuración", desc: "Eliges dos conjuros de mago de la escuela de abjuración de nivel 2 o inferior y los añades a tu libro de conjuros sin coste. Además, siempre que consigas un nuevo nivel de espacios de conjuro de esta clase, puedes añadir un conjuro de mago de la escuela de abjuración a tu libro de conjuros sin coste (de un nivel para el que tengas espacios)."}
+      - {nivel: 3, nombre: "Salvaguarda arcana", desc: "Al lanzar un conjuro de abjuración con un espacio de conjuro, puedes usar simultáneamente una hebra mágica para crear sobre ti una salvaguarda que dura hasta un descanso largo, con PG máximos iguales al doble de tu nivel de mago + tu modificador por Inteligencia. Absorbe el daño que recibirías (aplicando antes tus resistencias/vulnerabilidades); si llega a 0 PG, recibes el daño restante, pero la magia de la salvaguarda permanece. Siempre que lances un conjuro de abjuración con espacio de conjuro, recupera PG iguales al doble del nivel del espacio; como alternativa, puedes gastar un espacio como acción adicional para lo mismo. Una vez creada, requiere un descanso largo para poder formarla de nuevo."}
+      - {nivel: 6, nombre: "Salvaguarda proyectada", desc: "Cuando una criatura que puedas ver a 9 m o menos reciba daño, puedes usar una reacción para que tu salvaguarda arcana absorba ese daño (aplicando antes resistencias/vulnerabilidades de la criatura); si llega a 0 PG, la criatura recibe el daño restante."}
+      - {nivel: 10, nombre: "Rompeconjuros", desc: "Siempre tienes preparados contrahechizo y disipar magia. Puedes lanzar disipar magia como acción adicional y sumar tu bonificador por competencia a su prueba de característica. Cuando lances cualquiera de esos conjuros con un espacio de conjuro, el espacio no se gasta si el conjuro no consigue neutralizar otro."}
+      - {nivel: 14, nombre: "Resistencia a conjuros", desc: "Ventaja en tiradas de salvación contra conjuros y resistencia contra el daño de conjuros."}
+
+  - nombre: Adivino
+    lema: "Descifra los secretos del multiverso."
+    pagina: {pdf: 147, libro: 145}
+    confirmada_srd: true
+    rasgos:
+      - {nivel: 3, nombre: "Experto en adivinación", desc: "Eliges dos conjuros de mago de la escuela de adivinación de nivel 2 o inferior y los añades a tu libro de conjuros sin coste. Además, siempre que consigas un nuevo nivel de espacios de conjuro de esta clase, puedes añadir un conjuro de mago de adivinación a tu libro de conjuros sin coste (de un nivel para el que tengas espacios)."}
+      - {nivel: 3, nombre: "Presagio", desc: "Tras un descanso largo, tiras 2d20 y anotas los resultados. Puedes sustituir cualquier prueba con d20 que hagas tú o una criatura que puedas ver por uno de los resultados presagiados, indicándolo antes de la tirada; solo una sustitución por turno. Cada resultado presagiado se usa una única vez, y se pierden los no utilizados tras un descanso largo."}
+      - {nivel: 6, nombre: "Adivino avezado", desc: "Cuando lances un conjuro de adivinación usando un espacio de nivel 2 o superior, recuperas un espacio de conjuro gastado de nivel inferior al gastado y no superior a 5."}
+      - {nivel: 10, nombre: "El tercer ojo", desc: "Acción adicional: eliges uno de estos beneficios hasta que empieces un descanso corto o largo (no repetible hasta entonces): Comprensión superior (lees cualquier idioma), Ver invisibilidad (lanzas ver invisibilidad sin gastar espacio) o Visión en la oscuridad (obtienes visión en la oscuridad hasta 36 m)."}
+      - {nivel: 14, nombre: "Presagio mayor", desc: "Tiras 3d20 en vez de dos cuando uses el rasgo Presagio."}
+
+  - nombre: Evocador
+    lema: "Crea efectos elementales explosivos."
+    pagina: {pdf: 148, libro: 146}
+    confirmada_srd: true
+    rasgos:
+      - {nivel: 3, nombre: "Experto en evocación", desc: "Eliges dos conjuros de mago de la escuela de evocación de nivel 2 o inferior y los añades a tu libro de conjuros sin coste. Además, siempre que consigas un nuevo nivel de espacios de conjuro de esta clase, puedes añadir un conjuro de mago de evocación a tu libro de conjuros sin coste (de un nivel para el que tengas espacios)."}
+      - {nivel: 3, nombre: "Truco potente", desc: "Cuando lances un truco que cause daño a una criatura y falles la tirada de ataque, o el objetivo supere el TdS contra el truco, el objetivo recibe la mitad del daño del truco (si causa alguno), pero no sufre sus efectos adicionales."}
+      - {nivel: 6, nombre: "Esculpir conjuros", desc: "Cuando lances un conjuro de evocación que afecte a otras criaturas que puedas ver, puedes elegir una cantidad de ellas igual a 1 + el nivel del conjuro; esas criaturas tienen éxito automático en sus TdS contra el conjuro y no reciben daño si normalmente recibirían la mitad al superar la salvación."}
+      - {nivel: 10, nombre: "Evocación potenciada", desc: "Siempre que lances un conjuro de mago de la escuela de evocación, puedes sumar tu modificador por Inteligencia a una tirada de daño del conjuro."}
+      - {nivel: 14, nombre: "Sobrecanalizar", desc: "Al lanzar un conjuro de mago que cause daño usando un espacio de nivel 1 a 5, puedes infligir el máximo daño posible ese turno. La primera vez que lo hagas sin haber finalizado un descanso largo antes no sufres efecto negativo; si vuelves a usarlo sin descanso largo, recibes 2d12 de daño necrótico por cada nivel del espacio de conjuro (ignora resistencias e inmunidades), aumentando en 1d12 por cada uso adicional sin descanso largo."}
+
+  - nombre: Ilusionista
+    lema: "Urde sutiles conjuros de engaño."
+    pagina: {pdf: 149, libro: 147}
+    confirmada_srd: true
+    rasgos:
+      - {nivel: 3, nombre: "Experto en ilusionismo", desc: "Eliges dos conjuros de mago de la escuela de ilusionismo de nivel 2 o inferior y los añades a tu libro de conjuros sin coste. Además, siempre que consigas un nuevo nivel de espacios de conjuro de esta clase, puedes añadir un conjuro de mago de ilusionismo a tu libro de conjuros sin coste (de un nivel para el que tengas espacios)."}
+      - {nivel: 3, nombre: "Ilusiones mejoradas", desc: "Puedes lanzar conjuros de ilusionismo sin componentes verbales. Si un conjuro de ilusionismo que lances tiene alcance de 3 m o más, su alcance aumenta en 18 m. Conoces el truco ilusión menor (si ya lo conocías, aprendes otro truco de mago); puedes lanzar ilusión menor como acción adicional y crear tanto un sonido como una imagen en el mismo lanzamiento."}
+      - {nivel: 6, nombre: "Criaturas fantasmales", desc: "Siempre tienes preparados invocar bestia e invocar feérico. Al lanzar cualquiera de ellos, puedes cambiar su escuela a ilusionismo (aspecto espectral); si lo lanzas sin gastar espacio de conjuro, la criatura tiene la mitad de sus PG y no puedes repetirlo sin un descanso largo."}
+      - {nivel: 10, nombre: "Yo ilusorio", desc: "Cuando una criatura te acierte con una tirada de ataque, puedes usar una reacción para interponer un doble ilusorio; el ataque falla automáticamente y la ilusión se disipa. No se repite hasta un descanso corto o largo, salvo que gastes un espacio de conjuro de nivel 2 o superior (no requiere acción)."}
+      - {nivel: 14, nombre: "Realidad ilusoria", desc: "Al lanzar un conjuro de ilusionismo con un espacio de conjuro, puedes elegir un objeto no mágico e inanimado que forme parte de la ilusión para hacerlo real (acción adicional, mientras el conjuro esté activo). El objeto es real durante 1 minuto, sin poder causar daño ni aplicar estados."}

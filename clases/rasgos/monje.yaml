@@ -1,0 +1,112 @@
+clase: Monje
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+fidelidad: condensado
+rasgos:
+  - nombre: "Artes marciales"
+    nivel: 1
+    pagina: {pdf: 151, libro: 149}
+    desc: "Dominas armas cuerpo a cuerpo sencillas y armas cuerpo a cuerpo marciales con la propiedad \"ligera\". Mientras no lleves armadura ni escudo y estés desarmado o empuñes solo armas de monje: Ataque sin armas adicional (puedes hacer un ataque sin armas como acción adicional); Dado de Artes marciales (tiras 1d6 en vez del daño normal de tus ataques sin armas o armas de monje; el dado sube con el nivel según la columna \"Artes marciales\" de la tabla Rasgos de monje: 1d8 en nivel 5, 1d10 en nivel 11, 1d12 en nivel 17); Ataques diestros (usas tu modificador de Destreza en vez de Fuerza para ataque y daño con estas armas, y también para la CD de tus opciones de agarre o empujón del ataque sin armas)."
+
+  - nombre: "Defensa sin armadura"
+    nivel: 1
+    pagina: {pdf: 151, libro: 149}
+    desc: "Mientras no lleves armadura ni portes un escudo, tu clase de armadura base es 10 + modificador de Destreza + modificador de Sabiduría."
+    efectos:
+      - {objetivo: ca, op: base, formula: "10 + mod_des + mod_sab", requiere: [sin_armadura, sin_escudo], pagina: {pdf: 151, libro: 149}}
+
+  - nombre: "Concentración de monje"
+    nivel: 2
+    pagina: {pdf: 151, libro: 149}
+    desc: "Tienes puntos de concentración (2 en nivel 2, según la columna \"Puntos de concentración\" de la tabla, hasta 20 en nivel 20). Al gastar un punto, no está disponible hasta finalizar un descanso corto o largo, tras el cual recuperas todos. Empiezas con tres rasgos que usan estos puntos: Defensa paciente (acción adicional para destrabarse; o gasta 1 punto para destrabarte y esquivar, ambas como acción adicional), Paso del viento (acción adicional para correr; o gasta 1 punto para destrabarte y correr como acción adicional, duplicando tu distancia de salto ese turno) y Ráfaga de golpes (gasta 1 punto de concentración para hacer dos ataques sin armas como acción adicional). Cuando un rasgo de monje que usa puntos de concentración exige salvación, la CD es 8 + tu modificador de Sabiduría + tu bonificador por competencia."
+
+  - nombre: "Metabolismo asombroso"
+    nivel: 2
+    pagina: {pdf: 152, libro: 150}
+    desc: "Cuando tiras iniciativa, puedes recuperar todos los puntos de concentración gastados; al hacerlo, tiras tu dado de Artes marciales y recuperas una cantidad de puntos de golpe igual a tu nivel de monje más el resultado obtenido. No puedes volver a usar este rasgo hasta finalizar un descanso largo."
+
+  - nombre: "Movimiento sin armadura"
+    nivel: 2
+    pagina: {pdf: 152, libro: 150}
+    desc: "Tu velocidad aumenta en 3 m si no llevas armadura ni portas un escudo. Este bonificador aumenta con el nivel (columna \"Movimiento sin armadura\" de la tabla): +4,5 m en nivel 6, +6 m en nivel 10, +7,5 m en nivel 14, +9 m en nivel 18."
+    # El escalado NO se copia aquí: se lee de la columna `mov_sin_armadura_m`
+    # de la progresión del Monje, que ya trae la tabla dispersa (+3 m en el
+    # nivel 2, +4,5 en el 6, +6 en el 10, +7,5 en el 14, +9 en el 18).
+    efectos:
+      - {objetivo: velocidad, op: add, columna: mov_sin_armadura_m, requiere: [sin_armadura, sin_escudo], pagina: {pdf: 152, libro: 150}}
+
+  - nombre: "Desviar ataques"
+    nivel: 3
+    pagina: {pdf: 152, libro: 150}
+    desc: "Reacción cuando una tirada de ataque te acierta y su daño incluye contundente, cortante o perforante: reduces el daño total en 1d10 + tu modificador de Destreza + tu nivel de monje. Si reduces el daño a 0, puedes gastar 1 punto de concentración para redirigir parte de la fuerza: eliges una criatura a 1,5 m o menos (ataque cuerpo a cuerpo) o a 18 m o menos sin cobertura completa (ataque a distancia); esa criatura hace salvación de Destreza o sufre daño igual al resultado de dos tiradas de tu dado de Artes marciales + tu modificador de Destreza, del mismo tipo que el ataque original."
+
+  - nombre: "Caída lenta"
+    nivel: 4
+    pagina: {pdf: 153, libro: 151}
+    desc: "Reacción al caer: reduces cualquier daño de caída que sufras en una cantidad igual a cinco veces tu nivel de monje."
+
+  - nombre: "Ataque adicional"
+    nivel: 5
+    pagina: {pdf: 153, libro: 151}
+    desc: "Cuando lleves a cabo la acción de atacar en tu turno, puedes hacer dos ataques en lugar de uno."
+
+  - nombre: "Golpe aturdidor"
+    nivel: 5
+    pagina: {pdf: 153, libro: 151}
+    desc: "Una vez por turno, cuando aciertas a una criatura con un arma de monje o un ataque sin armas, puedes gastar 1 punto de concentración para intentar un golpe aturdidor. El objetivo hace salvación de Constitución: si falla, queda aturdido hasta el principio de tu siguiente turno; si la supera, su velocidad se reduce a la mitad hasta el principio de tu siguiente turno y la siguiente tirada de ataque contra él antes de ese momento tiene ventaja."
+
+  - nombre: "Golpes potenciados"
+    nivel: 6
+    pagina: {pdf: 153, libro: 151}
+    desc: "Siempre que inflijas daño con tu ataque sin armas, puedes elegir entre causar daño de fuerza o su tipo de daño normal."
+
+  - nombre: "Evasión"
+    nivel: 7
+    pagina: {pdf: 153, libro: 151}
+    desc: "Cuando sufras un efecto que te permita hacer una tirada de salvación de Destreza para sufrir solo la mitad de daño, no recibes daño alguno si la superas y solo sufres la mitad si la fallas. No te beneficias de este rasgo si tienes el estado de incapacitado."
+
+  - nombre: "Movimiento acrobático"
+    nivel: 9
+    pagina: {pdf: 153, libro: 151}
+    desc: "Mientras no lleves armadura ni portes un escudo, puedes moverte por superficies verticales y sobre líquidos sin caerte."
+
+  - nombre: "Autorrestablecimiento"
+    nivel: 10
+    pagina: {pdf: 153, libro: 151}
+    desc: "Por pura fuerza de voluntad, puedes eliminar uno de los siguientes estados que te afecten al final de cada uno de tus turnos: asustado, envenenado o hechizado. Además, privarte de comida y bebida no te aplica niveles de cansancio."
+
+  - nombre: "Concentración agudizada"
+    nivel: 10
+    pagina: {pdf: 153, libro: 151}
+    desc: "Tus rasgos Defensa paciente, Paso del viento y Ráfaga de golpes mejoran: Defensa paciente (al gastar un punto de concentración para usarla, obtienes PG temporales iguales al resultado de dos tiradas de tu dado de Artes marciales); Paso del viento (al gastar un punto para usarla, puedes elegir una criatura voluntaria Grande o menor a 1,5 m o menos y moverla contigo hasta el final del turno, sin provocar ataques de oportunidad por su movimiento); Ráfaga de golpes (al gastar 1 punto de concentración, haces tres ataques sin armas en lugar de dos)."
+
+  - nombre: "Desviar energía"
+    nivel: 13
+    pagina: {pdf: 153, libro: 151}
+    desc: "Puedes usar tu rasgo Desviar ataques contra ataques que causen cualquier tipo de daño, no solo contundente, cortante o perforante."
+
+  - nombre: "Superviviente disciplinado"
+    nivel: 14
+    pagina: {pdf: 153, libro: 151}
+    desc: "Obtienes competencia en todas las tiradas de salvación. Además, cuando hagas una tirada de salvación y falles, puedes gastar 1 punto de concentración para repetirla, debiendo usar el nuevo resultado."
+
+  - nombre: "Concentración perfecta"
+    nivel: 15
+    pagina: {pdf: 153, libro: 151}
+    desc: "Cuando tires iniciativa y no utilices Metabolismo asombroso, recuperas puntos de concentración gastados hasta tener 4, si te quedaban 3 o menos."
+
+  - nombre: "Defensa superior"
+    nivel: 18
+    pagina: {pdf: 153, libro: 151}
+    desc: "Al principio de tu turno, puedes gastar 3 puntos de concentración para protegerte del daño durante 1 minuto o hasta que quedes incapacitado. Durante ese tiempo, tienes resistencia a todo el daño excepto al de fuerza."
+
+  - nombre: "Don épico"
+    nivel: 19
+    pagina: {pdf: 153, libro: 151}
+    desc: "Obtienes una dote de don épico (capítulo 5) u otra dote de tu elección para la que cumplas las condiciones. Se recomienda Don del ataque imparable."
+
+  - nombre: "Cuerpo y mente"
+    nivel: 20
+    pagina: {pdf: 153, libro: 151}
+    desc: "Tus puntuaciones de Destreza y Sabiduría aumentan en 4, hasta un máximo de 25."

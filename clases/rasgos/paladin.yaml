@@ -1,0 +1,80 @@
+clase: Paladín
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+fidelidad: condensado
+rasgos:
+  - nombre: "Imponer las manos"
+    nivel: 1
+    pagina: {pdf: 159, libro: 157}
+    desc: "Tienes una reserva de poder de curación igual a cinco veces tu nivel de paladín, que se rellena tras un descanso largo. Acción adicional: tocas a una criatura (puedes ser tú) y le restauras puntos de golpe hasta el máximo que quede en la reserva. También puedes gastar 5 puntos de golpe de la reserva para eliminar el estado de envenenado de la criatura tocada; esos puntos gastados no restauran PG."
+
+  - nombre: "Lanzamiento de conjuros"
+    nivel: 1
+    pagina: {pdf: 159, libro: 157}
+    desc: "Espacios de conjuro: los de la tabla Rasgos de paladín, se recuperan tras un descanso largo. Conjuros preparados de nivel 1+: empiezas con 2 conjuros de nivel 1 de paladín (se recomiendan castigo abrasador y heroísmo); el número crece según la columna \"Conjuros preparados\". Puedes cambiar los conjuros preparados tras un descanso largo. Aptitud mágica: Carisma. Canalizador mágico: un símbolo sagrado."
+
+  - nombre: "Maestría con armas"
+    nivel: 1
+    pagina: {pdf: 160, libro: 158}
+    desc: "Puedes usar las propiedades de maestría con dos tipos de armas de tu elección con las que tengas competencia (p. ej. espadas largas y jabalinas). Tras un descanso largo puedes cambiar los tipos de armas elegidos."
+
+  - nombre: "Castigo de paladín"
+    nivel: 2
+    pagina: {pdf: 160, libro: 158}
+    desc: "Siempre tienes preparado el conjuro castigo divino. Además, puedes lanzarlo sin gastar un espacio de conjuro, pero debes finalizar un descanso largo antes de volver a lanzarlo de este modo."
+
+  - nombre: "Estilo de combate"
+    nivel: 2
+    pagina: {pdf: 160, libro: 158}
+    desc: "Obtienes una dote de estilo de combate de tu elección (capítulo 5). En su lugar puedes elegir Guerrero bendito: aprendes dos trucos de clérigo de tu elección (se recomiendan guía y llama sagrada); cuentan como conjuros de paladín para ti y usas Carisma como aptitud mágica para lanzarlos. Puedes sustituir uno de estos trucos por otro de clérigo al subir de nivel de paladín."
+
+  - nombre: "Canalizar divinidad"
+    nivel: 3
+    pagina: {pdf: 160, libro: 158}
+    desc: "Puedes canalizar energía divina directamente de los Planos Exteriores. Empiezas con el efecto Sentidos divinos: acción adicional; durante los siguientes 10 minutos o hasta quedar incapacitado, conoces la ubicación de cualquier celestial, infernal o muerto viviente a 18 m o menos y su tipo de criatura, y detectas cualquier lugar u objeto consagrado o profanado en ese radio (como con el conjuro consagrar). Otros rasgos de paladín añaden opciones adicionales a Canalizar divinidad. Usos: 2 (columna \"Canalizar divinidad\" de la tabla, sube a 3 en nivel 11); recuperas uno tras un descanso corto y todos tras uno largo. Si un efecto de Canalizar divinidad requiere salvación, la CD es la CD de conjuros de paladín."
+
+  - nombre: "Ataque adicional"
+    nivel: 5
+    pagina: {pdf: 161, libro: 159}
+    desc: "Cuando lleves a cabo la acción de atacar en tu turno, puedes hacer dos ataques en lugar de uno."
+
+  - nombre: "Corcel fiel"
+    nivel: 5
+    pagina: {pdf: 161, libro: 159}
+    desc: "Siempre tienes preparado el conjuro hallar corcel. También puedes lanzarlo una vez sin gastar un espacio de conjuro, y recuperas esta capacidad tras un descanso largo."
+
+  - nombre: "Aura de protección"
+    nivel: 6
+    pagina: {pdf: 161, libro: 159}
+    desc: "Irradias un aura protectora e invisible en una emanación de 3 m que se origina de ti; se desactiva mientras estés incapacitado. Tus aliados dentro del aura y tú obtenéis un bonificador a las tiradas de salvación igual a tu modificador de Carisma (mínimo +1). Si hay otro paladín presente, una criatura solo puede beneficiarse de un Aura de protección a la vez, y elige cuál mientras esté dentro de ambas."
+
+  - nombre: "Abjurar de los enemigos"
+    nivel: 9
+    pagina: {pdf: 161, libro: 159}
+    desc: "Acción de magia: gastas un uso de Canalizar divinidad de esta clase para sobrecoger a tus enemigos mientras muestras tu símbolo sagrado o arma. Haces objetivo a una cantidad de criaturas que puedas ver a 18 m o menos igual a tu modificador de Carisma (mínimo 1). Cada objetivo hace salvación de Sabiduría o queda asustado durante 1 minuto o hasta recibir daño; mientras esté asustado así, solo puede elegir una de estas opciones en su turno: moverse, realizar una acción o realizar una acción adicional."
+
+  - nombre: "Aura de coraje"
+    nivel: 10
+    pagina: {pdf: 161, libro: 159}
+    desc: "Tus aliados y tú tenéis inmunidad al estado de asustado mientras estéis dentro de tu Aura de protección. Si un aliado asustado entra en el aura, ese estado no tiene efecto en él mientras permanezca dentro."
+
+  - nombre: "Golpes radiantes"
+    nivel: 11
+    pagina: {pdf: 161, libro: 159}
+    desc: "Cuando aciertas a un objetivo con una tirada de ataque usando un arma cuerpo a cuerpo o un ataque sin armas, el objetivo recibe 1d8 de daño radiante adicional."
+
+  - nombre: "Toque reparador"
+    nivel: 14
+    pagina: {pdf: 161, libro: 159}
+    desc: "Cuando uses Imponer las manos sobre una criatura, también puedes eliminar uno o más de los siguientes estados que la afecten: asustado, aturdido, cegado, ensordecido, hechizado o paralizado. Debes gastar 5 puntos de golpe de la reserva de curación de Imponer las manos por cada estado eliminado; esos puntos gastados no restauran puntos de golpe."
+
+  - nombre: "Expansión de aura"
+    nivel: 18
+    pagina: {pdf: 161, libro: 159}
+    desc: "Tu Aura de protección pasa a ser una emanación de 9 m (en vez de 3 m)."
+
+  - nombre: "Don épico"
+    nivel: 19
+    pagina: {pdf: 161, libro: 159}
+    desc: "Obtienes una dote de don épico (capítulo 5) u otra dote de tu elección para la que cumplas las condiciones. Se recomienda Don de la visión verdadera."

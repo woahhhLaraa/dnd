@@ -1,0 +1,45 @@
+clase: Mago
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+fidelidad: condensado
+rasgos:
+  - nombre: "Lanzamiento de conjuros"
+    nivel: 1
+    pagina: {pdf: 139, libro: 137}
+    desc: "Trucos: conoces 3 trucos de mago de tu elección (se recomiendan luz, mano de mago y rayo de escarcha); puedes sustituir uno tras un descanso largo, y aprendes trucos adicionales en niveles 4 y 10 (columna \"Trucos\"). Libro de conjuros: objeto Diminuto de 1,5 kg, 100 páginas, solo lo puedes leer tú o quien lance identificar; contiene los conjuros de nivel 1+ que conoces. Empiezas con 6 conjuros de nivel 1 (se recomiendan armadura de mago, caída de pluma, detectar magia, dormir, ola atronadora y proyectil mágico). Cada vez que subas de nivel (tras el 1) añades 2 conjuros de mago de tu elección al libro, de un nivel para el que tengas espacios. Espacios de conjuro: los de la tabla Rasgos de mago, se recuperan tras un descanso largo. Conjuros preparados de nivel 1+: eliges 4 conjuros de tu libro para empezar; el número crece según la columna \"Conjuros preparados\"; puedes cambiarlos tras un descanso largo. Aptitud mágica: Inteligencia. Canalizador mágico: un canalizador arcano o tu libro de conjuros. Ampliar/sustituir el libro: puedes copiar un conjuro que encuentres (nivel 1+) al libro por 2 horas y 50 po por nivel del conjuro; copiar tu propio libro a otro cuesta 1 hora y 10 po por nivel; si pierdes el libro, puedes transcribir de nuevo los conjuros que tuvieras preparados en uno nuevo por el mismo procedimiento."
+
+  - nombre: "Adepto en rituales"
+    nivel: 1
+    pagina: {pdf: 140, libro: 138}
+    desc: "Puedes lanzar de forma ritual cualquier conjuro de mago que figure en tu libro de conjuros y esté marcado como \"ritual\", sin necesidad de tenerlo preparado, pero debes leerlo del libro para lanzarlo así."
+
+  - nombre: "Recuperación arcana"
+    nivel: 1
+    pagina: {pdf: 140, libro: 138}
+    desc: "Tras finalizar un descanso corto, puedes elegir espacios de conjuro gastados y recuperarlos. La suma de niveles de los espacios recuperados debe ser igual o inferior a la mitad de tu nivel de mago (redondeando hacia arriba), y ninguno puede ser de nivel 6 o más. No puedes volver a usar este rasgo hasta finalizar un descanso largo."
+
+  - nombre: "Académico"
+    nivel: 2
+    pagina: {pdf: 140, libro: 138}
+    desc: "Eliges una habilidad entre Conocimiento arcano, Historia, Investigación, Medicina, Naturaleza o Religión: ganas pericia (doblas el bonificador por competencia) en ella."
+
+  - nombre: "Memorizar conjuro"
+    nivel: 5
+    pagina: {pdf: 141, libro: 139}
+    desc: "Tras finalizar un descanso corto, puedes estudiar tu libro de conjuros y sustituir un conjuro de mago de nivel 1 o superior que tengas preparado con tu rasgo Lanzamiento de conjuros por otro de nivel 1 o superior del libro."
+
+  - nombre: "Maestría sobre conjuros"
+    nivel: 18
+    pagina: {pdf: 141, libro: 139}
+    desc: "Eliges un conjuro de nivel 1 y otro de nivel 2 de tu libro de conjuros con tiempo de lanzamiento de una acción. Siempre los tienes preparados y puedes lanzarlos a su nivel más bajo sin gastar un espacio de conjuro (para lanzarlos a nivel superior, gastas un espacio). Tras un descanso largo puedes estudiar el libro y sustituir uno de estos dos conjuros por otro del mismo nivel del libro."
+
+  - nombre: "Don épico"
+    nivel: 19
+    pagina: {pdf: 141, libro: 139}
+    desc: "Obtienes una dote de don épico (capítulo 5) u otra dote de tu elección para la que cumplas las condiciones. Se recomienda Don del recuerdo de conjuros."
+
+  - nombre: "Conjuros característicos"
+    nivel: 20
+    pagina: {pdf: 141, libro: 139}
+    desc: "Escoges dos conjuros de nivel 3 de tu libro de conjuros como conjuros característicos. Siempre están preparados y puedes lanzar cada uno una vez a nivel 3 sin gastar espacio de conjuro; tras hacerlo, no puedes volver a lanzarlo así hasta finalizar un descanso corto o largo. Para lanzar cualquiera de ellos a un nivel superior, debes gastar un espacio de conjuro."

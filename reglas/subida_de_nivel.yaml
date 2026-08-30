@@ -1,0 +1,62 @@
+# Qué puede pasar al subir de nivel (Fase 16).
+#
+# Vocabulario CERRADO, y sacado de medir la base, no de copiar un repo.
+# `ANALISIS_REPOS.md` §2 describe los NUEVE tipos de *advancement* de Foundry
+# dnd5e. Aquí están **los que esta base ejercita de verdad**: `Size` y
+# `ModifyItem` no los usa nada, y declararlos sería la misma expresividad
+# inventada que la Fase 15 rechazó de PCGen. Si algún día hace falta uno, se
+# añade con su caso real delante.
+edicion: "2024 (5.5e)"
+verificado: {metodo: "derivado-de-la-propia-base", fecha: "2026-08-30"}
+fidelidad: estructurado
+
+# ── Lo que la base CONCEDE sin preguntar ─────────────────────────────────
+concesiones:
+  rasgo_de_clase:
+    de: "clases/<clase>.yaml → progresion[n].rasgos[], con su texto en clases/rasgos/"
+    nota: "los marcadores no cuentan: ver `marcadores`"
+  rasgo_de_subclase:
+    de: "clases/subclases/<clase>.yaml → subclases[].rasgos[] con ese `nivel`"
+    marcador: "Rasgo de subclase"
+    medido: "35 apariciones, niveles 6 a 20"
+  bonificador_competencia:
+    de: "clases/<clase>.yaml → progresion[n].pb"
+  espacios_de_conjuro:
+    de: "columna `slots` (o `espacios` en el Brujo) de la progresión"
+  valor_de_tabla:
+    de: "cualquier otra columna numérica de la progresión"
+    nota: >
+      Es el `ScaleValue` de Foundry: una tabla dispersa por nivel. Aquí ya
+      existe como columna (`ataque_furtivo`, `puntos_concentracion`,
+      `mov_sin_armadura_m`…), así que no hay que inventar el dato, solo leerlo.
+
+# ── Lo que el jugador ELIGE, y el motor no puede decidir ─────────────────
+elecciones:
+  puntos_de_golpe:
+    regla: "reglas/generacion_personaje.yaml → puntos_golpe.niveles_siguientes_al_1"
+    opciones: [tirada, valor_establecido]
+    nota: "una tirada no es reproducible: se guarda el RESULTADO en `pg_por_nivel`"
+  subclase:
+    marcador: "Subclase de <clase>"
+    de: "clases/subclases/<clase>.yaml → subclases[].nombre"
+    medido: "12 apariciones, SIEMPRE en el nivel 3"
+  mejora_caracteristica_o_dote:
+    marcador: "Mejora de característica"
+    medido: "51 apariciones, niveles 4, 6, 8, 10, 12, 14 y 16"
+    nota: >
+      Las dotes que el personaje puede tomar NO se listan todas: se filtran por
+      prerrequisito con `buscar.dotes_disponibles()` (Fase 15). Ofrecerlas todas
+      y confiar en que el LLM lea bien el prerrequisito es la amenaza nº 5.
+  conjuros:
+    de: "columnas `trucos`, `prep`/`espacios` de la progresión"
+    nota: "solo si la clase es lanzadora"
+
+# ── Marcadores: entradas de `rasgos[]` que NO son rasgos con texto ───────
+marcadores:
+  - "Mejora de característica"
+  - "Rasgo de subclase"
+  - patron: "Subclase de <clase>"
+_nota_marcadores: >
+  `clases/rasgos/_ESQUEMA.md` regla 3 ya dice que estos tres no se transcriben:
+  no son rasgos con texto propio, son instrucciones de la tabla. `validar.py` y
+  `cobertura.py` los tratan igual desde la Fase 11.

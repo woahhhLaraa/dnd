@@ -1,0 +1,66 @@
+categoria: Origen
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "203-204"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-18", cobertura: "10/10"}
+fidelidad: "condensado"   # mecánica reescrita en frases cortas, no la prosa del manual
+
+dotes:
+  - nombre: Afortunado
+    pagina: {pdf: 202, libro: 200}
+    prerrequisito: null
+    repetible: false
+    descripcion: "Puntos de suerte: tienes una cantidad igual a tu bonificador por competencia, recuperados tras un descanso largo. Ventaja: al tirar 1d20 para una prueba, puedes gastar 1 punto de suerte para obtener ventaja en la tirada. Desventaja: cuando una criatura tire 1d20 en un ataque contra ti, puedes gastar 1 punto de suerte para imponerle desventaja en esa tirada."
+
+  - nombre: Alerta
+    pagina: {pdf: 202, libro: 200}
+    prerrequisito: null
+    repetible: false
+    descripcion: "Competencia en iniciativa: sumas tu bonificador por competencia a las tiradas de iniciativa. Intercambio de iniciativa: justo después de tirar iniciativa, puedes cambiar tu iniciativa con la de un aliado dispuesto en el mismo combate (no si el aliado o tú tenéis el estado de incapacitado)."
+
+  - nombre: "Atacante salvaje"
+    pagina: {pdf: 203, libro: 201}
+    prerrequisito: null
+    repetible: false
+    descripcion: "Una vez por turno, cuando aciertas a un objetivo con un arma, puedes tirar dos veces los dados de daño del arma y usar el resultado que prefieras contra el objetivo."
+
+  - nombre: Duro
+    pagina: {pdf: 203, libro: 201}
+    prerrequisito: null
+    repetible: false
+    descripcion: "Tus PG máximos aumentan en una cantidad igual al doble de tu nivel de personaje al adquirir esta dote. A partir de entonces, cada vez que subas de nivel, tus PG máximos aumentan 2 puntos adicionales."
+
+  - nombre: Fabricante
+    pagina: {pdf: 203, libro: 201}
+    prerrequisito: null
+    repetible: false
+    descripcion: "Competencia con herramientas: ganas competencia con tres herramientas de artesano de la tabla «Fabricación rápida». Descuento: 20% al comprar un objeto no mágico. Fabricación rápida: tras un descanso largo, puedes fabricar (si tienes las herramientas asociadas y competencia con ellas) uno de estos objetos, que dura hasta tu siguiente descanso largo: Herramientas de albañil → Polipasto; Herramientas de alfarero → Jarro, lámpara; Herramientas de carpintero → Antorcha, escalera; Herramientas de curtidor → Bolsa, estuche; Herramientas de ebanista → Bastón, garrote, garrote grande; Herramientas de herrero → Abrojos, bolas de metal, cubo, garfio de escalada, olla de hierro; Herramientas de manitas → Campana, pala, yesca; Herramientas de tejedor → Cesta, cuerda, red, tienda."
+
+  - nombre: Habilidoso
+    pagina: {pdf: 203, libro: 201}
+    prerrequisito: null
+    repetible: true
+    descripcion: "Ganas competencia en cualquier combinación de tres habilidades o herramientas que elijas."
+
+  - nombre: "Iniciado en la magia"
+    pagina: {pdf: 203, libro: 201}
+    prerrequisito: null
+    repetible: true
+    descripcion: "Eliges una lista de conjuros: clérigo, druida o mago (la dote es repetible eligiendo una lista distinta cada vez). Dos trucos: aprendes dos trucos de esa lista; aptitud mágica Inteligencia, Sabiduría o Carisma (a elección al tomar la dote). Conjuro de nivel 1: eliges un conjuro de nivel 1 de la misma lista, siempre preparado; lo lanzas una vez sin gastar espacio de conjuro (recuperable tras un descanso largo), o usando un espacio de conjuro si dispones de alguno. Cambiar conjuro: cada vez que subas de nivel de personaje, puedes reemplazar uno de los conjuros elegidos con esta dote por otro del mismo nivel de la lista seleccionada."
+
+  - nombre: "Matón de taberna"
+    pagina: {pdf: 204, libro: 202}
+    prerrequisito: null
+    repetible: false
+    descripcion: "Ataque sin armas mejorado: al acertar y causar daño con un ataque sin armas, puedes infligir 1d4 + tu modificador por Fuerza de daño contundente en vez del daño habitual. Repetir tiradas de daño: si sacas un 1 en un dado de daño de ataque sin armas, puedes volver a tirarlo (debes usar el nuevo resultado). Armas improvisadas: competencia con ellas. Empujar: una vez por turno, al acertar a una criatura con un ataque sin armas como parte de la acción de atacar, además del daño puedes empujarla 1,5 m respecto a ti."
+
+  - nombre: Músico
+    pagina: {pdf: 204, libro: 202}
+    prerrequisito: null
+    repetible: false
+    descripcion: "Formación instrumental: competencia con tres instrumentos musicales de tu elección. Canción alentadora: al terminar un descanso corto o largo, puedes tocar un instrumento con el que seas competente para dar inspiración heroica a una cantidad de aliados que te escuchen igual a tu bonificador por competencia."
+
+  - nombre: Sanador
+    pagina: {pdf: 204, libro: 202}
+    prerrequisito: null
+    repetible: false
+    descripcion: "Médico de batalla: si tienes útiles de sanador, puedes gastar un uso para tratar a una criatura a 1,5 m o menos como acción de utilizar; la criatura gasta uno de sus dados de PG y lo tira, recuperando PG iguales al resultado + tu bonificador por competencia. Repetir tiradas de curación: siempre que tires un dado para determinar cuántos PG restableces con un conjuro o con el beneficio de médico de batalla de esta dote, si sacas un 1 puedes volver a tirarlo (debes usar el nuevo resultado)."

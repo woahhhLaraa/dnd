@@ -1,0 +1,43 @@
+clase: Brujo
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", pagina_pdf: 72}
+verificado: {metodo: "vision-directa", tabla: "Rasgos de brujo", fecha: "2026-08-18"}
+atributos_basicos:
+  fuente: {pagina_pdf: 71, pagina_libro: 69}
+  verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+  caracteristica_principal: Carisma
+  dado_golpe: d8
+  salvaciones: [Sabiduría, Carisma]
+  habilidades:
+    elige: 2
+    de: ["Conocimiento arcano", Engaño, Historia, Intimidación, Investigación, Naturaleza, Religión]
+  armas: ["Armas sencillas"]
+  armaduras: ["Armaduras ligeras"]
+  herramientas: []
+  equipo_inicial:
+    a: "armadura de cuero, hoz, 2 dagas, canalizador arcano (orbe), libro (de conocimiento oculto), paquete de erudito y 15 po"
+    b: "100 po"
+lanzador: pacto   # sistema propio: espacios todos del mismo nivel
+aptitud_magica: Carisma
+columnas_extra: [invocaciones, trucos, prep, espacios, nivel_espacios]
+progresion:
+  - {n: 1,  pb: 2, invocaciones: 1,  trucos: 2, prep: 2,  espacios: 1, nivel_espacios: 1, rasgos: ["Invocaciones sobrenaturales", "Magia del pacto"]}
+  - {n: 2,  pb: 2, invocaciones: 3,  trucos: 2, prep: 3,  espacios: 2, nivel_espacios: 1, rasgos: ["Astucia mágica"]}
+  - {n: 3,  pb: 2, invocaciones: 3,  trucos: 2, prep: 4,  espacios: 2, nivel_espacios: 2, rasgos: ["Subclase de brujo"]}
+  - {n: 4,  pb: 2, invocaciones: 3,  trucos: 3, prep: 5,  espacios: 2, nivel_espacios: 2, rasgos: ["Mejora de característica"]}
+  - {n: 5,  pb: 3, invocaciones: 5,  trucos: 3, prep: 6,  espacios: 2, nivel_espacios: 3, rasgos: []}
+  - {n: 6,  pb: 3, invocaciones: 5,  trucos: 3, prep: 7,  espacios: 2, nivel_espacios: 3, rasgos: ["Rasgo de subclase"]}
+  - {n: 7,  pb: 3, invocaciones: 6,  trucos: 3, prep: 8,  espacios: 2, nivel_espacios: 4, rasgos: []}
+  - {n: 8,  pb: 3, invocaciones: 6,  trucos: 3, prep: 9,  espacios: 2, nivel_espacios: 4, rasgos: ["Mejora de característica"]}
+  - {n: 9,  pb: 4, invocaciones: 7,  trucos: 3, prep: 10, espacios: 2, nivel_espacios: 5, rasgos: ["Contactar patrón"]}
+  - {n: 10, pb: 4, invocaciones: 7,  trucos: 4, prep: 10, espacios: 2, nivel_espacios: 5, rasgos: ["Rasgo de subclase"]}
+  - {n: 11, pb: 4, invocaciones: 7,  trucos: 4, prep: 11, espacios: 3, nivel_espacios: 5, rasgos: ["Arcanum místico (conjuro de nivel 6)"]}
+  - {n: 12, pb: 4, invocaciones: 8,  trucos: 4, prep: 11, espacios: 3, nivel_espacios: 5, rasgos: ["Mejora de característica"]}
+  - {n: 13, pb: 5, invocaciones: 8,  trucos: 4, prep: 12, espacios: 3, nivel_espacios: 5, rasgos: ["Arcanum místico (conjuro de nivel 7)"]}
+  - {n: 14, pb: 5, invocaciones: 8,  trucos: 4, prep: 12, espacios: 3, nivel_espacios: 5, rasgos: ["Rasgo de subclase"]}
+  - {n: 15, pb: 5, invocaciones: 9,  trucos: 4, prep: 13, espacios: 3, nivel_espacios: 5, rasgos: ["Arcanum místico (conjuro de nivel 8)"]}
+  - {n: 16, pb: 5, invocaciones: 9,  trucos: 4, prep: 13, espacios: 3, nivel_espacios: 5, rasgos: ["Mejora de característica"]}
+  - {n: 17, pb: 6, invocaciones: 9,  trucos: 4, prep: 14, espacios: 4, nivel_espacios: 5, rasgos: ["Arcanum místico (conjuro de nivel 9)"]}
+  - {n: 18, pb: 6, invocaciones: 10, trucos: 4, prep: 14, espacios: 4, nivel_espacios: 5, rasgos: []}
+  - {n: 19, pb: 6, invocaciones: 10, trucos: 4, prep: 15, espacios: 4, nivel_espacios: 5, rasgos: ["Don épico"]}
+  - {n: 20, pb: 6, invocaciones: 10, trucos: 4, prep: 15, espacios: 4, nivel_espacios: 5, rasgos: ["Maestro sobrenatural"]}

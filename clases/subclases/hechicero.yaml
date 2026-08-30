@@ -1,0 +1,65 @@
+clase: Hechicero
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "129-137"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-18", cobertura: "4/4"}
+fidelidad: "condensado"   # mecánica reescrita en frases cortas, no la prosa del manual
+niveles_de_subclase: [3, 6, 14, 18]
+
+subclases:
+  - nombre: Hechicería Aberrante
+    lema: "Emplea un poder psiónico antinatural."
+    pagina: {pdf: 131, libro: 129}
+    conjuros_siempre_preparados:
+      3: ["Brazos de Hadar", "Calmar emociones", "Detectar pensamientos", "Fragmento mental", "Susurros discordantes"]
+      5: ["Hambre de Hadar", "Recado"]
+      7: ["Invocar aberración", "Tentáculos negros de Evard"]
+      9: ["Enlace telepático de Rary", "Telequinesis"]
+    rasgos:
+      - {nivel: 3, nombre: "Conjuros psiónicos", desc: "Cuando alcances un nivel de hechicero especificado en la tabla «Conjuros psiónicos», a partir de entonces siempre tendrás preparados los conjuros que se indican."}
+      - {nivel: 3, nombre: "Habla telepática", desc: "Acción adicional: eliges una criatura que puedas ver a 9 m o menos y estableces conexión telepática con ella mientras estéis a una distancia máxima de 1,5 km × tu modificador por Carisma (mínimo 1,5 km); ambos debéis emplear mentalmente un idioma que ambos conozcáis. Dura una cantidad de minutos igual a tu nivel de hechicero; termina antes si estableces la conexión con otra criatura."}
+      - {nivel: 6, nombre: "Defensas psíquicas", desc: "Resistencia al daño psíquico y ventaja en tiradas de salvación para evitar o poner fin a los estados de asustado o hechizado."}
+      - {nivel: 6, nombre: "Hechicería psiónica", desc: "Al lanzar un conjuro de tu rasgo Conjuros psiónicos, puedes hacerlo gastando un espacio de conjuro normalmente o gastando puntos de hechicería iguales al nivel del conjuro; si usas puntos de hechicería, no requiere componentes verbales ni somáticos, ni materiales salvo que se consuman o tengan coste."}
+      - {nivel: 14, nombre: "Revelación en carne", desc: "Acción adicional: gasta 1 o más puntos de hechicería para alterar tu cuerpo durante 10 minutos. Por cada punto gastado, elige uno: Adaptación acuática (velocidad nadando = doble de tu velocidad, respiras bajo el agua), Movimiento anélido (cabes por espacios de hasta 2,5 cm de ancho; gastas 1,5 m de movimiento para escapar de limitaciones no mágicas o del estado de agarrado), Ver lo invisible (ves criaturas invisibles a 18 m o menos sin cobertura completa) o Vuelo brillante (velocidad volando igual a tu velocidad y puedes levitar)."}
+      - {nivel: 18, nombre: "Implosión deformadora", desc: "Acción de magia: te teletransportas a un espacio sin ocupar que puedas ver a 36 m o menos. Inmediatamente después de desaparecer, cada criatura a 9 m o menos del espacio que abandonaste hace un TdS de Fuerza contra tu CD de salvación de conjuros: si falla, sufre 3d10 de daño de fuerza y es arrastrada al espacio abandonado (o el más cercano libre); si supera la salvación, solo sufre la mitad del daño. No se repite hasta un descanso largo salvo que gastes 5 puntos de hechicería (no requiere acción)."}
+
+  - nombre: Hechicería de Magia Salvaje
+    lema: "Desata una magia caótica."
+    pagina: {pdf: 132, libro: 130}
+    rasgos:
+      - {nivel: 3, nombre: "Mareas del caos", desc: "Puedes obtener ventaja en una prueba con d20 antes de tirar el dado. Tras usarlo, debes lanzar un conjuro de hechicero con espacio de conjuro o finalizar un descanso largo para volver a usarlo. Si lanzas un conjuro de hechicero usando un espacio antes de un descanso largo, tiras automáticamente en la tabla «Sobrecarga de magia salvaje»."}
+      - {nivel: 3, nombre: "Sobrecarga de magia salvaje", desc: "Una vez por turno, tras lanzar un conjuro de hechicero con espacio de conjuro, puedes tirar 1d20; si sacas 20, tiras en la tabla «Sobrecarga de magia salvaje» para crear un efecto mágico aleatorio (tabla 1d100 de 100 efectos, pág. 131-132 del libro: incluye desde recuperar PG, invocar criaturas amistosas aleatorias, teletransportes, daño elemental a criaturas cercanas, invisibilidad temporal, lanzar un conjuro aleatorio, hasta transformaciones cómicas o cambios de tamaño; el efecto exacto se determina tirando en esa tabla). Si el efecto es un conjuro, es demasiado salvaje para verse afectado por tu metamagia."}
+      - {nivel: 6, nombre: "Doblegar la suerte", desc: "Reacción inmediatamente después de que otra criatura que puedas ver tire una prueba con d20: gasta 1 punto de hechicería para tirar 1d4 y aplicar el resultado como bonificador o penalizador (a tu elección) a ese d20."}
+      - {nivel: 14, nombre: "Caos controlado", desc: "Siempre que tires en la tabla «Sobrecarga de magia salvaje», puedes tirar dos veces y usar el resultado que quieras."}
+      - {nivel: 18, nombre: "Sobrecarga domada", desc: "Inmediatamente después de lanzar un conjuro de hechicero con espacio de conjuro, puedes crear un efecto de tu elección de la tabla «Sobrecarga de magia salvaje» en vez de tirar (cualquiera excepto la última fila; si el efecto elegido implica una tirada, debes hacerla). No se repite hasta un descanso largo."}
+
+  - nombre: Hechicería Dracónica
+    lema: "Exhala la magia de los dragones."
+    pagina: {pdf: 135, libro: 133}
+    confirmada_srd: true
+    conjuros_siempre_preparados:
+      3: ["Aliento de dragón", "Alterar el propio aspecto", "Orbe cromático", "Orden imperiosa"]
+      5: ["Terror", "Volar"]
+      7: ["Hechizar monstruo", "Ojo arcano"]
+      9: ["Conocer las leyendas", "Invocar dragón"]
+    rasgos:
+      - {nivel: 3, nombre: "Conjuros dracónicos", desc: "Cuando alcances un nivel de hechicero especificado en la tabla «Conjuros dracónicos», a partir de entonces siempre tendrás preparados los conjuros que se indican."}
+      - {nivel: 3, nombre: "Resistencia dracónica", desc: "Tus puntos de golpe máximos aumentan en 3, y en 1 más por cada nivel de hechicero que subas en el futuro. Además, mientras no lleves armadura, tu CA base es igual a 10 + tu modificador por Destreza + tu modificador por Carisma.", efectos: [{objetivo: pg_max, op: add, formula: "nivel_clase", pagina: {pdf: 135, libro: 133}}, {objetivo: ca, op: base, formula: "10 + mod_des + mod_car", requiere: [sin_armadura], pagina: {pdf: 135, libro: 133}}]}
+      - {nivel: 6, nombre: "Afinidad elemental", desc: "Eliges un tipo de daño asociado a los dragones (ácido, frío, fuego, relámpago o veneno). Obtienes resistencia a ese tipo de daño y, al lanzar un conjuro que inflija daño de ese tipo, sumas tu modificador por Carisma a una tirada de daño del conjuro."}
+      - {nivel: 14, nombre: "Alas de dragón", desc: "Acción adicional: te crecen alas dracónicas durante 1 hora o hasta que las hagas desaparecer (no requiere acción); mientras dura, tienes velocidad volando de 18 m. No se repite hasta un descanso largo salvo que gastes 3 puntos de hechicería (no requiere acción)."}
+      - {nivel: 18, nombre: "Compañero dragón", desc: "Puedes lanzar invocar dragón sin componente material, y una vez sin gastar espacio de conjuro (recuperas esta capacidad tras un descanso largo). Al lanzarlo puedes modificarlo para que no requiera concentración; si lo haces, dura 1 minuto para ese lanzamiento."}
+
+  - nombre: Hechicería Mecánica
+    lema: "Canaliza las fuerzas cósmicas del orden."
+    pagina: {pdf: 136, libro: 134}
+    conjuros_siempre_preparados:
+      3: ["Alarma", "Auxilio", "Protección contra el bien y el mal", "Restablecimiento menor"]
+      5: ["Disipar magia", "Protección contra energía"]
+      7: ["Invocar autómata", "Libertad de movimiento"]
+      9: ["Muro de fuerza", "Restablecimiento mayor"]
+    manifestaciones_del_orden: {1: "Unos engranajes espectrales levitan tras de ti.", 2: "Las manecillas de un reloj giran en tus ojos.", 3: "Tu piel resplandece con un brillo metálico.", 4: "Objetos geométricos y ecuaciones flotantes recubren tu cuerpo.", 5: "Tu canalizador mágico adopta temporalmente la forma de un mecanismo de relojería Diminuto.", 6: "Tú y los afectados por tu magia podéis escuchar el tictac de los engranajes o el timbre de un reloj."}
+    rasgos:
+      - {nivel: 3, nombre: "Conjuros mecánicos", desc: "Cuando alcances un nivel de hechicero especificado en la tabla «Conjuros mecánicos», a partir de entonces siempre tendrás preparados los conjuros que se indican. Además, eliges o determinas al azar (1d6) el modo en que se manifiesta tu conexión con el orden mientras lanzas conjuros de hechicero, según la tabla «Manifestaciones del orden» (cosmética)."}
+      - {nivel: 3, nombre: "Restablecer equilibrio", desc: "Reacción cuando una criatura que puedas ver a 18 m o menos esté a punto de tirar un d20 con ventaja o desventaja: impides que la tirada tenga ventaja y desventaja. Usos iguales a tu modificador por Carisma (mínimo 1), recuperados tras un descanso largo."}
+      - {nivel: 6, nombre: "Bastión de la ley", desc: "Acción de magia: gasta de 1 a 5 puntos de hechicería para crear una protección mágica a tu alrededor o de otra criatura que puedas ver a 9 m o menos, representada por un número de d8 igual a los puntos gastados. Si la criatura protegida recibe daño, puede gastar esos dados, tirarlos y restar el resultado al daño recibido. Dura hasta un descanso largo o hasta que vuelvas a usar el rasgo."}
+      - {nivel: 14, nombre: "Trance de orden", desc: "Acción adicional: entras en trance durante 1 minuto. Mientras dura, las tiradas de ataque contra ti no pueden tener ventaja, y en cualquier prueba con d20 puedes sustituir un resultado de 9 o menos por un 10. No se repite hasta un descanso largo salvo que gastes 5 puntos de hechicería (no requiere acción)."}
+      - {nivel: 18, nombre: "Cabalgata mecánica", desc: "Acción de magia: invocas espíritus del orden (aspecto de modrons u otros autómatas a tu elección) en un cubo de 9 m de lado que se origina en ti; son intangibles e invulnerables y crean uno de estos efectos antes de desvanecerse: Curar (hasta 100 PG repartidos entre criaturas de tu elección en el cubo), Reparar (todos los objetos dañados por completo en el cubo se reparan al instante) o Disipar (terminan todos los conjuros de nivel 6 o inferior sobre criaturas u objetos de tu elección en el cubo). No se repite hasta un descanso largo salvo que gastes 7 puntos de hechicería (no requiere acción)."}

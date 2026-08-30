@@ -1,0 +1,75 @@
+clase: Paladín
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "163-167"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-18", cobertura: "4/4"}
+fidelidad: "condensado"   # mecánica reescrita en frases cortas, no la prosa del manual
+niveles_de_subclase: [3, 7, 15, 20]
+
+subclases:
+  - nombre: Juramento de Entrega
+    lema: "Defiende los ideales de la justicia y el orden."
+    pagina: {pdf: 163, libro: 161}
+    confirmada_srd: true
+    conjuros_siempre_preparados:
+      3: ["Escudo de fe", "Protección contra el bien y el mal"]
+      5: ["Auxilio", "Zona de la verdad"]
+      9: ["Disipar magia", "Señal de esperanza"]
+      13: ["Guardián de la fe", "Libertad de movimiento"]
+      17: ["Comunión", "Golpe flamígero"]
+    rasgos:
+      - {nivel: 3, nombre: "Arma sagrada", desc: "Al realizar la acción de atacar, puedes gastar un uso de Canalizar divinidad para imbuir de energía positiva un arma cuerpo a cuerpo que sostengas. Durante 10 minutos o hasta que vuelvas a usar el rasgo, sumas tu modificador por Carisma a las tiradas de ataque con esa arma (mínimo +1), y cada acierto inflige su daño normal o daño radiante. El arma emite luz brillante 6 m y tenue 6 m más. Puedes poner fin al efecto antes (no requiere acción); también termina si no llevas el arma contigo."}
+      - {nivel: 3, nombre: "Conjuros del juramento de entrega", desc: "Cuando alcances un nivel de paladín especificado en la tabla «Conjuros del juramento de entrega», a partir de entonces siempre tendrás preparados los conjuros que se indican."}
+      - {nivel: 7, nombre: "Aura de entrega", desc: "Tus aliados y tú tenéis inmunidad al estado de hechizados mientras estéis dentro de tu Aura de protección. Si un aliado hechizado entra en el aura, ese estado no tendrá efecto en él mientras esté dentro."}
+      - {nivel: 15, nombre: "Castigo protector", desc: "Siempre que lances castigo divino, tus aliados y tú tenéis cobertura media mientras estéis dentro de tu Aura de protección, hasta el principio de tu siguiente turno."}
+      - {nivel: 20, nombre: "Halo sagrado", desc: "Acción adicional: imbuyes de poder divino tu Aura de protección durante 10 minutos (o hasta ponerle fin, no requiere acción). No se repite hasta un descanso largo salvo que gastes un espacio de conjuro de nivel 5 (no requiere acción). Beneficios: Daño radiante (los enemigos que empiecen su turno dentro del aura sufren daño radiante igual a tu modificador por Carisma + tu bonificador por competencia), Luz solar (el aura está llena de luz brillante del sol) y Protección sagrada (ventaja en tiradas de salvación que te obliguen a hacer infernales o muertos vivientes)."}
+
+  - nombre: Juramento de Gloria
+    lema: "Esfuérzate por alcanzar la cima del heroísmo."
+    pagina: {pdf: 164, libro: 162}
+    conjuros_siempre_preparados:
+      3: [Heroísmo, "Saeta guía"]
+      5: ["Arma mágica", "Potenciar característica"]
+      9: [Acelerar, "Protección contra energía"]
+      13: [Compulsión, "Libertad de movimiento"]
+      17: ["Conocer las leyendas", "Presencia regia de Yolande"]
+    rasgos:
+      - {nivel: 3, nombre: "Atleta sin parangón", desc: "Acción adicional: gasta un uso de Canalizar divinidad para obtener durante 1 hora ventaja en pruebas de Fuerza (Atletismo) y Destreza (Acrobacias), y aumentar en 3 m la distancia de tus saltos de longitud y de altura (gastando movimiento adicional del modo habitual para esa distancia extra)."}
+      - {nivel: 3, nombre: "Castigo inspirador", desc: "Inmediatamente después de lanzar castigo divino, puedes gastar un uso de Canalizar divinidad para distribuir PG temporales entre criaturas de tu elección (incluido tú) a 9 m o menos. Total: 2d8 + tu nivel de paladín, repartido como quieras."}
+      - {nivel: 3, nombre: "Conjuros del juramento de gloria", desc: "Cuando alcances un nivel de paladín especificado en la tabla «Conjuros del juramento de gloria», a partir de entonces siempre tendrás preparados los conjuros que se indican."}
+      - {nivel: 7, nombre: "Aura de celeridad", desc: "Tu velocidad aumenta en 3 m. Además, siempre que un aliado entre en tu Aura de protección por primera vez en un turno o comience su turno dentro de ella, su velocidad aumenta en 3 m hasta el final de su próximo turno."}
+      - {nivel: 15, nombre: "Defensa gloriosa", desc: "Reacción cuando una tirada de ataque os acierta a ti o a otra criatura a 3 m o menos: sumas un bonificador a la CA del objetivo igual a tu modificador por Carisma (mínimo +1), lo que podría hacer que el ataque falle; si falla, puedes hacer un ataque con arma contra el atacante si está a tu alcance. Usos iguales a tu modificador por Carisma (mínimo 1), recuperados tras un descanso largo."}
+      - {nivel: 20, nombre: "Leyenda viviente", desc: "Acción adicional: obtienes estos beneficios durante 10 minutos (no repetible hasta un descanso largo, o gastando un espacio de conjuro de nivel 5 sin acción): Carismático (ventaja en todas las pruebas de Carisma), Golpe certero (una vez por turno, si fallas un ataque con arma, puedes hacer que acierte) y Repetir tiradas de salvación (si fallas un TdS, puedes usar una reacción para repetirla, usando el nuevo resultado)."}
+
+  - nombre: Juramento de los Antiguos
+    lema: "Preserva la vida y la luz en el mundo."
+    pagina: {pdf: 165, libro: 163}
+    confirmada_srd: true
+    conjuros_siempre_preparados:
+      3: ["Golpe apresador", "Hablar con los animales"]
+      5: ["Paso brumoso", "Rayo de luna"]
+      9: ["Crecimiento vegetal", "Protección contra energía"]
+      13: ["Piel pétrea", "Tormenta de hielo"]
+      17: ["Comunión con la naturaleza", "Paso arbóreo"]
+    rasgos:
+      - {nivel: 3, nombre: "Conjuros del juramento de los antiguos", desc: "Cuando alcances un nivel de paladín especificado en la tabla «Conjuros del juramento de los antiguos», a partir de entonces siempre tendrás preparados los conjuros que se indican."}
+      - {nivel: 3, nombre: "Ira de la naturaleza", desc: "Acción de magia: gasta un uso de Canalizar divinidad para invocar enredaderas espectrales alrededor de criaturas cercanas. Criaturas de tu elección a 4,5 m o menos hacen TdS de Fuerza o quedan apresadas durante 1 minuto; repiten la salvación al final de cada uno de sus turnos, liberándose si la superan."}
+      - {nivel: 7, nombre: "Aura de salvaguarda", desc: "Tus aliados y tú tenéis resistencia al daño necrótico, psíquico y radiante mientras estéis dentro de tu Aura de protección."}
+      - {nivel: 15, nombre: "Centinela imperecedero", desc: "Cuando tus PG se reduzcan a 0 pero no mueras inmediatamente, puedes quedarte con 1 PG y recuperar PG iguales a tres veces tu nivel de paladín. No se repite hasta un descanso largo. Además, no envejeces por medios mágicos y dejas de hacerlo de forma visible."}
+      - {nivel: 20, nombre: "Campeón ancestral", desc: "Acción adicional: imbuyes tu Aura de protección de poder primordial durante 1 minuto (o hasta ponerle fin, no requiere acción). No se repite hasta un descanso largo salvo que gastes un espacio de conjuro de nivel 5 (no requiere acción). Beneficios: Conjuros veloces (lanzas con acción adicional los conjuros de tiempo de lanzamiento de una acción), Mermar la oposición (los enemigos dentro del aura tienen desventaja en TdS contra tus conjuros y opciones de Canalizar divinidad) y Regeneración (recuperas 10 PG al principio de cada uno de tus turnos)."}
+
+  - nombre: Juramento de Venganza
+    lema: "Castiga a los malhechores a toda costa."
+    pagina: {pdf: 166, libro: 164}
+    confirmada_srd: true
+    conjuros_siempre_preparados:
+      3: ["Marca del cazador", "Perdición"]
+      5: ["Inmovilizar persona", "Paso brumoso"]
+      9: [Acelerar, "Protección contra energía"]
+      13: [Destierro, "Puerta dimensional"]
+      17: [Escudriñar, "Inmovilizar monstruo"]
+    rasgos:
+      - {nivel: 3, nombre: "Conjuros del juramento de venganza", desc: "Cuando alcances un nivel de paladín especificado en la tabla «Conjuros del juramento de venganza», a partir de entonces siempre tendrás preparados los conjuros que se indican."}
+      - {nivel: 3, nombre: "Voto de enemistad", desc: "Al realizar la acción de atacar, puedes gastar un uso de Canalizar divinidad para murmurar un voto de enemistad contra una criatura que puedas ver a 9 m o menos. Tienes ventaja en tiradas de ataque contra ella durante 1 minuto o hasta que vuelvas a usar el rasgo. Si sus PG se reducen a 0 antes de que termine el voto, puedes transferirlo a otra criatura distinta a 9 m o menos (no requiere acción)."}
+      - {nivel: 7, nombre: "Vengador implacable", desc: "Cuando aciertes un ataque de oportunidad, puedes reducir la velocidad del objetivo a 0 hasta el final del turno actual, y moverte hasta la mitad de tu velocidad como parte de la misma reacción, sin provocar ataques de oportunidad."}
+      - {nivel: 15, nombre: "Espíritu vengativo", desc: "Inmediatamente después de que una criatura bajo los efectos de tu Voto de enemistad acierte o falle una tirada de ataque, puedes usar una reacción para hacer un ataque cuerpo a cuerpo contra ella si está a tu alcance."}
+      - {nivel: 20, nombre: "Ángel vengador", desc: "Acción adicional: obtienes estos beneficios durante 10 minutos (no repetible hasta un descanso largo, o gastando un espacio de conjuro de nivel 5 sin acción): Aura aterradora (los enemigos que comiencen su turno dentro de tu Aura de protección hacen TdS de Sabiduría o quedan asustados durante 1 minuto o hasta recibir daño; ventaja en ataques contra criaturas asustadas) y Vuelo (alas espectrales, velocidad volando de 18 m y puedes levitar)."}

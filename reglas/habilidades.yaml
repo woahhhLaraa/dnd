@@ -1,0 +1,23 @@
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", pagina_pdf: 16, pagina_libro: 14}
+verificado: {metodo: "vision-directa", tabla: "Habilidades", fecha: "2026-08-19"}
+fidelidad: "estructurado"   # las 18 habilidades y su característica
+habilidades:
+  - {nombre: Acrobacias, caracteristica: Destreza, desc: "Conservar el equilibrio en situaciones difíciles o realizar una proeza acrobática."}
+  - {nombre: Atletismo, caracteristica: Fuerza, desc: "Saltar más lejos de lo normal, mantenerse a flote en aguas revueltas o romper algo."}
+  - {nombre: "Conocimiento arcano", caracteristica: Inteligencia, desc: "Recordar información acerca de conjuros, objetos mágicos y los planos de existencia."}
+  - {nombre: Engaño, caracteristica: Carisma, desc: "Contar una mentira convincente o llevar un disfraz de manera creíble."}
+  - {nombre: Historia, caracteristica: Inteligencia, desc: "Recordar información sobre acontecimientos, personas, naciones y culturas de carácter histórico."}
+  - {nombre: Interpretación, caracteristica: Carisma, desc: "Actuar, contar una historia, tocar un instrumento o bailar."}
+  - {nombre: Intimidación, caracteristica: Carisma, desc: "Asustar o amenazar a alguien para que haga lo que tú quieres."}
+  - {nombre: Investigación, caracteristica: Inteligencia, desc: "Encontrar información oculta en libros o deducir cómo funciona algo."}
+  - {nombre: "Juego de manos", caracteristica: Destreza, desc: "Vaciar los bolsillos a alguien, ocultar un objeto que llevas en la mano o hacer trucos de prestidigitación."}
+  - {nombre: Medicina, caracteristica: Sabiduría, desc: "Diagnosticar una enfermedad o determinar de qué ha muerto un fallecido reciente."}
+  - {nombre: Naturaleza, caracteristica: Inteligencia, desc: "Recordar información acerca del terreno, la flora, la fauna y el clima."}
+  - {nombre: Percepción, caracteristica: Sabiduría, desc: "Mediante una combinación de sentidos, darse cuenta de algo que es fácil pasar por alto."}
+  - {nombre: Perspicacia, caracteristica: Sabiduría, desc: "Discernir el estado de ánimo y las intenciones de una persona."}
+  - {nombre: Persuasión, caracteristica: Carisma, desc: "Convencer a alguien de algo de una manera sincera y amable."}
+  - {nombre: Religión, caracteristica: Inteligencia, desc: "Recordar información sobre dioses, rituales religiosos y símbolos sagrados."}
+  - {nombre: Sigilo, caracteristica: Destreza, desc: "Pasar desapercibido al caminar en silencio y ocultarse detrás de las cosas."}
+  - {nombre: Supervivencia, caracteristica: Sabiduría, desc: "Seguir huellas, forrajear, encontrar un camino o evitar peligros naturales."}
+  - {nombre: "Trato con animales", caracteristica: Sabiduría, desc: "Tranquilizar o adiestrar a un animal, o conseguir que se comporte de una determinada forma."}

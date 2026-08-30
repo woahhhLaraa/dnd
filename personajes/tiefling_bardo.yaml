@@ -1,0 +1,218 @@
+nombre: Vesper Cindertongue
+jugador: null
+nivel_total: 1
+especie:
+  ref: especies/especies.yaml#Tiefling
+  rasgos_elegidos:
+    tamano: Mediano
+    legado_infernal: Infernal
+    aptitud_magica_legado: Carisma
+trasfondo:
+  ref: trasfondos/trasfondos.yaml#Artesano
+clases:
+- clase: Bardo
+  ref: clases/bardo.yaml
+  nivel: 1
+  subclase: null
+caracteristicas:
+  metodo: conjunto_estandar
+  base:
+    fue: 8
+    des: 14
+    con: 12
+    int: 13
+    sab: 10
+    car: 15
+  ajuste_trasfondo:
+    des: 2
+    int: 1
+  final:
+    fue: 8
+    des: 16
+    con: 12
+    int: 14
+    sab: 10
+    car: 15
+competencias:
+  salvaciones:
+  - Destreza
+  - Carisma
+  habilidades:
+  - nombre: Investigación
+    origen:
+      trasfondo: Artesano
+  - nombre: Persuasión
+    origen:
+      trasfondo: Artesano
+  - nombre: Interpretación
+    origen:
+      clase: Bardo
+  - nombre: Engaño
+    origen:
+      clase: Bardo
+  - nombre: Sigilo
+    origen:
+      clase: Bardo
+  armas:
+  - categoria: Armas sencillas
+    origen:
+      clase: Bardo
+  armaduras:
+  - categoria: Armaduras ligeras
+    origen:
+      clase: Bardo
+  herramientas:
+  - categoria: Herramientas de herrero
+    origen:
+      trasfondo: Artesano
+  - categoria: Laúd
+    origen:
+      clase: Bardo
+  - categoria: Flauta
+    origen:
+      clase: Bardo
+  - categoria: Tambor
+    origen:
+      clase: Bardo
+  idiomas:
+  - nombre: Común
+  - nombre: Enano
+    origen:
+      regla: reglas/idiomas.yaml#nota
+  - nombre: Gnomo
+    origen:
+      regla: reglas/idiomas.yaml#nota
+equipo:
+- ref: equipo/armaduras.yaml#Armadura de cuero
+  origen:
+    clase: Bardo
+    opcion: A
+- ref: equipo/armas.yaml#Daga
+  origen:
+    clase: Bardo
+    opcion: A
+    nota: 1 de 2 dagas
+- ref: equipo/armas.yaml#Daga
+  origen:
+    clase: Bardo
+    opcion: A
+    nota: 2 de 2 dagas
+- ref: equipo/herramientas.yaml#Laúd
+  origen:
+    clase: Bardo
+    opcion: A
+    nota: instrumento musical a elección
+- ref: equipo/aventureros.yaml#Paquete de artista
+  origen:
+    clase: Bardo
+    opcion: A
+- ref: equipo/herramientas.yaml#Herramientas de herrero
+  origen:
+    trasfondo: Artesano
+    opcion: A
+- ref: equipo/aventureros.yaml#Bolsa
+  origen:
+    trasfondo: Artesano
+    opcion: A
+    nota: 1 de 2 bolsas
+- ref: equipo/aventureros.yaml#Bolsa
+  origen:
+    trasfondo: Artesano
+    opcion: A
+    nota: 2 de 2 bolsas
+- ref: equipo/aventureros.yaml#Ropas de viaje
+  origen:
+    trasfondo: Artesano
+    opcion: A
+conjuros:
+  trucos:
+  - ref: hechizos.json#Burla dañina
+    origen:
+      clase: Bardo
+  - ref: hechizos.json#Prestidigitación
+    origen:
+      clase: Bardo
+  - ref: hechizos.json#Taumaturgia
+    origen:
+      especie: Tiefling
+      rasgo: Presencia sobrenatural
+  preparados:
+  - ref: hechizos.json#Hechizar persona
+    origen:
+      clase: Bardo
+  - ref: hechizos.json#Curar heridas
+    origen:
+      clase: Bardo
+  - ref: hechizos.json#Heroísmo
+    origen:
+      clase: Bardo
+  - ref: hechizos.json#Dormir
+    origen:
+      clase: Bardo
+dotes:
+- ref: dotes/origen.yaml#Fabricante
+  origen:
+    trasfondo: Artesano
+calculado:
+  pg_max: 9
+  ca: 14
+  bonif_competencia: 2
+  cd_conjuros: 12
+  bonif_ataque_conjuros: 4
+  velocidad: 9
+decisiones:
+- en: creación
+  eleccion: 'método de características: conjunto estándar (repartido según la sugerencia de clase para Bardo)'
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: conjunto_estandar_por_clase
+- en: creación
+  eleccion: 'ajuste de trasfondo: +2 Destreza, +1 Inteligencia (dentro de Fue/Des/Int de Artesano)'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Artesano
+    campo: caracteristicas
+- en: creación
+  eleccion: 'especie: Tiefling, tamaño Mediano, legado infernal Infernal, aptitud mágica del legado Carisma'
+  cita:
+    archivo: especies/especies.yaml
+    registro: Tiefling
+    campo: rasgos / linajes
+- en: creación
+  eleccion: 'habilidades de clase (cualesquiera 3 de las 18): Interpretación, Engaño, Sigilo'
+  cita:
+    archivo: clases/bardo.yaml
+    campo: atributos_basicos.habilidades
+    nota: 'cualesquiera: true — no restringido a ''de'''
+- en: creación
+  eleccion: 'herramienta de trasfondo: Herramientas de herrero'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Artesano
+    campo: herramienta
+- en: creación
+  eleccion: 'tres instrumentos musicales a elección (competencia): Laúd, Flauta, Tambor'
+  cita:
+    archivo: clases/bardo.yaml
+    campo: atributos_basicos.herramientas
+- en: creación
+  eleccion: 'equipo inicial: clase opción A, trasfondo opción A'
+  cita:
+    archivo: clases/bardo.yaml
+    campo: atributos_basicos.equipo_inicial.a
+- en: creación
+  eleccion: 'idiomas adicionales (los otros dos de los tres mínimos): Enano, Gnomo'
+  cita:
+    archivo: reglas/idiomas.yaml
+    campo: nota
+- en: creación
+  eleccion: 'trucos: Burla dañina, Prestidigitación (más Taumaturgia por Presencia sobrenatural de Tiefling)'
+  cita:
+    archivo: clases/rasgos/bardo.yaml
+    rasgo: Lanzamiento de conjuros
+- en: creación
+  eleccion: 'conjuros preparados de nivel 1: Hechizar persona, Curar heridas, Heroísmo, Dormir'
+  cita:
+    archivo: clases/bardo.yaml
+    campo: progresion
+    registro: 'n: 1, prep: 4'

@@ -1,0 +1,55 @@
+clase: Brujo
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+fidelidad: condensado
+rasgos:
+  - nombre: "Invocaciones sobrenaturales"
+    nivel: 1
+    pagina: {pdf: 71, libro: 69}
+    desc: "Obtienes una invocación sobrenatural de tu elección (p. ej. Pacto del grimorio). Si una invocación tiene requisitos, debes cumplirlos para elegirla. Al subir de nivel puedes sustituir una invocación por otra que cumplas (salvo que sea requisito de otra que conserves). Obtienes invocaciones adicionales según la columna \"Invocaciones sobrenaturales\" de la tabla Rasgos de brujo (3 en nivel 2, 5 en nivel 5, 6 en nivel 7, 7 en nivel 9, 8 en nivel 12, 9 en nivel 15, 10 en nivel 18). No puedes repetir una invocación salvo que su descripción diga lo contrario (marcada \"Repetible\")."
+
+  - nombre: "Magia del pacto"
+    nivel: 1
+    pagina: {pdf: 71, libro: 69}
+    desc: "Trucos: conoces 2 trucos de brujo de tu elección (se recomiendan descarga sobrenatural y prestidigitación); puedes cambiar uno al subir de nivel, y aprendes trucos adicionales en niveles 4 y 10 (columna \"Trucos\"). Espacios de conjuro: los de la columna \"Espacios de conjuro\" de la tabla Rasgos de brujo (1 en nivel 1, hasta 4 en nivel 17+), todos del mismo nivel indicado en la columna \"Nivel de los espacios\" (sube hasta nivel 5 en nivel 9+); se recuperan tras un descanso corto o largo. Conjuros preparados de nivel 1+: empiezas con 2 conjuros de nivel 1 de brujo (se recomiendan hechizar persona y maleficio); el total crece según la columna \"Conjuros preparados\" de la tabla, y los conjuros elegidos deben ser de nivel igual o inferior al indicado en \"Nivel de los espacios\". Puedes sustituir un conjuro preparado al subir de nivel. Aptitud mágica: Carisma. Canalizador mágico: un canalizador arcano."
+
+  - nombre: "Astucia mágica"
+    nivel: 2
+    pagina: {pdf: 72, libro: 70}
+    desc: "Como rito esotérico de 1 minuto, recuperas una cantidad de espacios de conjuro gastados de Magia del pacto igual o inferior a la mitad de tu máximo (redondeando hacia arriba). No puedes volver a usar este rasgo hasta finalizar un descanso largo."
+
+  - nombre: "Contactar patrón"
+    nivel: 9
+    pagina: {pdf: 73, libro: 71}
+    desc: "Siempre tienes preparado el conjuro contactar con otro plano y puedes lanzarlo sin gastar un espacio de conjuro, superando automáticamente la tirada de salvación del conjuro para contactar con tu patrón. No puedes volver a usarlo así hasta finalizar un descanso largo."
+
+  - nombre: "Arcanum místico (conjuro de nivel 6)"
+    nivel: 11
+    pagina: {pdf: 73, libro: 71}
+    desc: "Tu patrón te concede un arcanum: eliges un conjuro de brujo de nivel 6 y puedes lanzarlo una vez sin gastar espacio de conjuro; debes finalizar un descanso largo antes de volver a lanzarlo así. Al subir de nivel puedes sustituir el conjuro de arcanum por otro del mismo nivel."
+
+  - nombre: "Arcanum místico (conjuro de nivel 7)"
+    nivel: 13
+    pagina: {pdf: 73, libro: 71}
+    desc: "Obtienes otro arcanum, esta vez eligiendo un conjuro de brujo de nivel 7, con las mismas reglas de uso (una vez por descanso largo) que el arcanum de nivel 6."
+
+  - nombre: "Arcanum místico (conjuro de nivel 8)"
+    nivel: 15
+    pagina: {pdf: 73, libro: 71}
+    desc: "Obtienes otro arcanum, eligiendo un conjuro de brujo de nivel 8, con las mismas reglas de uso (una vez por descanso largo)."
+
+  - nombre: "Arcanum místico (conjuro de nivel 9)"
+    nivel: 17
+    pagina: {pdf: 73, libro: 71}
+    desc: "Obtienes otro arcanum, eligiendo un conjuro de brujo de nivel 9, con las mismas reglas de uso (una vez por descanso largo)."
+
+  - nombre: "Don épico"
+    nivel: 19
+    pagina: {pdf: 73, libro: 71}
+    desc: "Obtienes una dote de don épico (capítulo 5) u otra dote de tu elección para la que cumplas las condiciones. Se recomienda Don del destino."
+
+  - nombre: "Maestro sobrenatural"
+    nivel: 20
+    pagina: {pdf: 73, libro: 71}
+    desc: "Cuando empleas tu rasgo Astucia mágica, recuperas todos los espacios de conjuro gastados de Magia del pacto (en vez de solo la mitad)."

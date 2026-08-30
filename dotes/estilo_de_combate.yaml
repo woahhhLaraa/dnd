@@ -1,0 +1,66 @@
+categoria: "Estilo de combate"
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "211-212"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-18", cobertura: "10/10"}
+fidelidad: "condensado"   # mecánica reescrita en frases cortas, no la prosa del manual
+
+dotes:
+  - nombre: "Combate con armas a dos manos"
+    pagina: {pdf: 211, libro: 209}
+    prerrequisito: "rasgo Estilo de combate"
+    repetible: false
+    descripcion: "Al tirar el daño de un ataque hecho con un arma cuerpo a cuerpo que empuñas a dos manos, puedes tratar cualquier 1 o 2 en los dados de daño como un 3. El arma debe tener la propiedad «a dos manos» o «versátil»."
+
+  - nombre: "Combate con armas arrojadizas"
+    pagina: {pdf: 211, libro: 209}
+    prerrequisito: "rasgo Estilo de combate"
+    repetible: false
+    descripcion: "Cuando aciertas con una tirada de ataque a distancia usando un arma con la propiedad «arrojadiza», obtienes un bonificador de +2 a la tirada de daño."
+
+  - nombre: "Combate con dos armas"
+    pagina: {pdf: 211, libro: 209}
+    prerrequisito: "rasgo Estilo de combate"
+    repetible: false
+    descripcion: "Cuando haces un ataque extra como resultado de usar un arma con la propiedad «ligera», puedes sumar tu modificador por característica al daño de ese ataque si no lo estás sumando ya."
+
+  - nombre: "Combate sin armas"
+    pagina: {pdf: 211, libro: 209}
+    prerrequisito: "rasgo Estilo de combate"
+    repetible: false
+    descripcion: "Al acertar con tu ataque sin armas y causar daño, puedes infligir 1d6 + tu modificador por Fuerza de daño contundente (o 1d8 si no empuñas armas ni embrazas escudo al hacer la tirada de ataque). Al principio de cada uno de tus turnos, puedes infligir 1d4 de daño contundente a una criatura que tengas agarrada."
+
+  - nombre: Defensa
+    pagina: {pdf: 211, libro: 209}
+    prerrequisito: "rasgo Estilo de combate"
+    repetible: false
+    descripcion: "Mientras lleves puesta una armadura ligera, media o pesada, recibes un bonificador de +1 a la clase de armadura."
+
+  - nombre: Duelo
+    pagina: {pdf: 211, libro: 209}
+    prerrequisito: "rasgo Estilo de combate"
+    repetible: false
+    descripcion: "Cuando empuñas un arma cuerpo a cuerpo con una mano y ninguna en la otra, recibes un bonificador de +2 a tus tiradas de daño con esa arma."
+
+  - nombre: Intercepción
+    pagina: {pdf: 211, libro: 209}
+    prerrequisito: "rasgo Estilo de combate"
+    repetible: false
+    descripcion: "Cuando una criatura que puedas ver acierte a otra criatura a 1,5 m o menos de ti con una tirada de ataque, puedes usar una reacción para reducir el daño causado al objetivo en 1d10 + tu bonificador por competencia. Debes estar embrazando un escudo o empuñando un arma sencilla o marcial."
+
+  - nombre: "Lucha a ciegas"
+    pagina: {pdf: 212, libro: 210}
+    prerrequisito: "rasgo Estilo de combate"
+    repetible: false
+    descripcion: "Tienes visión ciega hasta 3 m."
+
+  - nombre: Protección
+    pagina: {pdf: 212, libro: 210}
+    prerrequisito: "rasgo Estilo de combate"
+    repetible: false
+    descripcion: "Cuando una criatura que puedas ver ataque a un objetivo que no seas tú y esté a 1,5 m o menos de ti, puedes usar una reacción para interponer tu escudo (si lo embrazas), imponiendo desventaja a esa tirada de ataque y a las demás tiradas de ataque contra el objetivo hasta tu siguiente turno mientras permanezcas a 1,5 m o menos de él."
+
+  - nombre: "Tiro con arco"
+    pagina: {pdf: 212, libro: 210}
+    prerrequisito: "rasgo Estilo de combate"
+    repetible: false
+    descripcion: "Recibes un bonificador de +2 a las tiradas de ataque con armas a distancia."

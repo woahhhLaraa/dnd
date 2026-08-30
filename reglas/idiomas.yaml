@@ -1,0 +1,27 @@
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", pagina_pdf: 39, pagina_libro: 37}
+verificado: {metodo: "vision-directa", tabla: "Idiomas estándar / Idiomas inusuales", fecha: "2026-08-19"}
+fidelidad: "estructurado"   # listas de idiomas estándar e inusuales
+nota: "Todo personaje sabe al menos tres idiomas: común y otros dos que saque o elija de la tabla «Idiomas estándar»."
+estandar:
+  - {nombre: Común, origen: Sigil, d12: null}
+  - {nombre: Dracónico, origen: Dragones, d12: 1}
+  - {nombre: Elfo, origen: Elfos, d12: "2-3"}
+  - {nombre: Enano, origen: Enanos, d12: "4-5"}
+  - {nombre: Gigante, origen: Gigantes, d12: 6}
+  - {nombre: Gnomo, origen: Gnomos, d12: 7}
+  - {nombre: Goblin, origen: Trasgos, d12: 8}
+  - {nombre: "Lenguaje de signos común", origen: Sigil, d12: 9}
+  - {nombre: Mediano, origen: Medianos, d12: "10-11"}
+  - {nombre: Orco, origen: Orcos, d12: 12}
+inusuales:
+  - {nombre: Abisal, origen: "Demonios del Abismo"}
+  - {nombre: Celestial, origen: Celestiales}
+  - {nombre: Druídico, origen: "Círculos druídicos"}
+  - {nombre: "Habla de las profundidades", origen: Aberraciones}
+  - {nombre: Infernal, origen: "Diablos de los Nueve Infiernos"}
+  - {nombre: Infracomún, origen: "La Infraoscuridad"}
+  - {nombre: "Jerga de ladrones", origen: "Diversos gremios criminales"}
+  - {nombre: "Primordial*", origen: Elementales}
+  - {nombre: Silvano, origen: "Los Parajes Feéricos"}
+nota_primordial: "*El primordial incluye los dialectos acuano, aurano, ígneo y terrano. Las criaturas que saben uno de estos dialectos pueden comunicarse con las que saben otro diferente."

@@ -1,0 +1,85 @@
+clase: Guerrero
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+fidelidad: condensado
+rasgos:
+  - nombre: "Estilo de combate"
+    nivel: 1
+    pagina: {pdf: 115, libro: 113}
+    desc: "Obtienes una dote de estilo de combate de tu elección (capítulo 5); se recomienda Defensa. Cada vez que subas un nivel de guerrero, puedes sustituir esta dote por otra dote de estilo de combate."
+
+  - nombre: "Maestría con armas"
+    nivel: 1
+    pagina: {pdf: 115, libro: 113}
+    desc: "Puedes usar las propiedades de maestría con tres tipos de armas sencillas o marciales de tu elección. Tras un descanso largo puedes cambiar una de esas elecciones. El número de armas con maestría aumenta con el nivel (columna \"Maestría con armas\" de la tabla Rasgos de guerrero: 4 en nivel 4, 5 en nivel 10, 6 en nivel 16)."
+
+  - nombre: "Tomar aliento"
+    nivel: 1
+    pagina: {pdf: 115, libro: 113}
+    desc: "Acción adicional: recuperas 1d10 + tu nivel de guerrero puntos de golpe. Usos: 2 (columna \"Tomar aliento\" de la tabla, sube a 3 en nivel 4 y 4 en nivel 10); recuperas uno tras un descanso corto y todos tras uno largo."
+
+  - nombre: "Acción súbita (un uso)"
+    nivel: 2
+    pagina: {pdf: 115, libro: 113}
+    desc: "En tu turno, puedes llevar a cabo una acción más, salvo la acción de magia. No puedes volver a usar este rasgo hasta finalizar un descanso corto o largo."
+
+  - nombre: "Mente táctica"
+    nivel: 2
+    pagina: {pdf: 115, libro: 113}
+    desc: "Cuando falles una prueba de característica, puedes gastar un uso de Tomar aliento para intentar superarla: en vez de recuperar puntos de golpe, tiras 1d10 y sumas el resultado a la prueba, lo que podría convertir el fallo en un éxito. Si sigues sin superarla, este uso de Tomar aliento no se gasta."
+
+  - nombre: "Ataque adicional"
+    nivel: 5
+    pagina: {pdf: 116, libro: 114}
+    desc: "Cuando lleves a cabo la acción de atacar en tu turno, puedes hacer dos ataques en lugar de uno."
+
+  - nombre: "Desplazamiento táctico"
+    nivel: 5
+    pagina: {pdf: 116, libro: 114}
+    desc: "Cuando uses tu rasgo Tomar aliento con una acción adicional, puedes moverte hasta la mitad de tu velocidad sin provocar ataques de oportunidad."
+
+  - nombre: "Indómito (un uso)"
+    nivel: 9
+    pagina: {pdf: 116, libro: 114}
+    desc: "Si fallas una tirada de salvación, puedes repetirla con un bonificador igual a tu nivel de guerrero; debes quedarte con el nuevo resultado. No puedes volver a usar este rasgo hasta finalizar un descanso largo."
+
+  - nombre: "Maestro táctico"
+    nivel: 9
+    pagina: {pdf: 116, libro: 114}
+    desc: "Cuando ataques usando un arma con la que puedas utilizar su propiedad de maestría, puedes sustituir la propiedad de ese ataque por la de debilitar, empujar o ralentizar."
+
+  - nombre: "Dos ataques adicionales"
+    nivel: 11
+    pagina: {pdf: 116, libro: 114}
+    desc: "Cuando lleves a cabo la acción de atacar en tu turno, puedes hacer tres ataques en lugar de uno."
+
+  - nombre: "Ataques estudiados"
+    nivel: 13
+    pagina: {pdf: 116, libro: 114}
+    desc: "Si haces una tirada de ataque contra una criatura y fallas, tienes ventaja en tu siguiente tirada de ataque contra esa misma criatura antes del final de tu siguiente turno."
+
+  - nombre: "Indómito (dos usos)"
+    nivel: 13
+    pagina: {pdf: 116, libro: 114}
+    desc: "Puedes usar el rasgo Indómito dos veces entre descansos largos (en vez de una)."
+
+  - nombre: "Acción súbita (dos usos)"
+    nivel: 17
+    pagina: {pdf: 115, libro: 113}
+    desc: "Puedes usar Acción súbita dos veces antes de descansar, pero solo una vez por turno."
+
+  - nombre: "Indómito (tres usos)"
+    nivel: 17
+    pagina: {pdf: 116, libro: 114}
+    desc: "Puedes usar el rasgo Indómito tres veces entre descansos largos."
+
+  - nombre: "Don épico"
+    nivel: 19
+    pagina: {pdf: 116, libro: 114}
+    desc: "Obtienes una dote de don épico (capítulo 5) u otra dote de tu elección para la que cumplas las condiciones. Se recomienda Don de la pericia en combate."
+
+  - nombre: "Tres ataques adicionales"
+    nivel: 20
+    pagina: {pdf: 116, libro: 114}
+    desc: "Cuando lleves a cabo la acción de atacar en tu turno, puedes hacer cuatro ataques en lugar de uno."

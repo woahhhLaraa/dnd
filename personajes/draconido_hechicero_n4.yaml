@@ -1,0 +1,130 @@
+nombre: "Vaelith Val'thraxis (nivel 4)"
+jugador: null
+nivel_total: 4
+
+especie:
+  ref: "especies/especies.yaml#Dracónido"
+  rasgos_elegidos:
+    linaje_draconico: "Rojo"
+    resistencia_al_daño: "Fuego"
+
+trasfondo:
+  ref: "trasfondos/trasfondos.yaml#Comerciante"
+
+clases:
+  - clase: Hechicero
+    ref: "clases/hechicero.yaml"
+    nivel: 4
+    subclase: "clases/subclases/hechicero.yaml#Hechicería Dracónica"
+
+caracteristicas:
+  metodo: conjunto_estandar
+  base: {fue: 8, des: 14, con: 13, int: 10, sab: 12, car: 15}
+  ajuste_trasfondo: {car: 2, con: 1}
+  final: {fue: 8, des: 14, con: 14, int: 10, sab: 12, car: 17}
+
+competencias:
+  salvaciones: [Constitución, Carisma]
+  habilidades:
+    - {nombre: "Conocimiento arcano", origen: {clase: Hechicero}}
+    - {nombre: Engaño, origen: {clase: Hechicero}}
+    - {nombre: Persuasión, origen: {trasfondo: Comerciante}}
+    - {nombre: "Trato con animales", origen: {trasfondo: Comerciante}}
+  armas: [{categoria: "Armas sencillas", origen: {clase: Hechicero}}]
+  armaduras: []
+  herramientas:
+    - {categoria: "herramientas de navegante", origen: {trasfondo: Comerciante}}
+  idiomas:
+    - {nombre: Común}
+    - {nombre: Dracónico, origen: {regla: "reglas/idiomas.yaml: todo personaje elige 2 además de Común"}}
+    - {nombre: Enano, origen: {regla: "reglas/idiomas.yaml: todo personaje elige 2 además de Común"}}
+
+equipo:
+  - {ref: "equipo/armas.yaml#Lanza", origen: {clase: Hechicero, opcion: A}}
+  - {ref: "equipo/armas.yaml#Daga", origen: {clase: Hechicero, opcion: A, cantidad: 2}}
+  - {ref: "equipo/aventureros.yaml#Canalizador arcano", origen: {clase: Hechicero, opcion: A, variante: cristal}}
+  - {ref: "equipo/aventureros.yaml#Paquete de explorador de mazmorras", origen: {clase: Hechicero, opcion: A}}
+  - {ref: "equipo/herramientas.yaml#Herramientas de navegante", origen: {trasfondo: Comerciante, opcion: A}}
+  - {ref: "equipo/aventureros.yaml#Bolsa", origen: {trasfondo: Comerciante, opcion: A, cantidad: 2}}
+  - {ref: "equipo/aventureros.yaml#Ropas de viaje", origen: {trasfondo: Comerciante, opcion: A}}
+
+conjuros:
+  trucos:
+    - {ref: "hechizos.json#Rayo de escarcha"}
+    - {ref: "hechizos.json#Mano de mago"}
+    - {ref: "hechizos.json#Prestidigitación"}
+    - {ref: "hechizos.json#Luces danzantes"}
+    - {ref: "hechizos.json#Descarga sobrenatural"}
+  preparados:
+    - {ref: "hechizos.json#Proyectil mágico"}
+    - {ref: "hechizos.json#Escudo"}
+    - {ref: "hechizos.json#Manos ardientes"}
+    - {ref: "hechizos.json#Dormir"}
+    - {ref: "hechizos.json#Rayo abrasador"}
+    - {ref: "hechizos.json#Invisibilidad"}
+    - {ref: "hechizos.json#Rayo de escarcha"}
+
+dotes:
+  - {ref: "dotes/origen.yaml#Afortunado", origen: {trasfondo: Comerciante}}
+  - {ref: "dotes/generales.yaml#Lanzador ritual", origen: {clase: Hechicero, nivel: 4}}
+
+# La historia de PG: una entrada por nivel, con el método ELEGIDO y el valor
+# obtenido. Una tirada no es reproducible, así que se guarda el resultado.
+# El total NO se guarda sumado: se recalcula entero desde estos valores crudos,
+# y por eso la regla retroactiva del modificador por Constitución (pdf 44 =
+# libro 42, paso 5) sale sola en vez de tener que aplicarse a mano.
+pg_por_nivel:
+  - {nivel: 1, clase: Hechicero, metodo: maximo_dado, valor: 6,
+     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.nivel_1"}}
+  - {nivel: 2, clase: Hechicero, metodo: valor_establecido, valor: 4,
+     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
+  - {nivel: 3, clase: Hechicero, metodo: tirada, valor: 5,
+     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.metodos[tirar]"}}
+  - {nivel: 4, clase: Hechicero, metodo: valor_establecido, valor: 4,
+     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
+
+calculado:
+  pg_max: 31
+  ca: 15
+  bonif_competencia: 2
+  cd_conjuros: 13
+  bonif_ataque_conjuros: 5
+  velocidad: 9
+
+decisiones:
+  - en: "nivel 4"
+    eleccion: "PG: valor establecido (4) en vez de tirar el d6"
+    cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1"}
+  - en: "nivel 4"
+    eleccion: "dote Lanzador ritual en vez de mejora de característica"
+    cita: {archivo: "dotes/generales.yaml", registro: "Lanzador ritual", campo: "prerrequisito"}
+  - en: "nivel 4"
+    eleccion: "truco nuevo: Descarga sobrenatural; conjuro preparado nuevo: Rayo de escarcha"
+    cita: {archivo: "clases/hechicero.yaml", campo: "progresion[n=4]"}
+  - en: "nivel 2"
+    eleccion: "PG: valor establecido (4) en vez de tirar el d6"
+    cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1"}
+  - en: "nivel 3"
+    eleccion: "PG: tirada del d6, resultado 5"
+    cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1"}
+  - en: "nivel 3"
+    eleccion: "subclase: Hechicería Dracónica"
+    cita: {archivo: "clases/hechicero.yaml", campo: "progresion[n=3].rasgos"}
+  - en: "creación"
+    eleccion: "linaje dracónico: Rojo (resistencia a Fuego)"
+    cita: {archivo: "especies/especies.yaml", registro: Dracónido, campo: "ancestros"}
+  - en: "creación"
+    eleccion: "método de características: conjunto estándar"
+    cita: {archivo: "reglas/generacion_personaje.yaml", campo: "metodos_generacion_caracteristicas.conjunto_estandar"}
+  - en: "creación"
+    eleccion: "ajuste de trasfondo: +2 Carisma, +1 Constitución"
+    cita: {archivo: "trasfondos/trasfondos.yaml", registro: Comerciante, campo: caracteristicas}
+  - en: "creación"
+    eleccion: "habilidades de clase: Conocimiento arcano, Engaño"
+    cita: {archivo: "clases/hechicero.yaml", campo: "atributos_basicos.habilidades"}
+  - en: "creación"
+    eleccion: "equipo inicial opción A (clase y trasfondo)"
+    cita: {archivo: "clases/hechicero.yaml", campo: "atributos_basicos.equipo_inicial.a"}
+  - en: "creación"
+    eleccion: "trucos: Rayo de escarcha, Mano de mago, Prestidigitación, Luces danzantes; conjuros preparados: Proyectil mágico, Escudo"
+    cita: {archivo: "clases/rasgos/hechicero.yaml", rasgo: "Lanzamiento de conjuros"}

@@ -1,0 +1,407 @@
+nombre: Fippen Cascabelroble (nivel 20)
+jugador: null
+nivel_total: 20
+especie:
+  ref: especies/especies.yaml#Gnomo
+  rasgos_elegidos:
+    linaje: Gnomo de los bosques
+    aptitud_magica_linaje: Inteligencia
+trasfondo:
+  ref: trasfondos/trasfondos.yaml#Erudito
+clases:
+- clase: Mago
+  ref: clases/mago.yaml
+  nivel: 20
+  subclase: clases/subclases/mago.yaml#Evocador
+caracteristicas:
+  metodo: conjunto_estandar
+  base:
+    fue: 8
+    des: 14
+    con: 13
+    int: 15
+    sab: 12
+    car: 10
+  ajuste_trasfondo:
+    int: 2
+    con: 1
+  final:
+    fue: 8
+    des: 17
+    con: 16
+    int: 20
+    sab: 12
+    car: 10
+competencias:
+  salvaciones:
+  - Inteligencia
+  - Sabiduría
+  habilidades:
+  - nombre: Investigación
+    origen:
+      clase: Mago
+  - nombre: Perspicacia
+    origen:
+      clase: Mago
+  - nombre: Conocimiento arcano
+    origen:
+      trasfondo: Erudito
+  - nombre: Historia
+    origen:
+      trasfondo: Erudito
+  armas:
+  - categoria: Armas sencillas
+    origen:
+      clase: Mago
+  armaduras: []
+  herramientas:
+  - categoria: suministros de calígrafo
+    origen:
+      trasfondo: Erudito
+  idiomas:
+  - nombre: Común
+  - nombre: Gnomo
+  - nombre: Élfico
+equipo:
+- ref: equipo/armas.yaml#Daga
+  origen:
+    clase: Mago
+    opcion: A
+    nota: primera de las dos dagas
+- ref: equipo/armas.yaml#Daga
+  origen:
+    clase: Mago
+    opcion: A
+    nota: segunda de las dos dagas
+- ref: equipo/aventureros.yaml#Canalizador arcano
+  origen:
+    clase: Mago
+    opcion: A
+    variante: bastón
+- ref: equipo/aventureros.yaml#objetos_de_rasgo_de_clase#Libro de conjuros
+  origen:
+    clase: Mago
+    rasgo: Lanzamiento de conjuros
+- ref: equipo/aventureros.yaml#Paquete de erudito
+  origen:
+    clase: Mago
+    opcion: A
+- ref: equipo/aventureros.yaml#Túnica
+  origen:
+    clase: Mago
+    opcion: A
+- ref: equipo/armas.yaml#Bastón
+  origen:
+    trasfondo: Erudito
+    opcion: A
+- ref: equipo/herramientas.yaml#Suministros de calígrafo
+  origen:
+    trasfondo: Erudito
+    opcion: A
+- ref: equipo/aventureros.yaml#Libro
+  origen:
+    trasfondo: Erudito
+    opcion: A
+    nota: de historia
+- ref: equipo/aventureros.yaml#Pergamino
+  origen:
+    trasfondo: Erudito
+    opcion: A
+    nota: 8 hojas
+conjuros:
+  trucos:
+  - ref: hechizos.json#Agarre electrizante
+  - ref: hechizos.json#Amistad
+  - ref: hechizos.json#Descarga de fuego
+  - ref: hechizos.json#Elementalismo
+  - ref: hechizos.json#Fragmento mental
+  - ref: hechizos.json#Luz
+    origen:
+      dote: Iniciado en la magia
+  - ref: hechizos.json#Reparar
+    origen:
+      dote: Iniciado en la magia
+  - ref: hechizos.json#Ilusión menor
+    origen:
+      especie: 'Gnomo (linaje: Gnomo de los bosques)'
+  preparados:
+  - ref: hechizos.json#Alarma
+  - ref: hechizos.json#Armadura de mago
+  - ref: hechizos.json#Caída de pluma
+  - ref: hechizos.json#Abrir
+  - ref: hechizos.json#Agrandar / Reducir
+  - ref: hechizos.json#Aliento de dragón
+  - ref: hechizos.json#Acelerar
+  - ref: hechizos.json#Animar a los muertos
+  - ref: hechizos.json#Bola de fuego
+  - ref: hechizos.json#Adivinación
+  - ref: hechizos.json#Asesino fantasmal
+  - ref: hechizos.json#Cofre oculto de Leomund
+  - ref: hechizos.json#Alterar los recuerdos
+  - ref: hechizos.json#Animar objetos
+  - ref: hechizos.json#Apariencia
+  - ref: hechizos.json#Baile irresistible de Otto
+  - ref: hechizos.json#Caldero burbujeante de Tasha
+  - ref: hechizos.json#Contingencia
+  - ref: hechizos.json#Bola de fuego de explosión retardada
+  - ref: hechizos.json#Dedo de la muerte
+  - ref: hechizos.json#Desplazamiento entre planos
+  - ref: hechizos.json#Antipatía/simpatía
+  - ref: hechizos.json#Campo antimagia
+  - ref: hechizos.json#Clon
+  - ref: hechizos.json#Cambiar de forma
+  - ref: hechizos.json#Identificar
+    origen:
+      dote: Iniciado en la magia
+  - ref: hechizos.json#Hablar con los animales
+    origen:
+      especie: 'Gnomo (linaje: Gnomo de los bosques)'
+dotes:
+- ref: dotes/origen.yaml#Iniciado en la magia
+  origen:
+    trasfondo: Erudito
+mejoras:
+- nivel: 4
+  sube:
+    int: 2
+  ref: dotes/generales.yaml#Mejora de característica
+- nivel: 8
+  sube:
+    int: 1
+    des: 1
+  ref: dotes/generales.yaml#Mejora de característica
+- nivel: 12
+  sube:
+    con: 2
+  ref: dotes/generales.yaml#Mejora de característica
+- nivel: 16
+  sube:
+    des: 2
+  ref: dotes/generales.yaml#Mejora de característica
+pg_por_nivel:
+- nivel: 1
+  clase: Mago
+  metodo: maximo_dado
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.nivel_1
+- nivel: 2
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 3
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 4
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 5
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 6
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 7
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 8
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 9
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 10
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 11
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 12
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 13
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 14
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 15
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 16
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 17
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 18
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 19
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 20
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+calculado:
+  pg_max: 142
+  ca: 13
+  bonif_competencia: 6
+  velocidad: 9
+  cd_conjuros: 19
+  bonif_ataque_conjuros: 11
+decisiones:
+- en: nivel 3
+  eleccion: 'subclase: Evocador'
+  cita:
+    archivo: clases/mago.yaml
+    campo: progresion[n=3].rasgos
+- en: niveles 4, 8, 12 y 16
+  eleccion: 'mejoras de característica: Int +2; Int +1 y Des +1; Con +2; Des +2'
+  cita:
+    archivo: dotes/generales.yaml
+    registro: Mejora de característica
+- en: niveles 2-20
+  eleccion: 'PG: valor establecido (4) en cada subida, sin tirar'
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1
+- en: creación
+  eleccion: 'método de características: conjunto estándar (15/14/13/12/10/8)'
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: metodos_generacion_caracteristicas.conjunto_estandar
+- en: creación
+  eleccion: 'reparto base: Int 15, Des 14, Con 13, Sab 12, Car 10, Fue 8'
+  cita:
+    archivo: clases/mago.yaml
+    campo: atributos_basicos.caracteristica_principal
+- en: creación
+  eleccion: 'ajuste de trasfondo: +2 Inteligencia, +1 Constitución'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Erudito
+    campo: caracteristicas
+- en: creación
+  eleccion: 'linaje gnomo: Gnomo de los bosques, aptitud mágica Inteligencia'
+  cita:
+    archivo: especies/especies.yaml
+    registro: Gnomo
+    campo: linajes
+- en: creación
+  eleccion: 'habilidades de clase: Investigación, Perspicacia (distintas de las fijas del trasfondo para no solapar)'
+  cita:
+    archivo: clases/mago.yaml
+    campo: atributos_basicos.habilidades
+- en: creación
+  eleccion: equipo inicial opción A (clase y trasfondo)
+  cita:
+    archivo: clases/mago.yaml
+    campo: atributos_basicos.equipo_inicial.a
+- en: creación
+  eleccion: 'libro de conjuros: nace del rasgo, no de la opción A/B'
+  cita:
+    archivo: equipo/aventureros.yaml
+    campo: objetos_de_rasgo_de_clase
+- en: creación
+  eleccion: 'trucos de clase (3): Descarga de fuego, Mano de mago, Prestidigitación'
+  cita:
+    archivo: clases/rasgos/mago.yaml
+    rasgo: Lanzamiento de conjuros
+- en: creación
+  eleccion: 'preparados de clase (4): Armadura de mago, Escudo, Proyectil mágico, Detectar magia'
+  cita:
+    archivo: clases/rasgos/mago.yaml
+    rasgo: Lanzamiento de conjuros
+- en: creación
+  eleccion: 'dote Iniciado en la magia (mago): trucos Luz y Reparar; preparado Identificar'
+  cita:
+    archivo: dotes/origen.yaml
+    registro: Iniciado en la magia
+- en: creación
+  eleccion: 'linaje Gnomo de los bosques: truco Ilusión menor; preparado Hablar con animales'
+  cita:
+    archivo: especies/especies.yaml
+    registro: Gnomo
+    campo: linajes
+- en: creación
+  eleccion: 'idiomas: Común, Gnomo, Élfico'
+  cita:
+    archivo: reglas/idiomas.yaml
+    campo: nota

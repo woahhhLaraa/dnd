@@ -1,0 +1,92 @@
+nombre: "Aerin Vellamora (prueba nivel 1)"
+jugador: null
+nivel_total: 1
+
+especie:
+  ref: "especies/especies.yaml#Elfo"
+  rasgos_elegidos: {}
+
+trasfondo:
+  ref: "trasfondos/trasfondos.yaml#Noble"
+
+clases:
+  - clase: Brujo
+    ref: "clases/brujo.yaml"
+    nivel: 1
+    subclase: null
+
+caracteristicas:
+  metodo: conjunto_estandar
+  base: {fue: 8, des: 15, con: 13, int: 12, sab: 10, car: 14}
+  ajuste_trasfondo: {car: 2, fue: 1}
+  final: {fue: 9, des: 15, con: 13, int: 12, sab: 10, car: 16}
+
+competencias:
+  salvaciones: [Sabiduría, Carisma]
+  habilidades:
+    - {nombre: "Conocimiento arcano", origen: {clase: Brujo}}
+    - {nombre: Intimidación, origen: {clase: Brujo}}
+    - {nombre: Historia, origen: {trasfondo: Noble}}
+    - {nombre: Persuasión, origen: {trasfondo: Noble}}
+  armas: [{categoria: "Armas sencillas", origen: {clase: Brujo}}]
+  armaduras: [{categoria: "Armaduras ligeras", origen: {clase: Brujo}}]
+  herramientas: []
+  # Ningún rasgo de especie concede idiomas en esta base (comprobado: cero
+  # coincidencias en especies/especies.yaml). "Todo personaje sabe común y
+  # otros dos que elija" es una regla general (reglas/idiomas.yaml → nota),
+  # no un regalo de la especie — el nombre canónico de la tabla es "Elfo",
+  # no "Élfico" (bug real: la versión anterior de este ejemplo tenía ambos
+  # errores y ningún validador lo pilló, porque `idiomas` no lleva `ref:`).
+  idiomas:
+    - {nombre: Común}
+    - {nombre: Elfo, origen: {regla: "reglas/idiomas.yaml: todo personaje elige 2 además de Común"}}
+
+equipo:
+  - {ref: "equipo/armaduras.yaml#Armadura de cuero", origen: {clase: Brujo, opcion: A}}
+  - {ref: "equipo/armas.yaml#Daga", origen: {clase: Brujo, opcion: A}}
+  - {ref: "equipo/aventureros.yaml#Canalizador arcano", origen: {clase: Brujo, opcion: A, variante: orbe}}
+  - {ref: "equipo/aventureros.yaml#Libro", origen: {clase: Brujo, opcion: A, nota: "de conocimiento oculto"}}
+  - {ref: "equipo/aventureros.yaml#Paquete de erudito", origen: {clase: Brujo, opcion: A}}
+
+conjuros:
+  trucos:
+    - {ref: "hechizos.json#Descarga sobrenatural"}
+    - {ref: "hechizos.json#Prestidigitación"}
+  preparados:
+    - {ref: "hechizos.json#Hechizar persona"}
+    - {ref: "hechizos.json#Maleficio"}
+
+dotes:
+  - {ref: "dotes/origen.yaml#Habilidoso", origen: {trasfondo: Noble}}
+
+calculado:
+  pg_max: 9
+  ca: 13
+  bonif_competencia: 2
+  cd_conjuros: 13
+  bonif_ataque_conjuros: 5
+  velocidad: 9
+
+decisiones:
+  - en: "corrección 2026-08-30"
+    eleccion: >
+      Faltaba un conjuro preparado: la tabla de Brujo concede 2 en el nivel 1 y
+      la ficha traía 1. Se añade Maleficio, de la lista de Brujo de nivel 1. Lo
+      cazó el chequeo nuevo que cuenta los conjuros contra la progresión; hasta
+      hoy nadie los contaba, ni en esta ficha ni en ninguna.
+    cita: {archivo: "clases/brujo.yaml", campo: "progresion[n=1].prep"}
+  - en: "creación"
+    eleccion: "método de características: conjunto estándar"
+    cita: {archivo: "reglas/generacion_personaje.yaml", campo: "metodos_generacion_caracteristicas.conjunto_estandar"}
+  - en: "creación"
+    eleccion: "ajuste de trasfondo: +2 Carisma, +1 Fuerza"
+    cita: {archivo: "trasfondos/trasfondos.yaml", registro: Noble, campo: caracteristicas}
+  - en: "creación"
+    eleccion: "habilidades de clase: Conocimiento arcano, Intimidación"
+    cita: {archivo: "clases/brujo.yaml", campo: "atributos_basicos.habilidades"}
+  - en: "creación"
+    eleccion: "equipo inicial opción A"
+    cita: {archivo: "clases/brujo.yaml", campo: "atributos_basicos.equipo_inicial.a"}
+  - en: "creación"
+    eleccion: "trucos: Descarga sobrenatural, Prestidigitación"
+    cita: {archivo: "clases/rasgos/brujo.yaml", rasgo: "Lanzamiento de conjuros"}

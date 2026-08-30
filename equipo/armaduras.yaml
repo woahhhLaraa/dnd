@@ -1,0 +1,41 @@
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "218-219"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+fidelidad: "estructurado"   # tabla de datos: CA, fuerza mínima, sigilo, peso, precio
+
+reglas:
+  entrenamiento: "Cualquiera puede ponerse una armadura o embrazar un escudo, pero solo quien tenga entrenamiento con ese tipo la usa de forma efectiva. La clase de personaje y otros rasgos otorgan entrenamiento."
+  sin_entrenamiento: "Si llevas una armadura ligera, media o pesada sin entrenamiento con ella, tienes desventaja en cualquier prueba con d20 que implique Fuerza o Destreza, y no puedes lanzar conjuros."
+  escudos: "Solo obtienes el bonificador a la CA de un escudo si tienes entrenamiento con escudos."
+  solo_un_tipo: "Una criatura no puede llevar puesta más de una armadura ni embrazar más de un escudo a la vez."
+  fuerza: "Si la tabla indica una puntuación de Fuerza para un tipo de armadura, esta reduce 3 m la velocidad de quien la lleve, salvo que su Fuerza sea igual o superior a la indicada."
+  sigilo: "Si la tabla indica 'Desventaja' en la columna Sigilo, quien lleve esa armadura tiene desventaja en pruebas de Destreza (Sigilo)."
+
+armaduras_ligeras:
+  tiempo_equipar: "1 minuto para ponérselas o quitárselas"
+  tabla:
+    - {nombre: "Armadura acolchada", ca: "11 + mod. Des", fuerza: null, sigilo: Desventaja, peso_kg: 4, precio: "5 po"}
+    - {nombre: "Armadura de cuero", ca: "11 + mod. Des", fuerza: null, sigilo: null, peso_kg: 5, precio: "10 po"}
+    - {nombre: "Armadura de cuero tachonado", ca: "12 + mod. Des", fuerza: null, sigilo: null, peso_kg: 6.5, precio: "45 po"}
+
+armaduras_medias:
+  tiempo_equipar: "5 minutos para ponérselas, 1 minuto para quitárselas"
+  tabla:
+    - {nombre: "Armadura de pieles", ca: "12 + mod. Des (máx. 2)", fuerza: null, sigilo: null, peso_kg: 6, precio: "10 po"}
+    - {nombre: "Camisa de malla", ca: "13 + mod. Des (máx. 2)", fuerza: null, sigilo: null, peso_kg: 10, precio: "50 po"}
+    - {nombre: "Cota de escamas", ca: "14 + mod. Des (máx. 2)", fuerza: null, sigilo: Desventaja, peso_kg: 22.5, precio: "50 po"}
+    - {nombre: Coraza, ca: "14 + mod. Des (máx. 2)", fuerza: null, sigilo: null, peso_kg: 10, precio: "400 po"}
+    - {nombre: "Media armadura", ca: "15 + mod. Des (máx. 2)", fuerza: null, sigilo: Desventaja, peso_kg: 20, precio: "750 po"}
+
+armaduras_pesadas:
+  tiempo_equipar: "10 minutos para ponérselas, 5 minutos para quitárselas"
+  tabla:
+    - {nombre: "Cota guarnecida", ca: 14, fuerza: null, sigilo: Desventaja, peso_kg: 20, precio: "30 po"}
+    - {nombre: "Cota de malla", ca: 16, fuerza: 13, sigilo: Desventaja, peso_kg: 27.5, precio: "75 po"}
+    - {nombre: "Armadura de bandas", ca: 17, fuerza: 15, sigilo: Desventaja, peso_kg: 30, precio: "200 po"}
+    - {nombre: "Armadura de placas", ca: 18, fuerza: 15, sigilo: Desventaja, peso_kg: 32.5, precio: "1500 po"}
+
+escudos:
+  tiempo_equipar: "acción de utilizar para ponérselos o quitárselos"
+  tabla:
+    - {nombre: Escudo, ca: "+2", fuerza: null, sigilo: null, peso_kg: 3, precio: "10 po"}

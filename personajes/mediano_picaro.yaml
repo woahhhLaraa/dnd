@@ -1,0 +1,194 @@
+nombre: Milo Candado
+jugador: null
+nivel_total: 1
+especie:
+  ref: especies/especies.yaml#Mediano
+  rasgos_elegidos: {}
+trasfondo:
+  ref: trasfondos/trasfondos.yaml#Criminal
+clases:
+- clase: Pícaro
+  ref: clases/picaro.yaml
+  nivel: 1
+  subclase: null
+caracteristicas:
+  metodo: conjunto_estandar
+  base:
+    fue: 12
+    des: 15
+    con: 13
+    int: 14
+    sab: 10
+    car: 8
+  ajuste_trasfondo:
+    des: 2
+    con: 1
+  final:
+    fue: 12
+    des: 17
+    con: 14
+    int: 14
+    sab: 10
+    car: 8
+competencias:
+  salvaciones:
+  - Destreza
+  - Inteligencia
+  habilidades:
+  - nombre: Juego de manos
+    origen:
+      trasfondo: Criminal
+  - nombre: Sigilo
+    origen:
+      trasfondo: Criminal
+  - nombre: Percepción
+    origen:
+      clase: Pícaro
+  - nombre: Perspicacia
+    origen:
+      clase: Pícaro
+  - nombre: Engaño
+    origen:
+      clase: Pícaro
+  - nombre: Investigación
+    origen:
+      clase: Pícaro
+  armas:
+  - categoria: Armas sencillas
+    origen:
+      clase: Pícaro
+  - categoria: Armas marciales con la propiedad "ligera" o "sutil"
+    origen:
+      clase: Pícaro
+  armaduras:
+  - categoria: Armaduras ligeras
+    origen:
+      clase: Pícaro
+  herramientas:
+  - categoria: herramientas de ladrón
+    origen:
+      clase: Pícaro
+  - categoria: herramientas de ladrón
+    origen:
+      trasfondo: Criminal
+  idiomas:
+  - nombre: Común
+  - nombre: Enano
+  - nombre: Goblin
+  - nombre: Jerga de ladrones
+    origen:
+      clase: Pícaro
+      rasgo: Jerga de ladrones
+  - nombre: Infracomún
+    origen:
+      clase: Pícaro
+      rasgo: Jerga de ladrones
+equipo:
+- ref: equipo/armaduras.yaml#Armadura de cuero
+  origen:
+    clase: Pícaro
+    opcion: A
+- ref: equipo/armas.yaml#Daga
+  origen:
+    clase: Pícaro
+    opcion: A
+    nota: x2
+- ref: equipo/armas.yaml#Espada corta
+  origen:
+    clase: Pícaro
+    opcion: A
+- ref: equipo/armas.yaml#Arco corto
+  origen:
+    clase: Pícaro
+    opcion: A
+- ref: equipo/municion.yaml#Flechas
+  origen:
+    clase: Pícaro
+    opcion: A
+    nota: 20, guardadas en la aljaba
+- ref: equipo/aventureros.yaml#Aljaba
+  origen:
+    clase: Pícaro
+    opcion: A
+- ref: equipo/herramientas.yaml#Herramientas de ladrón
+  origen:
+    clase: Pícaro
+    opcion: A
+- ref: equipo/aventureros.yaml#Paquete de ladrón
+  origen:
+    clase: Pícaro
+    opcion: A
+dotes:
+- ref: dotes/origen.yaml#Alerta
+  origen:
+    trasfondo: Criminal
+calculado:
+  pg_max: 10
+  ca: 14
+  bonif_competencia: 2
+  velocidad: 9
+decisiones:
+- en: creación
+  eleccion: conjunto estándar por sugerencia de clase para Pícaro
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: conjunto_estandar_por_clase
+- en: creación
+  eleccion: 'ajuste de trasfondo: +2 Destreza, +1 Constitución'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Criminal
+    campo: caracteristicas
+- en: creación
+  eleccion: 'habilidades de clase: Percepción, Perspicacia, Engaño, Investigación'
+  cita:
+    archivo: clases/picaro.yaml
+    campo: atributos_basicos.habilidades
+- en: creación
+  eleccion: 'herramienta de trasfondo: herramientas de ladrón (fija, no es elección)'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Criminal
+    campo: herramienta
+- en: creación
+  eleccion: 'Pericia nivel 1: Juego de manos y Sigilo (recomendación explícita del rasgo)'
+  cita:
+    archivo: clases/rasgos/picaro.yaml
+    rasgo: Pericia
+- en: creación
+  eleccion: 'Maestría con armas: Daga y Espada corta'
+  cita:
+    archivo: clases/rasgos/picaro.yaml
+    rasgo: Maestría con armas
+- en: creación
+  eleccion: 'Jerga de ladrones (fija) más idioma a elección: Infracomún'
+  cita:
+    archivo: clases/rasgos/picaro.yaml
+    rasgo: Jerga de ladrones
+- en: creación
+  eleccion: 'idiomas libres adicionales de la tabla estándar: Enano y Goblin'
+  cita:
+    archivo: reglas/idiomas.yaml
+    campo: nota
+- en: creación
+  eleccion: equipo de clase opción A; equipo de trasfondo opción B (50 po)
+  cita:
+    archivo: clases/picaro.yaml
+    campo: atributos_basicos.equipo_inicial
+- en: creación
+  eleccion: 'dote de trasfondo: Alerta (fija, no es elección)'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Criminal
+    campo: dote
+historia:
+- Milo creció robando bolsillos en los muelles de una ciudad portuaria
+- antes de que un gremio de ladrones lo reclutara al verlo forzar
+- una cerradura con una horquilla.
+- Un golpe salido mal lo dejó huyendo de su antiguo gremio
+- con una bolsa de monedas robadas y ninguna intención de volver.
+personalidad:
+- 'Encantador y calculador a partes iguales: sonríe primero y evalúa'
+- las salidas después.
+- Desconfía de los tratos que suenan demasiado limpios y guarda
+- siempre una ruta de escape, incluso en una conversación cordial.

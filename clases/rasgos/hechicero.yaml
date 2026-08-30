@@ -1,0 +1,45 @@
+clase: Hechicero
+edicion: "2024 (5.5e)"
+fuente: {archivo: "Manual_del_Jugador_2024.pdf"}
+verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
+fidelidad: condensado
+rasgos:
+  - nombre: "Lanzamiento de conjuros"
+    nivel: 1
+    pagina: {pdf: 125, libro: 123}
+    desc: "Trucos: conoces 4 trucos de hechicero de tu elección (se recomiendan agarre electrizante, estallido mágico, luz y prestidigitación); puedes cambiar uno al subir de nivel, y aprendes trucos adicionales en niveles 4 y 10 (columna \"Trucos\"). Espacios de conjuro: los de la tabla Rasgos de hechicero, se recuperan tras un descanso largo. Conjuros preparados de nivel 1+: empiezas con 2 conjuros de nivel 1 de hechicero (se recomiendan detectar magia y manos ardientes); el número crece según la columna \"Conjuros preparados\". Puedes sustituir un conjuro preparado al subir de nivel. Aptitud mágica: Carisma. Canalizador mágico: un canalizador arcano."
+
+  - nombre: "Hechicería innata"
+    nivel: 1
+    pagina: {pdf: 126, libro: 124}
+    desc: "Acción adicional: desatas tu magia latente durante 1 minuto, obteniendo: CD de salvación de tus conjuros de hechicero +1; ventaja en las tiradas de ataque de tus conjuros de hechicero. Usos: 2 por descanso largo. En nivel 7 (Encarnación mágica), si no te quedan usos, puedes activarlo gastando 2 puntos de hechicería."
+
+  - nombre: "Fuente de magia"
+    nivel: 2
+    pagina: {pdf: 126, libro: 124}
+    desc: "Tienes puntos de hechicería (2 en nivel 2, según la columna \"Puntos de hechicería\" de la tabla, hasta 20 en nivel 20); se recuperan tras un descanso largo. Convertir espacios de conjuro en puntos de hechicería: gastas un espacio de conjuro (sin acción) y obtienes tantos puntos de hechicería como el nivel del espacio. Crear espacios de conjuro: acción adicional; conviertes puntos de hechicería no gastados en un espacio de conjuro según la tabla \"Crear espacios de conjuro\" (nivel 1 cuesta 2 puntos y requiere hechicero nivel 2; nivel 2 cuesta 3 y nivel 3; nivel 3 cuesta 5 y nivel 5; nivel 4 cuesta 6 y nivel 7; nivel 5 cuesta 7 y nivel 9, el máximo creable). Los espacios así creados se desvanecen tras un descanso largo."
+
+  - nombre: "Metamagia"
+    nivel: 2
+    pagina: {pdf: 127, libro: 125}
+    desc: "Consigues dos opciones de metamagia de tu elección (ver lista más abajo); cada una modifica temporalmente un conjuro que lances, pagando su coste en puntos de hechicería; solo una opción por conjuro salvo que se indique lo contrario. Al subir de nivel puedes sustituir una opción por otra. Obtienes dos opciones más en nivel 10 y otras dos más en nivel 17. Opciones: Conjuro acelerado (2 puntos; tiempo de lanzamiento de acción pasa a acción adicional, no puedes lanzar otro conjuro de nivel 1+ ese turno); Conjuro buscador (1 punto; repites el d20 de una tirada de ataque de conjuro fallida, usando el nuevo resultado); Conjuro cuidadoso (1 punto; hasta tu modificador de Carisma en criaturas, mínimo 1, superan automáticamente la salvación contra el conjuro y no reciben daño si normalmente recibirían mitad); Conjuro distante (1 punto; duplica el alcance de un conjuro con alcance mínimo 1,5 m, o lo lleva a 9 m si era de toque); Conjuro extendido (1 punto; duplica la duración de un conjuro con duración de 1 minuto o más, hasta 24 horas; si requiere concentración, ventaja en las salvaciones para mantenerla); Conjuro gemelo (1 punto; aumenta el nivel efectivo del conjuro en 1 para poder hacer objetivo a criaturas adicionales); Conjuro intensificado (2 puntos; un objetivo del conjuro tiene desventaja en su tirada de salvación); Conjuro potenciado (1 punto; repites hasta tu modificador de Carisma, mínimo 1, dados de daño del conjuro y usas los nuevos resultados); Conjuro sutil (1 punto; lanzas el conjuro sin componentes verbales, somáticos ni materiales, salvo materiales con coste o que se consuman); Conjuro transmutado (1 punto; cambias el tipo de daño del conjuro entre ácido, frío, fuego, relámpago, trueno o veneno)."
+
+  - nombre: "Recuperación mágica"
+    nivel: 5
+    pagina: {pdf: 127, libro: 125}
+    desc: "Tras finalizar un descanso corto, puedes recuperar una cantidad de puntos de hechicería igual o inferior a la mitad de tu nivel de hechicero (redondeando hacia abajo). No puedes volver a usar este rasgo hasta finalizar un descanso largo."
+
+  - nombre: "Encarnación mágica"
+    nivel: 7
+    pagina: {pdf: 127, libro: 125}
+    desc: "Si no te quedan usos de Hechicería innata, puedes usarlo igualmente gastando 2 puntos de hechicería al activarlo con la acción adicional. Además, mientras tengas activo Hechicería innata, puedes usar hasta dos opciones de metamagia en cada conjuro que lances (en vez de solo una)."
+
+  - nombre: "Don épico"
+    nivel: 19
+    pagina: {pdf: 127, libro: 125}
+    desc: "Obtienes una dote de don épico (capítulo 5) u otra dote de tu elección para la que cumplas las condiciones. Se recomienda Don del viaje dimensional."
+
+  - nombre: "Apoteosis arcana"
+    nivel: 20
+    pagina: {pdf: 127, libro: 125}
+    desc: "Mientras tengas activo el rasgo Hechicería innata, puedes usar una opción de metamagia en cada uno de tus turnos sin gastar puntos de hechicería."
