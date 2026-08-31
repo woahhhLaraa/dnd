@@ -470,10 +470,12 @@ def verificar_armas():
             # es una ambigüedad, es una discrepancia: si se quedara en «sin
             # emparejar» el arma desaparecería del contraste sin avisar, que es
             # justo el fallo silencioso que esta base persigue.
+            detalle = ", ".join(
+                "{}={}".format(w["nombre"], w["mastery"]) for w in cand)
             inf.error(
                 f"{p['arma']['nombre']}: maestría {p['arma'].get('maestria')!r} "
                 f"({esperada}), pero ninguno de sus equivalentes posibles la "
-                f"tiene ({', '.join(f'{w['nombre']}={w['mastery']}' for w in cand)})")
+                f"tiene ({detalle})")
         else:
             ambiguas += 1
 
