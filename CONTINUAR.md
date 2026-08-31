@@ -1010,3 +1010,29 @@ Offset confirmado en todo el manual: **página_pdf = página_libro + 2**.
    pregunta. Nunca se rellena.
 4. **Solo edición 2024.** El manual EDGE de la papelera (2014) está vetado.
 5. **Validar antes de dar por cerrada una fase.**
+6. **La cobertura se descubre, nunca se escribe a mano.** *(nueva, 2026-08-31)*
+   Ningún módulo puede llevar dentro la lista de los ficheros, campos o
+   columnas que mira. Se descubre por patrón y se contrasta contra un
+   manifiesto que declara **también las exclusiones, con su motivo**. Un
+   fichero que nadie sepa clasificar es un error, no un salto silencioso.
+
+   **Por qué es inviolable y no una preferencia:** este error apareció
+   **cinco veces**, escrito en momentos distintos, sin que nadie lo copiara
+   a propósito:
+
+   | Lista escrita a mano | Qué se le escapaba | Estado |
+   |---|---|---|
+   | `efectos._ORIGENES` | 46 subclases · 4 ficheros de dotes | ✅ cerrada (C1) |
+   | `verificar_documentos` (cifras) | `efectos` desde la Fase 14 | ✅ cerrada |
+   | `verificar_chequeos.FUENTES` | audita 3 de las 6 que declara | ⬜ abierta |
+   | `verificar_srd.MAPA` | `pb`, `forma_salvaje`, `mov_sin_armadura_m` | ⬜ abierta |
+   | `verificar_foundry.MODULOS` | categorías sin contrastar | ⬜ abierta |
+
+   Cuando el mismo defecto sale cinco veces no es descuido repetido: es que
+   la forma de trabajar lo invitaba. `validar.py` ya lo hacía bien —descubre
+   con `glob` en 14 sitios— y era el ejemplo que los demás no siguieron.
+
+   **El corolario, y es el que duele:** se verificaba con obsesión que los
+   datos escritos fueran correctos (3666 valores externos, 149 mutaciones) y
+   **no se verificaba nunca que estuvieran todos**. Comprobar la calidad de
+   lo que hay no dice nada de lo que falta.

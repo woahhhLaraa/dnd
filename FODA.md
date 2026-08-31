@@ -44,6 +44,27 @@ reproducen con los cinco comandos del final.
 7. **La base sabe cuánto se equivoca.** Es lo más raro de este proyecto: hay
    tasas medidas con intervalo de confianza por superficie, no una sensación.
 
+### Lo que se aprendió mirando a los maduros (2026-08-31)
+
+Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
+
+- **Foundry automatiza 76 de 332 rasgos de clase/subclase 2024 (23 %).** El
+  resto es texto. No resolvieron el problema automatizando todo: lo
+  resolvieron **no intentándolo**, y **declarando la frontera dentro del
+  dato** — 380 registros llevan una «Foundry Note» que dice qué no está
+  automatizado. Aquí la frontera era el silencio.
+- **Foundry no tiene tests.** Su `package.json` trae `build`, `lint` y
+  `watch`. Sustituyen verificación por cientos de miles de jugadores. Este
+  proyecto tiene una usuaria, así que sus 3666 valores y sus 149 mutaciones
+  **son el sustituto correcto** y no se tocan. De Foundry se copia la
+  arquitectura, nunca la ausencia de pruebas.
+- **Una dote que sube una característica usa en Foundry el MISMO mecanismo
+  que la mejora de nivel 4** (`advancement/AbilityScoreImprovement`). Un solo
+  camino, por eso no se puede olvidar conectar uno de los dos.
+- **DiceCloud tiene 11 operaciones; aquí había 6.** La que faltaba y cierra
+  el espiral es `conditional`: un efecto citado que guarda texto y no se
+  calcula. Adoptada el 2026-08-31.
+
 ## 📉 Debilidades
 
 1. **~~Las descripciones de conjuro~~ → ✅ auditadas y corregidas (2026-08-29).**
@@ -114,7 +135,47 @@ reproducen con los cinco comandos del final.
    código independiente sobre el diff — las ~1.400 líneas de módulos nuevos de
    la última tanda **no las ha revisado nadie**, y en ellas ya aparecieron
    cuatro defectos, **dos de ellos silenciosos**.
-7. **`hechizos.json` pesa 564 KB.** Cargarlo entero es el fallo «lost in the
+8. **🔴 La cobertura se escribía a mano, y por eso el motor no veía media
+   base.** *(descubierto y medido el 2026-08-31)*
+
+   `efectos._ORIGENES` era una tupla de 15 rutas literales: conocía **2 de las
+   48 subclases** y **0 de los 4 ficheros de dotes**. Consecuencia medida, y
+   estaba **invertida**:
+
+   | Ficha | Veredicto antes |
+   |---|---|
+   | `Duro` (dote de origen, nivel 1) con su +2 PG aplicado — CORRECTA | ❌ rechazada |
+   | `Duro` con el +2 perdido — ROTA | ✅ «0 problemas» |
+
+   Es decir: el verificador **aprobaba la ficha mal y rechazaba la buena**, en
+   el primer personaje que se crea, con una dote corriente del manual. 54 de
+   las 75 dotes conceden «+1 a característica» y ninguna tenía dónde
+   declararlo; `efectos.py` tampoco miraba `dotes/`.
+
+   **Lo grave no es el fallo, es que es el mismo de la debilidad 5** un nivel
+   más arriba. La cabecera de `reglas/efectos.yaml` condena las reglas
+   cableadas —«no se entera de que hay una quinta»— y doce líneas después
+   había una tupla cableada de RUTAS en vez de un diccionario cableado de
+   FÓRMULAS. Se diagnosticó la enfermedad con precisión y se reprodujo en la
+   línea siguiente.
+
+   **Y apareció cinco veces en total**, en módulos escritos en momentos
+   distintos: `_ORIGENES`, las cifras de `verificar_documentos`,
+   `verificar_chequeos.FUENTES` (audita 3 de las 6 fuentes que declara),
+   `verificar_srd.MAPA` (deja `pb` sin contraste externo) y
+   `verificar_foundry.MODULOS`. Cuando el mismo defecto sale cinco veces sin
+   que nadie lo copie, la causa es el método, no el despiste.
+
+   ✅ **Cerradas las dos primeras** (C1 y la ampliación de
+   `verificar_documentos`); las otras tres siguen abiertas y son el mismo
+   gesto. La regla 6 de `CONTINUAR.md` existe para que no haya una sexta.
+
+   **La lección de fondo, que vale para todo el proyecto:** se verificaba con
+   obsesión que **lo escrito fuera correcto** y nunca que **estuviera todo**.
+   3666 valores contrastados y 149 mutaciones no dicen nada sobre los
+   registros que ningún módulo llega a mirar.
+
+9. **`hechizos.json` pesa 564 KB.** Cargarlo entero es el fallo «lost in the
    middle». `buscar.py` lo evita, pero hay que usarlo siempre.
 
 ## 🚀 Oportunidades

@@ -17,6 +17,13 @@ conocimiento previo está vetado.
 De ahí las reglas del proyecto: *consultar, no recordar*; *citar siempre*; y
 *decir «no lo tengo»* antes que rellenar.
 
+Y una sexta, aprendida a golpes el 2026-08-31: **la cobertura se descubre, no
+se escribe a mano.** Ningún módulo lleva dentro la lista de ficheros que mira;
+la descubre por patrón y la contrasta con un manifiesto que declara también
+las exclusiones. Verificar que lo escrito es correcto no dice nada de lo que
+falta — y lo que faltaba hacía que el verificador **aprobara la ficha mal y
+rechazara la buena**. Detalle en `PLAN_17_SALIR_DEL_ESPIRAL.md`.
+
 ## Comprobar que está sana
 
 ```bash

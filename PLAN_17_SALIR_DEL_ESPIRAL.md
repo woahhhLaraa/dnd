@@ -168,7 +168,7 @@ mirar.** El trabajo es de fontanería y de relleno de datos, no de rediseño.
 
 ## 4. CAMBIOS
 
-### C1 · `_ORIGENES` deja de ser una lista escrita a mano — **la pieza clave**
+### ✅ C1 · `_ORIGENES` deja de ser una lista escrita a mano — **HECHA (2026-08-31)**
 
 `efectos.py`. Sustituir la tupla literal por **descubrimiento + manifiesto**:
 
@@ -181,11 +181,16 @@ mirar.** El trabajo es de fontanería y de relleno de datos, no de rediseño.
    no un salto silencioso. `ErrorDeEfectos`, como ya hace con
    `origen de efectos inexistente`.
 
-**Criterio de cierre:** añadir un `clases/subclases/_prueba.yaml` vacío hace
-fallar a `efectos.py`. Borrarlo lo devuelve a verde. Con eso, «se me olvidó
-enchufar una fuente» pasa a ser imposible.
+**Criterio de cierre — CORREGIDO al implementarlo.** Este plan decía que
+añadir `clases/subclases/_prueba.yaml` debía **fallar**. Es al revés, y el
+comportamiento real es mejor: un fichero de subclase nuevo **lo recoge el
+patrón solo**, sin tocar nada. Lo que falla es un fichero de regla que
+**ningún patrón sepa recorrer** y que no esté declarado como excluido —
+probado con `reglas/_prueba_c1.yaml`, que lanza `ErrorDeEfectos` nombrándolo.
 
-### C2 · `efectos:` obligatorio en todo rasgo, con «no automatizado» como valor legítimo
+**Resultado medido:** de **15 fuentes cableadas a 30 descubiertas**.
+
+### ⬜ C2 · `efectos:` obligatorio en todo rasgo — **REORDENADA: va DESPUÉS de C5**
 
 Es la «Foundry Note» de §1.1, estructurada. Todo registro con `desc`/
 `descripcion` en las fuentes de C1 debe declarar una de estas dos cosas:
@@ -212,7 +217,7 @@ regulares — solo que **alguien ya haya decidido y escrito** de qué lado cae.
 > `verificar_chequeos.py` con `# TOLERADO:` — una rama silenciosa o avisa, o se
 > declara. Aquí es lo mismo para los rasgos.
 
-### C3 · La dote que sube una característica usa el mecanismo de la mejora de nivel
+### ✅ C3 · La dote que sube una característica — **HECHA (2026-08-31)**
 
 Copiar el modelo de `grappler.yml` (§1.2). Hoy `personajes/_ESQUEMA.md` exige
 `final = base + ajuste_trasfondo + mejoras`, y una dote **no tiene dónde
@@ -226,17 +231,35 @@ donde la dote declara su incremento con la misma forma que la mejora de nivel
 4 (`sube: {car: 1}`, con `cap: 1` y las características bloqueadas cuando el
 manual las bloquea). **Un solo camino, no dos.**
 
-**Criterio de cierre:** la prueba invertida de §0 se da la vuelta — ficha con
-`Actor` y Car 18 en verde; ficha con `Actor` y Car 17 en rojo. Idem `Duro`.
+**Criterio de cierre — CUMPLIDO.** La tabla de §0 está del derecho:
 
-### C4 · Ampliar el vocabulario con `conditional`
+| Ficha | Antes | Ahora |
+|---|---|---|
+| `Duro` (nivel 1) con su +2 PG — CORRECTA | ❌ | ✅ |
+| `Duro` con el +2 perdido — ROTA | ✅ | ❌ |
+| `Actor` (nivel 4) con su +1 Car — CORRECTA | ❌ | ✅ |
+| `Actor` con el +1 perdido — ROTA | ✅ | ❌ |
+
+**Cómo se hizo sin transcribir nada nuevo:** se ESTRUCTURÓ la prosa ya citada
+y se exigió **ida y vuelta 54/54 exacta** (el método de la Fase 15). El
+chequeo permanente es `validar_mejoras_de_dote()`, y salta en los dos
+sentidos: prosa sin estructura, y estructura sin prosa.
+
+**Lo que la ida y vuelta evitó:** los **12 dones épicos dicen «máx. 30»**, no
+20. Suponer 20 habría inventado una regla para 12 dotes.
+
+**Defecto encontrado en los datos propios:** `draconido_hechicero_n4.yaml`
+tomaba `Lanzador ritual` (+1 a Int/Sab/Car) y no aplicaba el +1 — Carisma 17,
+CD 13, ataque +5, CA 15 donde debía ser 18/14/+6/16. Corregido.
+
+### ✅ C4 · Ampliar el vocabulario con `conditional` — **HECHA (2026-08-31)**
 
 `reglas/efectos.yaml`. Añadir la operación de DiceCloud que falta, para los
 efectos reales pero no numéricos (ventaja, resistencia, competencia). Guarda
 texto y página; **no entra en el agregador**. Sin esto, C2 obliga a marcar
 como «no automatizado» cosas que sí son efectos, solo que no aritméticos.
 
-### C5 · Rellenar las fuentes que faltan
+### ⬜ C5 · Rellenar las fuentes que faltan — **el grueso, exige el manual**
 
 El trabajo de contenido, una vez C1-C4 hacen que sea imposible dejarlo a
 medias:
@@ -296,13 +319,20 @@ C1 y C2 **antes** que C5, y no al revés: rellenar 120 registros a mano sin que
 el sistema exija el campo es garantizar que el 121 se quede fuera.
 
 ```
-1. C1  _ORIGENES → descubrimiento + manifiesto      (fontanería, ~1 día)
-2. C4  añadir `conditional` al vocabulario          (~2 horas)
-3. C2  `efectos:` obligatorio + `no_automatizado`   (rompe TODO a propósito)
-4. C3  mejora de característica por dote            (cierra Actor/Duro)
-5. C5  rellenar: dotes → subclases → trasfondos     (el grueso, ~semanas)
-6. Borrados de §5
+1. ✅ C1  _ORIGENES → descubrimiento + manifiesto   (hecho 2026-08-31)
+2. ✅ C4  `conditional` en el vocabulario           (hecho 2026-08-31)
+3. ✅ C3  mejora de característica por dote         (hecho 2026-08-31)
+4. ⬜ C5  rellenar: dotes → subclases → trasfondos  (el grueso, ~semanas)
+5. ⬜ C2  `efectos:` obligatorio + `no_automatizado`
+6. ⬜ Borrados de §5 (falta FODA_..._OBSOLETO.md)
 ```
+
+**C2 se movió detrás de C5, y el plan original se equivocaba.** Decía que
+dejar la base en rojo con ~500 registros sin declarar «es el éxito, no el
+fracaso». En un proyecto de una sola persona eso es meses de rojo permanente
+durante los cuales **no se distingue una rotura nueva de la deuda conocida**,
+que es justo la señal que hace falta mientras se rellena. Primero se rellena,
+después se cierra la puerta.
 
 El paso 3 dejará la base en rojo con ~400 registros sin declarar. **Eso es el
 éxito, no el fracaso**: es la primera vez que el proyecto ve el tamaño real de
