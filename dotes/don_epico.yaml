@@ -9,70 +9,82 @@ dotes:
     pagina: {pdf: 212, libro: 210}
     prerrequisito: "nivel 19 o más"
     repetible: false
+    mejora_caracteristica: {cantidad: 1, maximo: 30, entre: cualquiera}
     descripcion: "Mejora de característica: una a elección +1 (máx. 30). Salud fortalecida: PG máximos +40. Además, cada vez que recuperes PG, puedes recuperar PG adicionales iguales a tu modificador por Constitución (una vez por recuperación, hasta el principio de tu siguiente turno)."
 
   - nombre: "Don de la habilidad"
     pagina: {pdf: 212, libro: 210}
     prerrequisito: "nivel 19 o más"
     repetible: false
+    mejora_caracteristica: {cantidad: 1, maximo: 30, entre: cualquiera}
     descripcion: "Mejora de característica: una a elección +1 (máx. 30). Experto polifacético: ganas competencia en todas las habilidades. Pericia: elige una habilidad en la que no tengas pericia; ganas pericia en ella."
 
   - nombre: "Don de la pericia en combate"
     pagina: {pdf: 212, libro: 210}
     prerrequisito: "nivel 19 o más"
     repetible: false
+    mejora_caracteristica: {cantidad: 1, maximo: 30, entre: cualquiera}
     descripcion: "Mejora de característica: una a elección +1 (máx. 30). Precisión sin igual: cuando falles una tirada de ataque, puedes hacer que acierte; no repetible hasta el principio de tu siguiente turno."
 
   - nombre: "Don de la recuperación"
     pagina: {pdf: 212, libro: 210}
     prerrequisito: "nivel 19 o más"
     repetible: false
+    mejora_caracteristica: {cantidad: 1, maximo: 30, entre: cualquiera}
     descripcion: "Mejora de característica: una a elección +1 (máx. 30). Última defensa: cuando tus PG fueran a reducirse a 0, puedes quedarte con 1 PG y recuperar PG iguales a la mitad de tus PG máximos; no repetible hasta un descanso largo. Recuperar vitalidad: reserva de 10d10; acción adicional para gastar dados de la reserva, tirarlos y recuperar PG iguales al resultado total; recuperas todos los dados gastados tras un descanso largo."
 
   - nombre: "Don de la resistencia a energías"
     pagina: {pdf: 212, libro: 210}
     prerrequisito: "nivel 19 o más"
     repetible: false
+    mejora_caracteristica: {cantidad: 1, maximo: 30, entre: cualquiera}
     descripcion: "Mejora de característica: una a elección +1 (máx. 30). Resistencias a energías: ganas resistencia a dos tipos de daño a tu elección entre ácido, frío, fuego, necrótico, psíquico, radiante, relámpago, trueno o veneno (cambiable tras un descanso largo). Redirigir la energía: al recibir daño de uno de esos tipos, reacción para dirigir un daño del mismo tipo a otra criatura que veas a 18 m o menos sin cobertura completa; TdS de Destreza (CD 8 + mod. Constitución + bonif. competencia) o recibe 2d12 + mod. Constitución de daño."
 
   - nombre: "Don de la velocidad"
     pagina: {pdf: 213, libro: 211}
     prerrequisito: "nivel 19 o más"
     repetible: false
+    mejora_caracteristica: {cantidad: 1, maximo: 30, entre: cualquiera}
     descripcion: "Mejora de característica: una a elección +1 (máx. 30). Artista escapista: acción adicional para destrabarte, lo que también pone fin al estado de agarrado sobre ti. Celeridad: tu velocidad aumenta 9 m."
 
   - nombre: "Don de la visión verdadera"
     pagina: {pdf: 213, libro: 211}
     prerrequisito: "nivel 19 o más"
     repetible: false
+    mejora_caracteristica: {cantidad: 1, maximo: 30, entre: cualquiera}
     descripcion: "Mejora de característica: una a elección +1 (máx. 30). Visión verdadera hasta 18 m."
 
   - nombre: "Don del ataque imparable"
     pagina: {pdf: 213, libro: 211}
     prerrequisito: "nivel 19 o más"
     repetible: false
+    mejora_caracteristica: {cantidad: 1, maximo: 30, entre: [Fuerza, Destreza]}
     descripcion: "Mejora de característica: Fuerza o Destreza +1 (máx. 30). Superar las defensas: el daño contundente, cortante y perforante que causas siempre ignora la resistencia. Golpe arrollador: cuando saques un 20 natural en una tirada de ataque, infliges daño adicional igual a la puntuación de la característica aumentada con esta dote, del mismo tipo que el ataque."
 
   - nombre: "Don del destino"
     pagina: {pdf: 213, libro: 211}
     prerrequisito: "nivel 19 o más"
     repetible: false
+    mejora_caracteristica: {cantidad: 1, maximo: 30, entre: cualquiera}
     descripcion: "Mejora de característica: una a elección +1 (máx. 30). Mejorar el destino: cuando tú u otra criatura a 18 m o menos superéis o falléis una prueba con d20, puedes tirar 2d4 y aplicar el resultado total como bonificador o penalizador a esa tirada; no repetible hasta que tires iniciativa o finalices un descanso corto o largo."
 
   - nombre: "Don del espíritu de la noche"
     pagina: {pdf: 213, libro: 211}
     prerrequisito: "nivel 19 o más"
     repetible: false
+    mejora_caracteristica: {cantidad: 1, maximo: 30, entre: cualquiera}
     descripcion: "Mejora de característica: una a elección +1 (máx. 30). Fusionarse con las sombras: en zona de luz tenue u oscuridad, acción adicional para volverte invisible; termina inmediatamente al realizar una acción, acción adicional o reacción. Forma sombría: en zona de luz tenue u oscuridad, tienes resistencia a todo el daño excepto al psíquico y al radiante."
 
   - nombre: "Don del recuerdo de conjuros"
     pagina: {pdf: 213, libro: 211}
     prerrequisito: "nivel 19 o más, rasgo Lanzamiento de conjuros"
     repetible: false
+    mejora_caracteristica: {cantidad: 1, maximo: 30, entre: [Inteligencia, Sabiduría, Carisma]}
     descripcion: "Mejora de característica: Inteligencia, Sabiduría o Carisma +1 (máx. 30). Lanzamiento gratuito: cada vez que lances un conjuro con un espacio de nivel 1 a 4, tira 1d4; si el resultado coincide con el nivel del espacio, este no se gasta."
 
   - nombre: "Don del viaje dimensional"
     pagina: {pdf: 213, libro: 211}
     prerrequisito: "nivel 19 o más"
     repetible: false
+    mejora_caracteristica: {cantidad: 1, maximo: 30, entre: cualquiera}
     descripcion: "Mejora de característica: una a elección +1 (máx. 30). Pasos desplazadores: inmediatamente después de realizar la acción de atacar o la de magia, puedes teletransportarte hasta 9 m a un espacio sin ocupar que puedas ver."

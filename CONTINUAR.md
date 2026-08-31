@@ -19,6 +19,58 @@
 
 ---
 
+## 🔧 Qué pasó el 2026-08-31 — se aplicó el Plan 17 (C1, C3, C4)
+
+Plan y método en **`PLAN_17_SALIR_DEL_ESPIRAL.md`**, escrito tras leer el
+código real de Foundry dnd5e y DiceCloud.
+
+**El defecto que se cierra, y estaba invertido.** 54 de las 75 dotes conceden
+«Mejora de característica: X +1», y ese +1 vivía solo dentro de la cadena
+`descripcion`. `efectos.py` tampoco miraba `dotes/`. Resultado medido:
+
+| Ficha | Antes | Ahora |
+|---|---|---|
+| `Duro` (nivel 1) con su +2 PG aplicado — CORRECTA | ❌ rechazada | ✅ |
+| `Duro` con el +2 perdido — ROTA | ✅ «0 problemas» | ❌ |
+| `Actor` (nivel 4) con su +1 Car aplicado — CORRECTA | ❌ rechazada | ✅ |
+| `Actor` con el +1 perdido — ROTA | ✅ «0 problemas» | ❌ |
+
+**La causa raíz, y por qué era el mismo error de siempre.** `efectos._ORIGENES`
+era una tupla de 15 rutas escritas a mano: conocía 2 de las 48 subclases y 0 de
+los 4 ficheros de dotes. Es exactamente lo que la cabecera de
+`reglas/efectos.yaml` condena para las fórmulas de CA cableadas —«no se entera
+de que hay una quinta»—, repetido un nivel más arriba: un diccionario de
+FÓRMULAS sustituido por una tupla de RUTAS.
+
+**Lo que se hizo:**
+
+- **C1** — `_ORIGENES` desaparece. `efectos.origenes()` descubre las fuentes por
+  patrón y las contrasta con el manifiesto nuevo `reglas/fuentes_de_efectos.yaml`.
+  Un fichero de regla que ningún patrón sepa recorrer y que no esté declarado
+  como excluido **es un error**. De 15 fuentes cableadas a **30 descubiertas**.
+- **C3** — `mejora_caracteristica` estructurado en las 54 dotes, derivado de la
+  prosa YA citada con **ida y vuelta 54/54 exacta** (el método de la Fase 15).
+  La ida y vuelta salvó un error real: los **12 dones épicos dicen «máx. 30»**,
+  no 20. `verificar_personaje.py` cuenta el +1 de la dote en `final`, y la ficha
+  declara su elección con `sube:`.
+- **C4** — `conditional` entra al vocabulario (de DiceCloud): un efecto citado
+  que guarda texto y **no** se agrega. Filtrado en `agregar()`.
+- Borrado `clases/subclases/_borrador_mapa.yaml` (borrador no verificado que
+  ningún script leía, y que con C1 habría pasado a ser fuente).
+
+**Defecto encontrado en los propios datos:** `personajes/draconido_hechicero_n4.yaml`
+tomaba `Lanzador ritual` (+1 a Int/Sab/Car) y **no aplicaba el +1**. Estaba con
+Carisma 17, CD 13, ataque +5 y CA 15 cuando debía ser 18/14/+6/16. Corregida y
+documentada en su bloque `decisiones`.
+
+**Lo que NO se hizo, y por qué:** la Fase C5 (declarar los ~528 registros de
+rasgo) exige leer el manual página a página. La regla 1 del proyecto lo
+prohíbe de cualquier otra forma, así que queda abierta. C2 (hacer `efectos:`
+obligatorio) va después de C5, no antes, para no dejar la base en rojo durante
+todo el relleno.
+
+---
+
 ## Dónde vive esto (nuevo, 2026-08-30)
 
 **El proyecto está en git**, en un repositorio privado:
@@ -76,11 +128,13 @@ es donde el desfase se vuelve mentira comprobable.
 
 `validar.py` debe dar, dentro de «INTEGRIDAD»: 683 dados · 543 conversiones ·
 391 conjuros en `tirada` · 677 pares de vecindad · 782 campos de ortografía ·
-391 citas de conjuro · 52 costes sin fuente externa · 6 efectos · 6
+391 citas de conjuro · 52 costes sin fuente externa · 8 efectos · 6
 materiales descompuestos · 8 conjuros con `tiradas` por efecto · 25 ataques
 de conjuro contrastados contra su texto · 65 prerrequisitos de dote evaluables ·
-333 saltos de nivel derivables. Y `efectos` son **7**, no 6: la velocidad entró
-con la deuda 4. **Todo a 0
+333 saltos de nivel derivables · **54 mejoras de dote** (chequeo nuevo, C3 del
+Plan 17). Los `efectos` pasaron de 7 a **8** el 2026-08-31: `Duro` es la primera
+dote con efecto declarado, posible solo desde que C1 hizo que el motor mire
+`dotes/`. **Todo a 0
 errores**, con un aviso esperado: la CA base sin armadura (`10 + mod_des`) no
 tiene página citada, y está declarado como hueco abierto, no inventado.
 

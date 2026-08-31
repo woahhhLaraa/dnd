@@ -329,6 +329,73 @@ def _niveles_de_mejora(ficha):
             and "Mejora de característica" in (f.get("rasgos") or [])]
 
 
+# ── C3 del Plan 17: el +1 que concede una DOTE ───────────────────────────
+# 54 de las 75 dotes conceden «Mejora de característica: X +1». Hasta el
+# 2026-08-31 ese +1 no tenía dónde entrar: el esquema exigía
+# `final == base + ajuste_trasfondo + mejoras`, y la dote no era ninguna de
+# las tres. La consecuencia estaba INVERTIDA — la ficha correcta se rechazaba
+# y la rota pasaba en verde con la CD y el ataque un punto por debajo.
+#
+# La dote declara QUÉ puede subir (`mejora_caracteristica.entre`, contrastado
+# contra su propio texto por `validar_mejoras_de_dote`); la ficha declara QUÉ
+# eligió (`sube:`), porque es una elección del jugador y el motor no puede
+# deducirla. Es la misma división que ya usa `mejoras` para el nivel 4.
+def _mejora_de_dote(ref):
+    """`mejora_caracteristica` de la dote referenciada, o None."""
+    archivo, _, nombre = ref.partition("#")
+    d = cargar(archivo) or {}
+    for x in d.get("dotes", []) or []:
+        if x.get("nombre") == nombre:
+            return x.get("mejora_caracteristica")
+    return None
+
+
+def _subidas_por_dote(ficha, inf):
+    """{caracteristica: total} que aportan las dotes de la ficha. Valida de
+    paso que lo elegido sea una de las opciones que la dote permite."""
+    total = {}
+    for dt in ficha.get("dotes", []) or []:
+        ref = dt.get("ref", "")
+        mej = _mejora_de_dote(ref)
+        nombre = ref.split("#")[-1]
+        sube = dt.get("sube") or {}
+        if not mej:
+            if sube:
+                inf.error(f"la dote «{nombre}» no concede mejora de "
+                          f"característica y la ficha le pone `sube: {sube!r}`")
+            continue
+        if not sube:
+            inf.error(f"la dote «{nombre}» concede una mejora de "
+                      f"característica y la ficha no dice en qué la gastó. "
+                      f"Añade `sube:` a esa dote (opciones: "
+                      f"{mej.get('entre')})")
+            continue
+        if sum(sube.values()) != mej.get("cantidad"):
+            inf.error(f"«{nombre}» concede +{mej.get('cantidad')} y la ficha "
+                      f"reparte {sum(sube.values())}: {sube!r}")
+        entre = mej.get("entre")
+        for k, v in sube.items():
+            if k not in _CARS:
+                inf.error(f"«{nombre}» sube {k!r}, que no es una característica")
+                continue
+            if isinstance(entre, list):
+                permitidas = {_ABREV[c] for c in entre}
+                if k not in permitidas:
+                    inf.error(f"«{nombre}» solo permite subir {entre}, y la "
+                              f"ficha sube {k!r}")
+            tope = mej.get("maximo")
+            valor = ((ficha.get("caracteristicas") or {}).get("final") or {}).get(k)
+            if isinstance(valor, int) and isinstance(tope, int) and valor > tope:
+                inf.error(f"«{nombre}» deja {k} en {valor} y su texto dice "
+                          f"«máx. {tope}»")
+            total[k] = total.get(k, 0) + v
+    return total
+
+
+_ABREV = {"Fuerza": "fue", "Destreza": "des", "Constitución": "con",
+          "Inteligencia": "int", "Sabiduría": "sab", "Carisma": "car"}
+
+
 def verificar_mejoras(ficha, inf):
     if len(ficha.get("clases", [])) != 1:
         inf.aviso("multiclase: NO se han comprobado las mejoras de "
@@ -338,15 +405,17 @@ def verificar_mejoras(ficha, inf):
     base, ajuste = car.get("base") or {}, car.get("ajuste_trasfondo") or {}
     final = car.get("final") or {}
     mejoras = ficha.get("mejoras") or []
+    por_dote = _subidas_por_dote(ficha, inf)
 
     # 1. La suma tiene que cuadrar, característica a característica.
     for k in _CARS:
-        esperado = base.get(k, 0) + ajuste.get(k, 0) + sum(
-            (m.get("sube") or {}).get(k, 0) for m in mejoras)
+        de_mejoras = sum((m.get("sube") or {}).get(k, 0) for m in mejoras)
+        de_dotes = por_dote.get(k, 0)
+        esperado = base.get(k, 0) + ajuste.get(k, 0) + de_mejoras + de_dotes
         if final.get(k) != esperado:
             inf.error(f"caracteristicas.final.{k} = {final.get(k)!r}, pero "
                       f"base {base.get(k)} + trasfondo {ajuste.get(k, 0)} + "
-                      f"mejoras {sum((m.get('sube') or {}).get(k, 0) for m in mejoras)} "
+                      f"mejoras {de_mejoras} + dotes {de_dotes} "
                       f"= {esperado}. Una puntuación sin justificar es una "
                       f"puntuación inventada")
 

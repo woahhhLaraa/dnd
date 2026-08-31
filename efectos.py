@@ -114,23 +114,67 @@ def cargar_vocabulario():
 # registro. Nunca se copia a la ficha: la ficha referencia el rasgo, y si la
 # base se corrige el personaje se entera. Es la regla central de
 # `personajes/_ESQUEMA.md` aplicada a la aritmética.
-_ORIGENES = (
-    ("especies/especies.yaml", ("especies", "rasgos")),
-    ("clases/rasgos/barbaro.yaml", ("rasgos",)),
-    ("clases/rasgos/bardo.yaml", ("rasgos",)),
-    ("clases/rasgos/brujo.yaml", ("rasgos",)),
-    ("clases/rasgos/clerigo.yaml", ("rasgos",)),
-    ("clases/rasgos/druida.yaml", ("rasgos",)),
-    ("clases/rasgos/explorador.yaml", ("rasgos",)),
-    ("clases/rasgos/guerrero.yaml", ("rasgos",)),
-    ("clases/rasgos/hechicero.yaml", ("rasgos",)),
-    ("clases/rasgos/mago.yaml", ("rasgos",)),
-    ("clases/rasgos/monje.yaml", ("rasgos",)),
-    ("clases/rasgos/paladin.yaml", ("rasgos",)),
-    ("clases/rasgos/picaro.yaml", ("rasgos",)),
-    ("clases/subclases/bardo.yaml", ("subclases", "rasgos")),
-    ("clases/subclases/hechicero.yaml", ("subclases", "rasgos")),
-)
+# ── C1 (Plan 17): la cobertura se DESCUBRE, no se escribe a mano ─────────
+# `_ORIGENES` era una tupla de 15 rutas literales. Conocía 2 de las 48
+# subclases y 0 de los 4 ficheros de dotes, y no tenía forma de enterarse
+# de que existía una tercera — el mismo defecto que la cabecera de
+# `reglas/efectos.yaml` condena para las fórmulas de CA cableadas.
+#
+# Ahora los ficheros se descubren por patrón y el manifiesto
+# `reglas/fuentes_de_efectos.yaml` dice cómo recorrer cada uno. Un fichero
+# de regla que ningún patrón sepa recorrer y que no esté declarado como
+# excluido ES UN ERROR: no se puede añadir una fuente sin decidir qué se
+# hace con ella.
+_DIRECTORIOS_DE_REGLA = ("especies", "clases", "dotes", "trasfondos", "reglas")
+
+
+def cargar_manifiesto():
+    f = B / "reglas/fuentes_de_efectos.yaml"
+    if not f.exists():
+        raise ErrorDeEfectos("falta reglas/fuentes_de_efectos.yaml: sin él la "
+                             "cobertura del motor no es comprobable")
+    m = yaml.safe_load(f.read_text(encoding="utf-8"))
+    for clave in ("fuentes", "excluidos"):
+        if clave not in m:
+            raise ErrorDeEfectos(
+                f"reglas/fuentes_de_efectos.yaml no declara «{clave}»")
+    return m
+
+
+def origenes():
+    """Las fuentes de efectos, descubiertas y contrastadas con el manifiesto.
+
+    Devuelve [(ruta_relativa, camino_de_descenso), ...] y **falla** si algún
+    fichero de regla queda sin clasificar. Ese fallo es el punto entero de
+    C1: convierte «se me olvidó enchufar una fuente» en un error ruidoso.
+    """
+    m = cargar_manifiesto()
+    excluidos = {e["ruta"] for e in m["excluidos"]}
+
+    encontrados = {}
+    for fuente in m["fuentes"]:
+        patron, camino = fuente["patron"], tuple(fuente["camino"])
+        for p in sorted(B.glob(patron)):
+            encontrados[p.relative_to(B).as_posix()] = camino
+
+    # Todo fichero de regla debe estar clasificado: o lo recorre un patrón,
+    # o se declara excluido con su motivo.
+    sin_clasificar = []
+    for d in _DIRECTORIOS_DE_REGLA:
+        for p in sorted((B / d).rglob("*.yaml")):
+            rel = p.relative_to(B).as_posix()
+            if rel not in encontrados and rel not in excluidos:
+                sin_clasificar.append(rel)
+    if sin_clasificar:
+        raise ErrorDeEfectos(
+            "ficheros de regla que el motor no sabe si mirar:\n  · "
+            + "\n  · ".join(sin_clasificar)
+            + "\nDeclara cada uno en `reglas/fuentes_de_efectos.yaml`: como "
+              "`fuentes` (con su camino de descenso) o como `excluidos` (con "
+              "el motivo). No hacerlo es el fallo que este chequeo existe "
+              "para impedir.")
+
+    return tuple(sorted(encontrados.items()))
 
 
 def _descender(nodo, camino):
@@ -147,7 +191,7 @@ def efectos_declarados(rutas=None):
     """Todos los efectos que hay en la base, con su procedencia. Se usa tanto
     para calcular como para que `validar.py` los revise sin duplicar lógica."""
     salida = []
-    for rel, camino in (rutas or _ORIGENES):
+    for rel, camino in (rutas or origenes()):
         f = B / rel
         if not f.exists():
             raise ErrorDeEfectos(f"origen de efectos inexistente: {rel}")
@@ -235,6 +279,11 @@ def agregar(variable, efectos, base, entorno, eleccion=None, decimal=False):
     toma el máximo, aquí se EXIGE la elección, porque eso es lo que dice
     `reglas/generacion_personaje.yaml → multiclase.clase_de_armadura`.
     """
+    # C4: los `conditional` se citan pero NO se agregan. Se filtran aquí, en
+    # el único sitio por el que pasa la aritmética, para que añadir una
+    # operación no calculable nunca pueda colarse en un número.
+    efectos = [e for e in efectos if e.get("op") != "conditional"]
+
     por_op = {}
     for ef in efectos:
         por_op.setdefault(ef["op"], []).append(ef)
@@ -494,6 +543,20 @@ def efectos_de_ficha(ficha):
                 if (ef["_nivel"] or 1) > nivel:
                     continue
                 salida.append(dict(ef, _nivel_clase=nivel))
+
+    # C3/C5 del Plan 17: las DOTES de la ficha también conceden efectos.
+    # Hasta el 2026-08-31 no se recogían aquí, así que `Duro` (+2 PG por nivel
+    # de personaje, dote de ORIGEN que se toma ya en el nivel 1) existía en el
+    # YAML y no existía para el motor. Se filtra por el nombre referenciado,
+    # igual que se hace con la especie.
+    tomadas = {d["ref"].split("#")[-1] for d in (ficha.get("dotes") or [])}
+    if tomadas:
+        for rel, _camino in origenes():
+            if not rel.startswith("dotes/"):
+                continue
+            for ef in efectos_declarados([(rel, ("dotes",))]):
+                if ef["_rasgo"] in tomadas:
+                    salida.append(dict(ef, _nivel_clase=None))
 
     entren = [a.get("categoria") for a in
               ((ficha.get("competencias") or {}).get("armaduras") or [])]

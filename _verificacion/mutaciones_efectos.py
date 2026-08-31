@@ -164,13 +164,22 @@ F_DEBEN = [f_objetivo_inventado, f_operacion_inventada, f_condicion_inventada,
            f_variable_inventada, f_sin_pagina, f_pagina_no_numerica,
            f_sintaxis_peligrosa, f_ciclo]
 def a_efecto_en_fichero_no_recorrido(r):
-    p = r / "dotes/origen.yaml"
+    # Actualizado por C1 (Plan 17, 2026-08-31). La mutación original ponía el
+    # efecto en `dotes/origen.yaml`, que la tupla `_ORIGENES` no recorría.
+    # Desde C1 el motor DESCUBRE sus fuentes y `dotes/` sí se recorre, así que
+    # allí el efecto ya no es huérfano — la premisa de la mutación desapareció
+    # porque se arregló la causa.
+    #
+    # La garantía que este caso protege sigue siendo necesaria y no ha
+    # cambiado: un `efectos:` en un fichero que NADIE recorre tiene que
+    # saltar. Se muda a `equipo/armas.yaml`, que no es fuente de efectos ni
+    # está bajo los directorios de regla que `origenes()` clasifica.
+    p = r / "equipo/armas.yaml"
     t = p.read_text(encoding="utf-8")
-    i = t.index("\n", t.index("descripcion:")) + 1
-    p.write_text(t[:i] + "    efectos:\n      - {objetivo: ca, op: add, "
-                 'formula: "1", pagina: {pdf: 1, libro: 1}}\n' + t[i:],
+    p.write_text(t + "\nefectos:\n  - {objetivo: ca, op: add, "
+                 'formula: "1", pagina: {pdf: 1, libro: 1}}\n',
                  encoding="utf-8")
-    return ("un efecto en `dotes/origen.yaml`, que `_ORIGENES` no recorre: "
+    return ("un efecto en `equipo/armas.yaml`, que ninguna fuente recorre: "
             "existiría en el YAML y no existiría para el motor")
 
 
