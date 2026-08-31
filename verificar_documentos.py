@@ -66,7 +66,15 @@ def main():
                           ("vecindad", r"vecindad \((\d+) pares"),
                           ("ortografia", r"ortografía \((\d+) campos\)"),
                           ("citas", r"citas de conjuro \((\d+)\)"),
-                          ("costes", r"costes sin fuente \((\d+)\)")):
+                          ("costes", r"costes sin fuente \((\d+)\)"),
+                          # Añadidas el 2026-08-31 (Plan 17). La lista de
+                          # cifras vigiladas es ella misma una lista escrita a
+                          # mano: `efectos` llevaba desde la Fase 14 sin que
+                          # nadie comprobara su número, y `mejoras de dote`
+                          # nació hoy. Es el mismo patrón que C1 cierra en el
+                          # motor, aquí arriba.
+                          ("efectos", r"✅ efectos \((\d+)\)"),
+                          ("mejoras", r"mejoras de dote \((\d+)\)")):
         real[clave], _ = _n(patron, val, clave)
 
     fallos = 0
@@ -90,18 +98,29 @@ def main():
     # `\s+` en vez de espacios: la frase va partida en varias líneas del .md.
     m = re.search(r"(\d+)\s+dados\s+·\s+(\d+)\s+conversiones\s+·\s+(\d+)\s+conjuros\s+en\s+"
                   r"`tirada`\s+·\s+(\d+)\s+pares\s+de\s+vecindad\s+·\s+(\d+)\s+campos\s+de\s+"
-                  r"ortografía\s+·\s+(\d+)\s+citas\s+de\s+conjuro\s+·\s+(\d+)\s+costes",
+                  r"ortografía\s+·\s+(\d+)\s+citas\s+de\s+conjuro\s+·\s+(\d+)\s+costes"
+                  r"\s+sin\s+fuente\s+externa\s+·\s+(\d+)\s+efectos",
                   cont, re.S)
     if not m:
         print(" ⚠ CONTINUAR.md ya no enumera las cifras de INTEGRIDAD")
     else:
         for i, clave in enumerate(("dados", "conversiones", "tirada", "vecindad",
-                                   "ortografia", "citas", "costes")):
+                                   "ortografia", "citas", "costes", "efectos")):
             dice, es = int(m.group(i + 1)), real[clave]
             ok = dice == es
             fallos += not ok
             print(f" {'✅' if ok else '❌'} CONTINUAR.md dice {dice:>4} en "
                   f"«{clave}» · la realidad da {es}")
+
+    m2 = re.search(r"\*{0,2}(\d+) mejoras de dote", cont)
+    if not m2:
+        print(" ⚠ CONTINUAR.md ya no dice cuántas mejoras de dote hay")
+    else:
+        dice, es = int(m2.group(1)), real["mejoras"]
+        ok = dice == es
+        fallos += not ok
+        print(f" {'✅' if ok else '❌'} CONTINUAR.md dice {dice:>4} en "
+              f"«mejoras de dote» · la realidad da {es}")
 
     # 3. FODA.md cita el total de los dos contrastes externos.
     m = re.search(r"contrastan \*\*([\d.]+) valores\*\*", foda)
