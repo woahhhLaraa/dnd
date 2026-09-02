@@ -38,6 +38,13 @@ rasgos:
     nivel: 6
     pagina: {pdf: 106, libro: 104}
     desc: "Tu velocidad aumenta en 3 m si no llevas armadura pesada. Además obtienes una velocidad nadando y una velocidad trepando iguales a tu velocidad."
+    # Misma condición que «Movimiento rápido» del Bárbaro: la pierde solo con
+    # la pesada. Las velocidades de nadar y trepar NO entran: son variables
+    # que el vocabulario no declara, y declararlas por su cuenta sería
+    # inventarse expresividad (lo que la Fase 15 rechazó de PCGen).
+    efectos:
+      - {objetivo: velocidad, op: add, formula: "3",
+         requiere: [sin_armadura_pesada], pagina: {pdf: 106, libro: 104}}
 
   - nombre: "Pericia"
     nivel: 9

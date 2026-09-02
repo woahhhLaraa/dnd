@@ -25,7 +25,7 @@ falta — y lo que faltaba hacía que el verificador **aprobara la ficha mal y
 rechazara la buena**. Detalle en `PLAN_17_SALIR_DEL_ESPIRAL.md`.
 
 Desde el 2026-09-02 esa sexta regla **la comprueba `censo.py`**, y no es prosa:
-enumera seis clases de unidad de la base y exige que cada una esté alcanzada
+enumera siete clases de unidad de la base y exige que cada una esté alcanzada
 por algún chequeo o declarada, con su motivo, en
 `_verificacion/censo_exenciones.yaml`. Su número solo puede bajar.
 

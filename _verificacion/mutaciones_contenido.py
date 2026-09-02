@@ -64,6 +64,26 @@ def cl_espacios_de_lanzador(r):
             "ser la progresión de un lanzador completo")
 
 
+def cl_tabla_citada_movida(r):
+    # Desde el bloque A2 los espacios de conjuro NO son un literal de Python:
+    # se leen de la tabla citada de `reglas/generacion_personaje.yaml` (pdf 47
+    # = libro 45). Mover una fila de esa tabla tiene que sacar en rojo a las
+    # clases lanzadoras, que están transcritas cada una desde su página.
+    sust(r, "reglas/generacion_personaje.yaml",
+         '- {nivel: 3,  "1": 4, "2": 2,', '- {nivel: 3,  "1": 4, "2": 3,')
+    return ("mover el N3 de la tabla CITADA de espacios de conjuro: la "
+            "progresión del Mago, transcrita aparte, deja de cuadrar")
+
+
+def cl_espacios_medio_derivados(r):
+    # `MEDIO` era el segundo literal sin cita; ahora se deriva de la tabla
+    # citada con la regla del propio manual («la mitad, redondeando arriba»).
+    sust(r, "clases/paladin.yaml", "slots: [2,0,0,0,0]", "slots: [3,0,0,0,0]")
+    return ("mover los espacios del Paladín, que es lanzador MEDIO: su tabla "
+            "se contrasta contra una derivada de la citada, no contra un "
+            "literal sin fuente")
+
+
 def cl_rasgo_renombrado(r):
     sust(r, BARB, '"Instinto salvaje"', '"Instinto primario"', cuenta=1)
     return ("renombrar un rasgo SOLO en la tabla: `validar_rasgos_clase` lo "
@@ -371,7 +391,9 @@ BLOQUES = [
      [cl_pb_movido, cl_nivel_fuera_de_secuencia, cl_edicion_no_sellada],
      [cl_rasgo_renombrado]),
     ("CLASE · los espacios de conjuro (etiqueta «Mago»)", "Mago",
-     [cl_espacios_de_lanzador], []),
+     [cl_espacios_de_lanzador, cl_tabla_citada_movida], []),
+    ("CLASE · el lanzador medio, derivado de la tabla citada", "Paladín",
+     [cl_espacios_medio_derivados], []),
     ("ESPECIES", "especies",
      [es_una_menos, es_sin_pagina, es_velocidad_imposible, es_campo_ausente],
      [es_rasgo_reescrito]),

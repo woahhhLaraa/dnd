@@ -173,12 +173,22 @@ def gen_modificador_mal(r):
     return "el modificador de 12-13 pasa a +2; la fórmula (p-10)//2 da +1"
 
 
-def gen_multiclase_no_completo(r):
-    sust(r, GEN,
-         '- {nivel: 5,  "1": 4, "2": 3, "3": 2,',
-         '- {nivel: 5,  "1": 4, "2": 3, "3": 3,')
-    return ("la tabla de espacios multiclase deja de coincidir con la de un "
-            "lanzador completo en el nivel 5")
+def gen_multiclase_columna_ausente(r):
+    # Desde el 2026-09-02 esta tabla ES la fuente citada de los espacios del
+    # lanzador completo (bloque A2), así que su contraste numérico lo hace
+    # `validar_clase` contra las 10 clases lanzadoras —mover una fila saca 7
+    # en rojo, y eso lo prueba `mutaciones_contenido.py`—. Lo que queda aquí
+    # es lo que ese contraste NO ve: que la tabla esté completa.
+    sust(r, GEN, '- {nivel: 5,  "1": 4, "2": 3, "3": 2,',
+         '- {nivel: 5,  "1": 4, "2": 3,')
+    return ("a la tabla de espacios multiclase le falta la columna del nivel 3 "
+            "de conjuro en el N5: una columna ausente no es un 0, es un dato "
+            "que nadie ha transcrito")
+
+
+def gen_multiclase_desordenada(r):
+    sust(r, GEN, '- {nivel: 5,  "1": 4,', '- {nivel: 6,  "1": 4,')
+    return "la tabla de espacios multiclase con dos filas «nivel 6» y ningún 5"
 
 
 def gen_requisito_incoherente(r):
@@ -288,7 +298,8 @@ BLOQUES = [
     ("GENERACIÓN DE PERSONAJE · los tres métodos atados entre sí",
      "generación de personaje",
      [gen_coste_movido, gen_conjunto_desordenado, gen_reparto_imposible,
-      gen_modificador_mal, gen_multiclase_no_completo, gen_requisito_incoherente,
+      gen_modificador_mal, gen_multiclase_columna_ausente, gen_multiclase_desordenada,
+      gen_requisito_incoherente,
       gen_falta_regla_multiclase],
      [gen_descripcion_retocada]),
     ("COMPETENCIAS DE CLASE", "competencias de clase",

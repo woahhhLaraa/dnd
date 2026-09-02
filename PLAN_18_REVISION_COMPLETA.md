@@ -3,8 +3,9 @@
 > Escrito el **2026-08-31**, después de aplicar el Plan 17 (C1, C3, C4). Todas
 > las cifras están **medidas hoy** con los comandos que se citan al lado.
 >
-> **Actualizado el 2026-09-02: los bloques A y B están HECHOS.** El resultado,
-> con lo que el censo destapó y no estaba en este plan, en el §11 al final.
+> **Actualizado el 2026-09-02: los bloques A, B y A2 están HECHOS.** El
+> resultado, con lo que el censo destapó y no estaba en este plan, en el §11
+> (A y B) y el §12 (A2) al final.
 >
 > Este documento **absorbe los puntos abiertos del `PLAN_17`** y pasa a ser el
 > único documento de trabajo hacia delante. El 17 se queda como registro de la
@@ -54,10 +55,10 @@ lista se queda corta sin que nadie se entere.
 | 2 | `efectos._ORIGENES` | 46 subclases · 4 ficheros de dotes | ✅ cerrada (C1) |
 | 3 | `verificar_documentos` cifras | `efectos`, desde la Fase 14 | ✅ cerrada |
 | 4 | **`calculo._TABLA_COSTE`** | **la tabla de compra por puntos, duplicada del YAML** | ✅ **cerrada hoy** |
-| 5 | `validar._PROMESAS` | **`velocidad`**: 1 de las 3 variables calculables | ⬜ abierta · **medida por el censo** |
-| 6 | `verificar_chequeos.FUENTES` | audita 3 de las 6 que declara | ⬜ abierta |
-| 7 | `verificar_srd.MAPA` | `slots` (7 clases), `forma_salvaje`, `mov_sin_armadura_m` | ⬜ abierta · **medida por el censo** |
-| 8 | `verificar_foundry.MODULOS` | **9 de los 17 pares (carpeta, `type`) sin pedir: 562 registros** | ⬜ abierta · **medida por el censo** |
+| 5 | `validar._PROMESAS` | **`velocidad`**: 1 de las 3 variables calculables | ✅ **cerrada (A2)** |
+| 6 | `verificar_chequeos.FUENTES` | audita 3 de las 6 que declara | ✅ **cerrada (A2)** |
+| 7 | `verificar_srd.MAPA` | `slots` (7 clases), `forma_salvaje`, `mov_sin_armadura_m` | ✅ **cerrada (A2)** |
+| 8 | `verificar_foundry.MODULOS` | **9 de los 17 pares (carpeta, `type`) sin pedir: 562 registros** | ⬜ medida y declarada → **bloque H** |
 
 > **Lo que el censo corrigió de esta tabla (2026-09-02).** El caso 7 no era el
 > que decía. `verificar_srd.MAPA` cubre **todas** las columnas que el SRD de
@@ -271,7 +272,7 @@ arreglar las cuatro listas abiertas**, porque si se arreglan primero se arreglan
 «las que encontró Claude»; con el censo se arreglan «las que hay», y se sabe
 cuándo se ha terminado. Resultado en el §11.
 
-### Bloque A2 — las cuatro listas abiertas del §2 · ⬜ **lo siguiente**
+### Bloque A2 — las cuatro listas abiertas del §2 · ✅ **HECHO (2026-09-02)**
 
 No tenía bloque propio en la primera versión de este plan: el §8 decía «antes
 que arreglar las cuatro listas abiertas» y no decía cuándo se arreglaban. Ahora
@@ -338,7 +339,8 @@ manual por decisión propia.
    motivo. **Hecho el 2026-09-02**: 0 sin declarar.
 2. ✅ Los 30 chequeos `validar_*` tienen prueba por mutación, o exención
    declarada. **Hecho el 2026-09-02**: 30/30, sin exenciones.
-3. Los 21 candidatos a efecto, a cero.
+3. Los 21 candidatos a efecto, a cero. **Los 9 de `velocidad` cerrados el
+   2026-09-02** (A2): quedan los de `ca` y `pg_max`.
 4. Quitar `efectos:` de cualquier rasgo hace fallar a `validar.py`.
 5. En todo momento: `validar.py` 0 errores, 17/17 fichas, barrido 240/240,
    contrastes en 646 + 3020, mutaciones en verde.
@@ -356,7 +358,8 @@ haya defectos, sino que el repo sepa contar los que le quedan.
 
 ### Bloque A · `censo.py`
 
-Un script que enumera **seis clases de unidad** de la base y exige que cada
+Un script que enumera **seis clases de unidad** de la base —siete desde el
+bloque A2— y exige que cada
 una esté alcanzada por nombre por algún chequeo, o declarada —con su motivo—
 en `_verificacion/censo_exenciones.yaml`. Ninguno de los seis universos se
 escribe a mano: se descubren por glob, por AST o por el propio vocabulario de
@@ -367,6 +370,10 @@ usan de verdad (`efectos.origenes()`, `validar._PROMESAS`,
 ```
 ✅ 681 unidades censadas · 0 SIN DECLARAR · 532 pendientes declaradas
 ```
+
+> Esas son las cifras **al cerrar el bloque A**. El A2 le añadió una séptima
+> fila (los módulos de herramienta) y cerró 17 pendientes: hoy son **697
+> unidades y 515 pendientes**. Ver el §12.
 
 | Fila | Universo | Alcanzadas | Declaradas |
 |---|---|---|---|
@@ -461,3 +468,104 @@ censo comprueban justamente eso.
    `yaml.safe_load` los 1372 ficheros del SRD estructurado para leerles un solo
    campo. Se lee la línea `type:` en su lugar; mismo resultado, y su prueba por
    mutación pasó de ~50 minutos a menos de 4.
+
+---
+
+## 12. Resultado — bloque A2, ejecutado el 2026-09-02
+
+Las cuatro listas que el §2 dejaba abiertas, cerradas con el mismo gesto de
+siempre: **la cobertura se descubre**. Ninguna se arregló «a mano»: en las
+cuatro, la lista desaparece y la sustituye algo que se lee de la base.
+
+### Caso 5 · `validar._PROMESAS` → las promesas viven junto a su variable
+
+`_PROMESAS` era una tupla de dos entradas en `validar.py` para **tres**
+variables calculables: `velocidad` entró en el motor el 2026-08-30 y nadie
+añadió sus frases, así que durante tres días un rasgo podía prometer velocidad
+en su prosa y no declararla sin que saltara nada.
+
+Ahora cada variable `calculada` de `reglas/efectos.yaml` trae sus `promesas`, y
+**declarar una sin ellas es un error**: no se puede añadir una cuarta y
+olvidarse. Al enchufarlo, la base se puso en rojo con **nueve rasgos** que
+prometían velocidad y no la declaraban. Los nueve, resueltos:
+
+| Cómo | Cuántos | Cuáles |
+|---|---|---|
+| `add` permanente | 3 | `Veloz` (+3 m), `Don de la velocidad` (+9 m), `Aura de celeridad` (+3 m) |
+| `add` + condición nueva `sin_armadura_pesada` | 2 | `Movimiento rápido` (Bárbaro N5), `Errante` (Explorador N6) |
+| `conditional` (cierto, citado, y a propósito sin calcular) | 5 | `Atacante a la carga`, `Emboscador pavoroso`, `Paradigma elemental`, `Forma grande`, y la mitad de `Aura de celeridad` que afecta a los aliados |
+
+La condición `sin_armadura_pesada` **no es `sin_armadura` con otro nombre**: el
+Bárbaro conserva su +3 m con armadura ligera o media y solo lo pierde con la
+pesada, mientras que el Monje lo pierde con cualquiera. Sin ella los dos
+rasgos habrían tenido que mentir eligiendo la condición que no es. Medido:
+Bárbaro N4 → 9 m, N5 → 12 m, N5 con cota de malla → 9 m.
+
+`efectos` pasa de **8 a 18**.
+
+### Caso 6 · `verificar_chequeos.FUENTES` → los ficheros se descubren
+
+De las seis rutas que declaraba, **tres no aportaban ni una rama**:
+`verificar_srd.py`, `cobertura.py` y `verificar_documentos.py` no tienen
+ninguna función `validar_*`/`verificar_*` —sus chequeos viven en `main()`—, así
+que estaban en la lista, se leían enteras y no se auditaba nada de ellas.
+**Estar en la lista parecía cobertura y no lo era**, que es peor que faltar.
+
+Ahora los ficheros se descubren (`*.py` de la raíz) y se audita también `main`.
+El ámbito nuevo sacó a la luz **9 ramas silenciosas** que nadie miraba; la
+línea base pasa de 54 a 64 una vez, contadas y visibles, y desde ahí solo puede
+bajar. Un módulo sin ninguna función auditable no es un fallo —`materiales.py`
+y `prerrequisitos.py` son bibliotecas— pero tiene que estar **declarado**, y lo
+exige la fila nueva del censo.
+
+De paso se arregló un falso positivo de la propia herramienta: `verificar_srd.py`
+no acumula en `err`, imprime «⚠ …» directamente, y eso **es** avisar. Un `print`
+con marca de aviso ya cuenta; uno sin ella, no.
+
+### Caso 7 · `verificar_srd.MAPA` → la autoridad de los espacios se cita
+
+Lo primero que salió al medirlo es que **el caso no era el que decía**: `MAPA`
+cubre *todas* las columnas que el SRD de Open5e publica de las 12 clases, no se
+le escapa ninguna. El hueco real estaba debajo: `COMPLETO` y `MEDIO`, dos
+tablas literales en `validar.py` **sin cita de página**, eran la autoridad
+contra la que se contrastaban las progresiones de 7 clases. Si el manual y el
+literal discrepaban, ganaba el literal.
+
+- `COMPLETO` **ya estaba en la base, citada**: es la tabla de espacios de
+  multiclase de `reglas/generacion_personaje.yaml` (pdf 47 = libro 45). Se lee.
+  Es el arreglo de `_TABLA_COSTE` otra vez.
+- `MEDIO` **no se copia ni se inventa: se deriva** con la regla que el propio
+  manual imprime al lado —«la mitad, redondeando arriba»—. Comprobado nivel a
+  nivel que reproduce el literal en los 20.
+- Y el chequeo que comparaba esa tabla contra `COMPLETO` habría quedado
+  **tautológico**: se sustituyó por lo que ese contraste no ve (20 filas, en
+  orden, sin columnas ausentes). Un chequeo tautológico en verde es peor que
+  ninguno: parece que cubre algo.
+
+### Caso 8 · `verificar_foundry.MODULOS` → medido, y es el bloque H
+
+No se cierra aquí, y no por falta de ganas: son **562 registros** de nueve
+categorías del SRD 5.2 estructurado que ningún módulo pide, y escribirlos es
+trabajo de su propio bloque. Lo que sí cambia es que ya no es «categorías sin
+contrastar»: son nueve pares (carpeta, `type`) contados, cada uno declarado con
+lo que costaría y lo que daría.
+
+### Y un bug que solo podía salir teniendo el dato
+
+`conditional` existía en el vocabulario desde el Plan 17 y **ninguna ficha
+había alcanzado nunca un rasgo que lo usara**. Al declarar los cinco de
+velocidad, el motor reventó: `calcular_de_ficha()` resolvía las fórmulas antes
+de filtrar los `conditional`, que a propósito no tienen fórmula. Es el modo de
+fallo del proyecto en pequeño —lo escrito era correcto, y lo que faltaba no lo
+miraba nadie— y lo destapó tener por fin el dato, no leer el código.
+
+### Cifras al cerrar
+
+```
+censo.py               697 unidades · 0 sin declarar · 515 pendientes
+validar.py             0 errores · 18 efectos (eran 8)
+verificar_chequeos     64 silenciosas · 4 TOLERADO · línea base 64
+mutaciones_aritmetica  32/32     mutaciones_contenido  49/49
+mutaciones_censo       18/18     mutaciones_efectos    26/26
+17/17 fichas · barrido 240/240
+```

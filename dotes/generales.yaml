@@ -32,6 +32,10 @@ dotes:
     repetible: false
     mejora_caracteristica: {cantidad: 1, maximo: 20, entre: [Fuerza, Destreza]}
     descripcion: "Mejora de característica: Fuerza o Destreza +1 (máx. 20). Carrera mejorada: al correr, tu velocidad aumenta 3 m para esa acción. Ataque con carga: si te mueves al menos 3 m en línea recta hacia un objetivo antes de acertarle cuerpo a cuerpo como parte de la acción de atacar, elige un efecto (una vez por turno): +1d8 al daño, o empujar al objetivo hasta 3 m si su tamaño es como mucho una categoría mayor que el tuyo."
+    efectos:
+      - {objetivo: velocidad, op: conditional,
+         texto: "Al correr, la velocidad aumenta 3 m para esa acción: no es la velocidad de la ficha, sino un extra de una acción concreta",
+         pagina: {pdf: 205, libro: 203}}
 
   - nombre: Atleta
     pagina: {pdf: 205, libro: 203}
@@ -297,6 +301,12 @@ dotes:
     repetible: false
     mejora_caracteristica: {cantidad: 1, maximo: 20, entre: [Destreza, Constitución]}
     descripcion: "Mejora de característica: Destreza o Constitución +1 (máx. 20). Aumento de velocidad: tu velocidad aumenta 3 m. Correr por terreno difícil: al correr, el terreno difícil no cuesta movimiento adicional el resto del turno. Movimiento ágil: los ataques de oportunidad tienen desventaja contra ti."
+    # «Aumento de velocidad: tu velocidad aumenta 3 m» — sin condición ni
+    # duración en la página, así que es un `add` permanente. Las otras dos
+    # mitades de la dote (terreno difícil, ataques de oportunidad) no tocan
+    # ninguna variable declarada y por eso no aparecen aquí.
+    efectos:
+      - {objetivo: velocidad, op: add, formula: "3", pagina: {pdf: 211, libro: 209}}
 
   - nombre: "Versado en un elemento"
     pagina: {pdf: 211, libro: 209}

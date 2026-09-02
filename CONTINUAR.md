@@ -42,7 +42,7 @@ python3 validar.py            # 0 errores · 2,6 s
 python3 verificar_srd.py      # 646 valores · 0 discrepancias
 python3 verificar_foundry.py  # 3020 valores · 0 discrepancias
 python3 cobertura.py          # 262 preguntas · 0 sin responder
-python3 censo.py              # 681 unidades · 0 sin declarar · 532 pendientes
+python3 censo.py              # 697 unidades · 0 sin declarar · 515 pendientes
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 17/17
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240 · 136 s
 ```
@@ -52,21 +52,24 @@ python3 generar_ficha.py --barrido --exhaustivo   # 240/240 · 136 s
 **1. Un mismo defecto, ocho veces: la cobertura escrita a mano.** Un módulo
 lleva dentro la lista de lo que mira, y esa lista se queda corta sin que nadie
 se entere. Cuatro cerrados (`_CA_SIN_ARMADURA`, `_ORIGENES`, las cifras de
-`verificar_documentos`, `_TABLA_COSTE`) y **cuatro abiertos**
-(`validar._PROMESAS`, `verificar_chequeos.FUENTES`, `verificar_srd.MAPA`,
-`verificar_foundry.MODULOS`). Detalle en el §2 del Plan 18.
+`verificar_documentos`, `_TABLA_COSTE`) y, desde el **2026-09-02**, los cuatro
+que quedaban: `validar._PROMESAS`, `verificar_chequeos.FUENTES` y
+`verificar_srd.MAPA` cerrados, y `verificar_foundry.MODULOS` **medido y
+declarado** —562 registros del SRD que nadie contrasta— como bloque H. Detalle
+en el §2 y el §12 del Plan 18.
 
 **2. El verificador estaba INVERTIDO con las dotes.** Una ficha de nivel 1 que
 tomaba `Duro` y aplicaba bien su +2 PG era **rechazada**, y la misma ficha con
 el +2 perdido pasaba con «0 problemas». Cerrado el 2026-08-31 (C1/C3 del Plan
 17). La prueba de que sigue del derecho está en el §0 de ese documento.
 
-**3. La regla inviolable 6 ya no es prosa: la comprueba `censo.py`.** Se añadió
+**3. La regla inviolable 6 ya no es prosa: la comprueba `censo.py`.** (Siete
+filas desde el bloque A2: se le añadió la de los módulos de herramienta.) Se añadió
 el 2026-08-31 sin nada que la hiciera cumplir, y el propio repo ya tenía escrita
 la lección en `FUENTES.md:208`: *«una regla en prosa no impide nada»*. Desde el
-**2026-09-02** hay un script que enumera **seis clases de unidad** de la base y
+**2026-09-02** hay un script que enumera **siete clases de unidad** de la base y
 exige que cada una esté alcanzada por algún chequeo o declarada con su motivo en
-`_verificacion/censo_exenciones.yaml`. Hoy: **681 unidades, 0 sin declarar**. El
+`_verificacion/censo_exenciones.yaml`. Hoy: **697 unidades, 0 sin declarar**. El
 día que aparezca la novena lista, lo canta el censo.
 
 **4. Los 30 chequeos `validar_*` YA tienen prueba por mutación** (eran 11 el
@@ -87,23 +90,24 @@ red puesta, el refactor del bloque F ya es una opción**, aunque la medición de
 |---|---|---|
 | ~~**A**~~ | ~~`censo.py`~~ | ✅ **hecho (2026-09-02)** |
 | ~~**B**~~ | ~~Mutaciones para los 19 chequeos sin red~~ | ✅ **hecho (2026-09-02)** |
-| **A2** | Las cuatro listas abiertas del §2, ya medidas por el censo — **lo siguiente** | no |
-| **C** | Declarar los **21** efectos que faltan (no 519: solo hay 3 variables calculables) | no |
+| ~~**A2**~~ | ~~Las cuatro listas abiertas del §2~~ | ✅ **hecho (2026-09-02)** |
+| **C** | Declarar los efectos que faltan. **Los 9 de `velocidad` ya están** (A2); quedan los de `ca` y `pg_max` — **lo siguiente** | no |
 | **D** | `efectos:` obligatorio + `no_automatizado` | no |
 | **E** | `requirements.txt`, versión de Python, ~50 líneas duplicadas | no |
 | **H** | Contrastar los **562 registros** del SRD estructurado que nadie pide, entre ellos los 255 rasgos de `classes24` — **lo destapó el censo** | no |
 | **F** | Refactor, **solo si sigue pareciendo necesario** | no |
 | **G** | Los casos ambiguos y las descripciones de conjuro | **sí** |
 
-### Y tres cosas que salieron al hacer A y B, y conviene saber antes de tocar
+### Y tres cosas que salieron al hacer A, B y A2, y conviene saber antes de tocar
 
 - **Dos de los 30 chequeos no pueden fallar.** `validar_costes_sin_fuente` y
   `validar_referencias` solo llenan `warn`. Una referencia rota entre una
   especie y `hechizos.json` sale como ⚠ y `validar.py` termina con «0 errores».
   Está probado que el **aviso** salta; convertirlo en error es una decisión
   pendiente, no un descuido.
-- **`COMPLETO`/`MEDIO` en `validar.py` no tienen cita de página**, y son la
-  autoridad contra la que se contrastan los espacios de conjuro de 7 clases.
+- ✅ **`COMPLETO`/`MEDIO` ya no existen** (A2): la tabla del lanzador completo
+  se lee de la base, citada (pdf 47 = libro 45), y la del medio se DERIVA de
+  ella con la regla del propio manual.
 - **Ningún chequeo mira `classes24`**, que son 279 registros del SRD 5.2 sobre
   clases y subclases — la fuente natural de la «Foundry Note» del bloque D.
 
@@ -208,8 +212,8 @@ Y las tres del bloque B (2026-09-02), que cierran los 19 chequeos que no
 tenían red, más la del censo:
 
 ```bash
-python3 _verificacion/mutaciones_aritmetica.py    # los 5 de aritmética  -> 31/31
-python3 _verificacion/mutaciones_contenido.py     # los 11 de contenido  -> 47/47
+python3 _verificacion/mutaciones_aritmetica.py    # los 5 de aritmética  -> 32/32
+python3 _verificacion/mutaciones_contenido.py     # los 11 de contenido  -> 49/49
 python3 _verificacion/mutaciones_referencias.py   # los 3 de referencias -> 10/10
 python3 _verificacion/mutaciones_censo.py         # el propio censo      -> 18/18
 ```
@@ -233,13 +237,15 @@ es donde el desfase se vuelve mentira comprobable.
 
 `validar.py` debe dar, dentro de «INTEGRIDAD»: 683 dados · 543 conversiones ·
 391 conjuros en `tirada` · 677 pares de vecindad · 782 campos de ortografía ·
-391 citas de conjuro · 52 costes sin fuente externa · 8 efectos · 6
+391 citas de conjuro · 52 costes sin fuente externa · 18 efectos · 6
 materiales descompuestos · 8 conjuros con `tiradas` por efecto · 25 ataques
 de conjuro contrastados contra su texto · 65 prerrequisitos de dote evaluables ·
 333 saltos de nivel derivables · **54 mejoras de dote** (chequeo nuevo, C3 del
-Plan 17). Los `efectos` pasaron de 7 a **8** el 2026-08-31: `Duro` es la primera
+Plan 17). Los `efectos` pasaron de 7 a **8** el 2026-08-31 (`Duro` es la primera
 dote con efecto declarado, posible solo desde que C1 hizo que el motor mire
-`dotes/`. **Todo a 0
+`dotes/`) y de 8 a **18** el 2026-09-02: el bloque A2 metió las frases de
+promesa de `velocidad` en la base y eso destapó **nueve rasgos** que la
+prometían en su texto sin que nadie pudiera calcularla. **Todo a 0
 errores**, con un aviso esperado: la CA base sin armadura (`10 + mod_des`) no
 tiene página citada, y está declarado como hueco abierto, no inventado.
 
@@ -1129,9 +1135,10 @@ Offset confirmado en todo el manual: **página_pdf = página_libro + 2**.
    |---|---|---|
    | `efectos._ORIGENES` | 46 subclases · 4 ficheros de dotes | ✅ cerrada (C1) |
    | `verificar_documentos` (cifras) | `efectos` desde la Fase 14 | ✅ cerrada |
-   | `verificar_chequeos.FUENTES` | audita 3 de las 6 que declara | ⬜ abierta |
-   | `verificar_srd.MAPA` | `pb`, `forma_salvaje`, `mov_sin_armadura_m` | ⬜ abierta |
-   | `verificar_foundry.MODULOS` | categorías sin contrastar | ⬜ abierta |
+   | `verificar_chequeos.FUENTES` | audita 3 de las 6 que declara | ✅ cerrada (A2) |
+   | `verificar_srd.MAPA` | `slots`, `forma_salvaje`, `mov_sin_armadura_m` | ✅ cerrada (A2) |
+   | `verificar_foundry.MODULOS` | 9 pares (carpeta, `type`) · 562 registros | ⬜ medida y declarada → bloque H |
+   | `validar._PROMESAS` | `velocidad`, y con ella 9 rasgos | ✅ cerrada (A2) |
 
    Cuando el mismo defecto sale cinco veces no es descuido repetido: es que
    la forma de trabajar lo invitaba. `validar.py` ya lo hacía bien —descubre

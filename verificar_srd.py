@@ -92,7 +92,13 @@ def main():
         for col_srd, campo in cols.items():
             for celda in tablas.get(col_srd, []):
                 n, val = celda["level"], norm(celda["column_value"])
-                if n not in nuestro or campo not in nuestro[n]: continue
+                if n not in nuestro or campo not in nuestro[n]:
+                    # TOLERADO: lo cubre el recuento total. Si nuestra tabla
+                    # perdiera una fila o una columna, este salto la sacaría
+                    # del contraste sin decir nada — pero el número de valores
+                    # contrastados bajaría de 646, y `verificar_documentos.py`
+                    # compara esa cifra con la que promete `CONTINUAR.md`.
+                    continue
                 comprobados += 1
                 if nuestro[n][campo] != val:
                     errs.append(f"N{n} {campo}: nuestro {nuestro[n][campo]!r} vs SRD {val!r}")

@@ -231,12 +231,19 @@ def estado_de_equipo(refs):
     partir de `equipo/armaduras.yaml`, no el LLB a ojo."""
     d = yaml.safe_load((B / "equipo/armaduras.yaml").read_text(encoding="utf-8"))
     nombres = {a["nombre"].lower() for g in _ARMADURAS for a in d[g]["tabla"]}
+    # `sin_armadura_pesada` (bloque A2, 2026-09-02): el Bárbaro y el Explorador
+    # conservan su +3 m con armadura ligera o media y solo lo pierden con la
+    # pesada. Qué armaduras son pesadas se LEE del grupo correspondiente, que
+    # es el mismo sitio del que salen las otras condiciones.
+    pesadas = {a["nombre"].lower() for a in d["armaduras_pesadas"]["tabla"]}
     escudos = {e["nombre"].lower() for e in d["escudos"]["tabla"]}
     llevados = {r.split("#")[-1].lower() for r in refs}
     con_arm = bool(llevados & nombres)
     con_esc = bool(llevados & escudos)
+    con_pesada = bool(llevados & pesadas)
     return {"con_armadura": con_arm, "sin_armadura": not con_arm,
-            "con_escudo": con_esc, "sin_escudo": not con_esc}
+            "con_escudo": con_esc, "sin_escudo": not con_esc,
+            "sin_armadura_pesada": not con_pesada}
 
 
 def aplica(ef, estado, vocab):
@@ -598,6 +605,17 @@ def calcular_de_ficha(ficha, mods, pb, pg_base):
     resueltos = []
     for ef in efs:
         if not aplica(ef, estado, vocab):
+            continue
+        # Un `conditional` no trae `formula` ni `columna` A PROPÓSITO: es un
+        # efecto cierto y citado que el motor no calcula (C4 del Plan 17).
+        # `agregar()` ya los filtra, pero esta resolución previa ocurre ANTES,
+        # así que aquí también hay que saltárselos. No se notó hasta el
+        # 2026-09-02 porque hasta entonces ninguna ficha alcanzaba un rasgo con
+        # `conditional`: el vocabulario existía y el dato no. Es el modo de
+        # fallo del proyecto en pequeño —lo escrito era correcto y lo que
+        # faltaba no lo miraba nadie— y lo destapó el bloque A2 al declarar los
+        # nueve rasgos de velocidad.
+        if ef.get("op") == "conditional":
             continue
         ent = dict(entradas, nivel_clase=ef.get("_nivel_clase") or 0)
         if ef.get("columna"):

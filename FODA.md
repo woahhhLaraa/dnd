@@ -167,9 +167,14 @@ Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
    `verificar_foundry.MODULOS`. Cuando el mismo defecto sale cinco veces sin
    que nadie lo copie, la causa es el método, no el despiste.
 
-   ✅ **Cerradas las dos primeras** (C1 y la ampliación de
-   `verificar_documentos`); las otras tres siguen abiertas y son el mismo
-   gesto. La regla 6 de `CONTINUAR.md` existe para que no haya una sexta.
+   ✅ **Cerradas las cinco** (2026-09-02, bloque A2): `verificar_chequeos`
+   descubre sus fuentes y audita también `main` —lo que sacó a la luz 9 ramas
+   que nadie miraba, en los tres ficheros que estaban en la lista sin aportar
+   nada—; las columnas que `verificar_srd.MAPA` no puede cubrir están o
+   contrastadas contra una tabla citada o declaradas una a una; y
+   `verificar_foundry.MODULOS` tiene sus 9 categorías sin pedir medidas y
+   declaradas como bloque H. La regla 6 ya no depende de que nadie se
+   despiste: la cuenta `censo.py`.
 
    **La lección de fondo, que vale para todo el proyecto:** se verificaba con
    obsesión que **lo escrito fuera correcto** y nunca que **estuviera todo**.
@@ -179,9 +184,9 @@ Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
 9. **✅ CERRADA (2026-09-02) — los 30 chequeos `validar_*` ya tienen prueba
    por mutación.** Eran 11 de 30 el 2026-08-31.
 
-   El bloque B del Plan 18 añadió tres suites: `mutaciones_aritmetica` 31/31 (5
+   El bloque B del Plan 18 añadió tres suites: `mutaciones_aritmetica` 32/32 (5
    chequeos, empezando por `mejoras_de_dote`, que era deuda del mismo día),
-   `mutaciones_contenido` 47/47 (11) y `mutaciones_referencias` 10/10 (3). La
+   `mutaciones_contenido` 49/49 (11) y `mutaciones_referencias` 10/10 (3). La
    cifra **ya no se cuenta a mano**: la cuenta `censo.py`, que descubre los
    chequeos del AST de `validar.py` y las suites por patrón.
 
@@ -204,9 +209,10 @@ Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
 10. **✅ CERRADA (2026-09-02) — la regla inviolable 6 ya no es prosa.**
    *(era 🔴 desde el 2026-08-31, el mismo día en que se escribió)*
 
-   `censo.py` la convierte en una cuenta: **681 unidades censadas, 0 sin
-   declarar, 532 pendientes con su bloque y su motivo**. Seis clases de unidad,
-   seis universos descubiertos (glob, AST y el vocabulario de la base), y un
+   `censo.py` la convierte en una cuenta: **697 unidades censadas, 0 sin
+   declarar, 515 pendientes con su bloque y su motivo**. Siete clases de unidad
+   —la séptima, los módulos de herramienta, la añadió el bloque A2—, siete
+   universos descubiertos (glob, AST y el vocabulario de la base), y un
    manifiesto —`_verificacion/censo_exenciones.yaml`— donde lo que no se
    alcanza se declara una a una. Una declaración que ya no corresponda a
    ninguna unidad hace fallar al censo, así que el manifiesto tampoco puede

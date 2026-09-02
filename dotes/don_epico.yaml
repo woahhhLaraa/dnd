@@ -42,6 +42,9 @@ dotes:
 
   - nombre: "Don de la velocidad"
     pagina: {pdf: 213, libro: 211}
+    efectos:
+      # «Celeridad: tu velocidad aumenta 9 m», sin condición ni duración.
+      - {objetivo: velocidad, op: add, formula: "9", pagina: {pdf: 213, libro: 211}}
     prerrequisito: "nivel 19 o más"
     repetible: false
     mejora_caracteristica: {cantidad: 1, maximo: 30, entre: cualquiera}

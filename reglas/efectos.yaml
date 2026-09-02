@@ -17,6 +17,24 @@ fidelidad: estructurado
 # ── Variables ────────────────────────────────────────────────────────────
 # `entrada`  = la aporta la ficha o `calculo.py`; ningún efecto la produce.
 # `calculada` = la produce el motor agregando efectos sobre un valor base.
+#
+# ── `promesas` (bloque A2 del Plan 18, 2026-09-02) ───────────────────────
+# Las frases con las que el texto de un rasgo ANUNCIA que toca esta variable.
+# `validar_efectos()` las usa para el chequeo que de verdad importa: no que
+# los efectos escritos estén bien —eso es barato— sino que no haya prosa que
+# prometa una mecánica **sin efecto detrás**, que es el modo de fallo que de
+# verdad ocurrió (`bonus_pg_especie` cubría 1 de los 2 efectos sobre PG).
+#
+# Vivían en una tupla `_PROMESAS` dentro de `validar.py` con DOS entradas de
+# las tres variables calculables: `velocidad` entró en el motor el 2026-08-30
+# y nadie añadió sus frases, así que durante tres días un rasgo podía prometer
+# velocidad y no declararla sin que saltara nada. Es el caso 5 del §2 del plan,
+# y el defecto de siempre: una lista escrita a mano, en otro fichero, que se
+# queda corta en silencio.
+#
+# Ahora viven aquí, PEGADAS a la variable que anuncian, y declarar una variable
+# `calculada` sin `promesas` es un error: no se puede añadir una cuarta y
+# olvidarse de decir cómo se reconoce en la prosa.
 variables:
   mod_fue: {tipo: entrada, desc: "modificador de Fuerza"}
   mod_des: {tipo: entrada, desc: "modificador de Destreza"}
@@ -31,6 +49,7 @@ variables:
   ca:
     tipo: calculada
     desc: "Clase de Armadura"
+    promesas: ["ca base", "clase de armadura base"]
     base_por_defecto: "10 + mod_des"
     pagina: {pdf: 43, libro: 41}
     fidelidad: literal
@@ -56,10 +75,15 @@ variables:
   pg_max:
     tipo: calculada
     desc: "puntos de golpe máximos"
+    promesas: ["pg máximos aumentan", "puntos de golpe máximos aumentan"]
     base_por_defecto: null      # la aporta `calculo.puntos_golpe_nivel_1()`
   velocidad:
     tipo: calculada
     desc: "velocidad de desplazamiento, en metros"
+    # Una sola frase basta y es la que imprime el manual en los diez rasgos que
+    # la tocan; se comprobó una a una que no deja fuera ninguno ni recoge de más
+    # («moverte hasta la mitad de tu velocidad» no la promete, y no entra).
+    promesas: ["velocidad aumenta"]
     base_de: "especies/especies.yaml → velocidad_m de la especie del personaje"
     decimal: true      # 4,5 m no se puede redondear: es media casilla real
     _nota: >
@@ -131,5 +155,12 @@ base_multiple:
 condiciones:
   sin_armadura: "no lleva puesta ninguna armadura (el escudo no es armadura)"
   con_armadura: "lleva puesta una armadura"
+  # Añadida el 2026-09-02 (bloque A2). No es «sin armadura» con otro nombre:
+  # el Bárbaro conserva su +3 m con armadura ligera o media y lo pierde solo
+  # con la pesada, mientras que el Monje lo pierde con cualquiera. Sin esta
+  # condición los dos rasgos tendrían que mentir eligiendo la que no es.
+  # La lista de armaduras pesadas la deduce `efectos.py` de
+  # `equipo/armaduras.yaml`, nunca el LLM.
+  sin_armadura_pesada: "no lleva puesta una armadura pesada (ligera o media sí)"
   sin_escudo: "no embraza escudo"
   con_escudo: "embraza escudo"

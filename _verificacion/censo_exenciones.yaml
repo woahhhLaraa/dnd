@@ -77,36 +77,47 @@ exentas:
   - unidad: "columna:picaro.pb"
     motivo: "`validar_clase` lo RECALCULA con la fórmula del manual (2 + (nivel-1)//4) en los 20 niveles; una copia comprobada contra su regla no necesita fuente externa"
 
+  # ── Módulos de la raíz sin función auditable (caso 6 del §2) ──────────
+  # `verificar_chequeos.py` busca ramas que abandonen un registro en silencio
+  # dentro de `validar_*`, `verificar_*` y `main`. Estos dos no tienen ninguna
+  # de las tres porque no son herramientas: son bibliotecas que otros módulos
+  # importan, y sus funciones LANZAN en vez de saltarse registros —que es lo
+  # contrario de callarse—. Se declaran para que un módulo nuevo sin chequeos
+  # tenga que pasar por aquí en vez de colarse.
+  - unidad: "modulo:materiales.py"
+    motivo: "biblioteca de descomposición de costes de material; la usa validar_materiales(), que sí se audita, y lanza ante lo que no entiende"
+  - unidad: "modulo:prerrequisitos.py"
+    motivo: "biblioteca de la gramática de prerrequisitos (Fase 15); lanza `ErrorDePrerrequisito` ante lo que no sabe evaluar, y quien la audita es validar_prerrequisitos()"
+
+  # ── Espacios de conjuro: cerrado el 2026-09-02 (bloque A2, caso 7) ────
+  # El SRD de Open5e solo publica los espacios del Brujo (`espacios`, ya en
+  # MAPA), así que estas 7 columnas no tienen contraparte externa. Estuvieron
+  # declaradas como PENDIENTES mientras el contraste se hacía contra los
+  # literales `COMPLETO`/`MEDIO` de `validar.py`, que no tenían cita: una
+  # autoridad sin fuente por encima de una base citada. Ya no.
+  # Ahora `validar_clase` las contrasta contra la tabla CITADA de
+  # `reglas/generacion_personaje.yaml` (pdf 47 = libro 45) —y la del lanzador
+  # medio se DERIVA de ella con la regla que el manual imprime al lado—, así
+  # que la unidad sí está alcanzada, por otro camino que el de MAPA.
+  - unidad: "columna:bardo.slots"
+    motivo: "el SRD de Open5e no publica esta columna; la contrasta `validar_clase` contra la tabla citada de reglas/generacion_personaje.yaml (pdf 47 = libro 45)"
+  - unidad: "columna:clerigo.slots"
+    motivo: "el SRD de Open5e no publica esta columna; la contrasta `validar_clase` contra la tabla citada de reglas/generacion_personaje.yaml (pdf 47 = libro 45)"
+  - unidad: "columna:druida.slots"
+    motivo: "el SRD de Open5e no publica esta columna; la contrasta `validar_clase` contra la tabla citada de reglas/generacion_personaje.yaml (pdf 47 = libro 45)"
+  - unidad: "columna:explorador.slots"
+    motivo: "el SRD de Open5e no publica esta columna; la contrasta `validar_clase` contra la tabla citada de reglas/generacion_personaje.yaml (pdf 47 = libro 45)"
+  - unidad: "columna:hechicero.slots"
+    motivo: "el SRD de Open5e no publica esta columna; la contrasta `validar_clase` contra la tabla citada de reglas/generacion_personaje.yaml (pdf 47 = libro 45)"
+  - unidad: "columna:mago.slots"
+    motivo: "el SRD de Open5e no publica esta columna; la contrasta `validar_clase` contra la tabla citada de reglas/generacion_personaje.yaml (pdf 47 = libro 45)"
+  - unidad: "columna:paladin.slots"
+    motivo: "el SRD de Open5e no publica esta columna; la contrasta `validar_clase` contra la tabla citada de reglas/generacion_personaje.yaml (pdf 47 = libro 45)"
+
 # ══ PENDIENTES — deuda declarada, con el bloque que la cierra ════════════
 pendientes:
 
-  # ── Caso 5 del §2: `validar._PROMESAS` ────────────────────────────────
-  - unidad: "variable:velocidad"
-    bloque: "A2"
-    motivo: "`_PROMESAS` solo lleva `ca` y `pg_max`: un rasgo que prometa velocidad en su texto y no declare efecto no lo dice nadie. El arreglo correcto no es añadir una tercera línea a mano, sino que las frases de promesa vivan junto a la variable en `reglas/efectos.yaml` y que declarar una variable calculable sin ellas sea un error"
-
-  # ── Caso 7 del §2: columnas sin contraste externo ─────────────────────
-  - unidad: "columna:bardo.slots"
-    bloque: "A2"
-    motivo: "los espacios de conjuro se contrastan contra `COMPLETO`/`MEDIO`, dos tablas cableadas en `validar.py` SIN cita de página. El SRD de Open5e solo publica los del Brujo (`espacios`, ya en MAPA), así que 7 clases descansan en una constante sin fuente: la base citada pierde contra un literal de Python"
-  - unidad: "columna:clerigo.slots"
-    bloque: "A2"
-    motivo: "los espacios de conjuro se contrastan contra `COMPLETO`/`MEDIO`, dos tablas cableadas en `validar.py` SIN cita de página. El SRD de Open5e solo publica los del Brujo (`espacios`, ya en MAPA), así que 7 clases descansan en una constante sin fuente: la base citada pierde contra un literal de Python"
-  - unidad: "columna:druida.slots"
-    bloque: "A2"
-    motivo: "los espacios de conjuro se contrastan contra `COMPLETO`/`MEDIO`, dos tablas cableadas en `validar.py` SIN cita de página. El SRD de Open5e solo publica los del Brujo (`espacios`, ya en MAPA), así que 7 clases descansan en una constante sin fuente: la base citada pierde contra un literal de Python"
-  - unidad: "columna:explorador.slots"
-    bloque: "A2"
-    motivo: "los espacios de conjuro se contrastan contra `COMPLETO`/`MEDIO`, dos tablas cableadas en `validar.py` SIN cita de página. El SRD de Open5e solo publica los del Brujo (`espacios`, ya en MAPA), así que 7 clases descansan en una constante sin fuente: la base citada pierde contra un literal de Python"
-  - unidad: "columna:hechicero.slots"
-    bloque: "A2"
-    motivo: "los espacios de conjuro se contrastan contra `COMPLETO`/`MEDIO`, dos tablas cableadas en `validar.py` SIN cita de página. El SRD de Open5e solo publica los del Brujo (`espacios`, ya en MAPA), así que 7 clases descansan en una constante sin fuente: la base citada pierde contra un literal de Python"
-  - unidad: "columna:mago.slots"
-    bloque: "A2"
-    motivo: "los espacios de conjuro se contrastan contra `COMPLETO`/`MEDIO`, dos tablas cableadas en `validar.py` SIN cita de página. El SRD de Open5e solo publica los del Brujo (`espacios`, ya en MAPA), así que 7 clases descansan en una constante sin fuente: la base citada pierde contra un literal de Python"
-  - unidad: "columna:paladin.slots"
-    bloque: "A2"
-    motivo: "los espacios de conjuro se contrastan contra `COMPLETO`/`MEDIO`, dos tablas cableadas en `validar.py` SIN cita de página. El SRD de Open5e solo publica los del Brujo (`espacios`, ya en MAPA), así que 7 clases descansan en una constante sin fuente: la base citada pierde contra un literal de Python"
+  # ── Caso 7 del §2: lo que queda sin contraste externo ─────────────────
   - unidad: "columna:druida.forma_salvaje"
     bloque: "H"
     motivo: "el SRD de Open5e no publica esta columna. Sí está en `_verificacion/foundry_srd52/classes24` como advancement `ScaleValue`, que hoy no contrasta nadie"

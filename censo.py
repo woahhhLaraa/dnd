@@ -24,16 +24,17 @@ los mapas de traducción son legítimos). Lo que sí se puede exigir es:
     Toda unidad de la base tiene que estar ALCANZADA POR NOMBRE por algún
     chequeo, o DECLARADA como no alcanzable, con su motivo.
 
-Seis clases de unidad, cada una con su universo descubierto y su alcanzador:
+Siete clases de unidad, cada una con su universo descubierto y su alcanzador:
 
     fichero de regla   → `efectos.origenes()` y su manifiesto
     variable calculable→ `validar._PROMESAS`
     columna de clase   → `verificar_srd.MAPA`
     dato externo       → las llamadas a `verificar_foundry.paquete()`
     chequeo `validar_*`→ una suite de `_verificacion/mutaciones_*.py`
+    módulo de la raíz  → una función que `verificar_chequeos.py` audite
     rasgo con texto    → su propio `efectos:` (o `no_automatizado:`)
 
-**Ninguno de los seis universos se escribe aquí**: los seis se descubren
+**Ninguno de los siete universos se escribe aquí**: los seis se descubren
 (glob, AST, o el propio vocabulario de la base). Y ningún alcanzador se
 escribe aquí tampoco: se leen los objetos que los módulos usan de verdad, así
 que renombrar un chequeo o vaciar un mapa se nota.
@@ -118,17 +119,21 @@ def fila_ficheros_de_regla():
 # ══ Fila 2 · variables calculables ════════════════════════════════════════
 def fila_variables():
     import efectos as E
-    import validar as V
 
     vocab = E.cargar_vocabulario()
     universo = {f"variable:{k}": v.get("desc", "")
                 for k, v in vocab["variables"].items()
                 if v.get("tipo") == "calculada"}
-    # `_PROMESAS` es una de las cuatro listas a mano que quedaban abiertas
-    # (§2 del Plan 18). No se copia: se lee la que usa `validar.py`.
-    alcanzadas = {f"variable:{objetivo}" for objetivo, _frases in V._PROMESAS}
+    # Hasta el bloque A2 esto leía `validar._PROMESAS`, una tupla escrita a
+    # mano que conocía 2 de las 3 variables. Ahora las frases de promesa viven
+    # PEGADAS a su variable en `reglas/efectos.yaml`, así que una variable
+    # calculable está alcanzada si trae las suyas — y `validar_efectos()` hace
+    # que no traerlas sea un error. Esta fila lo cuenta desde fuera: si algún
+    # día ese error se relaja, el censo lo sigue viendo.
+    alcanzadas = {f"variable:{k}" for k, v in vocab["variables"].items()
+                  if v.get("tipo") == "calculada" and (v or {}).get("promesas")}
     return Fila("variable", "variables calculables", universo, alcanzadas,
-                "validar._PROMESAS")
+                "sus `promesas` en reglas/efectos.yaml")
 
 
 # ══ Fila 3 · columnas de las tablas de clase ══════════════════════════════
@@ -331,7 +336,37 @@ def fila_chequeos():
                 "una suite de _verificacion/mutaciones_*.py")
 
 
-# ══ Fila 6 · rasgos con texto ═════════════════════════════════════════════
+# ══ Fila 6 · módulos de herramienta ═══════════════════════════════════════
+def fila_modulos():
+    """¿Llega `verificar_chequeos.py` a todos los módulos de la raíz?
+
+    Es el caso 6 del §2 del Plan 18, contado. Su `FUENTES` era una tupla de
+    seis rutas escritas a mano, y **tres de las seis no aportaban ni una rama**
+    porque sus chequeos viven en `main()`, que no se auditaba: estaban en la
+    lista, y estar en la lista parecía cobertura. Un módulo sin ninguna función
+    auditable no es un fallo —`materiales.py` es una biblioteca— pero tiene que
+    estar declarado aquí con su motivo, para que la próxima vez que pase se vea.
+    """
+    import ast as A
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("_vc", B / "verificar_chequeos.py")
+    vc = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(vc)
+
+    universo, alcanzadas = {}, set()
+    for rel in vc.fuentes():
+        arbol = A.parse((B / rel).read_text(encoding="utf-8"))
+        fns = [n.name for n in A.walk(arbol)
+               if isinstance(n, A.FunctionDef) and vc._auditable(n.name)]
+        universo[f"modulo:{rel}"] = (f"{len(fns)} funciones auditables"
+                                     if fns else "ninguna función auditable")
+        if fns:
+            alcanzadas.add(f"modulo:{rel}")
+    return Fila("modulo", "módulos de herramienta", universo, alcanzadas,
+                "verificar_chequeos.py")
+
+
+# ══ Fila 7 · rasgos con texto ═════════════════════════════════════════════
 def fila_rasgos():
     import efectos as E
 
@@ -355,7 +390,7 @@ def fila_rasgos():
 
 
 FILAS = (fila_ficheros_de_regla, fila_variables, fila_columnas,
-         fila_datos_externos, fila_chequeos, fila_rasgos)
+         fila_datos_externos, fila_chequeos, fila_modulos, fila_rasgos)
 
 
 # ══ El manifiesto de declaraciones ════════════════════════════════════════

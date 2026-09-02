@@ -4,7 +4,7 @@ No consulta el manual: comprueba coherencia interna. Un dato inventado
 que no respete estas reglas hace fallar la validación.
 Uso: python3 validar.py
 """
-import functools, re, json, sys, pathlib
+import functools, math, re, json, sys, pathlib
 try:
     import yaml
 except ImportError:
@@ -12,16 +12,60 @@ except ImportError:
 
 B = pathlib.Path(__file__).parent
 
-# --- Tablas canónicas de espacios de conjuro (invariante, no del OCR) ---
-COMPLETO = [[2,0,0,0,0,0,0,0,0],[3,0,0,0,0,0,0,0,0],[4,2,0,0,0,0,0,0,0],[4,3,0,0,0,0,0,0,0],
- [4,3,2,0,0,0,0,0,0],[4,3,3,0,0,0,0,0,0],[4,3,3,1,0,0,0,0,0],[4,3,3,2,0,0,0,0,0],
- [4,3,3,3,1,0,0,0,0],[4,3,3,3,2,0,0,0,0],[4,3,3,3,2,1,0,0,0],[4,3,3,3,2,1,0,0,0],
- [4,3,3,3,2,1,1,0,0],[4,3,3,3,2,1,1,0,0],[4,3,3,3,2,1,1,1,0],[4,3,3,3,2,1,1,1,0],
- [4,3,3,3,2,1,1,1,1],[4,3,3,3,3,1,1,1,1],[4,3,3,3,3,2,1,1,1],[4,3,3,3,3,2,2,1,1]]
-MEDIO = [[2,0,0,0,0],[2,0,0,0,0],[3,0,0,0,0],[3,0,0,0,0],[4,2,0,0,0],[4,2,0,0,0],
- [4,3,0,0,0],[4,3,0,0,0],[4,3,2,0,0],[4,3,2,0,0],[4,3,3,0,0],[4,3,3,0,0],
- [4,3,3,1,0],[4,3,3,1,0],[4,3,3,2,0],[4,3,3,2,0],[4,3,3,3,1],[4,3,3,3,1],
- [4,3,3,3,2],[4,3,3,3,2]]
+# ── Espacios de conjuro: la autoridad vive en la base, no aquí ────────────
+# Hasta el 2026-09-02 estas dos tablas eran literales de Python **sin cita de
+# página**, y eran contra lo que se contrastaban las progresiones de 7 clases.
+# No era el defecto del §2 del Plan 18 —las copias sí se comparaban— pero sí
+# una autoridad sin fuente por encima de una base citada: si el manual y el
+# literal discrepaban, ganaba el literal, y la única forma de enterarse era
+# leer `validar.py`. Lo destapó el censo (bloque A) al contar las columnas de
+# tabla de clase que nadie contrasta contra una fuente.
+#
+# La tabla del lanzador completo YA estaba en la base, citada: es
+# `multiclase.lanzamiento_de_conjuros_multiclase.tabla_espacios_de_conjuro`
+# de `reglas/generacion_personaje.yaml` (pdf 47 = libro 45). Así que se lee.
+# Es el mismo arreglo que `_TABLA_COSTE` (caso 4 del §2): un comentario que
+# señalaba dónde vive la autoridad, y debajo una copia.
+#
+# La del lanzador medio **no se copia ni se inventa: se deriva** con la regla
+# que el propio manual imprime al lado, en `calculo_nivel_para_tabla` —«la
+# mitad (redondeando arriba) de los niveles de explorador y paladín»—. Se
+# comprobó nivel a nivel que reproduce exactamente lo que decía el literal en
+# los 20 niveles antes de sustituirlo.
+_ESPACIOS_MAX = 9          # la escala de conjuros llega a 9 en 2024
+_ESPACIOS_MEDIO_MAX = 5    # un lanzador medio no pasa del nivel 5 de conjuro
+
+
+@functools.lru_cache(maxsize=None)
+def _espacios_completo():
+    """La tabla de espacios del lanzador completo, leída de la base."""
+    f = B / "reglas" / "generacion_personaje.yaml"
+    if yaml is None or not f.exists():
+        raise RuntimeError("no se puede leer la tabla de espacios de conjuro: "
+                           "sin ella no hay contra qué contrastar las clases")
+    d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+    tabla = (((d.get("multiclase") or {})
+              .get("lanzamiento_de_conjuros_multiclase") or {})
+             .get("tabla_espacios_de_conjuro") or {})
+    filas = tabla.get("filas") or []
+    if len(filas) != 20 or not tabla.get("fuente"):
+        # Falla ruidosamente: devolver una tabla a medias haría pasar en verde
+        # a clases que nadie ha comprobado, que es peor que no comprobar.
+        raise RuntimeError(
+            "`tabla_espacios_de_conjuro` de reglas/generacion_personaje.yaml "
+            f"tiene {len(filas)} filas y "
+            f"{'una' if tabla.get('fuente') else 'NINGUNA'} cita: se esperaban "
+            "20 filas citadas")
+    return [[fila.get(str(j), 0) for j in range(1, _ESPACIOS_MAX + 1)]
+            for fila in filas]
+
+
+@functools.lru_cache(maxsize=None)
+def _espacios_medio():
+    """La del lanzador medio, DERIVADA de la anterior con la regla citada."""
+    completo = _espacios_completo()
+    return [completo[math.ceil(n / 2) - 1][:_ESPACIOS_MEDIO_MAX]
+            for n in range(1, 21)]
 
 def parse_yaml(p):
     """Parser mínimo para el formato de estas fichas (sin dependencias)."""
@@ -68,12 +112,14 @@ def validar_clase(p):
     lanz = meta.get("lanzador")
     if lanz == "completo":
         for f in filas:
-            if f.get("slots") != COMPLETO[f["n"]-1]:
-                err.append(f"N{f['n']}: espacios {f.get('slots')} != {COMPLETO[f['n']-1]}")
+            if f.get("slots") != _espacios_completo()[f["n"]-1]:
+                err.append(f"N{f['n']}: espacios {f.get('slots')} != "
+                           f"{_espacios_completo()[f['n']-1]}")
     elif lanz == "medio":
         for f in filas:
-            if f.get("slots") != MEDIO[f["n"]-1]:
-                err.append(f"N{f['n']}: espacios {f.get('slots')} != {MEDIO[f['n']-1]}")
+            if f.get("slots") != _espacios_medio()[f["n"]-1]:
+                err.append(f"N{f['n']}: espacios {f.get('slots')} != "
+                           f"{_espacios_medio()[f['n']-1]}")
     elif lanz in ("ninguno", "pacto"):
         pass
     else:
@@ -792,12 +838,28 @@ def validar_generacion():
     if len(filas) != 20:
         err.append(f"tabla de espacios multiclase con {len(filas)} filas, se esperaban 20")
     else:
+        # ── Qué se comprueba aquí y qué NO, desde el 2026-09-02 ──────────
+        # Esta tabla ES la fuente citada de los espacios del lanzador completo
+        # (pdf 47 = libro 45): hasta hoy se comparaba contra el literal
+        # `COMPLETO` de este mismo fichero, que no tenía cita. Ahora que la
+        # autoridad es la tabla, compararla con `_espacios_completo()` sería
+        # compararla consigo misma, y un chequeo tautológico en verde es peor
+        # que ninguno: parece que cubre algo.
+        #
+        # El contraste numérico real lo hace `validar_clase()`, que enfrenta
+        # esta tabla a las progresiones de las 8 clases de lanzador completo y
+        # las 2 de lanzador medio —transcritas cada una desde su propia página
+        # del manual—. Se comprobó: mover una fila de esta tabla saca 7 clases
+        # en rojo. Aquí quedan las propiedades que ESA comprobación no ve: que
+        # la tabla tenga sus 20 filas, en orden, y sin huecos de columna.
         for i, fila in enumerate(filas):
             if fila.get("nivel") != i + 1:
                 err.append(f"tabla multiclase: nivel fuera de secuencia en fila {i+1}")
-            slots = [fila.get(str(j), 0) for j in range(1, 10)]
-            if slots != COMPLETO[i]:
-                err.append(f"tabla multiclase N{i+1}: {slots} != {COMPLETO[i]} (lanzador completo)")
+            faltan = [j for j in range(1, _ESPACIOS_MAX + 1) if str(j) not in fila]
+            if faltan:
+                err.append(f"tabla multiclase N{i+1}: le faltan las columnas "
+                           f"{faltan} (un nivel de conjuro ausente no es un 0: "
+                           f"es un dato que nadie ha transcrito)")
     if not lz.get("calculo_nivel_para_tabla"):
         err.append("multiclase: falta la regla de cálculo del nivel de lanzador")
 
@@ -1848,10 +1910,11 @@ def validar_costes_sin_fuente():
 #   (a) que los efectos DECLARADOS sean válidos — barato y evidente;
 #   (b) que no haya prosa que prometa una mecánica SIN efecto detrás — que es
 #       lo que deja fuera al caso que nadie recuerda.
-_PROMESAS = (
-    ("ca", ("ca base", "clase de armadura base")),
-    ("pg_max", ("pg máximos aumentan", "puntos de golpe máximos aumentan")),
-)
+# Las frases de promesa vivían aquí, en una tupla escrita a mano, y conocían 2
+# de las 3 variables calculables: `velocidad` entró en el motor el 2026-08-30 y
+# nadie las actualizó. Es el caso 5 del §2 del Plan 18, cerrado el 2026-09-02
+# leyéndolas de `reglas/efectos.yaml`, donde viven pegadas a su variable. Ver
+# `_promesas()` más abajo: una variable `calculada` sin `promesas` es un error.
 
 
 def validar_efectos():
@@ -1922,12 +1985,31 @@ def validar_efectos():
             err.append(f"efecto sin cita de página numérica en {d}")
 
     # (b) prosa que promete mecánica sin efecto detrás
+    #
+    # La cobertura de este chequeo se DESCUBRE del vocabulario: toda variable
+    # `calculada` tiene que traer sus `promesas`, y no traerlas es un error.
+    # Así no se puede añadir una cuarta variable y dejar su prosa sin vigilar,
+    # que es exactamente lo que pasó con `velocidad` durante tres días.
+    promesas = []
+    for nombre, v in (vocab.get("variables") or {}).items():
+        if (v or {}).get("tipo") != "calculada":
+            continue
+        frases = (v or {}).get("promesas")
+        if not frases:
+            err.append(
+                f"la variable calculable «{nombre}» no declara `promesas` en "
+                f"reglas/efectos.yaml: sin las frases con las que su prosa la "
+                f"anuncia, un rasgo puede prometerla y no declararla y nadie "
+                f"lo diría")
+            continue
+        promesas.append((nombre, tuple(f.lower() for f in frases)))
+
     con_efecto = {(ef["_archivo"], ef["_rasgo"], ef["objetivo"]) for ef in declarados}
     for rel, camino in E.origenes():
         doc = yaml.safe_load((B / rel).read_text(encoding="utf-8"))
         for reg, _anc in E._descender(doc, list(camino)):
-            txt = (reg.get("desc") or "").lower()
-            for objetivo, frases in _PROMESAS:
+            txt = (reg.get("desc") or reg.get("descripcion") or "").lower()
+            for objetivo, frases in promesas:
                 if not any(f in txt for f in frases):
                     continue
                 if (rel, reg.get("nombre"), objetivo) not in con_efecto:

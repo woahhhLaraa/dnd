@@ -39,10 +39,55 @@ import pathlib
 import sys
 
 B = pathlib.Path(__file__).parent
-FUENTES = ("validar.py", "verificar_personaje.py", "verificar_foundry.py",
-           "verificar_srd.py", "cobertura.py", "verificar_documentos.py")
+
+# ── Qué se audita, y por qué ya no es una lista (bloque A2, 2026-09-02) ───
+# `FUENTES` era una tupla de seis rutas escritas a mano. El censo (bloque A)
+# la midió y salió el caso 6 del §2 del Plan 18: **de las seis declaradas,
+# tres no aportaban NADA**. `verificar_srd.py`, `cobertura.py` y
+# `verificar_documentos.py` no tienen ni una función `validar_*`/`verificar_*`
+# —sus chequeos viven dentro de `main()`—, así que estaban en la lista, se
+# leían enteras, y no se auditaba ni una rama. Estar en la lista parecía
+# cobertura y no lo era, que es peor que faltar.
+#
+# Dos arreglos, y son los mismos de siempre:
+#   · los ficheros se DESCUBREN (`*.py` de la raíz) en vez de escribirse;
+#   · se audita también `main()`, que es donde esos tres tienen sus bucles.
+# Un módulo sin ninguna función auditable no es un fallo —`materiales.py` y
+# `prerrequisitos.py` son bibliotecas— pero tiene que estar DECLARADO: lo
+# exige `censo.py` en su fila de módulos, con su motivo.
+#
+# El ámbito nuevo destapó **16 ramas** que nadie miraba, casi todas en los
+# `main()` de esos tres. La línea base se regeneró una vez el 2026-09-02 para
+# incluirlas: son deuda declarada, no permiso, y desde ahí solo puede bajar.
+def _auditable(nombre):
+    return nombre.startswith(("validar_", "verificar_")) or nombre == "main"
+
+
+def fuentes():
+    """Los módulos de herramienta de la raíz. Se descubren, no se listan."""
+    return tuple(sorted(p.name for p in B.glob("*.py")))
+
+
 AVISADORES = {"error", "aviso", "hueco", "nota", "ok", "append", "exit",
               "sys.exit", "ErrorDeEfectos", "ErrorDePrerrequisito"}
+
+
+# Marcas con las que este proyecto imprime que algo va mal. Un `print` con
+# una de ellas ES avisar: `verificar_srd.py` no acumula en `err`, imprime
+# directamente («⚠ Bárbaro: falta el yaml»), y contarlo como silencio era un
+# falso positivo de esta herramienta, no una rama muda. Un `print` sin marca
+# sigue sin contar: imprimir «ok» antes de saltarse un registro es callarse.
+_MARCAS_DE_AVISO = ("⚠", "✗", "❌", "🔴")
+
+
+def _imprime_aviso(n):
+    if not (isinstance(n, ast.Call) and getattr(n.func, "id", None) == "print"):
+        return False
+    for arg in ast.walk(n):
+        if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+            if any(m in arg.value for m in _MARCAS_DE_AVISO):
+                return True
+    return False
 
 
 def _avisa(nodo):
@@ -51,7 +96,7 @@ def _avisa(nodo):
         if isinstance(n, ast.Call):
             f = n.func
             nombre = getattr(f, "attr", None) or getattr(f, "id", None)
-            if nombre in AVISADORES:
+            if nombre in AVISADORES or _imprime_aviso(n):
                 return True
         if isinstance(n, ast.Raise):
             return True
@@ -60,15 +105,14 @@ def _avisa(nodo):
 
 def main():
     silencios, tolerados = [], []
-    for rel in FUENTES:
+    for rel in fuentes():
         p = B / rel
         if not p.exists():
             continue
         lineas = p.read_text(encoding="utf-8").splitlines()
         arbol = ast.parse("\n".join(lineas))
         for fn in [n for n in ast.walk(arbol)
-                   if isinstance(n, ast.FunctionDef)
-                   and (n.name.startswith("validar_") or n.name.startswith("verificar_"))]:
+                   if isinstance(n, ast.FunctionDef) and _auditable(n.name)]:
             for nodo in ast.walk(fn):
                 if not isinstance(nodo, ast.If):
                     continue

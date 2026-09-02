@@ -48,6 +48,11 @@ rasgos:
     nivel: 5
     pagina: {pdf: 54, libro: 52}
     desc: "Tu velocidad aumenta en 3 m mientras no lleves armadura pesada."
+    # «mientras no lleves armadura PESADA»: con ligera o media lo conserva.
+    # Por eso no vale `sin_armadura`, que es la condición del Monje.
+    efectos:
+      - {objetivo: velocidad, op: add, formula: "3",
+         requiere: [sin_armadura_pesada], pagina: {pdf: 54, libro: 52}}
 
   - nombre: "Instinto salvaje"
     nivel: 7

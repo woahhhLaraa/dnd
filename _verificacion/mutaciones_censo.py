@@ -125,10 +125,14 @@ def m_declaracion_muerta(r):
 
 
 def m_declaracion_borrada(r):
+    # Apuntaba a `variable:velocidad` hasta que el bloque A2 cerró ese hueco
+    # y borró su declaración —el censo mismo lo exigió, marcándola como
+    # muerta—. Se muda a una exención que sigue viva.
     _sust(r, MANIFIESTO,
-          '  - unidad: "variable:velocidad"\n    bloque: "A2"\n', '  - unidad: "variable:_nada"\n    bloque: "A2"\n')
-    return ("se borra la declaración de `variable:velocidad`: el hueco vuelve a "
-            "salir SIN DECLARAR (y la declaración huérfana, como muerta)")
+          '  - unidad: "modulo:materiales.py"\n',
+          '  - unidad: "modulo:_nada.py"\n')
+    return ("se borra la declaración de `modulo:materiales.py`: el módulo "
+            "vuelve a salir SIN DECLARAR (y la declaración huérfana, como muerta)")
 
 
 def m_comodin_en_exentas(r):

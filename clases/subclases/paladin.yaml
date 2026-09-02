@@ -36,7 +36,18 @@ subclases:
       - {nivel: 3, nombre: "Atleta sin parangón", desc: "Acción adicional: gasta un uso de Canalizar divinidad para obtener durante 1 hora ventaja en pruebas de Fuerza (Atletismo) y Destreza (Acrobacias), y aumentar en 3 m la distancia de tus saltos de longitud y de altura (gastando movimiento adicional del modo habitual para esa distancia extra)."}
       - {nivel: 3, nombre: "Castigo inspirador", desc: "Inmediatamente después de lanzar castigo divino, puedes gastar un uso de Canalizar divinidad para distribuir PG temporales entre criaturas de tu elección (incluido tú) a 9 m o menos. Total: 2d8 + tu nivel de paladín, repartido como quieras."}
       - {nivel: 3, nombre: "Conjuros del juramento de gloria", desc: "Cuando alcances un nivel de paladín especificado en la tabla «Conjuros del juramento de gloria», a partir de entonces siempre tendrás preparados los conjuros que se indican."}
-      - {nivel: 7, nombre: "Aura de celeridad", desc: "Tu velocidad aumenta en 3 m. Además, siempre que un aliado entre en tu Aura de protección por primera vez en un turno o comience su turno dentro de ella, su velocidad aumenta en 3 m hasta el final de su próximo turno."}
+      - nivel: 7
+        nombre: "Aura de celeridad"
+        desc: "Tu velocidad aumenta en 3 m. Además, siempre que un aliado entre en tu Aura de protección por primera vez en un turno o comience su turno dentro de ella, su velocidad aumenta en 3 m hasta el final de su próximo turno."
+        # Las dos mitades del rasgo NO son la misma cosa: la primera frase no
+        # lleva condición ni duración —es la velocidad del paladín, y se
+        # calcula—; la segunda es sobre la velocidad de OTRA criatura y
+        # depende de dónde esté, así que se cita y no se agrega.
+        efectos:
+          - {objetivo: velocidad, op: add, formula: "3", pagina: {pdf: 164, libro: 162}}
+          - {objetivo: velocidad, op: conditional,
+             texto: "Un aliado que entre en el Aura de protección por primera vez en un turno, o empiece su turno dentro, gana +3 m hasta el final de su próximo turno",
+             pagina: {pdf: 164, libro: 162}}
       - {nivel: 15, nombre: "Defensa gloriosa", desc: "Reacción cuando una tirada de ataque os acierta a ti o a otra criatura a 3 m o menos: sumas un bonificador a la CA del objetivo igual a tu modificador por Carisma (mínimo +1), lo que podría hacer que el ataque falle; si falla, puedes hacer un ataque con arma contra el atacante si está a tu alcance. Usos iguales a tu modificador por Carisma (mínimo 1), recuperados tras un descanso largo."}
       - {nivel: 20, nombre: "Leyenda viviente", desc: "Acción adicional: obtienes estos beneficios durante 10 minutos (no repetible hasta un descanso largo, o gastando un espacio de conjuro de nivel 5 sin acción): Carismático (ventaja en todas las pruebas de Carisma), Golpe certero (una vez por turno, si fallas un ataque con arma, puedes hacer que acierte) y Repetir tiradas de salvación (si fallas un TdS, puedes usar una reacción para repetirla, usando el nuevo resultado)."}
 

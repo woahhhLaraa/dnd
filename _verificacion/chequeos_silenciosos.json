@@ -1,7 +1,10 @@
 {
  "_nota": "Ramas de chequeo que abandonan un registro sin decir nada. Es DEUDA DECLARADA, no permiso: ninguna nueva puede aparecer, y cada una que se anote con `# TOLERADO:` o empiece a avisar sale de aquí.",
- "_fecha": "2026-08-30",
+ "_fecha": "2026-09-02",
  "ramas": [
+  "_convertir_hechizos.py::main::continue",
+  "censo.py::main::continue",
+  "censo.py::main::continue",
   "validar.py::validar_ataques::continue",
   "validar.py::validar_clase::pass",
   "validar.py::validar_competencias_clase::continue",
@@ -9,6 +12,7 @@
   "validar.py::validar_costes_sin_fuente::continue",
   "validar.py::validar_costes_sin_fuente::continue          # lo cubre verificar_foundry.py",
   "validar.py::validar_dados::continue",
+  "validar.py::validar_efectos::continue",
   "validar.py::validar_efectos::continue",
   "validar.py::validar_efectos::continue",
   "validar.py::validar_efectos::continue",
@@ -33,6 +37,12 @@
   "validar.py::validar_tirada::pass                                  # excepción citada arriba",
   "validar.py::validar_vecindad::continue",
   "validar.py::validar_vecindad::continue",
+  "verificar_chequeos.py::main::continue",
+  "verificar_chequeos.py::main::continue",
+  "verificar_chequeos.py::main::continue",
+  "verificar_chequeos.py::main::continue",
+  "verificar_documentos.py::main::continue",
+  "verificar_documentos.py::main::continue",
   "verificar_foundry.py::verificar_armaduras::continue",
   "verificar_foundry.py::verificar_armaduras::continue",
   "verificar_foundry.py::verificar_armaduras::continue",
@@ -56,5 +66,6 @@
   "verificar_personaje.py::verificar_sin_copias::continue",
   "verificar_personaje.py::verificar_sin_copias::continue",
   "verificar_personaje.py::verificar_sin_copias::continue  # explicación del LLM, no texto de la base"
- ]
+ ],
+ "_rebase": "Regenerada el 2026-09-02 (bloque A2 del Plan 18, caso 6). Hasta entonces `verificar_chequeos.FUENTES` era una tupla de seis rutas a mano y TRES de ellas no aportaban ninguna rama: sus chequeos viven dentro de `main()`, que no se auditaba. Ahora los ficheros se descubren y se audita también `main`, y eso sacó a la luz 9 ramas que nadie miraba. La línea base pasa de 54 a 64 UNA vez, con las nuevas contadas y visibles; desde aquí solo puede bajar. Que subiera al ampliar el ámbito es el resultado esperado: significa que antes no se estaba mirando, no que se haya roto nada."
 }
