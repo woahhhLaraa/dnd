@@ -4,7 +4,7 @@ No consulta el manual: comprueba coherencia interna. Un dato inventado
 que no respete estas reglas hace fallar la validación.
 Uso: python3 validar.py
 """
-import re, json, sys, pathlib
+import functools, re, json, sys, pathlib
 try:
     import yaml
 except ImportError:
@@ -581,8 +581,13 @@ def _principales(txt):
         return [partes[0]], None
     return [partes[0], partes[2]], partes[1]
 
+@functools.lru_cache(maxsize=None)
 def _clases_data():
-    """Carga los 12 clases/*.yaml con PyYAML, indexados por el campo 'clase'."""
+    """Carga los 12 clases/*.yaml con PyYAML, indexados por el campo 'clase'.
+
+    Cacheada el 2026-08-31: se llamaba 5 veces y costaba 2,8 s de los 13.
+    Solo lectura, como `calculo.cargar`.
+    """
     out = {}
     for p in sorted((B / "clases").glob("*.yaml")):
         d = yaml.safe_load(p.read_text(encoding="utf-8"))
@@ -1877,7 +1882,16 @@ def validar_efectos():
         # fuentes del mismo dato. `columna` (Fase D4) lee la tabla dispersa de
         # la progresión de su clase, así que no menciona variables.
         tiene = [k for k in ("formula", "columna") if ef.get(k) is not None]
-        if len(tiene) != 1:
+        if ef.get("op") == "conditional":
+            # C4: no se calcula, se cita. Trae `texto` y NINGUNA fuente de
+            # valor — si trajera fórmula, alguien acabaría agregándola.
+            if not (ef.get("texto") or "").strip():
+                err.append(f"{d}: `conditional` sin `texto`: un efecto que no "
+                           f"se calcula tiene que decir qué hace")
+            if tiene:
+                err.append(f"{d}: `conditional` trae {tiene}, y no debe: es un "
+                           f"efecto que NO se calcula")
+        elif len(tiene) != 1:
             err.append(f"{d}: un efecto debe traer `formula` O `columna`, "
                        f"y trae {tiene or 'ninguna de las dos'}")
         elif "columna" in tiene:
@@ -1909,7 +1923,7 @@ def validar_efectos():
 
     # (b) prosa que promete mecánica sin efecto detrás
     con_efecto = {(ef["_archivo"], ef["_rasgo"], ef["objetivo"]) for ef in declarados}
-    for rel, camino in E._ORIGENES:
+    for rel, camino in E.origenes():
         doc = yaml.safe_load((B / rel).read_text(encoding="utf-8"))
         for reg, _anc in E._descender(doc, list(camino)):
             txt = (reg.get("desc") or "").lower()
@@ -1923,11 +1937,14 @@ def validar_efectos():
                         f"haga: la regla existe pero nadie la puede calcular")
 
     # (b2) ningún `efectos:` fuera de los ficheros que el motor recorre.
-    # `efectos._ORIGENES` es una lista escrita a mano, y una lista escrita a
-    # mano es EXACTAMENTE lo que dejó fuera a las dos fórmulas de CA de
-    # subclase. Si alguien declara un efecto en `dotes/` o `trasfondos/`, hoy
-    # se ignoraría en silencio; esto lo convierte en un error ruidoso.
-    conocidos = {rel for rel, _ in E._ORIGENES}
+    # Antes de C1 (Plan 17) esto era el parche al síntoma: `efectos._ORIGENES`
+    # era una lista escrita a mano —lo que dejó fuera a las dos fórmulas de CA
+    # de subclase— y este chequeo solo avisaba de las consecuencias. Hoy la
+    # cobertura la calcula `E.origenes()` contra el manifiesto, así que los
+    # ficheros de REGLA ya no pueden quedarse fuera en silencio.
+    # Esto sigue haciendo falta para los demás directorios (`equipo/`,
+    # `reglas/`…), donde un `efectos:` suelto seguiría sin tener quien lo lea.
+    conocidos = {rel for rel, _ in E.origenes()}
     for f in sorted(B.glob("**/*.yaml")):
         rel = f.relative_to(B).as_posix()
         if rel in conocidos or rel.startswith(("_verificacion/", "personajes/")):
@@ -1935,7 +1952,7 @@ def validar_efectos():
         if re.search(r"^\s*efectos:", f.read_text(encoding="utf-8"), re.M):
             err.append(
                 f"{rel} declara `efectos:` y el motor no lo recorre: añádelo a "
-                f"`efectos._ORIGENES` o el efecto no existe para nadie")
+                f"`reglas/fuentes_de_efectos.yaml` o el efecto no existe para nadie")
 
     # (b3) un efecto con `columna` tiene que resolverse en TODOS los niveles de
     # su clase, no en uno.
@@ -2307,6 +2324,104 @@ def validar_tiradas():
 # Y un segundo chequeo, del que ya hay precedente: cada rasgo y cada categoría
 # de entrenamiento citados tienen que **resolver a un registro real**. Citar un
 # rasgo que no existe es el bug `Clerigo` otra vez.
+# ── C3 del Plan 17: la mejora de característica que concede una DOTE ──────
+# El defecto que cierra esto, medido el 2026-08-31: `Actor` concede «Carisma
+# +1» y ese +1 vivía SOLO dentro de la cadena `descripcion`. El esquema exigía
+# `final == base + ajuste_trasfondo + mejoras`, y una dote no tenía dónde
+# entrar. Resultado invertido: la ficha CORRECTA (Car 18) se rechazaba por
+# «puntuación sin justificar», y la ficha ROTA (Car 17, el +1 perdido)
+# verificaba en verde con la CD, el ataque y la CA un punto por debajo.
+#
+# Método: el mismo de la Fase 15 con los prerrequisitos — no se transcribe
+# nada nuevo, se ESTRUCTURA la prosa ya citada, y se exige IDA Y VUELTA. Si
+# la estructura no reproduce el fragmento del manual palabra por palabra, la
+# estructura está mal. 54/54 exactas al escribirse.
+#
+# Detalle que la ida y vuelta salvó: los 12 dones épicos dicen «máx. 30», no
+# «máx. 20». Haber supuesto 20 habría inventado una regla para 12 dotes.
+_MEJORA_FRAG = re.compile(
+    r'^\s*Mejora de característica:\s*'
+    r'(.+?\(máx\.\s*\d+\)(?: a una característica [^.]+)?)\.')
+_CARACTS = ("Fuerza", "Destreza", "Constitución", "Inteligencia",
+            "Sabiduría", "Carisma")
+
+
+def _mejora_a_prosa(m):
+    """estructura -> fragmento del manual. Es la mitad de vuelta."""
+    cant, mx = m.get("cantidad"), m.get("maximo")
+    if m.get("restriccion"):
+        return f"+{cant} (máx. {mx}) a una característica {m['restriccion']}"
+    e = m.get("entre")
+    if e == "cualquiera":
+        return f"una a elección +{cant} (máx. {mx})"
+    if not isinstance(e, list) or not e:
+        return None
+    if len(e) == 1:
+        cuerpo = e[0]
+    elif len(e) == 2:
+        cuerpo = f"{e[0]} o {e[1]}"
+    else:
+        cuerpo = ", ".join(e[:-1]) + f" o {e[-1]}"
+    return f"{cuerpo} +{cant} (máx. {mx})"
+
+
+def validar_mejoras_de_dote():
+    err, warn = [], []
+    n_ok = 0
+    for f in sorted((B / "dotes").glob("*.yaml")):
+        d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        rel = f.relative_to(B).as_posix()
+        for x in d.get("dotes", []) or []:
+            nom = x.get("nombre")
+            desc = str(x.get("descripcion", ""))
+            m = _MEJORA_FRAG.match(desc)
+            est = x.get("mejora_caracteristica")
+
+            # (a) la prosa promete un +1 y no hay estructura -> el caso Actor
+            if m and not est:
+                err.append(f"«{nom}» ({rel}) concede una mejora de "
+                           f"característica en su texto y no la declara en "
+                           f"`mejora_caracteristica`: el +1 no lo aplicaría "
+                           f"nadie y la ficha correcta sería la rechazada")
+                continue
+            # (b) estructura sin prosa que la respalde -> dato inventado
+            if est and not m:
+                err.append(f"«{nom}» ({rel}) declara `mejora_caracteristica` "
+                           f"y su `descripcion` no dice que conceda ninguna: "
+                           f"una mejora sin texto que la cite es inventada")
+                continue
+            if not est:
+                # TOLERADO: lo cubren (a) y (b) de arriba. Una dote sin
+                # `mejora_caracteristica` cuyo texto tampoco promete ninguna
+                # no tiene nada que comprobar; los dos casos en que la
+                # ausencia SÍ es un defecto ya han saltado antes de llegar
+                # aquí (prosa sin estructura, estructura sin prosa).
+                continue
+
+            # (c) ida y vuelta exacta
+            generado = _mejora_a_prosa(est)
+            if generado != m.group(1):
+                err.append(f"«{nom}» ({rel}): `mejora_caracteristica` no "
+                           f"reproduce su propio texto.\n"
+                           f"        manual:    «{m.group(1)}»\n"
+                           f"        estructura: «{generado}»")
+                continue
+
+            # (d) el vocabulario de características es cerrado
+            e = est.get("entre")
+            if isinstance(e, list):
+                for c in e:
+                    if c not in _CARACTS:
+                        err.append(f"«{nom}» ({rel}): {c!r} no es una "
+                                   f"característica")
+            elif e != "cualquiera":
+                err.append(f"«{nom}» ({rel}): `entre` debe ser una lista de "
+                           f"características o «cualquiera», y es {e!r}")
+            n_ok += 1
+
+    return f"mejoras de dote ({n_ok})", err, warn
+
+
 def validar_prerrequisitos():
     err, warn = [], []
     import prerrequisitos as P
@@ -2495,7 +2610,8 @@ def main():
     for fn in (validar_tirada, validar_vecindad, validar_ortografia,
                validar_citas_conjuro, validar_costes_sin_fuente, validar_efectos,
                validar_materiales, validar_tiradas, validar_ataques,
-               validar_prerrequisitos, validar_subida):
+               validar_prerrequisitos, validar_subida,
+               validar_mejoras_de_dote):
         nom, err, warn = fn()
         total_err += len(err)
         print(f" {'✅' if not err else '❌'} {nom:<24} {'0 errores' if not err else str(len(err))+' ERRORES'}")

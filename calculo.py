@@ -10,6 +10,7 @@ citado de dónde sale cada fórmula. Uso como librería (import) o CLI:
     python3 calculo.py cd-conjuros --aptitud 3 --nivel 1
 """
 import argparse
+import functools
 import json
 import pathlib
 import re
@@ -23,7 +24,24 @@ except ImportError:
 B = pathlib.Path(__file__).parent
 
 
+@functools.lru_cache(maxsize=None)
 def cargar(rel):
+    """Lee un fichero de la base. **El resultado se cachea y se comparte.**
+
+    Medido el 2026-08-31 con cProfile sobre `validar.py`: el **98 % del tiempo**
+    se iba en `yaml.safe_load`, con 1068 parseos de los mismos ficheros. Solo
+    `validar_subida()` gastaba 34 s releyendo las tablas de clase 333 veces,
+    una por salto de nivel.
+
+    **Contrato: lo devuelto es de SOLO LECTURA.** Todos los llamadores actuales
+    lo respetan (comprobado: ninguno asigna ni muta sobre el resultado). Si
+    alguna vez hace falta modificarlo, cópialo primero.
+
+    **Por qué es seguro con las pruebas por mutación:** copian la base a un
+    directorio temporal y lanzan `validar.py` en SUBPROCESO, así que cada
+    mutación estrena caché. Una caché de proceso no puede servir datos viejos
+    a la mutación siguiente.
+    """
     f = B / rel
     if not f.exists():
         sys.exit(f"✗ no existe: {rel}")
@@ -42,16 +60,29 @@ def modificador(puntuacion):
 
 # ── Compra por puntos ────────────────────────────────────────────────────
 # reglas/generacion_personaje.yaml → metodos_generacion_caracteristicas.coste_en_puntos
-_TABLA_COSTE = {8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9}
+#
+# La tabla SE LEE de la base; no se copia aquí. Hasta el 2026-08-31 estaba
+# cableada como `_TABLA_COSTE = {8:0, 9:1, ...}` **con este mismo comentario
+# encima señalando el YAML**, y las dos copias no las contrastaba nadie:
+# `validar.py` validaba la del YAML y `calculo.py` calculaba con la suya. Una
+# corrección en la base habría dejado la aritmética con los valores viejos y
+# todo en verde. Es el mismo defecto que `_CA_SIN_ARMADURA` y `_ORIGENES`, en
+# el núcleo aritmético. Regla inviolable 6 de CONTINUAR.md.
+def _tabla_coste():
+    cp = cargar("reglas/generacion_personaje.yaml")[
+        "metodos_generacion_caracteristicas"]["coste_en_puntos"]
+    return {int(k): v for k, v in cp["tabla_coste"].items()}
 
 
 def coste_compra_puntos(scores):
-    """Suma el coste de las 6 puntuaciones. Lanza si alguna está fuera de 8-15."""
+    """Suma el coste de las 6 puntuaciones. Lanza si alguna está fuera de tabla."""
+    tabla = _tabla_coste()
     total = 0
     for car, val in scores.items():
-        if val not in _TABLA_COSTE:
-            sys.exit(f"✗ {car}={val} fuera del rango de compra por puntos (8-15)")
-        total += _TABLA_COSTE[val]
+        if val not in tabla:
+            sys.exit(f"✗ {car}={val} fuera del rango de compra por puntos "
+                     f"({min(tabla)}-{max(tabla)})")
+        total += tabla[val]
     return total
 
 

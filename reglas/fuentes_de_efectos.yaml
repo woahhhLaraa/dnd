@@ -1,0 +1,100 @@
+# Manifiesto de fuentes de efectos (Plan 17, C1 — 2026-08-31).
+#
+# ── Por qué existe este fichero ──────────────────────────────────────────
+# Hasta hoy, `efectos.py` llevaba la lista de sus fuentes escrita a mano:
+# una tupla `_ORIGENES` con 15 rutas literales. Conocía 2 de las 48
+# subclases y 0 de los 4 ficheros de dotes, y **no había forma de que se
+# enterara de que existía una tercera**.
+#
+# Ese es exactamente el defecto que la cabecera de `reglas/efectos.yaml`
+# condena para las fórmulas de CA:
+#
+#   «Una regla cableada no se puede citar, no se puede validar y no se
+#    entera de que hay una quinta.»
+#
+# `_ORIGENES` era `_CA_SIN_ARMADURA` otra vez, un nivel más arriba: se
+# había sustituido un diccionario cableado de FÓRMULAS por una tupla
+# cableada de RUTAS. Mismo patrón, mismo modo de fallo.
+#
+# ── Qué cambia ───────────────────────────────────────────────────────────
+# La cobertura deja de ser una lista y pasa a ser una COMPROBACIÓN:
+# `efectos.py` descubre por patrón todos los ficheros de regla y consulta
+# aquí cómo recorrer cada uno. Un fichero descubierto que ningún patrón
+# sepa recorrer **es un error**, no un salto silencioso.
+#
+# Consecuencia práctica: añadir `clases/subclases/artificiero.yaml` hace
+# fallar al motor hasta que alguien decida (aquí) cómo se recorre. Ya no
+# se puede olvidar enchufar una fuente, porque no hay nada que enchufar.
+edicion: "2024 (5.5e)"
+verificado: {metodo: "estructural", fecha: "2026-08-31"}
+
+# `patron`  — glob relativo a la raíz de la base.
+# `camino`  — claves por las que descender hasta el registro que puede
+#             llevar `efectos:`. Lista vacía = el propio documento.
+# `que_es`  — para los mensajes de error; no lo consume el motor.
+fuentes:
+  - patron: "especies/especies.yaml"
+    camino: [especies, rasgos]
+    que_es: "rasgos de especie"
+
+  - patron: "clases/rasgos/*.yaml"
+    camino: [rasgos]
+    que_es: "rasgos de clase"
+
+  - patron: "clases/subclases/*.yaml"
+    camino: [subclases, rasgos]
+    que_es: "rasgos de subclase"
+
+  - patron: "dotes/*.yaml"
+    camino: [dotes]
+    que_es: "dotes"
+
+  - patron: "trasfondos/*.yaml"
+    camino: [trasfondos]
+    que_es: "trasfondos"
+
+# ── Ficheros de regla que NO son fuente de efectos ───────────────────────
+# Se declaran uno a uno, con el motivo. No es una lista de perdón: es la
+# forma de decir «lo miramos y no lleva efectos», que es justo lo que
+# faltaba. Un fichero nuevo bajo `clases/`, `dotes/`, `especies/`,
+# `trasfondos/` o `reglas/` que no case con `fuentes` ni aparezca aquí
+# hace fallar al motor.
+excluidos:
+  - ruta: "clases/barbaro.yaml"
+    motivo: "tabla de progresión y atributos básicos; sus números son columnas contrastadas por verificar_srd.py, no efectos"
+  - ruta: "clases/bardo.yaml"
+    motivo: "ídem"
+  - ruta: "clases/brujo.yaml"
+    motivo: "ídem"
+  - ruta: "clases/clerigo.yaml"
+    motivo: "ídem"
+  - ruta: "clases/druida.yaml"
+    motivo: "ídem"
+  - ruta: "clases/explorador.yaml"
+    motivo: "ídem"
+  - ruta: "clases/guerrero.yaml"
+    motivo: "ídem"
+  - ruta: "clases/hechicero.yaml"
+    motivo: "ídem"
+  - ruta: "clases/mago.yaml"
+    motivo: "ídem"
+  - ruta: "clases/monje.yaml"
+    motivo: "ídem"
+  - ruta: "clases/paladin.yaml"
+    motivo: "ídem"
+  - ruta: "clases/picaro.yaml"
+    motivo: "ídem"
+  - ruta: "reglas/efectos.yaml"
+    motivo: "es el vocabulario del propio motor, no una fuente de efectos"
+  - ruta: "reglas/fuentes_de_efectos.yaml"
+    motivo: "este mismo fichero"
+  - ruta: "reglas/generacion_personaje.yaml"
+    motivo: "reglas de creación y multiclase; no concede rasgos"
+  - ruta: "reglas/habilidades.yaml"
+    motivo: "catálogo de las 18 habilidades; no concede rasgos"
+  - ruta: "reglas/idiomas.yaml"
+    motivo: "catálogo de idiomas; no concede rasgos"
+  - ruta: "reglas/prerrequisitos.yaml"
+    motivo: "gramática de prerrequisitos de dote (Fase 15); no concede rasgos"
+  - ruta: "reglas/subida_de_nivel.yaml"
+    motivo: "taxonomía de subida de nivel; no concede rasgos"

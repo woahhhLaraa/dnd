@@ -1,6 +1,7 @@
 # FODA — la base canónica como sustrato de un orquestador LLM
 
-> Fecha: **2026-08-29**. Sustituye a `FODA_2026-08-19_OBSOLETO.md`, cuyas
+> Fecha: **2026-08-29**. Sustituye a `FODA_2026-08-19_OBSOLETO.md` (borrado el 2026-08-31; en el
+> historial de git), cuyas
 > debilidades 1, 2, 3 y 4 están todas cerradas y cuya «Conclusión operativa»
 > mandaba hacer dos fases que ya se hicieron.
 > Premisa: **todo lo interpretativo lo ejecuta un LLM**; la base es su única
@@ -43,6 +44,27 @@ reproducen con los cinco comandos del final.
    Un auditor al que se le exige citar textualmente ya sabe qué está citando.
 7. **La base sabe cuánto se equivoca.** Es lo más raro de este proyecto: hay
    tasas medidas con intervalo de confianza por superficie, no una sensación.
+
+### Lo que se aprendió mirando a los maduros (2026-08-31)
+
+Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
+
+- **Foundry automatiza 76 de 332 rasgos de clase/subclase 2024 (23 %).** El
+  resto es texto. No resolvieron el problema automatizando todo: lo
+  resolvieron **no intentándolo**, y **declarando la frontera dentro del
+  dato** — 380 registros llevan una «Foundry Note» que dice qué no está
+  automatizado. Aquí la frontera era el silencio.
+- **Foundry no tiene tests.** Su `package.json` trae `build`, `lint` y
+  `watch`. Sustituyen verificación por cientos de miles de jugadores. Este
+  proyecto tiene una usuaria, así que sus 3666 valores y sus 149 mutaciones
+  **son el sustituto correcto** y no se tocan. De Foundry se copia la
+  arquitectura, nunca la ausencia de pruebas.
+- **Una dote que sube una característica usa en Foundry el MISMO mecanismo
+  que la mejora de nivel 4** (`advancement/AbilityScoreImprovement`). Un solo
+  camino, por eso no se puede olvidar conectar uno de los dos.
+- **DiceCloud tiene 11 operaciones; aquí había 6.** La que faltaba y cierra
+  el espiral es `conditional`: un efecto citado que guarda texto y no se
+  calcula. Adoptada el 2026-08-31.
 
 ## 📉 Debilidades
 
@@ -114,7 +136,89 @@ reproducen con los cinco comandos del final.
    código independiente sobre el diff — las ~1.400 líneas de módulos nuevos de
    la última tanda **no las ha revisado nadie**, y en ellas ya aparecieron
    cuatro defectos, **dos de ellos silenciosos**.
-7. **`hechizos.json` pesa 564 KB.** Cargarlo entero es el fallo «lost in the
+8. **🔴 La cobertura se escribía a mano, y por eso el motor no veía media
+   base.** *(descubierto y medido el 2026-08-31)*
+
+   `efectos._ORIGENES` era una tupla de 15 rutas literales: conocía **2 de las
+   48 subclases** y **0 de los 4 ficheros de dotes**. Consecuencia medida, y
+   estaba **invertida**:
+
+   | Ficha | Veredicto antes |
+   |---|---|
+   | `Duro` (dote de origen, nivel 1) con su +2 PG aplicado — CORRECTA | ❌ rechazada |
+   | `Duro` con el +2 perdido — ROTA | ✅ «0 problemas» |
+
+   Es decir: el verificador **aprobaba la ficha mal y rechazaba la buena**, en
+   el primer personaje que se crea, con una dote corriente del manual. 54 de
+   las 75 dotes conceden «+1 a característica» y ninguna tenía dónde
+   declararlo; `efectos.py` tampoco miraba `dotes/`.
+
+   **Lo grave no es el fallo, es que es el mismo de la debilidad 5** un nivel
+   más arriba. La cabecera de `reglas/efectos.yaml` condena las reglas
+   cableadas —«no se entera de que hay una quinta»— y doce líneas después
+   había una tupla cableada de RUTAS en vez de un diccionario cableado de
+   FÓRMULAS. Se diagnosticó la enfermedad con precisión y se reprodujo en la
+   línea siguiente.
+
+   **Y apareció cinco veces en total**, en módulos escritos en momentos
+   distintos: `_ORIGENES`, las cifras de `verificar_documentos`,
+   `verificar_chequeos.FUENTES` (audita 3 de las 6 fuentes que declara),
+   `verificar_srd.MAPA` (deja `pb` sin contraste externo) y
+   `verificar_foundry.MODULOS`. Cuando el mismo defecto sale cinco veces sin
+   que nadie lo copie, la causa es el método, no el despiste.
+
+   ✅ **Cerradas las dos primeras** (C1 y la ampliación de
+   `verificar_documentos`); las otras tres siguen abiertas y son el mismo
+   gesto. La regla 6 de `CONTINUAR.md` existe para que no haya una sexta.
+
+   **La lección de fondo, que vale para todo el proyecto:** se verificaba con
+   obsesión que **lo escrito fuera correcto** y nunca que **estuviera todo**.
+   3666 valores contrastados y 149 mutaciones no dicen nada sobre los
+   registros que ningún módulo llega a mirar.
+
+9. **🔴 19 de los 30 chequeos `validar_*` no tienen prueba por mutación.**
+   *(medido el 2026-08-31)*
+
+   Las 149 mutaciones son lo que da derecho a fiarse de los validadores — pero
+   solo cubren **11 de los 30**. Sin red se quedan cinco que guardan la
+   aritmética (`atributos_basicos`, `generacion`, `competencias_clase`,
+   `ataques` y **`mejoras_de_dote`**, escrito ese mismo día) y catorce de
+   contenido.
+
+   **La consecuencia práctica, y decide una decisión de arquitectura:** un
+   refactor es exactamente igual de seguro que la cobertura de pruebas de lo
+   que se refactoriza. Con el 63 % sin red, tocar `validar.py` significa que
+   esas comprobaciones pueden dejar de detectar lo que detectaban **sin que
+   nada avise**: un fallo silencioso introducido por la limpieza contra los
+   fallos silenciosos. Por eso el Plan 18 pone las mutaciones **antes** que
+   cualquier reestructuración.
+
+   Y la estructura, medida, **no justifica un refactor**: mediana de 35 líneas
+   por función en `validar.py`, 9 en `calculo.py`, y solo 5 de 47 funciones por
+   encima de 120 líneas. Ninguno de los ocho defectos de la debilidad 8 lo
+   causó la estructura; todos eran falta de una aserción de cobertura.
+
+10. **🔴 La regla inviolable 6 es prosa y no la comprueba nada.**
+   *(2026-08-31, el mismo día en que se escribió)*
+
+   Se añadió «la cobertura se descubre, nunca se escribe a mano» a
+   `CONTINUAR.md` tras encontrar ocho casos del defecto. **Nada la impide.**
+   Puede aparecer el noveno mañana.
+
+   Es literalmente la lección que este repo ya había registrado en
+   `FUENTES.md:208` —*«una regla en prosa no impide nada»*— y que motivó
+   escribir `verificar_chequeos.py`. Se diagnosticó el problema de las reglas
+   en prosa, se convirtió una en script, y la siguiente nació en prosa igual.
+
+   **La salida no es prohibir listas** (detectarlas en el AST daría falsos
+   positivos con los mapas de traducción y los nodos del AST) sino una
+   invariante contable: *toda unidad de la base tiene que estar alcanzada por
+   nombre por algún chequeo, o declarada como no alcanzable con su motivo*.
+   Eso es `censo.py`, el bloque A del Plan 18, y va antes que arreglar las
+   cuatro listas que quedan: si se arreglan primero, se arreglan «las que
+   alguien encontró»; con el censo, «las que hay».
+
+11. **`hechizos.json` pesa 564 KB.** Cargarlo entero es el fallo «lost in the
    middle». `buscar.py` lo evita, pero hay que usarlo siempre.
 
 ## 🚀 Oportunidades

@@ -154,6 +154,54 @@ ausente, conector `y`/`o` cambiado) — las 8 detectadas.
 
 ## Correcciones registradas
 
+- **El verificador aprobaba la ficha mal y rechazaba la buena → C1/C3/C4 del
+  Plan 17 (2026-08-31)** — el defecto más grave encontrado hasta la fecha, y
+  no era un dato equivocado: era un dato **que nadie miraba**.
+
+  **Medido, con la ficha de nivel 1 del propio repo:**
+
+  | Ficha | Veredicto antes |
+  |---|---|
+  | `Duro` (dote de origen) con su +2 PG aplicado — CORRECTA | ❌ rechazada |
+  | `Duro` con el +2 perdido — ROTA | ✅ «0 problemas» |
+  | `Actor` (nivel 4) con su +1 Carisma aplicado — CORRECTA | ❌ rechazada |
+  | `Actor` con el +1 perdido — ROTA | ✅ «0 problemas» |
+
+  **Causa:** `efectos._ORIGENES` era una tupla de 15 rutas escritas a mano.
+  Conocía 2 de las 48 subclases y **0 de los 4 ficheros de dotes**. Y 54 de
+  las 75 dotes conceden «Mejora de característica: X +1» dentro de una cadena
+  de texto, sin campo donde declararlo. Es el mismo defecto que la cabecera de
+  `reglas/efectos.yaml` condena para las fórmulas de CA cableadas, repetido un
+  nivel más arriba: un diccionario de FÓRMULAS sustituido por una tupla de
+  RUTAS.
+
+  **Corregido sin transcribir nada nuevo.** `mejora_caracteristica` se DERIVÓ
+  de la prosa ya citada, con **ida y vuelta 54/54 exacta** — el método de la
+  Fase 15. `validar_mejoras_de_dote()` la exige de forma permanente y salta en
+  los dos sentidos (prosa sin estructura, estructura sin prosa).
+
+  **Lo que la ida y vuelta evitó, y es el motivo de hacerla así:** los **12
+  dones épicos dicen «máx. 30», no 20**. Dar por hecho el 20 —que es lo que
+  «se sabe» de D&D— habría inventado una regla para 12 dotes. La ida y vuelta
+  lo hizo imposible antes de escribir nada.
+
+- **`personajes/draconido_hechicero_n4.yaml`: Carisma 17 → 18 (2026-08-31)** —
+  la ficha tomaba `Lanzador ritual`, que concede +1 a Inteligencia, Sabiduría
+  o Carisma, y **no aplicaba el +1**. Arrastraba CD 13, bonificador de ataque
+  +5 y CA 15 donde debían ser 14, +6 y 16. Se elige Carisma por ser la aptitud
+  mágica del Hechicero, y consta en el bloque `decisiones` de la ficha con su
+  cita. Nadie lo detectaba porque el +1 de una dote no tenía dónde entrar: el
+  esquema exigía `final == base + ajuste_trasfondo + mejoras`, y una dote no
+  era ninguna de las tres.
+
+- **`dotes/origen.yaml#Duro`: primer efecto de dote declarado (2026-08-31)** —
+  `{objetivo: pg_max, op: add, formula: "2 * nivel_total"}` (pdf 203 = libro
+  201). El texto da dos reglas —al adquirirla, el doble del nivel; después, +2
+  por nivel— que **juntas equivalen** a la forma cerrada declarada. No se
+  simplifica ninguna regla: se declara lo que el propio texto produce en todos
+  los niveles.
+
+
 - **«¿Cómo sabemos que no volverá a pasar?» → `verificar_chequeos.py`
   (2026-08-30)** — la respuesta honesta era **no lo sabemos**, y este proyecto ya
   tenía la prueba: la convención de `coste` *«llevaba una semana escrita en

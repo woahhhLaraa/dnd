@@ -4,18 +4,143 @@
 > conversación previa.**
 >
 > Orden de lectura para retomar:
-> 1. **este fichero** — qué hay, qué falta, con qué números;
-> 2. **`FUENTES.md`** — procedencia y las correcciones registradas, la más
->    reciente arriba (es largo: 111 KB; se lee por la sección que toque, no
->    entero);
-> 3. **`FODA.md`** — análisis vigente, si vas a decidir arquitectura;
-> 4. **`_verificacion/_auditoria_rasgos/ESTADO_13p.md`** — detalle de la
+> 1. **este fichero**, empezando por «EMPIEZA AQUÍ SI RETOMAS EN OTRA
+>    CONVERSACIÓN» — qué hay, qué falta, con qué números;
+> 2. **`PLAN_18_REVISION_COMPLETA.md`** — **el plan de trabajo vigente**. Trae
+>    los ocho casos del defecto de fondo, las cifras medidas y el orden de
+>    los bloques A-G;
+> 3. **`FUENTES.md`** — procedencia y las correcciones registradas, la más
+>    reciente arriba (es largo; se lee por la sección que toque, no entero);
+> 4. **`FODA.md`** — análisis vigente, si vas a decidir arquitectura;
+> 5. **`PLAN_17_SALIR_DEL_ESPIRAL.md`** — solo por su §1 (investigación sobre
+>    Foundry dnd5e y DiceCloud, leyendo su código) y su §2 (el diagnóstico del
+>    espiral). Sus puntos abiertos están absorbidos en el 18;
+> 6. **`_verificacion/_auditoria_rasgos/ESTADO_13p.md`** — detalle de la
 >    auditoría de conjuros y las decisiones que salieron de ella.
 >
-> ⛔ **`FODA_2026-08-19_OBSOLETO.md` está archivado**: describe una base de hace
-> diez días y manda hacer fases ya cerradas. No lo uses para decidir.
+> ⛔ **`FODA_2026-08-19_OBSOLETO.md` fue BORRADO el 2026-08-31** (Plan 17, §5).
+> Describía una base de hace diez días y mandaba hacer fases ya cerradas; un
+> documento del que hay que avisar «no lo leas» es un documento que ya sobra.
+> Sigue en el historial de git si alguna vez hace falta.
 
-Última actualización: **2026-08-29** (sesión larga; ver «Qué pasó el 2026-08-29»).
+Última actualización: **2026-08-31** — revisión completa del código, Plan 17
+aplicado (C1, C3, C4) y **Plan 18** escrito. Ver «EMPIEZA AQUÍ» más abajo.
+
+---
+
+## 🔎 EMPIEZA AQUÍ SI RETOMAS EN OTRA CONVERSACIÓN (2026-08-31)
+
+**El plan de trabajo vigente es `PLAN_18_REVISION_COMPLETA.md`.** Absorbe lo
+que quedaba abierto del 17. El 17 se conserva solo por su investigación sobre
+Foundry y DiceCloud y por el diagnóstico del espiral.
+
+### El estado en un vistazo
+
+```bash
+python3 validar.py            # 0 errores · 3,9 s
+python3 verificar_srd.py      # 646 valores · 0 discrepancias
+python3 verificar_foundry.py  # 3020 valores · 0 discrepancias
+python3 cobertura.py          # 262 preguntas · 0 sin responder
+for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 17/17
+python3 generar_ficha.py --barrido --exhaustivo   # 240/240 · 136 s
+```
+
+### Lo que se descubrió, y hay que entender antes de tocar nada
+
+**1. Un mismo defecto, ocho veces: la cobertura escrita a mano.** Un módulo
+lleva dentro la lista de lo que mira, y esa lista se queda corta sin que nadie
+se entere. Cuatro cerrados (`_CA_SIN_ARMADURA`, `_ORIGENES`, las cifras de
+`verificar_documentos`, `_TABLA_COSTE`) y **cuatro abiertos**
+(`validar._PROMESAS`, `verificar_chequeos.FUENTES`, `verificar_srd.MAPA`,
+`verificar_foundry.MODULOS`). Detalle en el §2 del Plan 18.
+
+**2. El verificador estaba INVERTIDO con las dotes.** Una ficha de nivel 1 que
+tomaba `Duro` y aplicaba bien su +2 PG era **rechazada**, y la misma ficha con
+el +2 perdido pasaba con «0 problemas». Cerrado el 2026-08-31 (C1/C3 del Plan
+17). La prueba de que sigue del derecho está en el §0 de ese documento.
+
+**3. La regla inviolable 6 es prosa y no la comprueba nada.** Se añadió ese
+mismo día y **no impide que aparezca la novena lista**. El propio repo ya había
+escrito la lección en `FUENTES.md:208`: *«una regla en prosa no impide nada»*.
+Por eso el Plan 18 pone **el censo primero**: un script que enumera la base y
+exige que toda unidad esté alcanzada por algún chequeo o declarada con su
+motivo. Sin él seguimos arreglando caso por caso.
+
+**4. Solo 11 de los 30 chequeos `validar_*` tienen prueba por mutación.** Los
+otros 19 no tienen red — incluido `validar_mejoras_de_dote`, escrito ese mismo
+día. **Por eso NO se refactoriza todavía:** un refactor es exactamente igual de
+seguro que la cobertura de lo que refactorizas, y la estructura del código está
+medida y sana (mediana de 35 líneas por función; ninguno de los ocho defectos
+lo causó la estructura).
+
+**5. El 98 % del tiempo de `validar.py` era reparsear los mismos ficheros.**
+1068 llamadas a `yaml.safe_load`. Con `lru_cache` en los lectores: **13,1 s →
+3,9 s**. Seguro porque las mutaciones corren en subproceso sobre una copia.
+**Contrato: lo que devuelven los lectores es de SOLO LECTURA.**
+
+### Lo que queda, por orden (Plan 18 §8)
+
+| Bloque | Qué | ¿Manual? |
+|---|---|---|
+| **A** | `censo.py` — **va primero** | no |
+| **B** | Mutaciones para los 19 chequeos sin red | no |
+| **C** | Declarar los **21** efectos que faltan (no 528: solo hay 3 variables calculables) | no |
+| **D** | `efectos:` obligatorio + `no_automatizado` | no |
+| **E** | `requirements.txt`, versión de Python, ~50 líneas duplicadas | no |
+| **F** | Refactor, **solo si sigue pareciendo necesario** | no |
+| **G** | Los casos ambiguos y las descripciones de conjuro | **sí** |
+
+---
+
+## 🔧 Qué pasó el 2026-08-31 — se aplicó el Plan 17 (C1, C3, C4)
+
+Plan y método en **`PLAN_17_SALIR_DEL_ESPIRAL.md`**, escrito tras leer el
+código real de Foundry dnd5e y DiceCloud.
+
+**El defecto que se cierra, y estaba invertido.** 54 de las 75 dotes conceden
+«Mejora de característica: X +1», y ese +1 vivía solo dentro de la cadena
+`descripcion`. `efectos.py` tampoco miraba `dotes/`. Resultado medido:
+
+| Ficha | Antes | Ahora |
+|---|---|---|
+| `Duro` (nivel 1) con su +2 PG aplicado — CORRECTA | ❌ rechazada | ✅ |
+| `Duro` con el +2 perdido — ROTA | ✅ «0 problemas» | ❌ |
+| `Actor` (nivel 4) con su +1 Car aplicado — CORRECTA | ❌ rechazada | ✅ |
+| `Actor` con el +1 perdido — ROTA | ✅ «0 problemas» | ❌ |
+
+**La causa raíz, y por qué era el mismo error de siempre.** `efectos._ORIGENES`
+era una tupla de 15 rutas escritas a mano: conocía 2 de las 48 subclases y 0 de
+los 4 ficheros de dotes. Es exactamente lo que la cabecera de
+`reglas/efectos.yaml` condena para las fórmulas de CA cableadas —«no se entera
+de que hay una quinta»—, repetido un nivel más arriba: un diccionario de
+FÓRMULAS sustituido por una tupla de RUTAS.
+
+**Lo que se hizo:**
+
+- **C1** — `_ORIGENES` desaparece. `efectos.origenes()` descubre las fuentes por
+  patrón y las contrasta con el manifiesto nuevo `reglas/fuentes_de_efectos.yaml`.
+  Un fichero de regla que ningún patrón sepa recorrer y que no esté declarado
+  como excluido **es un error**. De 15 fuentes cableadas a **30 descubiertas**.
+- **C3** — `mejora_caracteristica` estructurado en las 54 dotes, derivado de la
+  prosa YA citada con **ida y vuelta 54/54 exacta** (el método de la Fase 15).
+  La ida y vuelta salvó un error real: los **12 dones épicos dicen «máx. 30»**,
+  no 20. `verificar_personaje.py` cuenta el +1 de la dote en `final`, y la ficha
+  declara su elección con `sube:`.
+- **C4** — `conditional` entra al vocabulario (de DiceCloud): un efecto citado
+  que guarda texto y **no** se agrega. Filtrado en `agregar()`.
+- Borrado `clases/subclases/_borrador_mapa.yaml` (borrador no verificado que
+  ningún script leía, y que con C1 habría pasado a ser fuente).
+
+**Defecto encontrado en los propios datos:** `personajes/draconido_hechicero_n4.yaml`
+tomaba `Lanzador ritual` (+1 a Int/Sab/Car) y **no aplicaba el +1**. Estaba con
+Carisma 17, CD 13, ataque +5 y CA 15 cuando debía ser 18/14/+6/16. Corregida y
+documentada en su bloque `decisiones`.
+
+**Lo que NO se hizo, y por qué:** la Fase C5 (declarar los ~528 registros de
+rasgo) exige leer el manual página a página. La regla 1 del proyecto lo
+prohíbe de cualquier otra forma, así que queda abierta. C2 (hacer `efectos:`
+obligatorio) va después de C5, no antes, para no dejar la base en rojo durante
+todo el relleno.
 
 ---
 
@@ -76,11 +201,13 @@ es donde el desfase se vuelve mentira comprobable.
 
 `validar.py` debe dar, dentro de «INTEGRIDAD»: 683 dados · 543 conversiones ·
 391 conjuros en `tirada` · 677 pares de vecindad · 782 campos de ortografía ·
-391 citas de conjuro · 52 costes sin fuente externa · 6 efectos · 6
+391 citas de conjuro · 52 costes sin fuente externa · 8 efectos · 6
 materiales descompuestos · 8 conjuros con `tiradas` por efecto · 25 ataques
 de conjuro contrastados contra su texto · 65 prerrequisitos de dote evaluables ·
-333 saltos de nivel derivables. Y `efectos` son **7**, no 6: la velocidad entró
-con la deuda 4. **Todo a 0
+333 saltos de nivel derivables · **54 mejoras de dote** (chequeo nuevo, C3 del
+Plan 17). Los `efectos` pasaron de 7 a **8** el 2026-08-31: `Duro` es la primera
+dote con efecto declarado, posible solo desde que C1 hizo que el motor mire
+`dotes/`. **Todo a 0
 errores**, con un aviso esperado: la CA base sin armadura (`10 + mod_des`) no
 tiene página citada, y está declarado como hueco abierto, no inventado.
 
@@ -956,3 +1083,29 @@ Offset confirmado en todo el manual: **página_pdf = página_libro + 2**.
    pregunta. Nunca se rellena.
 4. **Solo edición 2024.** El manual EDGE de la papelera (2014) está vetado.
 5. **Validar antes de dar por cerrada una fase.**
+6. **La cobertura se descubre, nunca se escribe a mano.** *(nueva, 2026-08-31)*
+   Ningún módulo puede llevar dentro la lista de los ficheros, campos o
+   columnas que mira. Se descubre por patrón y se contrasta contra un
+   manifiesto que declara **también las exclusiones, con su motivo**. Un
+   fichero que nadie sepa clasificar es un error, no un salto silencioso.
+
+   **Por qué es inviolable y no una preferencia:** este error apareció
+   **cinco veces**, escrito en momentos distintos, sin que nadie lo copiara
+   a propósito:
+
+   | Lista escrita a mano | Qué se le escapaba | Estado |
+   |---|---|---|
+   | `efectos._ORIGENES` | 46 subclases · 4 ficheros de dotes | ✅ cerrada (C1) |
+   | `verificar_documentos` (cifras) | `efectos` desde la Fase 14 | ✅ cerrada |
+   | `verificar_chequeos.FUENTES` | audita 3 de las 6 que declara | ⬜ abierta |
+   | `verificar_srd.MAPA` | `pb`, `forma_salvaje`, `mov_sin_armadura_m` | ⬜ abierta |
+   | `verificar_foundry.MODULOS` | categorías sin contrastar | ⬜ abierta |
+
+   Cuando el mismo defecto sale cinco veces no es descuido repetido: es que
+   la forma de trabajar lo invitaba. `validar.py` ya lo hacía bien —descubre
+   con `glob` en 14 sitios— y era el ejemplo que los demás no siguieron.
+
+   **El corolario, y es el que duele:** se verificaba con obsesión que los
+   datos escritos fueran correctos (3666 valores externos, 149 mutaciones) y
+   **no se verificaba nunca que estuvieran todos**. Comprobar la calidad de
+   lo que hay no dice nada de lo que falta.

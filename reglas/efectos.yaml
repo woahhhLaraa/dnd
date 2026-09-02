@@ -75,7 +75,28 @@ variables:
 # Tomadas de DiceCloud v2 (`computeVariable/getAggregatorResult.js`), leídas
 # como concepto y reimplementadas: DiceCloud es GPL-3.0 y no se copia código.
 # Ver ANALISIS_REPOS.md §1.
-operaciones: [base, add, mul, min, max, set]
+operaciones: [base, add, mul, min, max, set, conditional]
+
+# ── `conditional` (C4 del Plan 17, 2026-08-31) ───────────────────────────
+# Tomado de DiceCloud, cuyo esquema de efectos lo trae con este comentario en
+# `app/imports/api/properties/Effects.ts`:
+#
+#     // Conditional benefits store just uncomputed text
+#
+# Es un efecto REAL sobre una variable declarada que el motor **no puede
+# calcular**, porque depende de la situación de juego («+2 a la CA contra el
+# primer ataque de cada turno»). Trae `texto` en vez de `formula`/`columna`,
+# no entra en la agregación, y `generar_ficha.py` lo imprime como nota.
+#
+# Por qué hace falta: sin él, la obligación de declarar de C2 solo tendría dos
+# respuestas —«se calcula» o «no está automatizado»— y los efectos ciertos
+# pero situacionales tendrían que mentir eligiendo una de las dos. Con esto,
+# «lo sé, está citado, y a propósito no lo calculo» es una respuesta legítima.
+#
+# Lo que NO es: un cajón de sastre. Si el rasgo no toca ninguna variable
+# declarada (ventaja en una prueba, resistencia a un daño, competencia nueva),
+# no es un `conditional`: es `efectos: []` con `no_automatizado`, que es lo
+# que declara C2.
 
 # Un efecto trae `formula` (aritmética sobre variables) **o** `columna` (el
 # nombre de una columna de la progresión de su clase, que se lee al vuelo con el
