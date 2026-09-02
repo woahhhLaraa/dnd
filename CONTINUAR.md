@@ -6,16 +6,18 @@
 > Orden de lectura para retomar:
 > 1. **este fichero**, empezando por «EMPIEZA AQUÍ SI RETOMAS EN OTRA
 >    CONVERSACIÓN» — qué hay, qué falta, con qué números;
-> 2. **`PLAN_18_REVISION_COMPLETA.md`** — **el plan de trabajo vigente**. Trae
->    los ocho casos del defecto de fondo, las cifras medidas y el orden de
->    los bloques A-G;
-> 3. **`FUENTES.md`** — procedencia y las correcciones registradas, la más
+> 2. **`PLAN_19_PRODUCTO_COMPLETO.md`** — **el plan de trabajo vigente**: qué
+>    falta para el producto completo, qué logra cada fase y en qué orden;
+> 3. **`PLAN_18_REVISION_COMPLETA.md`** — el registro de lo ya hecho. Sus §11
+>    a §14 cuentan el resultado de los bloques A, B, A2, C y D, con lo que el
+>    censo destapó y no estaba previsto;
+> 4. **`FUENTES.md`** — procedencia y las correcciones registradas, la más
 >    reciente arriba (es largo; se lee por la sección que toque, no entero);
-> 4. **`FODA.md`** — análisis vigente, si vas a decidir arquitectura;
-> 5. **`PLAN_17_SALIR_DEL_ESPIRAL.md`** — solo por su §1 (investigación sobre
+> 5. **`FODA.md`** — análisis vigente, si vas a decidir arquitectura;
+> 6. **`PLAN_17_SALIR_DEL_ESPIRAL.md`** — solo por su §1 (investigación sobre
 >    Foundry dnd5e y DiceCloud, leyendo su código) y su §2 (el diagnóstico del
 >    espiral). Sus puntos abiertos están absorbidos en el 18;
-> 6. **`_verificacion/_auditoria_rasgos/ESTADO_13p.md`** — detalle de la
+> 7. **`_verificacion/_auditoria_rasgos/ESTADO_13p.md`** — detalle de la
 >    auditoría de conjuros y las decisiones que salieron de ella.
 >
 > ⛔ **`FODA_2026-08-19_OBSOLETO.md` fue BORRADO el 2026-08-31** (Plan 17, §5).
@@ -34,9 +36,10 @@ Ver «EMPIEZA AQUÍ» más abajo.
 
 ## 🔎 EMPIEZA AQUÍ SI RETOMAS EN OTRA CONVERSACIÓN (2026-09-02)
 
-**El plan de trabajo vigente es `PLAN_18_REVISION_COMPLETA.md`.** Absorbe lo
-que quedaba abierto del 17. El 17 se conserva solo por su investigación sobre
-Foundry y DiceCloud y por el diagnóstico del espiral.
+**El plan de trabajo vigente es `PLAN_19_PRODUCTO_COMPLETO.md`.** Dice qué
+falta para el producto completo, qué logra cada fase y en qué orden. El
+`PLAN_18` pasa a ser el registro de lo hecho (bloques A, B, A2, C y D), y el 17
+se conserva por su investigación sobre Foundry y DiceCloud.
 
 ### El estado en un vistazo
 

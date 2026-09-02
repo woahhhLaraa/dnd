@@ -59,6 +59,7 @@ demuestra nada.**
 | `CONTINUAR.md` | El punto de reanudación: qué hay, qué falta, con qué cifras |
 | `FUENTES.md` | Procedencia y **todas** las correcciones, con su método y sus errores |
 | `FODA.md` | Fortalezas, debilidades y amenazas vigentes |
+| `PLAN_19_PRODUCTO_COMPLETO.md` | **El plan vigente**: qué falta para el producto completo y qué logra cada fase |
 | `PLAN_*.md` | Un plan por fase, con las cifras medidas y el resultado al cerrarla |
 
 ## Legal
