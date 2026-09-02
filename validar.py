@@ -2053,6 +2053,58 @@ def validar_efectos():
                         f"fija «{objetivo}» y no declara ningún efecto que lo "
                         f"haga: la regla existe pero nadie la puede calcular")
 
+    # ── (b bis) LA PUERTA CERRADA · bloque D (2026-09-02) ────────────────
+    # Todo rasgo tiene que decir si toca alguna variable calculable: o trae
+    # `efectos:`, o trae `no_automatizado:` con su motivo. Los 496 que hoy no
+    # dicen ni una cosa ni la otra están ENUMERADOS en
+    # `_verificacion/rasgos_sin_declarar.json`, y esa lista solo puede bajar.
+    #
+    # Enumerarlos —y no taparlos con un comodín, que es lo que hacía el censo
+    # hasta hoy— es la diferencia entre «se ve crecer» y «no puede crecer»: un
+    # rasgo que se añada mañana sin declarar nada hace fallar esto.
+    import json as _json
+    base_f = B / "_verificacion" / "rasgos_sin_declarar.json"
+    if not base_f.exists():
+        err.append("falta _verificacion/rasgos_sin_declarar.json: sin él no se "
+                   "puede distinguir un rasgo nuevo sin declarar de la deuda "
+                   "conocida")
+    else:
+        conocidos = set(_json.loads(base_f.read_text(encoding="utf-8"))["rasgos"])
+        vistos, nuevos, resueltos_hoy = set(), [], []
+        for rel, camino in E.origenes():
+            doc = yaml.safe_load((B / rel).read_text(encoding="utf-8"))
+            for reg, _anc in E._descender(doc, list(camino)):
+                if not isinstance(reg, dict) or not reg.get("nombre"):
+                    continue
+                uid = f"{rel}#{reg['nombre']}"
+                declara = reg.get("efectos") or reg.get("no_automatizado")
+                # `no_automatizado` tiene que traer MOTIVO. Un `true` pelado
+                # sería una firma en blanco: dice «lo miramos» sin decir qué
+                # se miró, y es indistinguible de callarse.
+                na = reg.get("no_automatizado")
+                if na is not None and not (isinstance(na, str) and na.strip()):
+                    err.append(f"«{reg['nombre']}» ({rel}): `no_automatizado` "
+                               f"tiene que traer el motivo, no {na!r}. Decir "
+                               f"«lo miramos y no toca» sin decir qué se miró "
+                               f"es no decir nada")
+                if declara:
+                    if uid in conocidos:
+                        resueltos_hoy.append(uid)
+                    continue
+                vistos.add(uid)
+                if uid not in conocidos:
+                    nuevos.append(uid)
+        for uid in nuevos[:20]:
+            err.append(f"«{uid.split('#')[-1]}» ({uid.split('#')[0]}) no dice "
+                       f"si toca alguna variable calculable: o declara "
+                       f"`efectos:`, o `no_automatizado:` con su motivo")
+        if len(nuevos) > 20:
+            err.append(f"… y {len(nuevos) - 20} rasgos más sin declarar")
+        if resueltos_hoy:
+            warn.append(f"{len(resueltos_hoy)} rasgos de "
+                        f"`rasgos_sin_declarar.json` ya declaran algo: "
+                        f"bórralos de la lista, que solo puede bajar")
+
     # (b2) ningún `efectos:` fuera de los ficheros que el motor recorre.
     # Antes de C1 (Plan 17) esto era el parche al síntoma: `efectos._ORIGENES`
     # era una lista escrita a mano —lo que dejó fuera a las dos fórmulas de CA

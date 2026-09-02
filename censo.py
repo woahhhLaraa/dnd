@@ -84,7 +84,8 @@ def _yaml(rel):
 class Fila:
     """Una clase de unidad, con su universo y quién lo alcanza."""
 
-    def __init__(self, clave, titulo, universo, alcanzadas, quien, declaradas=None):
+    def __init__(self, clave, titulo, universo, alcanzadas, quien,
+                 declaradas=None, deuda=None):
         self.clave = clave
         self.titulo = titulo
         self.universo = universo          # {id: descripción}
@@ -94,6 +95,11 @@ class Fila:
         # `excluidos` de `reglas/fuentes_de_efectos.yaml`, que ya llevan motivo
         # allí. Repetirlas aquí sería una segunda lista a mano.
         self.declaradas = dict(declaradas or {})
+        # Deuda enumerada en un fichero propio de la fila (el patrón de
+        # `chequeos_silenciosos.json`). Cuenta como declarada —no hace fallar—
+        # pero se imprime como pendiente: una deuda que no se ve en el informe
+        # es una deuda que nadie salda.
+        self.deuda = dict(deuda or {})
 
 
 # ══ Fila 1 · ficheros de regla ════════════════════════════════════════════
@@ -385,8 +391,25 @@ def fila_rasgos():
             # miramos y no toca» es una respuesta legítima; callarse no.
             if reg.get("efectos") or reg.get("no_automatizado"):
                 alcanzadas.add(uid)
+
+    # ── La deuda va ENUMERADA, no bajo un comodín (bloque D) ────────────
+    # Hasta el 2026-09-02 esta fila se tapaba con `rasgo:*` en el manifiesto.
+    # El comodín contaba el crecimiento y lo imprimía, pero **no lo impedía**:
+    # un rasgo nuevo sin declarar nada pasaba en verde, y su propia prueba por
+    # mutación solo podía exigir que subiera el recuento. Enumerarlos convierte
+    # «se ve crecer» en «no puede crecer», que es lo que el bloque D quería
+    # decir con «cerrar la puerta».
+    f = B / "_verificacion" / "rasgos_sin_declarar.json"
+    if not f.exists():
+        raise ErrorDeCenso(
+            f"falta {f.relative_to(B)}: sin él no se distingue un rasgo nuevo "
+            f"sin declarar de la deuda conocida")
+    import json
+    conocidos = json.loads(f.read_text(encoding="utf-8"))["rasgos"]
+    deuda = {f"rasgo:{uid}": "todavía no dice si toca alguna variable calculable"
+             for uid in conocidos}
     return Fila("rasgo", "rasgos con texto", universo, alcanzadas,
-                "su propio `efectos:` o `no_automatizado:`")
+                "su propio `efectos:` o `no_automatizado:`", deuda=deuda)
 
 
 FILAS = (fila_ficheros_de_regla, fila_variables, fila_columnas,
@@ -459,8 +482,12 @@ def main():
 
     for fila in filas:
         huecos, pend_fila, exe_fila = [], [], []
+        en_deuda = []
         for uid in sorted(fila.universo):
             if uid in fila.alcanzadas or uid in fila.declaradas:
+                continue
+            if uid in fila.deuda:
+                en_deuda.append(uid)
                 continue
             patron = _declarada(uid, exentas)
             if patron:
@@ -475,7 +502,7 @@ def main():
             huecos.append(uid)
 
         total_huecos += len(huecos)
-        total_pend += len(pend_fila)
+        total_pend += len(pend_fila) + len(en_deuda)
         n = len(fila.universo)
         alcanzadas = len(fila.alcanzadas) + len(fila.declaradas)
         if breve:
@@ -497,6 +524,12 @@ def main():
                     quienes += f", … ({len(uids)} en total)"
                 print(f"      · {quienes}")
                 print(f"        {motivo}")
+        if en_deuda:
+            print(f"    ⬜ PENDIENTES (deuda enumerada): {len(en_deuda)}")
+            print(f"      · [D] {len(en_deuda)} rasgos que todavía no dicen si "
+                  f"tocan alguna variable calculable")
+            print(f"        enumerados en _verificacion/rasgos_sin_declarar.json, "
+                  f"que solo puede bajar; uno nuevo hace fallar a validar.py")
         if pend_fila:
             # Igual que las exentas: se agrupa por (bloque, motivo). Siete
             # clases con el MISMO problema en `slots` son un hueco, no siete.

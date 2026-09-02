@@ -29,6 +29,11 @@ enumera siete clases de unidad de la base y exige que cada una esté alcanzada
 por algún chequeo o declarada, con su motivo, en
 `_verificacion/censo_exenciones.yaml`. Su número solo puede bajar.
 
+Y la puerta está cerrada por el otro lado: **todo rasgo tiene que decir si toca
+alguna variable calculable**, con `efectos:` o con `no_automatizado:` y su
+motivo. Los que todavía no lo dicen van enumerados uno a uno, no tapados por un
+comodín, así que uno nuevo que se calle hace fallar a `validar.py`.
+
 ## Comprobar que está sana
 
 ```bash

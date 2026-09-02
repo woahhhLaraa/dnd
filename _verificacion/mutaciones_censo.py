@@ -79,14 +79,18 @@ def u_dato_externo(r):
             "trasfondos del SRD salen del contraste y el módulo sigue existiendo")
 
 
-def c_rasgo_nuevo(r):
+def u_rasgo_nuevo(r):
+    # Hasta el bloque D esto era un control «no debe fallar, pero el recuento
+    # tiene que subir»: los rasgos sin declarar se tapaban con el comodín
+    # `rasgo:*`, que contaba el crecimiento sin impedirlo. Ahora van
+    # ENUMERADOS, así que un rasgo nuevo sin declarar tiene que FALLAR. Es
+    # exactamente el cambio que el bloque D perseguía, y por eso esta mutación
+    # cambia de lista en vez de desaparecer.
     _sust(r, "clases/rasgos/picaro.yaml", "rasgos:\n",
           'rasgos:\n  - nombre: "Reflejos de sombra"\n    nivel: 1\n'
           '    descripcion: "Texto de prueba."\n')
-    return ("un rasgo nuevo sin `efectos:` ni `no_automatizado:`: el comodín "
-            "[C+D] lo tapa —y debe taparlo, son 512— pero el recuento tiene "
-            "que SUBIR. Un comodín que además escondiera el crecimiento sería "
-            "la novena lista a mano")
+    return ("un rasgo nuevo que no dice si toca alguna variable calculable: "
+            "no está en la lista enumerada y no declara nada")
 
 
 # ══ El alcanzador que se vacía ════════════════════════════════════════════
@@ -195,13 +199,14 @@ DEBEN = [u_fichero_de_regla, u_variable_calculable, u_columna_de_clase,
          u_chequeo_nuevo, u_dato_externo, a_mapa_recortado,
          p_promesa_a_chequeo_inexistente, p_promesa_sin_etiqueta,
          m_declaracion_muerta, m_declaracion_borrada, m_comodin_en_exentas,
-         m_exenta_y_pendiente]
+         m_exenta_y_pendiente, u_rasgo_nuevo]
 NO_DEBEN = [n_rasgo_no_automatizado, n_fichero_fuera_de_regla,
             n_columna_ya_contrastada, n_suite_sin_chequeos, n_exencion_con_motivo]
-# Mutaciones que NO deben hacer fallar al censo pero SÍ subir su recuento: es
-# lo único que se le puede exigir a una fila tapada por un comodín, y es justo
-# lo que hace que el comodín no sea un agujero.
-CUENTAN = [c_rasgo_nuevo]
+# Mutaciones que NO deben hacer fallar al censo pero SÍ subir su recuento.
+# Quedó vacía al cerrar el bloque D: la única que había —el rasgo nuevo— ahora
+# tiene que fallar, no solo contarse. Se conserva el mecanismo porque la fila
+# de los rasgos no será la última deuda enumerada que aparezca.
+CUENTAN = []
 
 
 def _censo_falla(raiz):

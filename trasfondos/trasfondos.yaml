@@ -15,6 +15,7 @@ trasfondos:
     herramienta: "suministros de calígrafo"
     equipo_a: "suministros de calígrafo, libro (de oraciones), pergamino (10 hojas), símbolo sagrado, túnica, 8 po"
     equipo_b: "50 po"
+    no_automatizado: "el trasfondo no tiene texto de rasgo: lo que concede —características, dote, habilidades, herramienta y equipo— son campos estructurados que ya leen `validar_trasfondos()` y la skill `/personaje`, no prosa con mecánica escondida"
   - nombre: Animador
     pagina: {pdf: 180, libro: 178}
     caracteristicas: [Fuerza, Destreza, Carisma]
@@ -23,6 +24,7 @@ trasfondos:
     herramienta: "elige un tipo de instrumento musical"
     equipo_a: "instrumento musical (el mismo que arriba), 2 disfraces, espejo, perfume, ropas de viaje, 11 po"
     equipo_b: "50 po"
+    no_automatizado: "el trasfondo no tiene texto de rasgo: lo que concede —características, dote, habilidades, herramienta y equipo— son campos estructurados que ya leen `validar_trasfondos()` y la skill `/personaje`, no prosa con mecánica escondida"
   - nombre: Artesano
     pagina: {pdf: 181, libro: 179}
     caracteristicas: [Fuerza, Destreza, Inteligencia]
@@ -31,6 +33,7 @@ trasfondos:
     herramienta: "elige un tipo de herramientas de artesano"
     equipo_a: "herramientas de artesano (las mismas que arriba), 2 bolsas, ropas de viaje, 32 po"
     equipo_b: "50 po"
+    no_automatizado: "el trasfondo no tiene texto de rasgo: lo que concede —características, dote, habilidades, herramienta y equipo— son campos estructurados que ya leen `validar_trasfondos()` y la skill `/personaje`, no prosa con mecánica escondida"
   - nombre: Campesino
     pagina: {pdf: 181, libro: 179}
     caracteristicas: [Fuerza, Constitución, Sabiduría]
@@ -39,6 +42,7 @@ trasfondos:
     herramienta: "herramientas de carpintero"
     equipo_a: "hoz, herramientas de carpintero, útiles de sanador, olla de hierro, pala, ropas de viaje, 30 po"
     equipo_b: "50 po"
+    no_automatizado: "el trasfondo no tiene texto de rasgo: lo que concede —características, dote, habilidades, herramienta y equipo— son campos estructurados que ya leen `validar_trasfondos()` y la skill `/personaje`, no prosa con mecánica escondida"
   - nombre: Charlatán
     pagina: {pdf: 182, libro: 180}
     caracteristicas: [Destreza, Constitución, Carisma]
@@ -47,6 +51,7 @@ trasfondos:
     herramienta: "útiles para falsificar"
     equipo_a: "útiles para falsificar, disfraz, ropas de calidad, 15 po"
     equipo_b: "50 po"
+    no_automatizado: "el trasfondo no tiene texto de rasgo: lo que concede —características, dote, habilidades, herramienta y equipo— son campos estructurados que ya leen `validar_trasfondos()` y la skill `/personaje`, no prosa con mecánica escondida"
   - nombre: Comerciante
     pagina: {pdf: 182, libro: 180}
     caracteristicas: [Constitución, Inteligencia, Carisma]
@@ -55,6 +60,7 @@ trasfondos:
     herramienta: "herramientas de navegante"
     equipo_a: "herramientas de navegante, 2 bolsas, ropas de viaje, 22 po"
     equipo_b: "50 po"
+    no_automatizado: "el trasfondo no tiene texto de rasgo: lo que concede —características, dote, habilidades, herramienta y equipo— son campos estructurados que ya leen `validar_trasfondos()` y la skill `/personaje`, no prosa con mecánica escondida"
   - nombre: Criminal
     pagina: {pdf: 183, libro: 181}
     caracteristicas: [Destreza, Constitución, Inteligencia]
@@ -63,6 +69,7 @@ trasfondos:
     herramienta: "herramientas de ladrón"
     equipo_a: "2 dagas, herramientas de ladrón, 2 bolsas, palanqueta, ropas de viaje, 16 po"
     equipo_b: "50 po"
+    no_automatizado: "el trasfondo no tiene texto de rasgo: lo que concede —características, dote, habilidades, herramienta y equipo— son campos estructurados que ya leen `validar_trasfondos()` y la skill `/personaje`, no prosa con mecánica escondida"
   - nombre: Ermitaño
     pagina: {pdf: 183, libro: 181}
     caracteristicas: [Constitución, Sabiduría, Carisma]
@@ -71,6 +78,7 @@ trasfondos:
     herramienta: "útiles de herborista"
     equipo_a: "bastón, útiles de herborista, aceite (3 frascos), lámpara, libro (de filosofía), petate, ropas de viaje, 16 po"
     equipo_b: "50 po"
+    no_automatizado: "el trasfondo no tiene texto de rasgo: lo que concede —características, dote, habilidades, herramienta y equipo— son campos estructurados que ya leen `validar_trasfondos()` y la skill `/personaje`, no prosa con mecánica escondida"
   - nombre: Erudito
     pagina: {pdf: 184, libro: 182}
     caracteristicas: [Constitución, Inteligencia, Sabiduría]
@@ -79,6 +87,7 @@ trasfondos:
     herramienta: "suministros de calígrafo"
     equipo_a: "bastón, suministros de calígrafo, libro (de historia), pergamino (8 hojas), túnica, 8 po"
     equipo_b: "50 po"
+    no_automatizado: "el trasfondo no tiene texto de rasgo: lo que concede —características, dote, habilidades, herramienta y equipo— son campos estructurados que ya leen `validar_trasfondos()` y la skill `/personaje`, no prosa con mecánica escondida"
     _nota: "El OCR perdió Constitución e Inteligencia y leyó 3 hojas en vez de 8; corregido por lectura visual."
   - nombre: Escriba
     pagina: {pdf: 184, libro: 182}
@@ -88,6 +97,7 @@ trasfondos:
     herramienta: "suministros de calígrafo"
     equipo_a: "suministros de calígrafo, aceite (3 frascos), lámpara, pergamino (12 hojas), ropas de calidad, 23 po"
     equipo_b: "50 po"
+    no_automatizado: "el trasfondo no tiene texto de rasgo: lo que concede —características, dote, habilidades, herramienta y equipo— son campos estructurados que ya leen `validar_trasfondos()` y la skill `/personaje`, no prosa con mecánica escondida"
   - nombre: Guardia
     pagina: {pdf: 185, libro: 183}
     caracteristicas: [Fuerza, Inteligencia, Sabiduría]
@@ -96,6 +106,7 @@ trasfondos:
     herramienta: "elige un tipo de juego"
     equipo_a: "lanza, ballesta ligera, 20 virotes, juego (el mismo que arriba), aljaba, esposas, linterna sorda, ropas de viaje, 12 po"
     equipo_b: "50 po"
+    no_automatizado: "el trasfondo no tiene texto de rasgo: lo que concede —características, dote, habilidades, herramienta y equipo— son campos estructurados que ya leen `validar_trasfondos()` y la skill `/personaje`, no prosa con mecánica escondida"
   - nombre: Guía
     pagina: {pdf: 185, libro: 183}
     caracteristicas: [Destreza, Constitución, Sabiduría]
@@ -104,6 +115,7 @@ trasfondos:
     herramienta: "herramientas de cartógrafo"
     equipo_a: "arco corto, 20 flechas, herramientas de cartógrafo, aljaba, petate, tienda, ropas de viaje, 3 po"
     equipo_b: "50 po"
+    no_automatizado: "el trasfondo no tiene texto de rasgo: lo que concede —características, dote, habilidades, herramienta y equipo— son campos estructurados que ya leen `validar_trasfondos()` y la skill `/personaje`, no prosa con mecánica escondida"
   - nombre: Marinero
     pagina: {pdf: 186, libro: 184}
     caracteristicas: [Fuerza, Destreza, Sabiduría]
@@ -112,6 +124,7 @@ trasfondos:
     herramienta: "herramientas de navegante"
     equipo_a: "daga, herramientas de navegante, cuerda, ropas de viaje, 20 po"
     equipo_b: "50 po"
+    no_automatizado: "el trasfondo no tiene texto de rasgo: lo que concede —características, dote, habilidades, herramienta y equipo— son campos estructurados que ya leen `validar_trasfondos()` y la skill `/personaje`, no prosa con mecánica escondida"
   - nombre: Noble
     pagina: {pdf: 186, libro: 184}
     caracteristicas: [Fuerza, Inteligencia, Carisma]
@@ -120,6 +133,7 @@ trasfondos:
     herramienta: "elige un tipo de juego"
     equipo_a: "juego (el mismo que arriba), perfume, ropas de calidad, 29 po"
     equipo_b: "50 po"
+    no_automatizado: "el trasfondo no tiene texto de rasgo: lo que concede —características, dote, habilidades, herramienta y equipo— son campos estructurados que ya leen `validar_trasfondos()` y la skill `/personaje`, no prosa con mecánica escondida"
   - nombre: Soldado
     pagina: {pdf: 187, libro: 185}
     caracteristicas: [Fuerza, Destreza, Constitución]
@@ -128,6 +142,7 @@ trasfondos:
     herramienta: "elige un tipo de juego"
     equipo_a: "lanza, arco corto, 20 flechas, aljaba, juego (el mismo que arriba), útiles de sanador, ropas de viaje, 14 po"
     equipo_b: "50 po"
+    no_automatizado: "el trasfondo no tiene texto de rasgo: lo que concede —características, dote, habilidades, herramienta y equipo— son campos estructurados que ya leen `validar_trasfondos()` y la skill `/personaje`, no prosa con mecánica escondida"
   - nombre: Vagabundo
     pagina: {pdf: 187, libro: 185}
     caracteristicas: [Destreza, Sabiduría, Carisma]
@@ -136,3 +151,4 @@ trasfondos:
     herramienta: "herramientas de ladrón"
     equipo_a: "2 dagas, herramientas de ladrón, juego (cualquiera), 2 bolsas, petate, ropas de viaje, 16 po"
     equipo_b: "50 po"
+    no_automatizado: "el trasfondo no tiene texto de rasgo: lo que concede —características, dote, habilidades, herramienta y equipo— son campos estructurados que ya leen `validar_trasfondos()` y la skill `/personaje`, no prosa con mecánica escondida"

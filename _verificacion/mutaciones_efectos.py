@@ -148,11 +148,21 @@ def n_condicion_mas_estricta(r):
 
 
 def n_prosa_sin_promesa(r):
+    # Actualizado por el bloque D (2026-09-02). Antes bastaba con que la prosa
+    # dejara de prometer: sin promesa no había deuda, y el rasgo podía quedarse
+    # mudo. Desde que la puerta está cerrada, **callarse ya no es una opción**:
+    # un rasgo sin `efectos:` tiene que decir `no_automatizado` con su motivo.
+    # Así que el control conserva lo que probaba —que la mitad AUSENCIA no da
+    # falsos positivos cuando la prosa no promete nada— y añade la respuesta
+    # que la regla nueva exige. Que esta mutación empezara a saltar al cerrar
+    # el bloque D es la señal de que la puerta cerró de verdad.
     _sust(r, MONJE, "Mientras no lleves armadura ni portes un escudo, tu clase de armadura base es",
           "Mientras no lleves armadura ni portes un escudo, tu clase de armadura vale")
-    _muta_monje(r, "    efectos:\n      " + EFECTO_MONJE + "\n", "")
-    return ("prosa que ya NO promete «CA base» y sin efecto: sin promesa no hay "
-            "deuda (control del falso positivo de la mitad AUSENCIA)")
+    _muta_monje(r, "    efectos:\n      " + EFECTO_MONJE + "\n",
+                '    no_automatizado: "su texto ya no promete una CA base"\n')
+    return ("prosa que ya NO promete «CA base», sin efecto y declarando "
+            "`no_automatizado`: sin promesa no hay deuda, pero sí hay que "
+            "decirlo (control del falso positivo de la mitad AUSENCIA)")
 
 
 def n_efecto_extra_bien_formado(r):
@@ -311,6 +321,63 @@ def t_armadura_sin_tope(r):
             "el fallo silencioso que este proyecto persigue")
 
 
+# ══ PUERTA · todo rasgo dice si toca algo (bloque D) ══════════════════════
+# El chequeo que cierra la puerta: o `efectos:`, o `no_automatizado:` con su
+# motivo. Los 480 que todavía no dicen nada van enumerados en
+# `_verificacion/rasgos_sin_declarar.json`, y esa lista solo puede bajar.
+
+_RASGO_NUEVO = ('  - nombre: "Reflejos de sombra"\n    nivel: 1\n'
+                '    pagina: {pdf: 169, libro: 167}\n'
+                '    desc: "Texto de prueba."\n')
+
+
+def d_rasgo_nuevo_mudo(r):
+    _sust(r, "clases/rasgos/picaro.yaml", "rasgos:\n", "rasgos:\n" + _RASGO_NUEVO)
+    return ("un rasgo nuevo que no dice si toca alguna variable calculable: "
+            "ni `efectos:` ni `no_automatizado:`, y no está en la lista")
+
+
+def d_no_automatizado_sin_motivo(r):
+    _sust(r, "trasfondos/trasfondos.yaml",
+          'no_automatizado: "el trasfondo no tiene texto de rasgo',
+          'no_automatizado: true  # "el trasfondo no tiene texto de rasgo',
+          )
+    return ("`no_automatizado: true` pelado: es una firma en blanco, dice «lo "
+            "miramos» sin decir qué se miró")
+
+
+def d_lista_perdida(r):
+    (r / "_verificacion/rasgos_sin_declarar.json").unlink()
+    return ("desaparece `rasgos_sin_declarar.json`: sin él no se distingue un "
+            "rasgo nuevo sin declarar de los 480 conocidos")
+
+
+def d_rasgo_sacado_de_la_lista(r):
+    p = r / "_verificacion/rasgos_sin_declarar.json"
+    import json as _j
+    d = _j.loads(p.read_text(encoding="utf-8"))
+    d["rasgos"] = [x for x in d["rasgos"] if "Ataque temerario" not in x]
+    p.write_text(_j.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
+    return ("se borra «Ataque temerario» de la lista sin declararle nada: la "
+            "deuda no se salda tachándola, se salda declarándola")
+
+
+def n_rasgo_nuevo_declarado(r):
+    _sust(r, "clases/rasgos/picaro.yaml", "rasgos:\n",
+          "rasgos:\n" + _RASGO_NUEVO.rstrip("\n")
+          + '\n    no_automatizado: "no toca CA, PG máximos ni velocidad"\n')
+    return ("el MISMO rasgo nuevo, pero declarando `no_automatizado` con su "
+            "motivo: esa es la respuesta legítima que el bloque D quería")
+
+
+def n_rasgo_nuevo_con_efecto(r):
+    _sust(r, "clases/rasgos/picaro.yaml", "rasgos:\n",
+          "rasgos:\n" + _RASGO_NUEVO.rstrip("\n")
+          + '\n    efectos:\n      - {objetivo: ca, op: add, formula: "1",\n'
+            '         pagina: {pdf: 169, libro: 167}}\n')
+    return "el mismo rasgo nuevo, pero declarando un efecto bien formado"
+
+
 def _falla_por(raiz, etiqueta="efectos"):
     res = subprocess.run([sys.executable, "validar.py"], cwd=raiz,
                          capture_output=True, text=True)
@@ -430,6 +497,11 @@ def main():
             ("TOPE · y que NO se aplique en silencio",
              [t_armadura_sin_tope], [],
              lambda r: _ca_del_sintetico(r).startswith("ERROR:")),
+            ("PUERTA · todo rasgo dice si toca algo", 
+             [d_rasgo_nuevo_mudo, d_no_automatizado_sin_motivo, d_lista_perdida,
+              d_rasgo_sacado_de_la_lista],
+             [n_rasgo_nuevo_declarado, n_rasgo_nuevo_con_efecto],
+             lambda r: _falla_por(r)[0]),
             ("CARGA · ¿los efectos sostienen las fichas?",
              [c_formula_movida, c_pg_enano_movido, c_columna_movida],
              [c_condicion_relajada, n_columna_de_otro_nivel],

@@ -166,18 +166,3 @@ pendientes:
   # uno, para verlos tachar. El bloque B los cerró todos: `censo.py` cuenta
   # hoy 30/30 con suite, y esta sección está vacía a propósito — que no quede
   # ni una línea es el resultado, no un descuido.
-
-  # ── Bloques C y D · los rasgos que no declaran efecto ─────────────────
-  # Comodín a propósito: son 521 registros y listarlos uno a uno serían 1500
-  # líneas que nadie leería — y un manifiesto que nadie lee es la novena
-  # lista a mano. El censo imprime el recuento en cada pasada, así que el
-  # número se ve bajar (bloque C) y se ve crecer si alguien añade rasgos sin
-  # declarar nada.
-  #
-  # Y no son 521 huecos funcionales: solo hay 3 variables calculables, así
-  # que el hueco real son los ~21 rasgos del bloque C. Los demás se cierran
-  # con `no_automatizado:` en el bloque D, que es la «Foundry Note»: decir
-  # «lo miramos y no toca» en vez de callarse.
-  - unidad: "rasgo:*"
-    bloque: "C+D"
-    motivo: "rasgo sin `efectos:` ni `no_automatizado:`. Hoy la frontera entre «no lo hemos mirado» y «lo miramos y no toca» es el silencio; el bloque D la mete en el dato"

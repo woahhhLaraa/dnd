@@ -3,9 +3,9 @@
 > Escrito el **2026-08-31**, después de aplicar el Plan 17 (C1, C3, C4). Todas
 > las cifras están **medidas hoy** con los comandos que se citan al lado.
 >
-> **Actualizado el 2026-09-02: los bloques A, B, A2 y C están HECHOS.** El
+> **Actualizado el 2026-09-02: los bloques A, B, A2, C y D están HECHOS.** El
 > resultado, con lo que el censo destapó y no estaba en este plan, en el §11
-> (A y B), el §12 (A2) y el §13 (C) al final.
+> (A y B), el §12 (A2), el §13 (C) y el §14 (D) al final.
 >
 > Este documento **absorbe los puntos abiertos del `PLAN_17`** y pasa a ser el
 > único documento de trabajo hacia delante. El 17 se queda como registro de la
@@ -296,7 +296,7 @@ hueco funcional son 21 rasgos, no 528. Su texto ya está transcrito y citado.
 | C3 | Situacionales, como `conditional` | ~14 |
 | C4 | Decidir `Maestro en armaduras medias` (cambia el TOPE de Destreza: es el `ModifyItem` de Foundry, no un `add`) | 1 |
 
-### Bloque D — cerrar la puerta (sin manual, ~medio día)
+### Bloque D — cerrar la puerta · ✅ **HECHO (2026-09-02)**
 
 `efectos:` obligatorio en todo rasgo, con `no_automatizado` como respuesta
 legítima. **Al final, no al principio:** activarlo antes del bloque C dejaría la
@@ -341,7 +341,10 @@ manual por decisión propia.
    declarada. **Hecho el 2026-09-02**: 30/30, sin exenciones.
 3. ✅ Los candidatos a efecto, a cero. **Hecho el 2026-09-02**: 9 de
    `velocidad` (A2) y 7 de `ca`/`pg_max` (C). De 7 efectos a **25**.
-4. Quitar `efectos:` de cualquier rasgo hace fallar a `validar.py`.
+4. ✅ Quitar `efectos:` de cualquier rasgo hace fallar a `validar.py`.
+   **Comprobado el 2026-09-02**: los 25 efectos están protegidos por la promesa
+   de su variable, y desde el bloque D un rasgo que no declare nada tampoco
+   pasa.
 5. En todo momento: `validar.py` 0 errores, 17/17 fichas, barrido 240/240,
    contrastes en 646 + 3020, mutaciones en verde.
 
@@ -671,3 +674,76 @@ Los 508 pendientes del censo son rasgos sin `efectos:` ni `no_automatizado:`.
 cubiertas, y lo que falta es la frontera explícita del bloque D —decir «lo
 miramos y no toca» en vez de callarse—. Sigue yendo al final por la misma razón
 de siempre: activarlo antes dejaría la base en rojo durante todo el relleno.
+
+---
+
+## 14. Resultado — bloque D, ejecutado el 2026-09-02
+
+### Lo primero: el criterio 4 ya estaba cumplido, y había que comprobarlo
+
+«Quitar `efectos:` de cualquier rasgo hace fallar a `validar.py`». Medido: los
+**25** efectos declarados están **todos** protegidos por la promesa de su
+variable —borrar cualquiera hace que su prosa quede prometiendo algo que nadie
+calcula, y eso ya salta—. Cero borrables en silencio. No hacía falta trabajo
+ahí; hacía falta la medición, porque «cumplido» y «creído cumplido» se parecen
+mucho.
+
+### La puerta que sí faltaba: la de mañana, no la de ayer
+
+Lo que quedaba abierto no eran los rasgos que declaran, sino **el siguiente que
+se añada**. Hasta hoy el censo tapaba los 496 rasgos mudos con un comodín
+`rasgo:*`, y ese comodín tenía un agujero que su propia prueba por mutación
+dejaba a la vista: solo podía exigir que **el recuento subiera**, no que el
+rasgo nuevo fallara. Contaba el crecimiento sin impedirlo.
+
+Ahora van **enumerados** en `_verificacion/rasgos_sin_declarar.json`, con el
+patrón que este repo ya usa dos veces (`chequeos_silenciosos.json`, la línea
+base del censo): la lista solo puede bajar, y un rasgo que no esté en ella y no
+declare nada **hace fallar a `validar.py` y al censo**. Enumerarlos es lo que
+convierte «se ve crecer» en «no puede crecer», que es lo que este bloque quería
+decir con «cerrar la puerta».
+
+`no_automatizado` pasa a exigir **motivo**: un `true` pelado es una firma en
+blanco —dice «lo miramos» sin decir qué se miró— y es indistinguible de
+callarse.
+
+### Lo que NO se ha hecho, y es una decisión, no un olvido
+
+**No se han escrito 480 `no_automatizado` a mano.** Se declararon los **16
+trasfondos**, que es lo único que se puede afirmar con verdad sin leer nada
+nuevo: no tienen texto de rasgo, y lo que conceden —características, dote,
+habilidades, herramienta y equipo— son campos estructurados que ya leen
+`validar_trasfondos()` y la skill `/personaje`.
+
+Los otros 480 sí tienen prosa, y escribirles un motivo es **leerlos uno a uno**.
+Generarlos con una plantilla sería fabricar 480 afirmaciones de «lo miramos y no
+toca» sin haber mirado ninguna: exactamente el dato inventado que este repo
+existe para impedir, y peor que el silencio porque vendría firmado.
+
+Lo que sí está comprobado de los 480, en cada pasada de `validar.py`: **su prosa
+no anuncia ninguna de las tres variables calculables**. Eso no es lo mismo que
+«no tocan nada», y el fichero lo dice con esas palabras para que nadie lo
+confunda dentro de seis meses.
+
+Saldarlos es trabajo del **bloque G**, con el manual delante. El censo los
+cuenta y solo pueden bajar.
+
+### La señal de que la puerta cerró de verdad
+
+Un control negativo de `mutaciones_efectos.py` **empezó a saltar** al activar la
+regla: `n_prosa_sin_promesa` reescribía el texto del Monje para que dejara de
+prometer «CA base» y le quitaba el efecto, y hasta hoy eso era legal —sin
+promesa no había deuda—. Ahora callarse ya no es una opción, así que el control
+lleva además la respuesta que la regla nueva exige. Que una prueba que pasaba
+empiece a fallar al cerrar una puerta es la mejor prueba de que la puerta
+existía.
+
+### Cifras al cerrar
+
+```
+validar.py             0 errores · 25 efectos
+censo.py               697 unidades · 0 sin declarar · 492 pendientes
+                       (480 rasgos enumerados + 12 del bloque H)
+mutaciones_efectos     36/36 (eran 30: entra la familia PUERTA)
+mutaciones_censo       18/18 · 17/17 fichas · barrido 240/240
+```
