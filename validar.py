@@ -397,40 +397,91 @@ def _num_es(s):
 
 
 def validar_conversiones():
-    """Toda equivalencia «N m / M pies» de la base debe ser aritméticamente correcta."""
+    """Ninguna conversión editorial en el texto citable, y la aritmética de los
+    campos derivados de `alcance` correcta.
+
+    ── Por qué este chequeo cambió de sentido el 2026-09-02 ─────────────────
+    Antes comprobaba que las equivalencias «6 m / 20 pies» estuvieran **bien
+    calculadas**. Estaban: 543 de ellas, todas correctas. El problema era otro,
+    y es la debilidad nº 2 del `FODA.md`: **el manual castellano no imprime ni
+    una sola unidad imperial.** Nueve lectores independientes sobre 23 páginas
+    no vieron ninguna. Las había añadido la base entera, y `fidelidad: literal`
+    convivía con texto que la página no imprime. Comprobar que un añadido está
+    bien calculado no responde a si el añadido **debe existir**.
+
+    Borradas (fase 2 del PLAN_19), este chequeo pasa a impedir que vuelvan.
+
+    ── Y lo que NO se borró, porque no es cita sino dato ────────────────────
+    `alcance` guarda además `metros`, `pies` y `casillas` como campos
+    estructurados. Ésos se quedan: no son texto que finja ser del manual, son
+    dato derivado, y `verificar_foundry.py` contrasta `alcance.pies` contra el
+    SRD **número contra número**. Borrarlos habría dejado sin fuente externa
+    los 218 alcances con cifra.
+
+    Su aritmética sí hay que seguir comprobándola —si no, quitar las
+    conversiones del texto habría abierto un hueco donde antes había un
+    chequeo— así que la segunda mitad la hereda de la versión anterior, con la
+    misma tolerancia absoluta y por la misma razón medida.
+    """
     err, warn = [], []
-    vistos = 0
-
     f = B / "hechizos.json"
-    if f.exists():
-        for h in json.loads(f.read_text(encoding="utf-8"))["hechizos"]:
-            for m in _RE_CONVERSION.finditer(_texto_citable(h)):
-                vistos += 1
-                metros = _num_es(m.group(1)) * _A_METROS[m.group(2)]
-                declarado = _num_es(m.group(3))
-                esperado = metros * _DESDE_METROS[m.group(4)]
-                # Tolerancia **absoluta**, no relativa. Medido sobre la base ya
-                # corregida: los redondeos legítimos desvían como mucho 0,032
-                # («0,93 mi» escrito «0,9», «0,98 pulgadas» escrito «1»),
-                # mientras que el menor defecto real desvía 1 entero. Media
-                # unidad separa las dos poblaciones con holgura por ambos lados.
-                # Una tolerancia relativa del 2 % —la primera versión— hacía lo
-                # contrario: dejaba pasar «30 m / 98 pies» (error de 2 pies) y
-                # saltaba con «0,9 mi» (redondeo de 0,03). El término relativo
-                # se conserva solo para las magnitudes grandes, donde el manual
-                # sí redondea de verdad.
-                margen = max(0.5, abs(esperado) * 0.005)
-                if abs(declarado - esperado) > margen:
-                    err.append(
-                        f"{h['nombre']}: conversión falsa '{m.group(0)}' — "
-                        f"{metros:g} m son {esperado:.4g} {m.group(4)}, "
-                        f"no {declarado:g}"
-                    )
+    if not f.exists():
+        return "conversiones (0)", ["falta hechizos.json"], []
+    hs = json.loads(f.read_text(encoding="utf-8"))["hechizos"]
 
-    if not vistos:
-        err.append("el barrido de conversiones no encontró ninguna equivalencia: "
-                   "el chequeo se ha quedado sin ver la base")
-    return f"conversiones ({vistos} equivalencias)", err, warn
+    # ── (a) Ninguna conversión en el texto que la base presenta como cita ──
+    colados = 0
+    for h in hs:
+        for campo, txt in (("alcance.texto", (h.get("alcance") or {}).get("texto")),
+                           ("descripcion", h.get("descripcion"))):
+            for m in _RE_CONVERSION.finditer(str(txt or "")):
+                colados += 1
+                err.append(
+                    f"{h['nombre']} ({campo}): conversión editorial "
+                    f"'{m.group(0)}' en texto citable. El manual castellano es "
+                    f"métrico y no imprime unidades imperiales; las "
+                    f"equivalencias se borraron el 2026-09-02 y no vuelven a "
+                    f"entrar. Si hace falta la cifra en pies, va en el campo "
+                    f"derivado `alcance.pies`, que no es cita")
+
+    # ── (b) Los campos DERIVADOS de `alcance`, aritméticamente correctos ───
+    # Tolerancia **absoluta**, no relativa, y por una razón medida sobre la
+    # base ya corregida: los redondeos legítimos desvían como mucho 0,032
+    # («0,93 mi» escrito «0,9»), mientras que el menor defecto real desvía 1
+    # entero. Media unidad separa las dos poblaciones con holgura. Una
+    # tolerancia relativa del 2 % —la primera versión— hacía lo contrario:
+    # dejaba pasar «30 m / 98 pies» y saltaba con un redondeo de 0,03.
+    derivados = 0
+    for h in hs:
+        a = h.get("alcance") or {}
+        if a.get("metros") is None:
+            # TOLERADO: los alcances sin cifra —«Toque», «Lanzador»— no tienen
+            # nada que derivar. Que el barrido entero se quede sin ver la base
+            # lo caza el `if not derivados` de abajo, que es error.
+            continue
+        metros = _num_es(str(a["metros"]))
+        for campo, unidad in (("pies", "pies"), ("casillas", "cas")):
+            if a.get(campo) is None:
+                # TOLERADO: cuatro alcances kilométricos nunca tuvieron los
+                # campos derivados (Clarividencia, Tsunami y las dos tormentas)
+                # y no se les inventan: convertir 1,5 km a pies aquí sería
+                # meter en la base un número que nadie ha leído en la página.
+                continue
+            derivados += 1
+            declarado = _num_es(str(a[campo]))
+            esperado = metros * _DESDE_METROS[unidad]
+            margen = max(0.5, abs(esperado) * 0.005)
+            if abs(declarado - esperado) > margen:
+                err.append(
+                    f"{h['nombre']}: `alcance.{campo}` es {declarado:g} y "
+                    f"{metros:g} m son {esperado:.4g}. Es un campo DERIVADO: o "
+                    f"está mal calculado, o `metros` no es lo que dice la página")
+
+    if not derivados:
+        err.append("el barrido no encontró ningún `alcance` con cifra: el "
+                   "chequeo se ha quedado sin ver la base")
+    return (f"conversiones ({derivados} derivados · {colados} coladas)",
+            err, warn)
 
 
 def validar_referencias():

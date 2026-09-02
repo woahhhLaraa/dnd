@@ -28,7 +28,7 @@ reproducen con los cinco comandos del final.
    sin traducir (emparejan por claves independientes del idioma y exigen
    biyección); `cobertura.py` pregunta si la base sabe responder.
 4. **Cada chequeo nuevo se prueba por mutación, en las dos direcciones.**
-   `mutaciones_dados.py` (12/12), `mutaciones_conversiones.py` (13/13),
+   `mutaciones_dados.py` (12/12), `mutaciones_conversiones.py` (16/16),
    `mutaciones_integridad.py` (24/24), `mutaciones_efectos.py` (36/36),
    `mutaciones_pg.py` (13/13), `mutaciones_materiales.py` (10/10),
    `mutaciones_tiradas.py` (19/19), `mutaciones_prerrequisitos.py` (10/10), `mutaciones_subida.py` (7/7), `mutaciones_nivel20.py` (18/18) y
@@ -86,14 +86,31 @@ Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
    No prueba que la tasa haya bajado —los intervalos se solapan— pero **sí que
    auditar no deja limpio**: los 4 estaban en conjuros ya auditados, y dos
    habían pasado por la oleada 4 ese mismo día.
-2. **🔴 Las ~550 conversiones a pies son añadido editorial en un fichero
-   declarado literal.** **23 páginas leídas por nueve lectores independientes
-   no imprimen ni una sola unidad imperial**: el manual castellano es métrico, y
-   las conversiones las añadió la base entera. `validar_conversiones()` comprueba
-   que estén bien calculadas — **nadie comprueba que deban existir**.
-   **Mitigado, no resuelto:** `_meta` ya las declara como añadido editorial, así
-   que la base no las presenta como cita; queda decidir si se borran del texto
-   (330 en 178 conjuros). Detalle en `ESTADO_13p.md`.
+2. **✅ CERRADA (2026-09-02) — las conversiones a pies, borradas.**
+   *(era 🔴: añadido editorial en un fichero declarado literal)*
+
+   **23 páginas leídas por nueve lectores independientes no imprimen ni una
+   sola unidad imperial**: el manual castellano es métrico y las conversiones
+   las añadió la base entera. `validar_conversiones()` comprobaba que
+   estuvieran bien calculadas —lo estaban, las 543— pero **nadie comprobaba
+   que debieran existir**, que era la pregunta.
+
+   Borradas en la fase 2 del `PLAN_19`: 543 equivalencias en 399 registros de
+   298 conjuros, de `descripcion` (321) y `alcance.texto` (222). El chequeo
+   cambió de sentido y ahora **impide que vuelvan**.
+
+   **Lo que NO se borró, porque no es cita sino dato:** `alcance.metros`,
+   `alcance.pies` y `alcance.casillas` siguen ahí. `verificar_foundry.py`
+   contrasta `alcance.pies` contra el SRD número contra número, y borrarlos
+   habría dejado 218 alcances sin fuente externa. Su aritmética se sigue
+   comprobando, así que vaciar el texto no abrió ningún hueco.
+
+   **Y el borrado destapó un defecto que la conversión tapaba:** *Cofre oculto
+   de Leomund* decía «0,34 m / 1 pies³», con el cúbico solo en la unidad
+   añadida — quitarla dejaba «0,34 m», metros lineales para un volumen. Queda
+   como «0,34 m³», que es lo que dice la propia frase dos palabras después
+   («90 cm por 60 cm por 60 cm» = 0,324 m³), anotado y pendiente de confirmar
+   contra la página.
 3. **~~El campo `tirada`~~ → ✅ cerrado (2026-08-29).** Llegó a tener **15
    valores distintos para 6 tiradas posibles** porque ningún script lo consumía.
    Hoy tiene vocabulario cerrado, contraste contra su propia descripción, y la

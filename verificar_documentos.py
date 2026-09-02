@@ -61,7 +61,11 @@ def main():
     real["srd"], _ = _n(r"(\d+) valores contrastados contra el SRD", srd, "SRD")
     real["foundry"], _ = _n(r"(\d+) valores contrastados · ", fnd, "Foundry")
     for clave, patron in (("dados", r"dados \((\d+) tiradas\)"),
-                          ("conversiones", r"conversiones \((\d+) equivalencias\)"),
+                          # La etiqueta cambió el 2026-09-02 al borrar las
+                          # conversiones (fase 2 del PLAN_19): ya no se cuentan
+                          # «equivalencias» del texto, sino los campos DERIVADOS
+                          # de `alcance` que sí siguen comprobándose.
+                          ("conversiones", r"conversiones \((\d+) derivados"),
                           ("tirada", r"tirada \((\d+) conjuros\)"),
                           ("vecindad", r"vecindad \((\d+) pares"),
                           ("ortografia", r"ortografía \((\d+) campos\)"),

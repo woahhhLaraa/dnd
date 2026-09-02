@@ -48,7 +48,7 @@ no es infraestructura: es **superficie sin verificar** y **producto sin cubrir**
 |---|---|---|
 | ~~El verificador **aprueba fichas multiclase sin comprobarlas**~~ | eran **4**, no 3 | ✅ cerrado (fase 1) |
 | Residuo de error en descripciones de conjuro | **~11 %** (IC 3,1-26,1) | 🔴 sí: es lo que la base entrega |
-| Conversiones a pies que el manual no imprime | **543** en 298 conjuros | 🟠 fidelidad |
+| ~~Conversiones a pies que el manual no imprime~~ | 543 borradas de 399 registros | ✅ cerrado (fase 2) |
 | Registros del SRD 5.2 que nadie contrasta | **562**, de ellos 255 rasgos de clase | 🟠 superficie sin verificar |
 | Rasgos que no dicen si tocan una variable | **480** (enumerados, solo bajan) | 🟠 frontera |
 | Multiclase automatizada | reglas ya transcritas, sin ejecutar | 🔴 sí: personajes que no se pueden montar |
@@ -89,7 +89,7 @@ nuevas en `mutaciones_referencias.py` que pasan de modo `aviso` a modo `error`;
 
 ---
 
-## 4. Fase 2 · Quitar del texto lo que el manual no imprime
+## 4. Fase 2 · Quitar del texto lo que el manual no imprime — ✅ **HECHA (2026-09-02)**
 
 **Qué logra:** `fidelidad: literal` deja de convivir con texto que la base
 añadió. Es la debilidad nº 2 del `FODA.md`, y la decisión ya está tomada.
@@ -358,4 +358,66 @@ verificar_documentos   33 módulos compilan · Python 3.11 ≥ 3.11 · 1 depende
 mutaciones_nivel20     18/18 (eran 15: entra la familia MULTICLASE)
 mutaciones_referencias 10/10, ahora en modo ERROR y no aviso
 17/17 fichas · barrido 240/240 · una ficha multiclase se RECHAZA
+```
+
+
+---
+
+## 15. Resultado — fase 2, ejecutada el 2026-09-02
+
+### Lo borrado
+
+543 equivalencias en **399 registros de 298 conjuros**: 321 en `descripcion` y
+222 en `alcance.texto`. El texto quedó como la página lo imprime —«6 m»,
+«3 m»— y el chequeo cambió de sentido: de «bien calculadas» a **«ninguna en
+texto citable»**, para que no vuelvan a entrar.
+
+### Lo que NO se borró, y no estaba en el plan
+
+`alcance` no era solo texto: guarda `metros`, `pies` y `casillas` como **campos
+estructurados**, y `verificar_foundry.py` contrasta `alcance.pies` contra el
+SRD **número contra número**. Borrarlos habría dejado 218 alcances sin fuente
+externa.
+
+Así que la línea no es «conversiones sí / conversiones no», sino **cita frente
+a dato derivado**: fuera del texto que la base presenta como del manual, dentro
+como campo declarado. Y su aritmética se sigue comprobando —la segunda mitad
+del chequeo—, porque si no, vaciar el texto habría **abierto un hueco donde
+antes había un chequeo**.
+
+### Un defecto que la conversión tapaba
+
+*Cofre oculto de Leomund* decía «0,34 m / 1 pies³», con el cúbico **solo en la
+unidad añadida**. Quitar el añadido dejaba «0,34 m» —metros lineales para un
+volumen—. Queda como «0,34 m³», que es lo que dice la propia frase dos palabras
+después: «(90 cm por 60 cm por 60 cm)» son 0,324 m³. La deducción sale del mismo
+registro, no de fuera, y queda anotada como **pendiente de confirmar contra la
+página** en la tanda de la fase 5.
+
+Y un segundo caso que ninguna regex general cazaba: *Sanctasanctórum privado de
+Mordenkainen* convertía un RANGO —«de 1,5 a 30 m / 5 a 100 pies»—, con otro
+rango entre la barra y la unidad.
+
+### Y dos mutaciones mías que estaban mal, no el chequeo
+
+Al rehacer la suite —el cambio de sentido convierte sus controles negativos en
+detecciones: **una conversión correcta también sobra**— escribí dos controles
+falsos:
+
+- uno ponía `metros: 36.0` en *Bola de fuego*, que son 45 m: el falso positivo
+  hablaba de la mutación, no del chequeo;
+- otro llamaba «redondeo legítimo» a 119 pies por 120. **No lo es**: la
+  tolerancia es absoluta precisamente porque «el menor defecto real desvía 1
+  entero». Medido al arreglarlo: **los 436 pares derivados de la base son
+  exactos**, desviación 0,0000, porque con metros múltiplos de 1,5 el factor de
+  juego no deja resto. El control honesto es un valor no múltiplo —0,34 m → «1»
+  pie, exacto 1,13—, que la tolerancia sí debe admitir.
+
+### Cifras al cerrar
+
+```
+validar.py             0 errores · conversiones (436 derivados · 0 coladas)
+verificar_foundry      3020 valores · 0 discrepancias (sigue usando alcance.pies)
+mutaciones_conversiones 16/16 (eran 13: entra la mitad DERIVADOS)
+17/17 fichas · barrido 240/240 · censo 697 · 0 sin declarar
 ```

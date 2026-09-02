@@ -246,7 +246,7 @@ disco, **un documento desfasado es un defecto de datos, no de estilo**: quien lo
 lea trabajará hacia atrás. No puede comprobar la prosa, pero sí las cifras, que
 es donde el desfase se vuelve mentira comprobable.
 
-`validar.py` debe dar, dentro de «INTEGRIDAD»: 683 dados · 543 conversiones ·
+`validar.py` debe dar, dentro de «INTEGRIDAD»: 683 dados · 436 conversiones ·
 391 conjuros en `tirada` · 677 pares de vecindad · 782 campos de ortografía ·
 391 citas de conjuro · 52 costes sin fuente externa · 25 efectos · 6
 materiales descompuestos · 8 conjuros con `tiradas` por efecto · 25 ataques
@@ -536,11 +536,13 @@ en su primera ejecución. La lectura visual tocó techo; el código no.
    mejor falla en 5 de 6 casos leídos. Apartado a `fuente._pagina_origen_csv`.
 5. **`fidelidad` declarada** en 38 ficheros YAML y en `_meta` de `hechizos.json`,
    que se declara **`mixto`** — y por qué no se pudo clasificar por registro.
-6. **Conversiones a pies:** aparcadas a petición del usuario. **23 páginas
-   leídas por nueve lectores no imprimen ni una unidad imperial**: las añadió la
-   base entera. Ya declaradas en `_meta` como añadido editorial, así que la base
-   no las presenta como cita. Quitarlas del texto (330 en 178 conjuros) es
-   preferencia editorial, y el barrido está escrito en `ESTADO_13p.md`.
+6. **Conversiones a pies:** ✅ **BORRADAS el 2026-09-02** (fase 2 del
+   `PLAN_19`, por decisión del usuario). **23 páginas leídas por nueve lectores
+   no imprimen ni una unidad imperial**: las añadió la base entera. Se quitaron
+   543 equivalencias de 399 registros en 298 conjuros y el chequeo cambió de
+   sentido: ahora impide que vuelvan. Los campos DERIVADOS de `alcance`
+   (`metros`/`pies`/`casillas`) se quedan —no son cita, y `verificar_foundry.py`
+   contrasta `alcance.pies` contra el SRD— con su aritmética comprobada.
 
 ### Modos de fallo nuevos, descubiertos hoy
 
@@ -588,7 +590,7 @@ en su primera ejecución. La lectura visual tocó techo; el código no.
 | 3 | Tipo de acción en los 7 «acción bonus» | ✅ **los 7 correctos**, 0 correcciones. Marcados con `_accion_verificada` |
 | 4 | Los 3 avisos de vecindad | ✅ **las 3 parejas legítimas**; el chequeo ya no vuelve a pedir la misma lectura (`_vecindad_verificada`) |
 | 5 | Criterio de cita y el asterisco | ✅ `pagina_libro` = donde **empieza** el conjuro, hoy **numérica en los 391**. El asterisco **no tenía semántica**: 3 hipótesis probadas, la mejor falla en 5 de 6 casos leídos. Apartado a `fuente._pagina_origen_csv` |
-| 6 | Las ~550 conversiones a pies | ⏸️ **aparcado a petición del usuario.** Ya declaradas en `_meta` como añadido editorial |
+| 6 | Las ~550 conversiones a pies | ✅ **BORRADAS (2026-09-02, fase 2 del `PLAN_19`)**. 543 equivalencias en 399 registros de 298 conjuros; el texto quedó como el manual lo imprime |
 
 ### 🚨 El dato con el que se entra en la Fase 14
 
@@ -814,7 +816,7 @@ acaba de destapar los dos huecos más grandes que quedaban.
 | Estrés automático: `generar_ficha.py --barrido --exhaustivo` | ✅ **240/240** (12 clases × 20 niveles, rotando subclase). Destapó el fallo decimal del Monje |
 | Estrés con agentes: decisiones legales e ilegales | ✅ **hecho**: 20 fichas, **5 huecos** cerrados, 0 falsos positivos. Ver `PLAN_ESTRES.md` y `FUENTES.md` |
 | Multiclase | ⏸️ aparcada por decisión del usuario |
-| Conversiones a pies (330 en 178 conjuros) | ⏸️ aparcadas; se conservan declaradas en `_meta` |
+| Conversiones a pies | ✅ **borradas el 2026-09-02** (fase 2 del `PLAN_19`); el chequeo ahora impide que vuelvan |
 | **5 menciones imperiales SIN pareja métrica** | 🔴 **abierto y localizado** — ver `FUENTES.md`. Son 5 lecturas de página |
 
 ---
