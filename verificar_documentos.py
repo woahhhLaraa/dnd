@@ -17,7 +17,7 @@ cifras**, que es donde el desfase se vuelve mentira comprobable: si
 `CONTINUAR.md` promete «3012 valores contrastados» y el validador da otra cosa,
 una de las dos está mal y hay que mirarlo.
 
-    python3 verificar_documentos.py            # completo (~15 min: corre las
+    python3 verificar_documentos.py            # completo (~5 min: corre las
                                                # suites de mutación de verdad)
     python3 verificar_documentos.py --rapido   # solo los validadores (~1 min)
 

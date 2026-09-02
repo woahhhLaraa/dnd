@@ -434,7 +434,9 @@ censo comprueban justamente eso.
    ejecutar: diez nombres literales. Se habría quedado corta hoy mismo —las
    tres suites nuevas habrían nacido con sus cifras sin vigilar—. Ahora se
    descubren por patrón, con `mutaciones_foundry.py` declarada aparte por
-   lenta.
+   lenta. Y lanzaba **todas a la vez**: con trece suites en cuatro núcleos eso
+   no va más rápido, va mucho más lento. Una por núcleo, y las catorce en
+   verde tardan **4,5 minutos**, igual que las diez de antes.
 
 5. **Tres mutaciones propias mal apuntadas**, encontradas por dar «no
    detectada»: una tocaba una de las **dos** llamadas a `paquete("feats24",
