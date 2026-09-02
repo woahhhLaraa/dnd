@@ -176,7 +176,49 @@ Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
    3666 valores contrastados y 149 mutaciones no dicen nada sobre los
    registros que ningún módulo llega a mirar.
 
-9. **`hechizos.json` pesa 564 KB.** Cargarlo entero es el fallo «lost in the
+9. **🔴 19 de los 30 chequeos `validar_*` no tienen prueba por mutación.**
+   *(medido el 2026-08-31)*
+
+   Las 149 mutaciones son lo que da derecho a fiarse de los validadores — pero
+   solo cubren **11 de los 30**. Sin red se quedan cinco que guardan la
+   aritmética (`atributos_basicos`, `generacion`, `competencias_clase`,
+   `ataques` y **`mejoras_de_dote`**, escrito ese mismo día) y catorce de
+   contenido.
+
+   **La consecuencia práctica, y decide una decisión de arquitectura:** un
+   refactor es exactamente igual de seguro que la cobertura de pruebas de lo
+   que se refactoriza. Con el 63 % sin red, tocar `validar.py` significa que
+   esas comprobaciones pueden dejar de detectar lo que detectaban **sin que
+   nada avise**: un fallo silencioso introducido por la limpieza contra los
+   fallos silenciosos. Por eso el Plan 18 pone las mutaciones **antes** que
+   cualquier reestructuración.
+
+   Y la estructura, medida, **no justifica un refactor**: mediana de 35 líneas
+   por función en `validar.py`, 9 en `calculo.py`, y solo 5 de 47 funciones por
+   encima de 120 líneas. Ninguno de los ocho defectos de la debilidad 8 lo
+   causó la estructura; todos eran falta de una aserción de cobertura.
+
+10. **🔴 La regla inviolable 6 es prosa y no la comprueba nada.**
+   *(2026-08-31, el mismo día en que se escribió)*
+
+   Se añadió «la cobertura se descubre, nunca se escribe a mano» a
+   `CONTINUAR.md` tras encontrar ocho casos del defecto. **Nada la impide.**
+   Puede aparecer el noveno mañana.
+
+   Es literalmente la lección que este repo ya había registrado en
+   `FUENTES.md:208` —*«una regla en prosa no impide nada»*— y que motivó
+   escribir `verificar_chequeos.py`. Se diagnosticó el problema de las reglas
+   en prosa, se convirtió una en script, y la siguiente nació en prosa igual.
+
+   **La salida no es prohibir listas** (detectarlas en el AST daría falsos
+   positivos con los mapas de traducción y los nodos del AST) sino una
+   invariante contable: *toda unidad de la base tiene que estar alcanzada por
+   nombre por algún chequeo, o declarada como no alcanzable con su motivo*.
+   Eso es `censo.py`, el bloque A del Plan 18, y va antes que arreglar las
+   cuatro listas que quedan: si se arreglan primero, se arreglan «las que
+   alguien encontró»; con el censo, «las que hay».
+
+11. **`hechizos.json` pesa 564 KB.** Cargarlo entero es el fallo «lost in the
    middle». `buscar.py` lo evita, pero hay que usarlo siempre.
 
 ## 🚀 Oportunidades

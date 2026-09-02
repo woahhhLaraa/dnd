@@ -4,12 +4,18 @@
 > conversación previa.**
 >
 > Orden de lectura para retomar:
-> 1. **este fichero** — qué hay, qué falta, con qué números;
-> 2. **`FUENTES.md`** — procedencia y las correcciones registradas, la más
->    reciente arriba (es largo: 111 KB; se lee por la sección que toque, no
->    entero);
-> 3. **`FODA.md`** — análisis vigente, si vas a decidir arquitectura;
-> 4. **`_verificacion/_auditoria_rasgos/ESTADO_13p.md`** — detalle de la
+> 1. **este fichero**, empezando por «EMPIEZA AQUÍ SI RETOMAS EN OTRA
+>    CONVERSACIÓN» — qué hay, qué falta, con qué números;
+> 2. **`PLAN_18_REVISION_COMPLETA.md`** — **el plan de trabajo vigente**. Trae
+>    los ocho casos del defecto de fondo, las cifras medidas y el orden de
+>    los bloques A-G;
+> 3. **`FUENTES.md`** — procedencia y las correcciones registradas, la más
+>    reciente arriba (es largo; se lee por la sección que toque, no entero);
+> 4. **`FODA.md`** — análisis vigente, si vas a decidir arquitectura;
+> 5. **`PLAN_17_SALIR_DEL_ESPIRAL.md`** — solo por su §1 (investigación sobre
+>    Foundry dnd5e y DiceCloud, leyendo su código) y su §2 (el diagnóstico del
+>    espiral). Sus puntos abiertos están absorbidos en el 18;
+> 6. **`_verificacion/_auditoria_rasgos/ESTADO_13p.md`** — detalle de la
 >    auditoría de conjuros y las decisiones que salieron de ella.
 >
 > ⛔ **`FODA_2026-08-19_OBSOLETO.md` fue BORRADO el 2026-08-31** (Plan 17, §5).
@@ -17,32 +23,72 @@
 > documento del que hay que avisar «no lo leas» es un documento que ya sobra.
 > Sigue en el historial de git si alguna vez hace falta.
 
-Última actualización: **2026-08-29** (sesión larga; ver «Qué pasó el 2026-08-29»).
+Última actualización: **2026-08-31** — revisión completa del código, Plan 17
+aplicado (C1, C3, C4) y **Plan 18** escrito. Ver «EMPIEZA AQUÍ» más abajo.
 
 ---
 
-## 🔎 Revisión completa del código (2026-08-31) → `PLAN_18_REVISION_COMPLETA.md`
+## 🔎 EMPIEZA AQUÍ SI RETOMAS EN OTRA CONVERSACIÓN (2026-08-31)
 
-**El plan de trabajo vigente es el 18.** Absorbe lo que quedaba del 17.
+**El plan de trabajo vigente es `PLAN_18_REVISION_COMPLETA.md`.** Absorbe lo
+que quedaba abierto del 17. El 17 se conserva solo por su investigación sobre
+Foundry y DiceCloud y por el diagnóstico del espiral.
 
-Dos hallazgos que no estaban en ninguna lista:
+### El estado en un vistazo
 
-1. **`calculo._TABLA_COSTE` duplicaba la tabla de compra por puntos**, con un
-   comentario encima señalando el YAML del que era copia. `validar.py` validaba
-   la del YAML y `calculo.py` calculaba con la suya; **nadie comparaba las
-   dos**. Corregir la base habría dejado la aritmética con los valores viejos y
-   todo en verde. Es el **séptimo** caso de la regla 6, y en el núcleo
-   aritmético. Cerrado leyendo la tabla de la base: falseando el YAML el coste
-   pasa de 27 a 117; antes se quedaba en 27.
+```bash
+python3 validar.py            # 0 errores · 3,9 s
+python3 verificar_srd.py      # 646 valores · 0 discrepancias
+python3 verificar_foundry.py  # 3020 valores · 0 discrepancias
+python3 cobertura.py          # 262 preguntas · 0 sin responder
+for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 17/17
+python3 generar_ficha.py --barrido --exhaustivo   # 240/240 · 136 s
+```
 
-2. **El 98 % del tiempo de `validar.py` era reparsear los mismos ficheros.**
-   Medido con cProfile: 1068 llamadas a `yaml.safe_load`; `validar_subida()`
-   releía las tablas de clase 333 veces. Con `lru_cache` en los lectores:
-   **13,1 s → 3,9 s**. Seguro porque las mutaciones corren en subproceso sobre
-   una copia, así que cada una estrena caché.
+### Lo que se descubrió, y hay que entender antes de tocar nada
 
-Cifras del día, todas verdes: `validar.py` 3,9 s · SRD 646 · Foundry 3020 ·
-17/17 fichas · barrido 240/240 en 136 s · mutaciones 26/26, 13/13, 10/10.
+**1. Un mismo defecto, ocho veces: la cobertura escrita a mano.** Un módulo
+lleva dentro la lista de lo que mira, y esa lista se queda corta sin que nadie
+se entere. Cuatro cerrados (`_CA_SIN_ARMADURA`, `_ORIGENES`, las cifras de
+`verificar_documentos`, `_TABLA_COSTE`) y **cuatro abiertos**
+(`validar._PROMESAS`, `verificar_chequeos.FUENTES`, `verificar_srd.MAPA`,
+`verificar_foundry.MODULOS`). Detalle en el §2 del Plan 18.
+
+**2. El verificador estaba INVERTIDO con las dotes.** Una ficha de nivel 1 que
+tomaba `Duro` y aplicaba bien su +2 PG era **rechazada**, y la misma ficha con
+el +2 perdido pasaba con «0 problemas». Cerrado el 2026-08-31 (C1/C3 del Plan
+17). La prueba de que sigue del derecho está en el §0 de ese documento.
+
+**3. La regla inviolable 6 es prosa y no la comprueba nada.** Se añadió ese
+mismo día y **no impide que aparezca la novena lista**. El propio repo ya había
+escrito la lección en `FUENTES.md:208`: *«una regla en prosa no impide nada»*.
+Por eso el Plan 18 pone **el censo primero**: un script que enumera la base y
+exige que toda unidad esté alcanzada por algún chequeo o declarada con su
+motivo. Sin él seguimos arreglando caso por caso.
+
+**4. Solo 11 de los 30 chequeos `validar_*` tienen prueba por mutación.** Los
+otros 19 no tienen red — incluido `validar_mejoras_de_dote`, escrito ese mismo
+día. **Por eso NO se refactoriza todavía:** un refactor es exactamente igual de
+seguro que la cobertura de lo que refactorizas, y la estructura del código está
+medida y sana (mediana de 35 líneas por función; ninguno de los ocho defectos
+lo causó la estructura).
+
+**5. El 98 % del tiempo de `validar.py` era reparsear los mismos ficheros.**
+1068 llamadas a `yaml.safe_load`. Con `lru_cache` en los lectores: **13,1 s →
+3,9 s**. Seguro porque las mutaciones corren en subproceso sobre una copia.
+**Contrato: lo que devuelven los lectores es de SOLO LECTURA.**
+
+### Lo que queda, por orden (Plan 18 §8)
+
+| Bloque | Qué | ¿Manual? |
+|---|---|---|
+| **A** | `censo.py` — **va primero** | no |
+| **B** | Mutaciones para los 19 chequeos sin red | no |
+| **C** | Declarar los **21** efectos que faltan (no 528: solo hay 3 variables calculables) | no |
+| **D** | `efectos:` obligatorio + `no_automatizado` | no |
+| **E** | `requirements.txt`, versión de Python, ~50 líneas duplicadas | no |
+| **F** | Refactor, **solo si sigue pareciendo necesario** | no |
+| **G** | Los casos ambiguos y las descripciones de conjuro | **sí** |
 
 ---
 

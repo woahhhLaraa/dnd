@@ -40,7 +40,7 @@ Y lo que **no** se toca porque está bien hecho:
 
 ---
 
-## 2. El defecto de fondo, ya con siete casos
+## 2. El defecto de fondo, ya con ocho casos
 
 Un módulo lleva dentro una **lista escrita a mano** de lo que mira, y esa
 lista se queda corta sin que nadie se entere.
@@ -113,109 +113,206 @@ botella**: el barrido y las mutaciones dominan.
 
 ---
 
-## 4. Deuda de código menor (real, pero no urgente)
+## 4. Cobertura de pruebas — la cifra que decide si se puede refactorizar
 
-| Qué | Dónde | Nota |
+```
+chequeos `validar_*` en validar.py : 30
+  con prueba por mutación          : 11   (37 %)
+  SIN prueba por mutación          : 19
+```
+
+Los 19 sin red, por orden de a qué afectan:
+
+**Aritmética** (los que más importan para el contrato «personaje legal 1→20»):
+`validar_atributos_basicos` · `validar_generacion` · `validar_competencias_clase`
+· `validar_ataques` · **`validar_mejoras_de_dote`**
+
+**Contenido y referencias:** `validar_clase` · `validar_dotes` · `validar_especies`
+· `validar_trasfondos` · `validar_subclases` · `validar_hechizos` ·
+`validar_hechizos_clases` · `validar_rasgos_clase` · `validar_equipo` ·
+`validar_habilidades` · `validar_idiomas` · `validar_citas_conjuro` ·
+`validar_costes_sin_fuente` · `validar_referencias`
+
+> **Deuda declarada, y es de esta misma sesión:** `validar_mejoras_de_dote` se
+> escribió el 2026-08-31 (C3) y **está en la lista de los 19**. Se probó a mano
+> —quitar el campo y falsear la característica hacen saltar los dos casos— pero
+> no se dejó en una suite. Es exactamente la deuda que este documento critica,
+> contraída el mismo día. Tiene prioridad en el bloque B.
+
+## 5. Estructura del código — medida, y no justifica un refactor
+
+```
+                     funciones   mediana   > 120 líneas
+validar.py               47      35 líneas       5
+verificar_personaje.py   21      26 líneas       0
+efectos.py               21      18 líneas       0
+calculo.py               18       9 líneas       0
+```
+
+No hay funciones-monstruo ni enredo: la mediana es sana y solo 5 de 47
+funciones pasan de 120 líneas. **Y lo decisivo: ninguno de los ocho defectos
+del §2 lo causó la estructura.** Todos eran «falta una aserción de cobertura».
+Reorganizar el código no habría evitado ni uno.
+
+**El argumento que zanja la pregunta «¿refactorizamos?»:**
+
+> Un refactor es exactamente igual de seguro que la cobertura de pruebas de lo
+> que refactorizas.
+
+Con 19 de 30 chequeos sin red, tocar `validar.py` hoy significa que el 63 % de
+sus comprobaciones puede dejar de detectar lo que detectaba **sin que nada
+avise**. Sería un fallo silencioso introducido por la limpieza contra los
+fallos silenciosos.
+
+**Los dos caminos convergen:** si algún día se refactoriza de verdad, el primer
+paso obligatorio es el mismo —cubrir los 19— porque no se puede reestructurar
+con seguridad lo que no se puede probar. Así que hacer las mutaciones primero
+no es la alternativa al refactor: es su requisito. Elegirlo no cuesta nada, y
+probablemente después el refactor ya no parezca necesario.
+
+## 6. El agujero del enfoque actual, y hay que decirlo
+
+La **regla inviolable 6** («la cobertura se descubre, nunca se escribe a mano»)
+se añadió a `CONTINUAR.md` el 2026-08-31. **Nada la comprueba.** Es prosa.
+
+Y el propio repo ya había aprendido esa lección, en `FUENTES.md:208`:
+
+> *«Llevaba una semana escrita en FUENTES.md (1500 líneas) y se rompió sin
+> querer». **Una regla en prosa no impide nada.***
+
+Es decir: se diagnosticó que las reglas en prosa no impiden nada, se construyó
+`verificar_chequeos.py` para convertir una de ellas en script… y la regla 6
+nació en prosa igualmente. **Nada impide que aparezca la novena lista.**
+
+Se arreglaron cuatro casos y se listaron otros cuatro. Eso sigue siendo
+«arreglar caso por caso», que es justo lo que hay que dejar de hacer.
+
+## 7. El censo — la pieza que cierra el patrón
+
+No se trata de prohibir las listas escritas a mano: detectarlas en el AST sería
+una heurística con falsos positivos (`_A_METROS`, los nodos del AST, los mapas
+de traducción son legítimos). La invariante real es **contable**:
+
+> **Toda unidad de la base tiene que estar alcanzada por nombre por algún
+> chequeo, o declarada como no alcanzable con su motivo.**
+
+Un solo script, `censo.py`, que enumere la base y cruce cada unidad contra lo
+que los verificadores tocan de verdad:
+
+| Unidad | Fuente de la lista | Quién debería alcanzarla |
 |---|---|---|
-| `cargar()` duplicada | `calculo.py` y `cobertura.py` | **No son idénticas**: la de cobertura devuelve `None` si falta el fichero, la de calculo hace `sys.exit`. Unificar cambiaría comportamiento; hacerlo a propósito o dejarlo documentado |
-| `_es_marcador()` duplicada | `subir_nivel.py` y `validar.py` | Misma lógica en dos sitios |
-| Tercer lector | `verificar_foundry.cargar_yaml` | Tres formas de leer un YAML en el repo |
-| `_TIRADAS_VALIDAS` | `validar.py` | Vocabulario cerrado de reglas que vive **solo en Python**, mientras el de efectos vive en `reglas/efectos.yaml` con cita. Inconsistencia de dónde reside la autoridad |
+| fichero de regla | glob sobre `especies/ clases/ dotes/ trasfondos/ reglas/` | `efectos.origenes()` (ya lo exige) |
+| variable calculable | `reglas/efectos.yaml` | un chequeo de «promesa» por variable |
+| columna de tabla de clase | las 12 `clases/*.yaml` | `verificar_srd.MAPA` o exención declarada |
+| categoría de dato externa | `_verificacion/foundry_srd52/` | `verificar_foundry.MODULOS` o exención |
+| chequeo `validar_*` | AST de `validar.py` | una suite de mutación o exención |
+| rasgo con texto | las fuentes de efectos | `efectos:` o `no_automatizado` (bloque C) |
 
----
+Su salida es **un número que solo puede bajar**, y los cuatro casos abiertos
+del §2 salen de su informe en vez de salir de que alguien lea el código. El día
+que aparezca el noveno, lo canta solo.
 
-## 5. Cómo aplicar lo que hacen los otros repos (lo que queda)
+Es el mismo salto que ya funcionó dos veces aquí: `verificar_chequeos.py` no
+audita chequeo por chequeo sino la regla general, y `efectos.origenes()` no
+lista fuentes sino que exige que todas estén clasificadas. El censo es eso un
+nivel más arriba.
+
+## 7bis. Qué queda por adoptar de Foundry y DiceCloud
 
 Ya adoptado: el modelo de efectos y el agregador de DiceCloud (Fase 14), su
-operación `conditional` (C4), el `ScaleValue` de Foundry como `columna`, y su
-taxonomía de *advancement* en `/subir-nivel` (Fase 16).
+operación `conditional` (C4 del Plan 17), el `ScaleValue` de Foundry como
+`columna`, y su taxonomía de *advancement* en `/subir-nivel` (Fase 16).
 
-Lo que falta por adoptar, y para qué sirve cada cosa:
+Lo que falta, y para qué sirve cada cosa:
 
-- **La «Foundry Note» → C2.** Foundry automatiza 76 de 332 rasgos (23 %) y
-  **declara la frontera dentro del dato**: 380 registros dicen qué no está
-  automatizado. Aquí la frontera es el silencio. Es lo que convierte «no lo
-  hemos hecho» en «lo miramos y no toca».
+- **La «Foundry Note» → bloque D.** Foundry automatiza **76 de 332** rasgos de
+  clase/subclase 2024 (23 %) y **declara la frontera dentro del dato**: 380
+  registros dicen qué no está automatizado. Aquí la frontera es el silencio.
+  Es lo que convierte «no lo hemos hecho» en «lo miramos y no toca».
 - **`ModifyItem` → el caso `Maestro en armaduras medias`.** «Sumas **3 (en vez
-  de 2)** a tu CA por Destreza» no es `add` ni `set` sobre `ca`: **cambia un
-  parámetro de la fórmula de la armadura**. El modelo actual no lo expresa.
+  de 2)** a tu CA por Destreza» no es `add` ni `set` sobre `ca`: cambia un
+  **parámetro de la fórmula de la armadura**. El modelo actual no lo expresa y
   Foundry tiene un tipo para exactamente esto.
-- **El grafo de dependencias de DiceCloud.** Detecta ciclos y los registra
-  como error explícito en vez de colgarse. `orden_de_calculo()` ya hace parte;
-  conviene comprobar que un ciclo real falla ruidosamente.
+- **El grafo de dependencias de DiceCloud.** Detecta ciclos y los registra como
+  error explícito en vez de colgarse. `orden_de_calculo()` hace parte; falta
+  comprobar que un ciclo real falla ruidosamente (candidato a mutación del
+  bloque B).
 
-Lo que **NO** se copia, y conviene tenerlo escrito: **Foundry no tiene tests**
-(`package.json`: `build`, `lint`, `watch`). Sustituyen verificación por
+**Lo que NO se copia, y conviene que quede escrito:** Foundry **no tiene tests**
+—su `package.json` trae `build`, `lint` y `watch`—. Sustituyen verificación por
 cientos de miles de jugadores. Este proyecto tiene una usuaria, así que sus
-3666 valores contrastados y sus 149 mutaciones son el sustituto correcto.
+3666 valores contrastados y sus 149 mutaciones **son el sustituto correcto** y
+no se tocan. De Foundry se copia la arquitectura, nunca la ausencia de pruebas.
 
----
+## 8. Plan de acción, en orden
 
-## 6. Plan de acción, en orden
+Cada bloque dice si necesita el manual.
 
-Cada paso dice si **necesita el manual**, porque eso decide si se puede hacer
-hoy o no.
+### Bloque A — el censo (sin manual, ~1 día) · **VA PRIMERO**
 
-### Bloque A — cerrar el patrón (sin manual, ~1 día)
+`censo.py` con las seis filas de la tabla del §7, y su informe. **Antes que
+arreglar las cuatro listas abiertas**, porque si se arreglan primero se arreglan
+«las que encontró Claude»; con el censo se arreglan «las que hay», y se sabe
+cuándo se ha terminado.
 
-| # | Qué | Por qué va aquí |
+### Bloque B — cobertura de mutación de los 19 (sin manual, ~2 días)
+
+Por orden: primero los cinco de aritmética (empezando por
+`validar_mejoras_de_dote`, deuda propia), después los de contenido. Es el
+requisito de cualquier refactor futuro, y la red que hoy no existe.
+
+### Bloque C — declarar los 21 efectos (sin manual, ~1 día)
+
+Solo hay **3 variables calculables** (`ca`, `pg_max`, `velocidad`), así que el
+hueco funcional son 21 rasgos, no 528. Su texto ya está transcrito y citado.
+
+| | Qué | Cuántos |
 |---|---|---|
-| **A1** | `_PROMESAS` derivada de las variables `calculada` del vocabulario | **Es la lista que tenía que haber avisado de los 10 huecos de velocidad.** Arreglarla ANTES de rellenar hace que el chequeo diga cuándo has terminado, en vez de fiarte de una lista escrita a mano hoy |
-| **A2** | `verificar_chequeos.FUENTES` audita las 6 que declara | Hoy 3 quedan fuera porque su lógica vive en `main()` |
-| **A3** | `verificar_srd.MAPA`: toda columna mapeada o declarada no contrastable | Cierra el hueco de `pb`, que es el número del que cuelga la CD |
-| **A4** | `verificar_foundry.MODULOS`, igual | Último de los ocho |
+| C1 | Inequívocos: `Veloz` (+3 m), `Defensa` (+1 CA con armadura), `Don de la fortaleza` (+40 PG) | ~4 |
+| C2 | Condición nueva «sin armadura pesada» + `Movimiento rápido` y `Errante` | 2 |
+| C3 | Situacionales, como `conditional` | ~14 |
+| C4 | Decidir `Maestro en armaduras medias` (cambia el TOPE de Destreza: es el `ModifyItem` de Foundry, no un `add`) | 1 |
 
-### Bloque B — declarar los 21 efectos (sin manual, ~1 día)
+### Bloque D — cerrar la puerta (sin manual, ~medio día)
 
-Medido: solo hay **3 variables calculables** (`ca`, `pg_max`, `velocidad`), así
-que el hueco funcional son **21 rasgos**, no 528. Su texto ya está transcrito
-y citado; el método es el de C3 —estructurar la prosa y exigir ida y vuelta—
-y solo hace falta el manual si la transcripción resulta ambigua.
+`efectos:` obligatorio en todo rasgo, con `no_automatizado` como respuesta
+legítima. **Al final, no al principio:** activarlo antes del bloque C dejaría la
+base en rojo durante todo el relleno y no se distinguiría una rotura nueva de
+la deuda conocida.
 
-| # | Qué | Cuántos |
-|---|---|---|
-| **B1** | Los inequívocos: `Veloz` (+3 m), `Defensa` (+1 CA con armadura), `Don de la fortaleza` (+40 PG) | ~4 |
-| **B2** | Condición nueva «sin armadura pesada» + `Movimiento rápido` y `Errante` | 2 |
-| **B3** | Los situacionales, como `conditional` | ~14 |
-| **B4** | Decidir `Maestro en armaduras medias` (§5, `ModifyItem`) | 1 |
+### Bloque E — higiene (sin manual, ~medio día)
 
-### Bloque C — cerrar la puerta (sin manual, ~medio día)
+`requirements.txt` (PyYAML no está declarado), versión de Python declarada (un
+`SyntaxError` de 3.12 tumbó cuatro herramientas y nadie se enteró), y las ~50
+líneas de duplicación real: `cargar()` en `calculo.py` y `cobertura.py` (**no
+son idénticas**: una hace `sys.exit`, la otra devuelve `None`),
+`cargar_yaml()` en `verificar_foundry.py`, y `_es_marcador()` en `validar.py` y
+`subir_nivel.py`.
 
-| # | Qué |
-|---|---|
-| **C1** | `efectos:` obligatorio en todo rasgo, con `no_automatizado` como respuesta legítima. **Va al final, no al principio**: activarlo antes de B dejaría la base en rojo durante todo el relleno y no se distinguiría una rotura nueva de la deuda conocida |
+### Bloque F — refactor
 
-### Bloque D — higiene (sin manual, ~medio día)
+**Solo si después de A-E sigue pareciendo necesario.** La medición del §5 dice
+que probablemente no lo sea.
 
-`requirements.txt` (PyYAML no está declarado), versión de Python declarada
-(un `SyntaxError` de 3.12 tumbó cuatro herramientas y nadie se enteró), y
-decidir qué hacer con los tres lectores y las dos funciones duplicadas.
+### Bloque G — lo único que necesita el manual
 
-### Bloque E — lo único que necesita el manual
+Los casos del bloque C cuyo texto transcrito resulte ambiguo, y la revisión de
+descripciones de conjuro (residuo medido ~11 %), que la usuaria lleva contra el
+manual por decisión propia.
 
-Los casos de B en los que el texto transcrito resulte ambiguo, y la revisión
-de descripciones de conjuro (residuo medido: ~11 %), que ya has decidido
-llevar tú contra el manual.
+## 9. Criterio de cierre
 
----
+1. `censo.py` existe y su número es 0, o lo que no es 0 está declarado con su
+   motivo.
+2. Los 30 chequeos `validar_*` tienen prueba por mutación, o exención declarada.
+3. Los 21 candidatos a efecto, a cero.
+4. Quitar `efectos:` de cualquier rasgo hace fallar a `validar.py`.
+5. En todo momento: `validar.py` 0 errores, 17/17 fichas, barrido 240/240,
+   contrastes en 646 + 3020, mutaciones en verde.
 
-## 7. Criterio de cierre
+## 10. Lo que este plan no promete
 
-1. Ninguna de las ocho listas del §2 sigue escrita a mano.
-2. Los 21 candidatos de efectos, a cero, contados por un chequeo que **deriva
-   su lista del vocabulario**.
-3. Quitar `efectos:` de cualquier rasgo hace fallar a `validar.py`.
-4. En todo momento: `validar.py` 0 errores, 17/17 fichas, barrido 240/240,
-   contrastes en 646 + 3020, y las mutaciones en verde.
-
----
-
-## 8. Lo que este plan no promete
-
-No promete que no aparezca un noveno caso del patrón. Promete que **la forma
-del defecto ya está nombrada, tiene regla propia (la 6 de `CONTINUAR.md`) y se
-reconoce a simple vista**: si un módulo lleva dentro una lista de lo que mira,
-y esa lista duplica algo que vive en la base, es el mismo error otra vez.
-
-Los cuatro casos cerrados se encontraron mirando; los cuatro abiertos están
-localizados y medidos. Eso es lo que separa esto de un espiral.
+No promete que no aparezca un noveno caso del patrón. Promete que **el día que
+aparezca lo dirá el censo**, en vez de esperar a que alguien lea el código con
+ojos frescos. Esa es la diferencia entre una auditoría y un espiral: no que no
+haya defectos, sino que el repo sepa contar los que le quedan.
