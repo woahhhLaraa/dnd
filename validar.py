@@ -446,9 +446,17 @@ def validar_referencias():
         citados.add(m.group(1).strip().rstrip('"'))
     for m in re.finditer(r"truco ([a-záéíóúñ ]+?)[\.,;\"]", t):
         citados.add(m.group(1).strip())
+    # ── De aviso a ERROR (fase 1 del PLAN_19, 2026-09-02) ────────────────
+    # Una especie que concede un truco que no existe en `hechizos.json` es
+    # integridad referencial ROTA: el personaje tendría un conjuro que la base
+    # no sabe describir. Salía como un ⚠ entre otros treinta y `validar.py`
+    # terminaba con «0 errores». Hoy los 18 citados resuelven, así que
+    # promoverlo no deja deuda.
     faltan = sorted(c for c in citados if c.lower() not in idx)
     for c in faltan:
-        warn.append(f"conjuro citado por una especie y ausente de hechizos.json: '{c}'")
+        err.append(f"conjuro citado por una especie y ausente de "
+                   f"hechizos.json: '{c}'. El personaje tendría un conjuro que "
+                   f"la base no sabe describir")
     return f"referencias ({len(citados)} conjuros citados)", err, warn
 
 
@@ -866,10 +874,12 @@ def validar_generacion():
     return "generación de personaje", err, warn
 
 # --- Marcadores de la tabla de clase que no son rasgos con texto propio ---
+# La lista vivía aquí cableada y otra copia en `subir_nivel.py`, ya divergidas
+# (ver la cabecera de `calculo.es_marcador`). Ahora se lee de
+# `reglas/subida_de_nivel.yaml → marcadores`, que es donde está declarada.
 def _es_marcador(nombre):
-    n = nombre.strip()
-    return (n == "Mejora de característica" or n == "Rasgo de subclase"
-            or n.startswith("Subclase de "))
+    import calculo
+    return calculo.es_marcador(nombre)
 
 def validar_hechizos_clases():
     """Integridad referencial hechizos.json -> clases/*.yaml.
@@ -1888,14 +1898,30 @@ def validar_costes_sin_fuente():
         if not h.get("_coste_verificado"):
             sin_verificar.append(h["nombre"])
 
+    # ── De aviso a ERROR (fase 1 del PLAN_19, 2026-09-02) ────────────────
+    # Este chequeo nunca llenaba `err`, así que su línea salía en ✅ pasara lo
+    # que pasara con el dato y `validar.py` terminaba con «0 errores». Lo
+    # destapó el bloque B al escribirle su prueba por mutación: no se le podía
+    # probar nada porque no podía fallar.
+    #
+    # Se puede promover sin dejar deuda porque los 52 están a cero hoy: el
+    # sello `_coste_verificado` está puesto en todos. Y el coste de que sea
+    # error es exactamente el que se quiere — un conjuro nuevo con material
+    # fuera del SRD **no entra** hasta que alguien lea su página, que es lo que
+    # este chequeo existía para pedir. Ya pasó una vez: `Golpe de viento
+    # acerado` tenía `coste: null` sobre una página que exige «un arma cuerpo a
+    # cuerpo que valga al menos 1 pp», y lo encontró una muestra por casualidad.
     if not sin_fuente:
         warn.append("ningún conjuro con material queda fuera del SRD: "
                     "¿se ha movido el pack?")
     if sin_verificar:
-        warn.append(f"{len(sin_verificar)} de {sin_fuente} conjuros con material "
-                    f"fuera del SRD sin `_coste_verificado`: "
-                    f"{', '.join(sorted(sin_verificar)[:6])}"
-                    + (" …" if len(sin_verificar) > 6 else ""))
+        err.append(f"{len(sin_verificar)} de {sin_fuente} conjuros con material "
+                   f"fuera del SRD sin `_coste_verificado`: "
+                   f"{', '.join(sorted(sin_verificar)[:6])}"
+                   + (" …" if len(sin_verificar) > 6 else "")
+                   + ". Su precio no lo respalda ninguna fuente externa, así "
+                     "que hay que leer la página y DECLARAR el resultado, "
+                     "incluido el negativo («sin coste, comprobado»)")
     return f"costes sin fuente ({sin_fuente})", err, warn
 
 
@@ -2789,7 +2815,13 @@ def main():
 
     nom, err, warn = validar_referencias()
     total_err += len(err)
-    print(f" {'✅' if not (err or warn) else '⚠'} {nom}")
+    # El marcador tiene que decir la verdad: ❌ si hay errores, ⚠ si solo hay
+    # avisos, ✅ si no hay nada. Hasta el 2026-09-02 esta línea imprimía ⚠
+    # aunque hubiera errores —daba igual, porque este chequeo no podía tener
+    # ninguno— y al promoverlo a error (fase 1 del PLAN_19) la línea seguía
+    # diciendo «aviso» de un fallo real: su prueba por mutación daba «no
+    # detectada» cuando lo que fallaba era el rótulo.
+    print(f" {'❌' if err else '⚠' if warn else '✅'} {nom}")
     for e in err:      print(f"      ✗ {e}")
     for w in warn[:12]: print(f"      ⚠ {w}")
 

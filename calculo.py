@@ -50,6 +50,48 @@ def cargar(rel):
     return yaml.safe_load(f.read_text(encoding="utf-8"))
 
 
+# ── Marcadores de la tabla de clase ─────────────────────────────────────
+# «Mejora de característica», «Rasgo de subclase» y «Subclase de <clase>» no
+# son rasgos con texto propio: son instrucciones de la tabla, y su vocabulario
+# vive en `reglas/subida_de_nivel.yaml → marcadores` con su nota al lado.
+#
+# Hasta el 2026-09-02 había DOS copias cableadas de esa lista, una en
+# `validar.py` y otra en `subir_nivel.py`, y **ya habían divergido**: la
+# primera normalizaba con `.strip()` y exigía «Subclase de » con espacio final;
+# la segunda no normalizaba y aceptaba «Subclase de» sin él, así que un rasgo
+# llamado «Subclase deluxe» era marcador para una y rasgo para la otra. Es el
+# defecto nº 4 del §2 del PLAN_18 (`_TABLA_COSTE`) otra vez: un dato que vive
+# en la base, copiado en Python, y nadie comparando las copias.
+#
+# Ahora se lee. Añadir un cuarto marcador al YAML lo reconocen los dos sin
+# tocar código, y quitarlo lo deja de reconocer en los dos a la vez.
+@functools.lru_cache(maxsize=None)
+def _marcadores():
+    d = cargar("reglas/subida_de_nivel.yaml") or {}
+    literales, patrones = set(), []
+    for m in d.get("marcadores") or []:
+        if isinstance(m, str):
+            literales.add(m.strip())
+        elif isinstance(m, dict) and m.get("patron"):
+            # «Subclase de <clase>» → prefijo «Subclase de », con su espacio.
+            patrones.append(m["patron"].split("<", 1)[0])
+        else:
+            sys.exit(f"✗ marcador no reconocido en reglas/subida_de_nivel.yaml: "
+                     f"{m!r}. Un marcador es un literal o un `patron` con <…>")
+    if not literales and not patrones:
+        sys.exit("✗ reglas/subida_de_nivel.yaml no declara `marcadores`: sin "
+                 "ellos no se distingue una instrucción de la tabla de un "
+                 "rasgo con texto propio")
+    return frozenset(literales), tuple(patrones)
+
+
+def es_marcador(nombre):
+    """¿Es una instrucción de la tabla y no un rasgo con texto propio?"""
+    n = (nombre or "").strip()
+    literales, patrones = _marcadores()
+    return n in literales or any(n.startswith(pref) for pref in patrones)
+
+
 # ── Modificador por puntuación ──────────────────────────────────────────
 # reglas/generacion_personaje.yaml → modificadores_por_puntuacion
 def modificador(puntuacion):

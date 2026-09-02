@@ -3,19 +3,21 @@
 
     validar_citas_conjuro   validar_costes_sin_fuente   validar_referencias
 
-── Un hallazgo que sale de escribir esta suite ────────────────────────────
-**Dos de los tres no pueden fallar.** `validar_costes_sin_fuente` y
-`validar_referencias` solo llenan `warn`: nunca añaden nada a `err`, así que
-su línea sale en ✅ pase lo que pase con el dato. Un conjuro citado por una
-especie y ausente de `hechizos.json` —integridad referencial rota— sale hoy
-como un ⚠ entre otros treinta, y `validar.py` termina con «0 errores».
+── El hallazgo que salió de escribir esta suite, y cómo se cerró ──────────
+Al escribirla (bloque B, 2026-08-31) se descubrió que **dos de los tres no
+podían fallar**: `validar_costes_sin_fuente` y `validar_referencias` solo
+llenaban `warn`, así que su línea salía en ✅ pasara lo que pasara con el dato.
+Un conjuro citado por una especie y ausente de `hechizos.json` —integridad
+referencial rota— salía como un ⚠ entre otros treinta y `validar.py` terminaba
+con «0 errores». No se puede probar nada de un chequeo que no puede fallar.
 
-No se cambia aquí: convertirlos en error es una decisión sobre qué bloquea la
-base, no una prueba, y este bloque es el de la red, no el del criterio. Lo que
-sí se hace es **probar la garantía que sí dan**: que el aviso APAREZCA cuando
-el dato se rompe. El arnés lo compara contra la línea base de avisos de la
-base intacta, así que un aviso nuevo es una detección y ninguno es un hueco.
-Queda anotado en el censo y en el plan para que se decida a la vista.
+Entonces se probó la única garantía que daban —que el AVISO apareciera— y se
+dejó anotado que promoverlos era una decisión, no una prueba.
+
+**Tomada el 2026-09-02 (fase 1 del PLAN_19): los dos son ERROR.** Se pudo hacer
+sin dejar deuda porque los dos estaban a cero. Esta suite pasa de modo `aviso`
+a modo `error` en sus dos bloques, que es exactamente el cambio que se quería
+poder hacer: la mutación es la misma, lo que sube es lo que se le exige.
 
     python3 _verificacion/mutaciones_referencias.py
 """
@@ -78,7 +80,7 @@ def co_varios_sin_verificar(r):
     t = p.read_text(encoding="utf-8")
     p.write_text(t.replace('"_coste_verificado"', '"_coste_NO_verificado"'),
                  encoding="utf-8")
-    return ("los 53 costes leídos a mano pierden su sello: el aviso tiene que "
+    return ("los 53 costes leídos a mano pierden su sello: el error tiene que "
             "CONTARLOS, no solo existir")
 
 
@@ -113,12 +115,11 @@ BLOQUES = [
     ("CITAS DE CONJURO · la regla 2: sin página no entra", "citas de conjuro",
      [ci_sin_pagina, ci_pagina_no_numerica, ci_pagina_con_rango],
      [ci_resumen_retocado]),
-    ("COSTES SIN FUENTE · solo avisa, y se prueba el aviso", "costes sin fuente",
-     [co_coste_sin_verificar, co_varios_sin_verificar], [co_material_sin_coste],
-     "aviso"),
-    ("REFERENCIAS · solo avisa, y se prueba el aviso", "referencias",
+    ("COSTES SIN FUENTE · el sello es obligatorio", "costes sin fuente",
+     [co_coste_sin_verificar, co_varios_sin_verificar], [co_material_sin_coste]),
+    ("REFERENCIAS · integridad referencial", "referencias",
      [re_conjuro_citado_inexistente, re_conjuro_de_nivel_3_inexistente],
-     [re_texto_sin_conjuros], "aviso"),
+     [re_texto_sin_conjuros]),
 ]
 
 

@@ -223,6 +223,69 @@ def main():
         print(f" ✅ mutaciones_foundry: los documentos coinciden "
               f"({sorted({n for _, n in dichas})[0]}); no se ejecuta aquí (>10 min)")
 
+    # ── 3bis. El repo se puede EJECUTAR (fase 1 del PLAN_19) ─────────────
+    # El 2026-08-31 `verificar_foundry.py` llevaba un `SyntaxError` —una
+    # f-string con comillas anidadas, válida solo desde 3.12 (PEP 701)— y
+    # **cuatro herramientas estaban muertas sin que nadie se enterara**. No lo
+    # cazó ningún chequeo: lo cazó alguien intentando ejecutarlas.
+    #
+    # La causa no fue la versión: fue que **nadie ejecutaba ese fichero**. Un
+    # `compile()` sobre todos los `.py` cuesta un segundo y cierra eso para
+    # siempre, se corra el que se corra.
+    #
+    # ⚠ LÍMITE, y conviene que conste: esto comprueba la sintaxis contra el
+    # intérprete que esté corriendo. NO caza código que sea válido aquí e
+    # inválido en la versión mínima declarada —justo el caso original, porque
+    # el analizador de f-strings cambió en 3.12 y `ast.feature_version` no lo
+    # rebaja—. Para eso hace falta ejecutar en la versión mínima, que es otro
+    # trabajo. Lo que sí queda cerrado es el fallo que de verdad ocurrió.
+    import compileall  # noqa: F401  (documenta la intención; se usa compile())
+    rotos = []
+    for f in sorted(list(B.glob("*.py")) + list((B / "_verificacion").glob("*.py"))):
+        try:
+            compile(f.read_text(encoding="utf-8"), str(f), "exec")
+        except SyntaxError as e:
+            rotos.append(f"{f.relative_to(B)}:{e.lineno} {e.msg}")
+    for r in rotos:
+        fallos += 1
+        print(f" ❌ no compila · {r}")
+    if not rotos:
+        print(f" ✅ los {len(list(B.glob('*.py'))) + len(list((B / '_verificacion').glob('*.py')))} "
+              f"módulos compilan con el Python que los corre")
+
+    # Y la versión mínima que el repo declara, comprobada contra la que corre.
+    pv = B / ".python-version"
+    if not pv.exists():
+        fallos += 1
+        print(" ❌ falta `.python-version`: el repo no declara con qué Python "
+              "se puede ejecutar")
+    else:
+        minimo = tuple(int(x) for x in pv.read_text(encoding="utf-8").strip().split("."))
+        actual = sys.version_info[:len(minimo)]
+        ok = actual >= minimo
+        fallos += not ok
+        print(f" {'✅' if ok else '❌'} Python {'.'.join(map(str, actual))} "
+              f"≥ {'.'.join(map(str, minimo))} declarado en `.python-version`")
+
+    # Y la única dependencia de terceros, declarada y presente.
+    req = B / "requirements.txt"
+    if not req.exists():
+        fallos += 1
+        print(" ❌ falta `requirements.txt`: PyYAML es una dependencia real y "
+              "no estaría declarada en ninguna parte")
+    else:
+        declaradas = [l.split(">=")[0].split("==")[0].strip().lower()
+                      for l in req.read_text(encoding="utf-8").splitlines()
+                      if l.strip() and not l.lstrip().startswith("#")]
+        import importlib.util
+        modulos = {"pyyaml": "yaml"}
+        faltan = [d for d in declaradas
+                  if importlib.util.find_spec(modulos.get(d, d)) is None]
+        fallos += bool(faltan)
+        print(f" {'✅' if not faltan else '❌'} requirements.txt declara "
+              f"{len(declaradas)} dependencia(s)"
+              + (f" y falta(n) {faltan}" if faltan else " y está(n) instalada(s)"))
+
     # 4bis. Ningún chequeo puede abandonar un registro EN SILENCIO.
     # Es la causa raíz de los dos peores desfases del proyecto, así que se
     # comprueba aquí, en la rutina, y no en la buena voluntad de nadie.

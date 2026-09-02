@@ -25,15 +25,17 @@ import sys
 
 import yaml
 
-from calculo import B, cargar, _archivo_clase
+from calculo import B, cargar, es_marcador, _archivo_clase
 
 MARCADOR_MEJORA = "Mejora de característica"
 MARCADOR_RASGO_SUB = "Rasgo de subclase"
 
 
+# La copia cableada que había aquí aceptaba «Subclase de» SIN espacio final,
+# mientras la de `validar.py` lo exigía: «Subclase deluxe» era marcador para
+# una y rasgo para la otra. Se lee de la base (ver `calculo.es_marcador`).
 def _es_marcador(nombre):
-    return (nombre == MARCADOR_MEJORA or nombre == MARCADOR_RASGO_SUB
-            or nombre.startswith("Subclase de"))
+    return es_marcador(nombre)
 
 
 def _fila(prog, n):

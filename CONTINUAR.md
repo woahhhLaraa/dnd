@@ -25,7 +25,11 @@
 > documento del que hay que avisar «no lo leas» es un documento que ya sobra.
 > Sigue en el historial de git si alguna vez hace falta.
 
-Última actualización: **2026-09-02** — **bloques A, B, A2, C y D del Plan 18
+Última actualización: **2026-09-02** — **`PLAN_19` escrito y su fase 1 hecha**:
+el verificador ya no aprueba fichas multiclase sin comprobarlas (eran **cuatro**
+chequeos degradados a aviso, no tres), los dos chequeos que solo avisaban son
+error, y el repo declara y comprueba su entorno. Antes, los **bloques A, B, A2,
+C y D del Plan 18
 hechos**: existe `censo.py`, los 30 chequeos `validar_*` tienen prueba por
 mutación, las cuatro listas escritas a mano del §2 están cerradas, los efectos
 que faltaban están declarados (de 7 a **25**) y **la puerta está cerrada**: un
@@ -106,11 +110,12 @@ red puesta, el refactor del bloque F ya es una opción**, aunque la medición de
 
 ### Y tres cosas que salieron al hacer A, B y A2, y conviene saber antes de tocar
 
-- **Dos de los 30 chequeos no pueden fallar.** `validar_costes_sin_fuente` y
-  `validar_referencias` solo llenan `warn`. Una referencia rota entre una
-  especie y `hechizos.json` sale como ⚠ y `validar.py` termina con «0 errores».
-  Está probado que el **aviso** salta; convertirlo en error es una decisión
-  pendiente, no un descuido.
+- ✅ **Los dos chequeos que no podían fallar, promovidos** (fase 1 del
+  `PLAN_19`): `validar_costes_sin_fuente` y `validar_referencias` son error.
+  Se pudo sin dejar deuda porque los dos estaban a cero.
+- ✅ **La multiclase se RECHAZA, no se aprueba sin mirar** (fase 1). Eran
+  **cuatro** chequeos degradados a aviso, no tres; el cuarto se saltaba justo
+  los huecos que el estrés con agentes había destapado.
 - ✅ **`COMPLETO`/`MEDIO` ya no existen** (A2): la tabla del lanzador completo
   se lee de la base, citada (pdf 47 = libro 45), y la del medio se DERIVA de
   ella con la regla del propio manual.
@@ -826,7 +831,7 @@ un dato malo sino un dato que nadie ataba a su fuente: las **características
 finales** no las justificaba nadie (un monje con las seis a 20 verificaba en
 verde) y **nadie contaba los conjuros** (la ficha de ejemplo de la base llevaba
 1 preparado donde su tabla concede 2). Los dos cerrados, con `mejoras`,
-`verificar_conjuros()` y `mutaciones_nivel20.py` → 15/15. Detalle en `FUENTES.md`.
+`verificar_conjuros()` y `mutaciones_nivel20.py` → 18/18. Detalle en `FUENTES.md`.
 
 **Sigue pendiente la multiclase**, por decisión del usuario.
 
@@ -1080,7 +1085,7 @@ puntos sí eran nuevos y se contrastaron contra el código real:
 | `subir_nivel.py` · `reglas/subida_de_nivel.yaml` | **Qué pasa al subir de nivel (Fase 16)**, derivado de la tabla de la clase: separa lo que la base CONCEDE de lo que el jugador ELIGE |
 | `_verificacion/mutaciones_subida.py` | Prueba por mutación de `validar_subida()` (7/7) |
 | `generar_ficha.py` | **Generador determinista de fichas legales** para estresar el sistema. `--barrido --exhaustivo` = 240 fichas. Su límite: solo produce los errores que se le programaron |
-| `_verificacion/mutaciones_nivel20.py` | Prueba por mutación de `verificar_mejoras()`, `verificar_conjuros()` y los tres chequeos del estrés (15/15), sobre las dos fichas de nivel 20 |
+| `_verificacion/mutaciones_nivel20.py` | Prueba por mutación de `verificar_mejoras()`, `verificar_conjuros()`, los tres chequeos del estrés y el rechazo de la multiclase (18/18), sobre las dos fichas de nivel 20 |
 | `PLAN_16.md` | Plan de la Fase 16, con el inventario medido de «qué puede pasar al subir» |
 | `.claude/skills/personaje/` | Skill `/personaje` — creación paso a paso de nivel 1 |
 | `.claude/skills/subir-nivel/` | Skill `/subir-nivel` — subida de nivel sobre una ficha existente |

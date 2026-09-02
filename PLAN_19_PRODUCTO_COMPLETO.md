@@ -46,18 +46,18 @@ no es infraestructura: es **superficie sin verificar** y **producto sin cubrir**
 
 | Hueco | Tamaño | ¿Bloquea el producto? |
 |---|---|---|
-| El verificador **aprueba fichas multiclase sin comprobarlas** | 3 chequeos degradados a aviso | 🔴 sí: un «✅» que miente |
+| ~~El verificador **aprueba fichas multiclase sin comprobarlas**~~ | eran **4**, no 3 | ✅ cerrado (fase 1) |
 | Residuo de error en descripciones de conjuro | **~11 %** (IC 3,1-26,1) | 🔴 sí: es lo que la base entrega |
 | Conversiones a pies que el manual no imprime | **543** en 298 conjuros | 🟠 fidelidad |
 | Registros del SRD 5.2 que nadie contrasta | **562**, de ellos 255 rasgos de clase | 🟠 superficie sin verificar |
 | Rasgos que no dicen si tocan una variable | **480** (enumerados, solo bajan) | 🟠 frontera |
 | Multiclase automatizada | reglas ya transcritas, sin ejecutar | 🔴 sí: personajes que no se pueden montar |
-| Dos chequeos que **no pueden fallar** | `validar_costes_sin_fuente`, `validar_referencias` | 🟠 solo avisan |
-| Reproducibilidad | sin `requirements.txt` ni versión de Python | 🟠 ya tumbó 4 herramientas |
+| ~~Dos chequeos que **no pueden fallar**~~ | los dos estaban a cero | ✅ cerrado (fase 1) |
+| ~~Reproducibilidad~~ | `requirements.txt` + `.python-version`, y los 33 módulos se compilan en cada pasada | ✅ cerrado (fase 1) |
 
 ---
 
-## 3. Fase 1 · Que un «✅» signifique lo que dice
+## 3. Fase 1 · Que un «✅» signifique lo que dice — ✅ **HECHA (2026-09-02)**
 
 **Qué logra:** hoy hay tres sitios donde el sistema aprueba lo que no ha
 comprobado. Esta fase los cierra. Es la más barata y la que más engaño quita.
@@ -280,3 +280,82 @@ python3 verificar_documentos.py        # corre las 14 suites de mutación (~5 mi
 Y la regla que no cambia: **todo hueco que se cierre lleva su chequeo y su
 prueba por mutación**; todo falso positivo se corrige afinando el chequeo, no
 relajándolo, y se queda como control negativo.
+
+
+---
+
+## 14. Resultado — fase 1, ejecutada el 2026-09-02
+
+### Eran cuatro, no tres
+
+La medición que ordenó este plan decía tres chequeos degradados. **Eran
+cuatro.** El que faltaba, `verificar_dotes_y_subclase()`, es además el peor:
+se saltaba justamente los tres huecos que el estrés con agentes había
+destapado —la subclase de otra clase, el prerrequisito de dote sin comprobar—,
+así que **una ficha multiclase esquivaba en silencio los chequeos escritos para
+cazar lo que se colaba en silencio**. Apareció al escribir el arreglo, no al
+planificarlo: la cuarta rama no usaba la misma redacción que las otras tres.
+
+Los cuatro comparten ahora una puerta, `una_sola_clase()`, que registra el
+motivo **una sola vez**: repetir el mismo error por cada chequeo que se salta
+entierra el motivo bajo su propio ruido.
+
+### Los dos chequeos que no podían fallar, promovidos sin dejar deuda
+
+`validar_costes_sin_fuente` y `validar_referencias` pasan a error. Se pudo
+hacer limpio porque **los dos estaban a cero**: los 52 conjuros con material
+fuera del SRD llevan su `_coste_verificado`, y los 18 conjuros que las especies
+citan resuelven.
+
+**Y salió un bug de rótulo debajo.** `main()` imprimía `⚠` para
+`validar_referencias` aunque hubiera errores —daba igual mientras el chequeo no
+pudiera tener ninguno—, así que al promoverlo su prueba por mutación daba «no
+detectada» cuando lo que fallaba era el rótulo. El marcador dice ahora la
+verdad: ❌ si hay errores, ⚠ si solo hay avisos, ✅ si no hay nada.
+
+### `_es_marcador` no era duplicación: era el defecto nº 4 otra vez
+
+El plan lo listaba como «~50 líneas duplicadas». Al mirarlo, las dos copias de
+`_es_marcador` **ya habían divergido**: `validar.py` normalizaba con `.strip()`
+y exigía «Subclase de » con espacio final; `subir_nivel.py` no normalizaba y
+aceptaba «Subclase de» sin él. Un rasgo llamado «Subclase deluxe» era marcador
+para una y rasgo para la otra.
+
+Y el vocabulario **vive en la base**, en `reglas/subida_de_nivel.yaml →
+marcadores`. O sea que no era duplicación entre dos módulos: era el defecto nº 4
+del §2 del `PLAN_18` (`_TABLA_COSTE`) por tercera vez —autoridad que vive en la
+base, copiada en Python, sin nadie comparando las copias—. Se lee.
+
+### La reproducibilidad, cerrada por donde de verdad falló
+
+El `SyntaxError` del 2026-08-31 no ocurrió por falta de un número en un
+fichero: ocurrió porque **nadie ejecutaba `verificar_foundry.py`**, y cuatro
+herramientas estuvieron muertas sin que saltara nada. Así que además de
+declarar (`requirements.txt` con la única dependencia real, `.python-version`
+con el suelo), `verificar_documentos.py` **compila los 33 módulos en cada
+pasada**. Cuesta un segundo y cierra el fallo que de verdad ocurrió.
+
+**Su límite, dicho:** comprueba la sintaxis contra el intérprete que corre. NO
+caza código válido aquí e inválido en la versión mínima —justo el caso
+original, porque el analizador de f-strings cambió en 3.12 y
+`ast.feature_version` no lo rebaja—. Para eso hace falta ejecutar en la versión
+mínima, y eso es CI, no un chequeo.
+
+### Y un falso positivo que el propio cierre creó
+
+Al sustituir los cuatro avisos por `if not una_sola_clase(...): return`,
+`verificar_chequeos.py` marcó las ramas nuevas como **silenciosas**: miraba el
+cuerpo de la rama, y quien habla ahí es la **condición**. Ahora mira las dos.
+Es una mejora real de la herramienta, no un parche: cualquier rama cuya
+condición sea la llamada que reporta estaba mal contada.
+
+### Cifras al cerrar
+
+```
+validar.py             0 errores · 25 efectos
+censo.py               697 unidades · 0 sin declarar · 492 pendientes
+verificar_documentos   33 módulos compilan · Python 3.11 ≥ 3.11 · 1 dependencia
+mutaciones_nivel20     18/18 (eran 15: entra la familia MULTICLASE)
+mutaciones_referencias 10/10, ahora en modo ERROR y no aviso
+17/17 fichas · barrido 240/240 · una ficha multiclase se RECHAZA
+```

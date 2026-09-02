@@ -8,10 +8,29 @@ justo lo que `calculo.py` produciría a partir del resto de la ficha. Una
 ficha que pase este script no puede sostenerse en la palabra del LLM: todo
 lo que dice es trazable.
 
-Alcance actual: personajes de creación en nivel 1 y una sola clase (lo que
-construye la skill /personaje de esta fase). Con multiclase o niveles
-superiores, la recomputación de `calculado` no se intenta — se avisa y se
-deja pasar solo la comprobación de referencias.
+Alcance actual: personajes de una sola clase, de nivel 1 a 20.
+
+**La multiclase se RECHAZA, no se avisa (2026-09-02, fase 1 del PLAN_19).**
+Hasta hoy **cuatro** chequeos se degradaban a aviso cuando la ficha traía más
+de una clase —la recomputación de `calculado`, la justificación de las mejoras
+de característica, el recuento de conjuros y las dotes y subclases— y la ficha
+terminaba imprimiendo
+«✅ FICHA VERIFICADA — 0 problemas». Es decir: el verificador aprobaba lo que
+no había comprobado, que es el peor resultado posible de los tres:
+
+  · rechazarla dice la verdad y no cuesta nada;
+  · comprobarla de verdad es la fase 6 del plan;
+  · **aprobarla sin mirar enseña a confiar en un ✅ que no significa nada.**
+
+El cuarto era el más feo: se saltaba los tres huecos que el estrés con agentes
+había destapado —la subclase de otra clase, el prerrequisito de dote sin
+comprobar—, así que una ficha multiclase esquivaba en silencio los chequeos
+escritos para cazar lo que se colaba en silencio.
+
+Es el tercer caso confirmado de la amenaza nº 3 del `FODA.md` —«una rama de
+tolerancia en un chequeo es deuda invisible»—, y los dos anteriores costaron
+semanas: `COSTE_COMPUESTO` escondía dos sumas inventadas, y un `continue` dejó
+que nueve de diecisiete fichas violaran la regla 6 de su propio esquema.
 
 Uso: python3 verificar_personaje.py personajes/aerin.yaml
 """
@@ -34,6 +53,31 @@ class Informe:
 
     def aviso(self, msg):
         self.avisos.append(msg)
+
+
+# Los tres chequeos que no saben multiclase comparten esta puerta. Se dice
+# UNA vez, no tres: repetir el mismo error por cada chequeo que se salta
+# entierra el motivo real bajo su propio ruido.
+_MOTIVO_MULTICLASE = (
+    "MULTICLASE: esta ficha declara {n} clases y este verificador solo sabe "
+    "comprobar una. NO se recomputa `calculado`, NO se justifican las mejoras "
+    "de característica, NO se cuentan los conjuros contra la tabla y NO se "
+    "comprueban ni los prerrequisitos de las dotes ni que la subclase sea de "
+    "su clase. Hasta el "
+    "2026-09-02 esto era un aviso y la ficha pasaba con «0 problemas»: el "
+    "verificador aprobaba lo que no había mirado. Las reglas están transcritas "
+    "y citadas en `reglas/generacion_personaje.yaml → multiclase`; "
+    "automatizarlas es la fase 6 del PLAN_19.")
+
+
+def una_sola_clase(ficha, inf):
+    """¿Puede este verificador responder por esta ficha? Si no, lo dice."""
+    n = len(ficha.get("clases") or [])
+    if n == 1:
+        return True
+    if not any(s.startswith("MULTICLASE:") for s in inf.errores):
+        inf.error(_MOTIVO_MULTICLASE.format(n=n))
+    return False
 
 
 # ── Resolución de referencias ────────────────────────────────────────────
@@ -226,10 +270,7 @@ def verificar_compra_puntos(ficha, inf):
 # ── Recomputar `calculado` ────────────────────────────────────────────────
 def verificar_calculado(ficha, inf):
     clases = ficha.get("clases", [])
-    if len(clases) != 1:
-        inf.aviso("recomputación de 'calculado' omitida: la multiclase todavía "
-                  "no se recalcula (los PG de cada clase salen de su propio "
-                  "dado; ver reglas/generacion_personaje.yaml → multiclase)")
+    if not una_sola_clase(ficha, inf):
         return
     if clases[0]["nivel"] != ficha["nivel_total"]:
         inf.error(f"nivel_total {ficha['nivel_total']} no coincide con el nivel "
@@ -397,9 +438,7 @@ _ABREV = {"Fuerza": "fue", "Destreza": "des", "Constitución": "con",
 
 
 def verificar_mejoras(ficha, inf):
-    if len(ficha.get("clases", [])) != 1:
-        inf.aviso("multiclase: NO se han comprobado las mejoras de "
-                  "característica. `caracteristicas.final` queda sin justificar")
+    if not una_sola_clase(ficha, inf):
         return
     car = ficha.get("caracteristicas") or {}
     base, ajuste = car.get("base") or {}, car.get("ajuste_trasfondo") or {}
@@ -465,10 +504,7 @@ def verificar_mejoras(ficha, inf):
 # equipo ya usa: un conjuro con `origen:` es un extra y tiene que decir de
 # dónde sale; uno sin `origen:` cuenta contra la tabla.
 def verificar_conjuros(ficha, inf):
-    if len(ficha.get("clases", [])) != 1:
-        inf.aviso("multiclase: NO se ha contado ningún conjuro contra la tabla. "
-                  "Las reglas de lanzamiento multiclase están en "
-                  "reglas/generacion_personaje.yaml y no se han automatizado")
+    if not una_sola_clase(ficha, inf):
         return
     c = ficha["clases"][0]
     clase_d = cargar(c["ref"].split("#")[0]) or {}
@@ -521,9 +557,12 @@ def verificar_conjuros(ficha, inf):
 # Ninguno lo habría encontrado el generador automático: los tres son cosas que
 # el verificador **dejaba pasar en silencio**, no cosas que reventaran.
 def verificar_dotes_y_subclase(ficha, inf):
-    if len(ficha.get("clases", [])) != 1:
-        inf.aviso("multiclase: NO se han comprobado ni los prerrequisitos de "
-                  "las dotes ni que las subclases sean de su clase")
+    # El CUARTO chequeo degradado, y el que peor pinta tenía: se saltaba
+    # justamente los tres huecos que el estrés con agentes había destapado
+    # —la subclase de otra clase, el prerrequisito de dote sin comprobar—, o
+    # sea que una ficha multiclase esquivaba en silencio los chequeos escritos
+    # para cazar lo que se colaba en silencio.
+    if not una_sola_clase(ficha, inf):
         return
     c = ficha["clases"][0]
 

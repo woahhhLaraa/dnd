@@ -31,7 +31,7 @@ reproducen con los cinco comandos del final.
    `mutaciones_dados.py` (12/12), `mutaciones_conversiones.py` (13/13),
    `mutaciones_integridad.py` (24/24), `mutaciones_efectos.py` (36/36),
    `mutaciones_pg.py` (13/13), `mutaciones_materiales.py` (10/10),
-   `mutaciones_tiradas.py` (19/19), `mutaciones_prerrequisitos.py` (10/10), `mutaciones_subida.py` (7/7), `mutaciones_nivel20.py` (15/15) y
+   `mutaciones_tiradas.py` (19/19), `mutaciones_prerrequisitos.py` (10/10), `mutaciones_subida.py` (7/7), `mutaciones_nivel20.py` (18/18) y
    `mutaciones_foundry.py` (29/29). La mitad
    de cada suite son **controles negativos**: datos raros pero legítimos que no
    deben hacer saltar nada. No es simetría estética — la primera versión del
@@ -274,7 +274,13 @@ Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
    `validar_vecindad()` lo vigila, pero **solo puede priorizar lectura, no
    decidir**: el manual repite texto de verdad entre conjuros hermanos.
 3. **🔴 Una rama de tolerancia en un chequeo es deuda invisible.** Va por su
-   **segundo** caso confirmado y los dos costaron semanas: `COSTE_COMPUESTO`
+   **tercer** caso confirmado —y el tercero es el más ilustrativo: hasta el
+   2026-09-02, `verificar_personaje.py` degradaba **cuatro** chequeos a aviso
+   en cuanto la ficha traía más de una clase, y la ficha imprimía «✅ FICHA
+   VERIFICADA — 0 problemas». El verificador aprobaba lo que no había mirado, y
+   el cuarto chequeo degradado era precisamente el que cazaba los huecos del
+   estrés con agentes. Cerrado en la fase 1 del `PLAN_19`: se rechaza.
+   Los dos anteriores costaron semanas: `COSTE_COMPUESTO`
    sacaba seis conjuros del contraste externo y escondía dos sumas inventadas;
    el `continue  # entradas antiguas con ref:` de `verificar_categorias()` dejó
    que **nueve de diecisiete fichas** violaran la regla 6 del esquema, y esas
@@ -338,7 +344,7 @@ python3 _verificacion/mutaciones_materiales.py   # 10/10
 python3 _verificacion/mutaciones_tiradas.py      # 19/19
 python3 _verificacion/mutaciones_prerrequisitos.py # 10/10
 python3 _verificacion/mutaciones_subida.py       # 7/7
-python3 _verificacion/mutaciones_nivel20.py      # 15/15
+python3 _verificacion/mutaciones_nivel20.py      # 18/18
 python3 _verificacion/intervalo.py 48 305 306    # la tasa del 15,7 % (antes de corregir)
 python3 _verificacion/intervalo.py 4 36 306      # el residuo del 11,1 % (después)
 ```

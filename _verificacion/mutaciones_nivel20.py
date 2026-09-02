@@ -188,9 +188,55 @@ def e_escudo_sin_entrenamiento(r):
 MEJORAS = [m_caracteristica_regalada, m_mejora_borrada, m_mejora_de_tres,
            m_mejora_en_nivel_falso, m_supera_veinte]
 CONJUROS = [c_truco_de_mas, c_preparado_de_menos, c_extra_sin_fuente]
+# ══ MULTICLASE · el «✅» que mentía (fase 1 del PLAN_19, 2026-09-02) ══════
+# Hasta hoy CUATRO chequeos de `verificar_personaje.py` se degradaban a aviso
+# en cuanto la ficha traía más de una clase —recomputar `calculado`, justificar
+# las mejoras de característica, contar los conjuros, y las dotes y subclases—
+# y la ficha terminaba imprimiendo «✅ FICHA VERIFICADA — 0 problemas».
+#
+# El cuarto era el peor: se saltaba justo los tres huecos que el estrés con
+# agentes había destapado, así que una ficha multiclase esquivaba en silencio
+# los chequeos escritos para cazar lo que se colaba en silencio.
+#
+# Estas mutaciones prueban las dos mitades: que una ficha multiclase se
+# RECHACE, y que las monoclase sigan pasando.
+
+def m_dos_clases(r):
+    def edita(d):
+        d["nivel_total"] = 2
+        d["clases"] = list(d["clases"]) + [
+            {"ref": "clases/paladin.yaml", "clase": "Paladín", "nivel": 1,
+             "subclase": None}]
+    _editar(r, CLERIGO, edita)
+    return ("el clérigo pasa a ser clérigo 1/paladín 1: la ficha tiene que "
+            "RECHAZARSE, no aprobarse con un aviso")
+
+
+def m_dos_clases_nivel_alto(r):
+    def edita(d):
+        d["clases"] = list(d["clases"]) + [
+            {"ref": "clases/guerrero.yaml", "clase": "Guerrero", "nivel": 2,
+             "subclase": None}]
+        d["nivel_total"] = 22
+    _editar(r, MONJE, edita)
+    return ("el monje de nivel 20 gana 2 niveles de guerrero: ni siquiera con "
+            "una ficha que verifica 55 referencias se aprueba lo que no se mira")
+
+
+def n_una_sola_clase_sigue_pasando(r):
+    """Control: lo que se cierra es la multiclase, no las fichas de siempre."""
+    def edita(d):
+        d["_nota_prueba"] = "campo extra que nadie lee"
+    _editar(r, CLERIGO, edita)
+    return ("un campo extra en una ficha de UNA clase: el cierre de la "
+            "multiclase no puede llevarse por delante lo que ya funcionaba")
+
+
 ESTRES = [e_dote_sin_prerrequisito, e_subclase_de_otra_clase,
           e_competencia_como_ref, e_escudo_sin_entrenamiento]
-NO_DEBEN = [n_otro_reparto_legal, n_otro_conjuro, n_prosa_de_decisiones]
+NO_DEBEN = [n_otro_reparto_legal, n_otro_conjuro, n_prosa_de_decisiones,
+            n_una_sola_clase_sigue_pasando]
+MULTICLASE = [m_dos_clases, m_dos_clases_nivel_alto]
 
 
 def _falla(raiz, ficha):
@@ -216,6 +262,7 @@ def main():
             ("MEJORAS · características que nadie justificaba", MEJORAS, True),
             ("CONJUROS · cuántos lleva la ficha contra la tabla", CONJUROS, True),
             ("ESTRÉS · los huecos que destaparon los agentes", ESTRES, True),
+            ("MULTICLASE · rechazar, no aprobar sin mirar", MULTICLASE, True),
             ("Controles negativos: NO deben saltar", NO_DEBEN, False)):
         print(f"\n {etiqueta}")
         for mut in muts:
@@ -232,7 +279,8 @@ def main():
                     print("        ↑ " + ("NO DETECTADA" if esperado
                                            else "FALSO POSITIVO"))
 
-    total = len(MEJORAS) + len(CONJUROS) + len(ESTRES) + len(NO_DEBEN)
+    total = (len(MEJORAS) + len(CONJUROS) + len(ESTRES) + len(MULTICLASE)
+             + len(NO_DEBEN))
     print("\n" + "═" * 74)
     print(f"{'✅' if ok == total else '❌'} {ok}/{total}")
     return 0 if ok == total else 1

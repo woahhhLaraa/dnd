@@ -69,7 +69,15 @@ def fuentes():
 
 
 AVISADORES = {"error", "aviso", "hueco", "nota", "ok", "append", "exit",
-              "sys.exit", "ErrorDeEfectos", "ErrorDePrerrequisito"}
+              "sys.exit", "ErrorDeEfectos", "ErrorDePrerrequisito",
+              # Añadida el 2026-09-02 (fase 1 del PLAN_19). No es una excepción
+              # al criterio: `una_sola_clase()` EXISTE para decirlo —registra el
+              # error de multiclase una sola vez y devuelve False—, así que una
+              # rama que la llama y sale no está callándose, está delegando en
+              # quien habla. Sin esto, cerrar el agujero de la multiclase habría
+              # hecho aparecer tres ramas «silenciosas» que en realidad son las
+              # que ahora sí hablan.
+              "una_sola_clase"}
 
 
 # Marcas con las que este proyecto imprime que algo va mal. Un `print` con
@@ -122,7 +130,14 @@ def main():
                     ultimo = rama[-1]
                     salta = (isinstance(ultimo, (ast.Continue, ast.Pass))
                              or (isinstance(ultimo, ast.Return) and ultimo.value is None))
-                    if not salta or _avisa(ast.Module(body=rama, type_ignores=[])):
+                    # Se mira el cuerpo de la rama **y su condición**: en
+                    # `if not una_sola_clase(ficha, inf): return` quien habla
+                    # es la condición, y el cuerpo es solo la salida. Mirar
+                    # únicamente el cuerpo marcaba como muda una rama que sí
+                    # dice lo que pasa — el falso positivo que apareció al
+                    # cerrar el agujero de la multiclase (fase 1, PLAN_19).
+                    cuerpo = ast.Module(body=rama, type_ignores=[])
+                    if not salta or _avisa(cuerpo) or _avisa(nodo.test):
                         continue
                     # ¿Está declarada como tolerancia con firma?
                     ventana = "\n".join(lineas[nodo.lineno - 1:ultimo.lineno + 1])
