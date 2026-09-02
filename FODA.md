@@ -176,30 +176,43 @@ Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
    3666 valores contrastados y 149 mutaciones no dicen nada sobre los
    registros que ningún módulo llega a mirar.
 
-9. **🔴 19 de los 30 chequeos `validar_*` no tienen prueba por mutación.**
-   *(medido el 2026-08-31)*
+9. **✅ CERRADA (2026-09-02) — los 30 chequeos `validar_*` ya tienen prueba
+   por mutación.** Eran 11 de 30 el 2026-08-31.
 
-   Las 149 mutaciones son lo que da derecho a fiarse de los validadores — pero
-   solo cubren **11 de los 30**. Sin red se quedan cinco que guardan la
-   aritmética (`atributos_basicos`, `generacion`, `competencias_clase`,
-   `ataques` y **`mejoras_de_dote`**, escrito ese mismo día) y catorce de
-   contenido.
+   El bloque B del Plan 18 añadió tres suites: `mutaciones_aritmetica` 31/31 (5
+   chequeos, empezando por `mejoras_de_dote`, que era deuda del mismo día),
+   `mutaciones_contenido` 47/47 (11) y `mutaciones_referencias` 10/10 (3). La
+   cifra **ya no se cuenta a mano**: la cuenta `censo.py`, que descubre los
+   chequeos del AST de `validar.py` y las suites por patrón.
 
-   **La consecuencia práctica, y decide una decisión de arquitectura:** un
-   refactor es exactamente igual de seguro que la cobertura de pruebas de lo
-   que se refactoriza. Con el 63 % sin red, tocar `validar.py` significa que
-   esas comprobaciones pueden dejar de detectar lo que detectaban **sin que
-   nada avise**: un fallo silencioso introducido por la limpieza contra los
-   fallos silenciosos. Por eso el Plan 18 pone las mutaciones **antes** que
-   cualquier reestructuración.
+   **Lo que esto desbloquea:** un refactor es exactamente igual de seguro que
+   la cobertura de pruebas de lo que se refactoriza. Con la red puesta, el
+   bloque F ya es una opción real y no una apuesta.
+
+   **Y lo que salió al tenderla, que es una debilidad nueva:** *dos de los
+   treinta chequeos no pueden fallar.* `validar_costes_sin_fuente` y
+   `validar_referencias` solo llenan `warn`. Una referencia rota entre una
+   especie y `hechizos.json` sale como ⚠ y `validar.py` termina con «0
+   errores». Está probado que el aviso salta; que además bloquee es una
+   decisión pendiente.
 
    Y la estructura, medida, **no justifica un refactor**: mediana de 35 líneas
    por función en `validar.py`, 9 en `calculo.py`, y solo 5 de 47 funciones por
    encima de 120 líneas. Ninguno de los ocho defectos de la debilidad 8 lo
    causó la estructura; todos eran falta de una aserción de cobertura.
 
-10. **🔴 La regla inviolable 6 es prosa y no la comprueba nada.**
-   *(2026-08-31, el mismo día en que se escribió)*
+10. **✅ CERRADA (2026-09-02) — la regla inviolable 6 ya no es prosa.**
+   *(era 🔴 desde el 2026-08-31, el mismo día en que se escribió)*
+
+   `censo.py` la convierte en una cuenta: **681 unidades censadas, 0 sin
+   declarar, 532 pendientes con su bloque y su motivo**. Seis clases de unidad,
+   seis universos descubiertos (glob, AST y el vocabulario de la base), y un
+   manifiesto —`_verificacion/censo_exenciones.yaml`— donde lo que no se
+   alcanza se declara una a una. Una declaración que ya no corresponda a
+   ninguna unidad hace fallar al censo, así que el manifiesto tampoco puede
+   pudrirse. Y tiene su propia prueba por mutación: **18/18**.
+
+   Lo que sigue es el diagnóstico original, que conviene no perder:
 
    Se añadió «la cobertura se descubre, nunca se escribe a mano» a
    `CONTINUAR.md` tras encontrar ocho casos del defecto. **Nada la impide.**

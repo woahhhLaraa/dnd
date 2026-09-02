@@ -17,7 +17,7 @@ cifras**, que es donde el desfase se vuelve mentira comprobable: si
 `CONTINUAR.md` promete «3012 valores contrastados» y el validador da otra cosa,
 una de las dos está mal y hay que mirarlo.
 
-    python3 verificar_documentos.py            # completo (~5 min: corre las
+    python3 verificar_documentos.py            # completo (~15 min: corre las
                                                # suites de mutación de verdad)
     python3 verificar_documentos.py --rapido   # solo los validadores (~1 min)
 
@@ -149,22 +149,40 @@ def main():
         if f.exists():
             docs[nombre] = f.read_text(encoding="utf-8")
 
-    suites = () if "--rapido" in sys.argv else (
-        "mutaciones_dados.py", "mutaciones_conversiones.py",
-        "mutaciones_integridad.py", "mutaciones_efectos.py",
-        "mutaciones_pg.py", "mutaciones_materiales.py",
-        "mutaciones_tiradas.py", "mutaciones_prerrequisitos.py",
-        "mutaciones_subida.py", "mutaciones_nivel20.py")
+    # ── La lista de suites se DESCUBRE (bloque B, 2026-09-02) ────────────
+    # Hasta hoy estaba escrita a mano aquí: diez nombres literales. Es el
+    # mismo defecto que `censo.py` existe para contar —una lista dentro de un
+    # módulo que se queda corta sin que nadie se entere—, y se habría quedado
+    # corta hoy mismo: las tres suites del bloque B habrían nacido con sus
+    # cifras sin vigilar. Ahora se descubren por patrón y lo que NO se ejecuta
+    # se declara aquí abajo con su motivo.
+    LENTAS = {
+        # >10 min. De esta se comprueba solo que los documentos no se
+        # contradigan entre sí (más abajo).
+        "mutaciones_foundry.py": "tarda más de diez minutos",
+    }
+    todas = sorted(f.name for f in (B / "_verificacion").glob("mutaciones_*.py"))
+    suites = () if "--rapido" in sys.argv else tuple(
+        s for s in todas if s not in LENTAS)
     if not suites:
         print(" ⚠ --rapido: no se comprueban las cifras de mutación")
     # Las suites son independientes entre sí (cada una copia la base a su propio
     # directorio desechable), así que se lanzan a la vez. En serie pasaban de
     # diez minutos, y **un chequeo que nadie corre por lento no chequea nada** —
     # es la misma razón por la que `mutaciones_foundry` se quedó fuera.
+    #
+    # Pero **una por núcleo, no todas a la vez** (2026-09-02). Con las tres
+    # suites del bloque B son trece, y lanzar trece en una máquina de cuatro
+    # núcleos —cada una copiando la base entera y lanzando `validar.py` en
+    # subproceso— no las hace ir más rápido: las hace competir por el disco y
+    # multiplica el tiempo total. Se cubrió de sobra: pasó de minutos a más de
+    # media hora. El límite es el número de núcleos.
     import concurrent.futures
+    import os
     salidas = {}
     if suites:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=len(suites)) as ex:
+        obreros = min(len(suites), os.cpu_count() or 4)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=obreros) as ex:
             futuros = {ex.submit(_salida, f"_verificacion/{s}"): s for s in suites}
             for fut in concurrent.futures.as_completed(futuros):
                 salidas[futuros[fut]] = fut.result()

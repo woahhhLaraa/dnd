@@ -24,6 +24,11 @@ las exclusiones. Verificar que lo escrito es correcto no dice nada de lo que
 falta — y lo que faltaba hacía que el verificador **aprobara la ficha mal y
 rechazara la buena**. Detalle en `PLAN_17_SALIR_DEL_ESPIRAL.md`.
 
+Desde el 2026-09-02 esa sexta regla **la comprueba `censo.py`**, y no es prosa:
+enumera seis clases de unidad de la base y exige que cada una esté alcanzada
+por algún chequeo o declarada, con su motivo, en
+`_verificacion/censo_exenciones.yaml`. Su número solo puede bajar.
+
 ## Comprobar que está sana
 
 ```bash
@@ -34,6 +39,7 @@ python3 cobertura.py          # ¿sabe responder?
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done
 python3 verificar_documentos.py   # ¿los documentos dicen la verdad?
 python3 verificar_chequeos.py     # ¿algún chequeo calla lo que no comprueba?
+python3 censo.py                  # ¿queda alguna unidad sin ningún chequeo detrás?
 python3 generar_ficha.py --barrido --exhaustivo   # 12 clases × 20 niveles
 ```
 

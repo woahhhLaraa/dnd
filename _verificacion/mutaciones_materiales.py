@@ -31,6 +31,12 @@ import tempfile
 
 BASE = pathlib.Path(__file__).resolve().parent.parent
 
+# Qué chequeo de `validar.py` cubre esta suite. Lo lee `censo.py` (bloque A
+# del Plan 18) para contar qué chequeos tienen red y cuáles no; la promesa no
+# es gratis: el censo exige que la suite mencione la ETIQUETA que ese chequeo
+# imprime, así que no se puede declarar cobertura que no se ejerce.
+CHEQUEOS = ("validar_materiales",)
+
 
 def _conjuro(raiz, nombre, fn):
     p = raiz / "hechizos.json"

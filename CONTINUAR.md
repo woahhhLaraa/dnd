@@ -23,12 +23,13 @@
 > documento del que hay que avisar «no lo leas» es un documento que ya sobra.
 > Sigue en el historial de git si alguna vez hace falta.
 
-Última actualización: **2026-08-31** — revisión completa del código, Plan 17
-aplicado (C1, C3, C4) y **Plan 18** escrito. Ver «EMPIEZA AQUÍ» más abajo.
+Última actualización: **2026-09-02** — **bloques A y B del Plan 18 hechos**:
+existe `censo.py` y los 30 chequeos `validar_*` tienen prueba por mutación.
+Ver «EMPIEZA AQUÍ» más abajo.
 
 ---
 
-## 🔎 EMPIEZA AQUÍ SI RETOMAS EN OTRA CONVERSACIÓN (2026-08-31)
+## 🔎 EMPIEZA AQUÍ SI RETOMAS EN OTRA CONVERSACIÓN (2026-09-02)
 
 **El plan de trabajo vigente es `PLAN_18_REVISION_COMPLETA.md`.** Absorbe lo
 que quedaba abierto del 17. El 17 se conserva solo por su investigación sobre
@@ -37,10 +38,11 @@ Foundry y DiceCloud y por el diagnóstico del espiral.
 ### El estado en un vistazo
 
 ```bash
-python3 validar.py            # 0 errores · 3,9 s
+python3 validar.py            # 0 errores · 2,6 s
 python3 verificar_srd.py      # 646 valores · 0 discrepancias
 python3 verificar_foundry.py  # 3020 valores · 0 discrepancias
 python3 cobertura.py          # 262 preguntas · 0 sin responder
+python3 censo.py              # 681 unidades · 0 sin declarar · 532 pendientes
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 17/17
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240 · 136 s
 ```
@@ -59,19 +61,20 @@ tomaba `Duro` y aplicaba bien su +2 PG era **rechazada**, y la misma ficha con
 el +2 perdido pasaba con «0 problemas». Cerrado el 2026-08-31 (C1/C3 del Plan
 17). La prueba de que sigue del derecho está en el §0 de ese documento.
 
-**3. La regla inviolable 6 es prosa y no la comprueba nada.** Se añadió ese
-mismo día y **no impide que aparezca la novena lista**. El propio repo ya había
-escrito la lección en `FUENTES.md:208`: *«una regla en prosa no impide nada»*.
-Por eso el Plan 18 pone **el censo primero**: un script que enumera la base y
-exige que toda unidad esté alcanzada por algún chequeo o declarada con su
-motivo. Sin él seguimos arreglando caso por caso.
+**3. La regla inviolable 6 ya no es prosa: la comprueba `censo.py`.** Se añadió
+el 2026-08-31 sin nada que la hiciera cumplir, y el propio repo ya tenía escrita
+la lección en `FUENTES.md:208`: *«una regla en prosa no impide nada»*. Desde el
+**2026-09-02** hay un script que enumera **seis clases de unidad** de la base y
+exige que cada una esté alcanzada por algún chequeo o declarada con su motivo en
+`_verificacion/censo_exenciones.yaml`. Hoy: **681 unidades, 0 sin declarar**. El
+día que aparezca la novena lista, lo canta el censo.
 
-**4. Solo 11 de los 30 chequeos `validar_*` tienen prueba por mutación.** Los
-otros 19 no tienen red — incluido `validar_mejoras_de_dote`, escrito ese mismo
-día. **Por eso NO se refactoriza todavía:** un refactor es exactamente igual de
-seguro que la cobertura de lo que refactorizas, y la estructura del código está
-medida y sana (mediana de 35 líneas por función; ninguno de los ocho defectos
-lo causó la estructura).
+**4. Los 30 chequeos `validar_*` YA tienen prueba por mutación** (eran 11 el
+2026-08-31). El bloque B añadió tres suites —aritmética 31/31, contenido 47/47,
+referencias 10/10— y la cifra ya no se cuenta a mano: la cuenta el censo, que
+descubre los chequeos del AST de `validar.py` y las suites por patrón. **Con la
+red puesta, el refactor del bloque F ya es una opción**, aunque la medición del
+§5 del plan sigue diciendo que probablemente no haga falta.
 
 **5. El 98 % del tiempo de `validar.py` era reparsear los mismos ficheros.**
 1068 llamadas a `yaml.safe_load`. Con `lru_cache` en los lectores: **13,1 s →
@@ -82,13 +85,27 @@ lo causó la estructura).
 
 | Bloque | Qué | ¿Manual? |
 |---|---|---|
-| **A** | `censo.py` — **va primero** | no |
-| **B** | Mutaciones para los 19 chequeos sin red | no |
-| **C** | Declarar los **21** efectos que faltan (no 528: solo hay 3 variables calculables) | no |
+| ~~**A**~~ | ~~`censo.py`~~ | ✅ **hecho (2026-09-02)** |
+| ~~**B**~~ | ~~Mutaciones para los 19 chequeos sin red~~ | ✅ **hecho (2026-09-02)** |
+| **A2** | Las cuatro listas abiertas del §2, ya medidas por el censo — **lo siguiente** | no |
+| **C** | Declarar los **21** efectos que faltan (no 519: solo hay 3 variables calculables) | no |
 | **D** | `efectos:` obligatorio + `no_automatizado` | no |
 | **E** | `requirements.txt`, versión de Python, ~50 líneas duplicadas | no |
+| **H** | Contrastar los **562 registros** del SRD estructurado que nadie pide, entre ellos los 255 rasgos de `classes24` — **lo destapó el censo** | no |
 | **F** | Refactor, **solo si sigue pareciendo necesario** | no |
 | **G** | Los casos ambiguos y las descripciones de conjuro | **sí** |
+
+### Y tres cosas que salieron al hacer A y B, y conviene saber antes de tocar
+
+- **Dos de los 30 chequeos no pueden fallar.** `validar_costes_sin_fuente` y
+  `validar_referencias` solo llenan `warn`. Una referencia rota entre una
+  especie y `hechizos.json` sale como ⚠ y `validar.py` termina con «0 errores».
+  Está probado que el **aviso** salta; convertirlo en error es una decisión
+  pendiente, no un descuido.
+- **`COMPLETO`/`MEDIO` en `validar.py` no tienen cita de página**, y son la
+  autoridad contra la que se contrastan los espacios de conjuro de 7 clases.
+- **Ningún chequeo mira `classes24`**, que son 279 registros del SRD 5.2 sobre
+  clases y subclases — la fuente natural de la «Foundry Note» del bloque D.
 
 ---
 
@@ -174,6 +191,7 @@ python3 validar.py            # coherencia interna    -> 0 errores
 python3 verificar_srd.py      # contraste externo     -> 646 valores, 0 discrepancias
 python3 verificar_foundry.py  # contraste externo     -> 3020 valores, 0 discrepancias
 python3 cobertura.py          # ¿puede responder?     -> 0 preguntas sin responder
+python3 censo.py              # ¿algo sin chequeo?    -> 0 unidades sin declarar
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 12/12
 ```
 
@@ -185,6 +203,20 @@ python3 _verificacion/mutaciones_conversiones.py  # conversiones de unidad
 python3 _verificacion/mutaciones_integridad.py    # tirada, vecindad, ortografía -> 24/24
 python3 _verificacion/mutaciones_foundry.py       # contraste externo            -> 29/29
 ```
+
+Y las tres del bloque B (2026-09-02), que cierran los 19 chequeos que no
+tenían red, más la del censo:
+
+```bash
+python3 _verificacion/mutaciones_aritmetica.py    # los 5 de aritmética  -> 31/31
+python3 _verificacion/mutaciones_contenido.py     # los 11 de contenido  -> 47/47
+python3 _verificacion/mutaciones_referencias.py   # los 3 de referencias -> 10/10
+python3 _verificacion/mutaciones_censo.py         # el propio censo      -> 18/18
+```
+
+**No hace falta acordarse de ninguna:** `verificar_documentos.py` las descubre
+por patrón desde el 2026-09-02 (antes llevaba los diez nombres escritos a
+mano) y comprueba que sus cifras coincidan con lo que digan los documentos.
 
 Y uno que comprueba **este mismo fichero**:
 

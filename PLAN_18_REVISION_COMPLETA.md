@@ -3,6 +3,9 @@
 > Escrito el **2026-08-31**, después de aplicar el Plan 17 (C1, C3, C4). Todas
 > las cifras están **medidas hoy** con los comandos que se citan al lado.
 >
+> **Actualizado el 2026-09-02: los bloques A y B están HECHOS.** El resultado,
+> con lo que el censo destapó y no estaba en este plan, en el §11 al final.
+>
 > Este documento **absorbe los puntos abiertos del `PLAN_17`** y pasa a ser el
 > único documento de trabajo hacia delante. El 17 se queda como registro de la
 > investigación sobre Foundry y DiceCloud y del diagnóstico del espiral.
@@ -51,10 +54,18 @@ lista se queda corta sin que nadie se entere.
 | 2 | `efectos._ORIGENES` | 46 subclases · 4 ficheros de dotes | ✅ cerrada (C1) |
 | 3 | `verificar_documentos` cifras | `efectos`, desde la Fase 14 | ✅ cerrada |
 | 4 | **`calculo._TABLA_COSTE`** | **la tabla de compra por puntos, duplicada del YAML** | ✅ **cerrada hoy** |
-| 5 | `validar._PROMESAS` | **`velocidad`** — los 10 huecos | ⬜ abierta |
+| 5 | `validar._PROMESAS` | **`velocidad`**: 1 de las 3 variables calculables | ⬜ abierta · **medida por el censo** |
 | 6 | `verificar_chequeos.FUENTES` | audita 3 de las 6 que declara | ⬜ abierta |
-| 7 | `verificar_srd.MAPA` | `pb`, `forma_salvaje`, `mov_sin_armadura_m` | ⬜ abierta |
-| 8 | `verificar_foundry.MODULOS` | categorías sin contrastar | ⬜ abierta |
+| 7 | `verificar_srd.MAPA` | `slots` (7 clases), `forma_salvaje`, `mov_sin_armadura_m` | ⬜ abierta · **medida por el censo** |
+| 8 | `verificar_foundry.MODULOS` | **9 de los 17 pares (carpeta, `type`) sin pedir: 562 registros** | ⬜ abierta · **medida por el censo** |
+
+> **Lo que el censo corrigió de esta tabla (2026-09-02).** El caso 7 no era el
+> que decía. `verificar_srd.MAPA` cubre **todas** las columnas que el SRD de
+> Open5e publica de las 12 clases: no se le escapa ninguna. `pb` no es un hueco
+> —`validar_clase` lo recalcula con la fórmula del manual en los 240 niveles—,
+> y el hueco de verdad es **`slots`**, que se contrasta contra las constantes
+> `COMPLETO`/`MEDIO` de `validar.py`, **sin cita de página**: siete clases
+> descansan en un literal de Python que ninguna fuente respalda.
 
 **El caso 4, encontrado hoy, es el más ilustrativo de todos.** `calculo.py`
 tenía:
@@ -116,10 +127,15 @@ botella**: el barrido y las mutaciones dominan.
 ## 4. Cobertura de pruebas — la cifra que decide si se puede refactorizar
 
 ```
-chequeos `validar_*` en validar.py : 30
-  con prueba por mutación          : 11   (37 %)
-  SIN prueba por mutación          : 19
+                                       2026-08-31   2026-09-02
+chequeos `validar_*` en validar.py :       30           30
+  con prueba por mutación          :       11           30
+  SIN prueba por mutación          :       19            0
 ```
+
+> **Cerrado el 2026-09-02 (bloque B).** Las tres suites nuevas están abajo, en
+> el §11. La cifra ya no se cuenta a mano: la cuenta `censo.py`, que descubre
+> los 30 chequeos del AST de `validar.py` y las suites por patrón.
 
 Los 19 sin red, por orden de a qué afectan:
 
@@ -248,14 +264,20 @@ no se tocan. De Foundry se copia la arquitectura, nunca la ausencia de pruebas.
 
 Cada bloque dice si necesita el manual.
 
-### Bloque A — el censo (sin manual, ~1 día) · **VA PRIMERO**
+### Bloque A — el censo · ✅ **HECHO (2026-09-02)**
 
 `censo.py` con las seis filas de la tabla del §7, y su informe. **Antes que
 arreglar las cuatro listas abiertas**, porque si se arreglan primero se arreglan
 «las que encontró Claude»; con el censo se arreglan «las que hay», y se sabe
-cuándo se ha terminado.
+cuándo se ha terminado. Resultado en el §11.
 
-### Bloque B — cobertura de mutación de los 19 (sin manual, ~2 días)
+### Bloque A2 — las cuatro listas abiertas del §2 · ⬜ **lo siguiente**
+
+No tenía bloque propio en la primera versión de este plan: el §8 decía «antes
+que arreglar las cuatro listas abiertas» y no decía cuándo se arreglaban. Ahora
+que el censo las tiene medidas y declaradas una a una, son un bloque.
+
+### Bloque B — cobertura de mutación de los 19 · ✅ **HECHO (2026-09-02)**
 
 Por orden: primero los cinco de aritmética (empezando por
 `validar_mejoras_de_dote`, deuda propia), después los de contenido. Es el
@@ -289,6 +311,16 @@ son idénticas**: una hace `sys.exit`, la otra devuelve `None`),
 `cargar_yaml()` en `verificar_foundry.py`, y `_es_marcador()` en `validar.py` y
 `subir_nivel.py`.
 
+### Bloque H — contrastar lo que el SRD estructurado sí trae · ⬜ **nuevo**
+
+**No estaba en este plan, y lo destapó el censo.** 9 de los 17 pares (carpeta,
+`type`) de `_verificacion/foundry_srd52/` —**562 registros**— no los pide
+ningún módulo de `verificar_foundry.py`. El mayor es `classes24/feat`: **255
+rasgos de clase y subclase del SRD 5.2** que nadie contrasta, y que además son
+la fuente de la «Foundry Note» que el §7bis quiere para el bloque D. Contrastar
+`classes24/class` cerraría de paso `forma_salvaje` y `mov_sin_armadura_m`, las
+dos columnas sin fuente externa del bloque A2.
+
 ### Bloque F — refactor
 
 **Solo si después de A-E sigue pareciendo necesario.** La medición del §5 dice
@@ -302,9 +334,10 @@ manual por decisión propia.
 
 ## 9. Criterio de cierre
 
-1. `censo.py` existe y su número es 0, o lo que no es 0 está declarado con su
-   motivo.
-2. Los 30 chequeos `validar_*` tienen prueba por mutación, o exención declarada.
+1. ✅ `censo.py` existe y su número es 0, o lo que no es 0 está declarado con su
+   motivo. **Hecho el 2026-09-02**: 0 sin declarar.
+2. ✅ Los 30 chequeos `validar_*` tienen prueba por mutación, o exención
+   declarada. **Hecho el 2026-09-02**: 30/30, sin exenciones.
 3. Los 21 candidatos a efecto, a cero.
 4. Quitar `efectos:` de cualquier rasgo hace fallar a `validar.py`.
 5. En todo momento: `validar.py` 0 errores, 17/17 fichas, barrido 240/240,
@@ -316,3 +349,113 @@ No promete que no aparezca un noveno caso del patrón. Promete que **el día que
 aparezca lo dirá el censo**, en vez de esperar a que alguien lea el código con
 ojos frescos. Esa es la diferencia entre una auditoría y un espiral: no que no
 haya defectos, sino que el repo sepa contar los que le quedan.
+
+---
+
+## 11. Resultado — bloques A y B, ejecutados el 2026-09-02
+
+### Bloque A · `censo.py`
+
+Un script que enumera **seis clases de unidad** de la base y exige que cada
+una esté alcanzada por nombre por algún chequeo, o declarada —con su motivo—
+en `_verificacion/censo_exenciones.yaml`. Ninguno de los seis universos se
+escribe a mano: se descubren por glob, por AST o por el propio vocabulario de
+la base; y ningún alcanzador se copia: se leen los objetos que los módulos
+usan de verdad (`efectos.origenes()`, `validar._PROMESAS`,
+`verificar_srd.MAPA`, las llamadas a `verificar_foundry.paquete()`).
+
+```
+✅ 681 unidades censadas · 0 SIN DECLARAR · 532 pendientes declaradas
+```
+
+| Fila | Universo | Alcanzadas | Declaradas |
+|---|---|---|---|
+| ficheros de regla | 49 | 49 | — |
+| variables calculables | 3 | 2 | 1 pendiente (A2) |
+| columnas de tabla de clase | 63 | 30 | 24 exentas · 9 pendientes |
+| categorías de dato externo | 17 | 7 | 10 pendientes (H) |
+| chequeos `validar_*` | 30 | **30** | — |
+| rasgos con texto | 519 | 7 | 512 pendientes (C+D) |
+
+**Dos declaraciones, y la diferencia importa.** `exentas` = la unidad no debe
+alcanzarse por ahí, y se dice quién responde por ella; es permanente.
+`pendientes` = hueco real, con el bloque que lo cierra; es deuda, y solo puede
+bajar. Una declaración que ya no corresponda a ninguna unidad **hace fallar al
+censo**: el manifiesto no puede pudrirse en silencio, que es como empezaron los
+ocho. Los comodines (`prefijo:*`) solo valen en `pendientes` y el informe
+imprime siempre cuántas unidades cubre cada uno.
+
+Y el censo tiene su propia prueba por mutación, porque un contador que no
+detecta una unidad nueva sería el mismo defecto con una capa de ceremonia
+encima: **`mutaciones_censo.py` 18/18**, con una unidad nueva por cada una de
+las seis filas, un alcanzador vaciado, dos promesas falsas de cobertura, tres
+formas de pudrir el manifiesto, y una que comprueba que el comodín de los 512
+rasgos **deja ver crecer el recuento** en vez de esconderlo.
+
+### Bloque B · los 19 chequeos sin red
+
+```
+mutaciones_aritmetica.py     31/31    5 chequeos
+mutaciones_contenido.py      47/47   11 chequeos
+mutaciones_referencias.py    10/10    3 chequeos
+```
+
+Las tres comparten `_verificacion/_arnes.py`, escrito una sola vez en lugar de
+copiar por cuarta, quinta y sexta vez las ~40 líneas de `_copia`/`_falla_por`
+que llevan las once suites viejas (el §8-E ya las tenía anotadas). **Las once
+viejas no se tocan**: reescribir la red mientras se la usa para tender el resto
+es exactamente el refactor sin cobertura que el §5 desaconseja.
+
+Cada suite **declara en `CHEQUEOS` qué cubre**, y la declaración no es gratis:
+el censo exige que la suite mencione la etiqueta que ese chequeo imprime, así
+que no se puede apuntar cobertura que no se ejerce. Dos de las mutaciones del
+censo comprueban justamente eso.
+
+### Lo que salió al hacerlo, y no estaba en este plan
+
+1. **Dos de los treinta chequeos no pueden fallar.** `validar_costes_sin_fuente`
+   y `validar_referencias` solo llenan `warn`: nunca añaden nada a `err`. Un
+   conjuro citado por una especie y ausente de `hechizos.json` —integridad
+   referencial rota— sale como un ⚠ entre otros treinta y `validar.py` termina
+   con «0 errores». No se ha cambiado: convertirlos en error es una decisión
+   sobre qué bloquea la base, no una prueba. Lo que sí se prueba es la garantía
+   que **sí** dan —que el aviso aparezca— y queda anotado para decidirlo.
+
+2. **Las tablas `COMPLETO`/`MEDIO` de `validar.py` no tienen cita.** Son los
+   espacios de conjuro contra los que se contrasta la progresión de 7 clases, y
+   el SRD de Open5e solo publica los del Brujo. No es el defecto del §2 —las
+   copias sí se comparan— pero sí una autoridad sin página por encima de una
+   base citada. Declarado como pendiente del bloque A2.
+
+3. **562 registros del SRD 5.2 estructurado sin contrastar**, entre ellos los
+   **255 rasgos de clase y subclase** de `classes24/feat`. Es el bloque H.
+
+4. **`verificar_documentos.py` llevaba su propia lista a mano** de qué suites
+   ejecutar: diez nombres literales. Se habría quedado corta hoy mismo —las
+   tres suites nuevas habrían nacido con sus cifras sin vigilar—. Ahora se
+   descubren por patrón, con `mutaciones_foundry.py` declarada aparte por
+   lenta.
+
+5. **Tres mutaciones propias mal apuntadas**, encontradas por dar «no
+   detectada»: una tocaba una de las **dos** llamadas a `paquete("feats24",
+   "feat")`, otra mutaba una clase sin segunda fuente con la que contrastar, y
+   otra cambiaba un campo que el chequeo no lee. En los tres casos el fallo era
+   de la mutación, no del chequeo — el mismo tropiezo que `mutaciones_efectos.py`
+   ya tenía documentado. Cada una lleva ahora escrito por qué está donde está.
+
+6. **`validar_referencias` encabeza su línea con ⚠**, no con ✅, en cuanto
+   tiene un aviso. El arnés buscaba solo ✅/❌ y la línea entera desaparecía:
+   las mutaciones salían «no detectadas» cuando lo que fallaba era el arnés.
+
+7. **El censo se pilló a sí mismo una promesa autosatisfecha.** La garantía de
+   que una suite no puede apuntarse cobertura que no ejerce era «que mencione
+   la etiqueta del chequeo». Pero apuntarse `validar_idiomas` **mete la cadena
+   «idiomas» en el fichero**, así que la promesa se validaba a sí misma. Lo
+   destapó `mutaciones_censo.py` con esa mutación exacta y se arregló contrastando la etiqueta contra el fichero **sin la
+   propia declaración**. Es la razón de que un verificador nuevo nazca con su
+   suite el mismo día y no «cuando haya tiempo».
+
+8. **El censo tardaba 10,4 s y ahora tarda 0,6 s.** Casi todo era parsear con
+   `yaml.safe_load` los 1372 ficheros del SRD estructurado para leerles un solo
+   campo. Se lee la línea `type:` en su lugar; mismo resultado, y su prueba por
+   mutación pasó de ~50 minutos a menos de 4.

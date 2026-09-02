@@ -1,0 +1,291 @@
+#!/usr/bin/env python3
+"""Prueba por mutación de `censo.py` (bloque A del Plan 18 — 2026-09-02).
+
+El censo existe porque ocho veces seguidas una lista escrita a mano se quedó
+corta sin que nadie se enterara. Sería una ironía cara que el censo repitiera
+el patrón: un contador que no detecta una unidad nueva es exactamente el mismo
+fallo, con una capa más de ceremonia encima.
+
+Así que aquí se le rompe la base de once formas distintas —una unidad nueva en
+cada una de las seis filas, un alcanzador vaciado, una promesa falsa de
+cobertura, un manifiesto podrido— y se exige que **cada una** salga por el
+informe. Y cinco controles negativos, porque un censo que dijera «hueco» ante
+un dato legítimo obligaría a declarar ruido, y un manifiesto lleno de ruido no
+lo lee nadie: que es como se pierde otra vez.
+
+    python3 _verificacion/mutaciones_censo.py
+"""
+import pathlib
+import shutil
+import subprocess
+import sys
+import tempfile
+
+BASE = pathlib.Path(__file__).resolve().parent.parent
+MANIFIESTO = "_verificacion/censo_exenciones.yaml"
+
+
+def _sust(raiz, rel, viejo, nuevo, cuenta=1):
+    p = raiz / rel
+    t = p.read_text(encoding="utf-8")
+    assert viejo in t, f"la mutación no encaja en {rel}: {viejo[:70]!r}"
+    p.write_text(t.replace(viejo, nuevo, cuenta), encoding="utf-8")
+
+
+# ══ Una unidad NUEVA en cada fila: el censo tiene que verla ═══════════════
+
+def u_fichero_de_regla(r):
+    (r / "reglas" / "maniobras.yaml").write_text(
+        "edicion: \"2024 (5.5e)\"\nmaniobras: []\n", encoding="utf-8")
+    return ("un fichero de regla nuevo, `reglas/maniobras.yaml`, que ningún "
+            "patrón recorre ni el manifiesto excluye")
+
+
+def u_variable_calculable(r):
+    _sust(r, "reglas/efectos.yaml",
+          "  velocidad:\n",
+          "  iniciativa:\n    tipo: calculada\n    desc: \"bonificador de "
+          "iniciativa\"\n  velocidad:\n")
+    return ("una cuarta variable calculable (`iniciativa`) sin frase de promesa "
+            "en `validar._PROMESAS`")
+
+
+def u_columna_de_clase(r):
+    _sust(r, "clases/picaro.yaml", "ataque_furtivo:", "esquiva_asombrosa: 1, ataque_furtivo:")
+    return ("una columna nueva (`esquiva_asombrosa`) en la tabla del Pícaro, "
+            "que `verificar_srd.MAPA` no contrasta")
+
+
+def u_chequeo_nuevo(r):
+    p = r / "validar.py"
+    t = p.read_text(encoding="utf-8")
+    ancla = "def validar_referencias("
+    nuevo = ('def validar_conjuros_rituales():\n'
+             '    return "conjuros rituales (0)", [], []\n\n\n')
+    p.write_text(t.replace(ancla, nuevo + ancla, 1), encoding="utf-8")
+    return ("un chequeo nuevo `validar_conjuros_rituales()` sin ninguna suite "
+            "de mutación detrás — el caso de `validar_mejoras_de_dote`")
+
+
+def u_dato_externo(r):
+    # `verificar_trasfondos` es el único que pide `origins24/background`, y lo
+    # pide una sola vez. (La primera versión de esta mutación tocaba
+    # `feats24/feat`, que `verificar_dotes` pide DOS veces: quitando una la
+    # categoría seguía pedida y el «no detectada» era de la mutación, no del
+    # censo. Es el mismo tropiezo que ya documenta `mutaciones_efectos.py`.)
+    _sust(r, "verificar_foundry.py", 'for reg in paquete("origins24", "background"):',
+          'for reg in []:')
+    return ("`verificar_trasfondos` deja de pedir `origins24/background`: 4 "
+            "trasfondos del SRD salen del contraste y el módulo sigue existiendo")
+
+
+def c_rasgo_nuevo(r):
+    _sust(r, "clases/rasgos/picaro.yaml", "rasgos:\n",
+          'rasgos:\n  - nombre: "Reflejos de sombra"\n    nivel: 1\n'
+          '    descripcion: "Texto de prueba."\n')
+    return ("un rasgo nuevo sin `efectos:` ni `no_automatizado:`: el comodín "
+            "[C+D] lo tapa —y debe taparlo, son 512— pero el recuento tiene "
+            "que SUBIR. Un comodín que además escondiera el crecimiento sería "
+            "la novena lista a mano")
+
+
+# ══ El alcanzador que se vacía ════════════════════════════════════════════
+
+def a_mapa_recortado(r):
+    _sust(r, "verificar_srd.py", '"Sneak Attack":"ataque_furtivo"', '')
+    return ("`verificar_srd.MAPA` pierde la única columna del Pícaro: el "
+            "contraste sigue en verde y ya no contrasta nada de esa clase")
+
+
+# ══ Promesas de cobertura que no se sostienen ═════════════════════════════
+
+def p_promesa_a_chequeo_inexistente(r):
+    _sust(r, "_verificacion/mutaciones_pg.py",
+          'CHEQUEOS = ("validar_puntos_golpe",)',
+          'CHEQUEOS = ("validar_puntos_de_golpe",)')
+    return ("una suite que dice cubrir `validar_puntos_de_golpe`, que no "
+            "existe: o se renombró el chequeo, o la promesa es falsa")
+
+
+def p_promesa_sin_etiqueta(r):
+    _sust(r, "_verificacion/mutaciones_pg.py",
+          'CHEQUEOS = ("validar_puntos_golpe",)',
+          'CHEQUEOS = ("validar_puntos_golpe", "validar_idiomas")')
+    return ("una suite que se apunta `validar_idiomas` sin buscar nunca su "
+            "etiqueta: declarar cobertura no es tenerla")
+
+
+# ══ El manifiesto podrido ═════════════════════════════════════════════════
+
+def m_declaracion_muerta(r):
+    _sust(r, MANIFIESTO, '  - unidad: "columna:druida.forma_salvaje"',
+          '  - unidad: "columna:druida.forma_lunar"')
+    return ("una declaración que ya no corresponde a ninguna unidad: da por "
+            "mirado lo que nadie mira, que es como empezaron los ocho")
+
+
+def m_declaracion_borrada(r):
+    _sust(r, MANIFIESTO,
+          '  - unidad: "variable:velocidad"\n    bloque: "A2"\n', '  - unidad: "variable:_nada"\n    bloque: "A2"\n')
+    return ("se borra la declaración de `variable:velocidad`: el hueco vuelve a "
+            "salir SIN DECLARAR (y la declaración huérfana, como muerta)")
+
+
+def m_comodin_en_exentas(r):
+    _sust(r, MANIFIESTO, "exentas:\n",
+          'exentas:\n  - unidad: "rasgo:*"\n    motivo: "por las bravas"\n')
+    return ("un comodín en `exentas`: una unidad que NO debe alcanzarse se "
+            "declara una a una, o el manifiesto se convierte en un perdón")
+
+
+def m_exenta_y_pendiente(r):
+    _sust(r, MANIFIESTO, "pendientes:\n",
+          'pendientes:\n  - unidad: "columna:picaro.n"\n    bloque: "A2"\n'
+          '    motivo: "a la vez que exenta"\n')
+    return ("la misma unidad exenta y pendiente: no es una decisión, es no "
+            "haberla tomado")
+
+
+# ══ Controles negativos: NO deben saltar ══════════════════════════════════
+
+def n_rasgo_no_automatizado(r):
+    _sust(r, "clases/rasgos/picaro.yaml", "rasgos:\n",
+          'rasgos:\n  - nombre: "Reflejos de sombra"\n    nivel: 1\n'
+          '    descripcion: "Texto de prueba."\n    no_automatizado: "no toca '
+          'ninguna variable calculable"\n')
+    return ("un rasgo nuevo que declara `no_automatizado`: esa ES la respuesta "
+            "legítima del bloque D, no un hueco")
+
+
+def n_fichero_fuera_de_regla(r):
+    (r / "equipo" / "monturas.yaml").write_text("monturas: []\n", encoding="utf-8")
+    return ("un YAML en `equipo/`, que no es directorio de regla: no entra en "
+            "el universo de la fila 1")
+
+
+def n_columna_ya_contrastada(r):
+    _sust(r, "clases/picaro.yaml", 'ataque_furtivo: "1d6"', 'ataque_furtivo: "2d6"')
+    return ("cambiar el VALOR de una columna ya contrastada: eso lo rompe "
+            "`verificar_srd.py`, no el censo (el censo cuenta cobertura, no calidad)")
+
+
+def n_suite_sin_chequeos(r):
+    (r / "_verificacion" / "mutaciones_experimento.py").write_text(
+        '"""Suite nueva que todavía no cubre ningún `validar_*`."""\n',
+        encoding="utf-8")
+    return ("una suite de mutación sin `CHEQUEOS`: no promete nada, así que no "
+            "hay promesa que romper")
+
+
+def n_exencion_con_motivo(r):
+    _sust(r, "clases/picaro.yaml", "ataque_furtivo:", "esquiva_asombrosa: 1, ataque_furtivo:")
+    _sust(r, MANIFIESTO, "pendientes:\n",
+          'pendientes:\n  - unidad: "columna:picaro.esquiva_asombrosa"\n'
+          '    bloque: "A2"\n    motivo: "columna nueva, sin fuente externa que '
+          'la publique"\n')
+    return ("la MISMA columna nueva, pero declarada con su bloque y su motivo: "
+            "para eso está el manifiesto")
+
+
+DEBEN = [u_fichero_de_regla, u_variable_calculable, u_columna_de_clase,
+         u_chequeo_nuevo, u_dato_externo, a_mapa_recortado,
+         p_promesa_a_chequeo_inexistente, p_promesa_sin_etiqueta,
+         m_declaracion_muerta, m_declaracion_borrada, m_comodin_en_exentas,
+         m_exenta_y_pendiente]
+NO_DEBEN = [n_rasgo_no_automatizado, n_fichero_fuera_de_regla,
+            n_columna_ya_contrastada, n_suite_sin_chequeos, n_exencion_con_motivo]
+# Mutaciones que NO deben hacer fallar al censo pero SÍ subir su recuento: es
+# lo único que se le puede exigir a una fila tapada por un comodín, y es justo
+# lo que hace que el comodín no sea un agujero.
+CUENTAN = [c_rasgo_nuevo]
+
+
+def _censo_falla(raiz):
+    res = subprocess.run([sys.executable, "censo.py"], cwd=raiz,
+                         capture_output=True, text=True)
+    return res.returncode != 0, res.stdout + res.stderr
+
+
+def _cuenta_censada(salida):
+    for ln in salida.splitlines():
+        if "unidades censadas" in ln:
+            return ln.strip()
+    return None
+
+
+def _numero_censado(salida):
+    linea = _cuenta_censada(salida) or ""
+    for trozo in linea.split():
+        if trozo.isdigit():
+            return int(trozo)
+    return None
+
+
+def _copia(tmp):
+    raiz = pathlib.Path(tmp) / "base"
+    shutil.copytree(BASE, raiz, symlinks=True,
+                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".git"))
+    return raiz
+
+
+def main():
+    print(__doc__.split("\n\n")[0])
+    print("═" * 74)
+
+    falla, salida = _censo_falla(BASE)
+    if falla:
+        print("✗ CONTROL: el censo ya falla con la base intacta. Arréglalo "
+              "antes de mutar.")
+        print(salida[-2500:])
+        return 1
+    print(f" ✅ control · la base intacta pasa el censo — {_cuenta_censada(salida)}")
+    # Se guarda AQUÍ, antes de los bucles: `salida` se reasigna en cada
+    # mutación, y tomar la línea base al final comparaba el recuento con el de
+    # la última mutación en vez de con el de la base. Daba «682 → 682» y un
+    # rojo que hablaba de esta suite, no del censo.
+    base_n = _numero_censado(salida)
+
+    ok = 0
+    print("\n Mutaciones que DEBEN salir por el censo")
+    for mut in DEBEN:
+        with tempfile.TemporaryDirectory() as tmp:
+            raiz = _copia(tmp)
+            desc = mut(raiz)
+            salta, _ = _censo_falla(raiz)
+            ok += bool(salta)
+            print(f"   {'✅' if salta else '❌'} {desc}")
+            if not salta:
+                print("        ↑ NO DETECTADA — el censo no cubre este caso")
+
+    print("\n Controles negativos: NO deben salir")
+    for mut in NO_DEBEN:
+        with tempfile.TemporaryDirectory() as tmp:
+            raiz = _copia(tmp)
+            desc = mut(raiz)
+            salta, salida = _censo_falla(raiz)
+            ok += not salta
+            print(f"   {'✅' if not salta else '❌'} {desc}")
+            if salta:
+                print("        ↑ FALSO POSITIVO — obliga a declarar ruido")
+
+    print("\n Mutaciones que NO deben fallar pero SÍ subir el recuento")
+    for mut in CUENTAN:
+        with tempfile.TemporaryDirectory() as tmp:
+            raiz = _copia(tmp)
+            desc = mut(raiz)
+            falla, sal = _censo_falla(raiz)
+            n = _numero_censado(sal)
+            bien = (not falla) and n is not None and n > base_n
+            ok += bool(bien)
+            print(f"   {'✅' if bien else '❌'} {desc}")
+            print(f"        censadas: {base_n} → {n}"
+                  + ("" if not falla else "  · y además el censo falló, que aquí no toca"))
+
+    total = len(DEBEN) + len(NO_DEBEN) + len(CUENTAN)
+    print("\n" + "═" * 74)
+    print(f"{'✅' if ok == total else '❌'} {ok}/{total}")
+    return 0 if ok == total else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
