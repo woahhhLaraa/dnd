@@ -263,7 +263,15 @@ def main():
         print(f" ✅ {len(skills)} skills · los scripts y subcomandos que mandan "
               f"usar existen todos")
 
-    # 6. Ningún documento vivo debe remitir al FODA archivado como si valiera.
+    # 6. El FODA archivado se borró el 2026-08-31 (Plan 17 §5). El chequeo pasa
+    #    de «que nadie lo cite como válido» a «que siga borrado y nadie lo cite
+    #    como si se pudiera abrir»: un documento del que hay que avisar «no lo
+    #    leas» sobra, y volver a añadirlo sería reintroducir la trampa.
+    if (B / "FODA_2026-08-19_OBSOLETO.md").exists():
+        fallos += 1
+        print(" ❌ FODA_2026-08-19_OBSOLETO.md ha vuelto: se borró a propósito "
+              "porque mandaba hacer fases ya cerradas (Plan 17 §5)")
+
     for nombre in ("CONTINUAR.md", "FODA.md"):
         txt = (B / nombre).read_text(encoding="utf-8")
         for m in re.finditer(r"[^\n]*FODA_2026-08-19_OBSOLETO[^\n]*", txt):

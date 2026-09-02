@@ -12,8 +12,10 @@
 > 4. **`_verificacion/_auditoria_rasgos/ESTADO_13p.md`** — detalle de la
 >    auditoría de conjuros y las decisiones que salieron de ella.
 >
-> ⛔ **`FODA_2026-08-19_OBSOLETO.md` está archivado**: describe una base de hace
-> diez días y manda hacer fases ya cerradas. No lo uses para decidir.
+> ⛔ **`FODA_2026-08-19_OBSOLETO.md` fue BORRADO el 2026-08-31** (Plan 17, §5).
+> Describía una base de hace diez días y mandaba hacer fases ya cerradas; un
+> documento del que hay que avisar «no lo leas» es un documento que ya sobra.
+> Sigue en el historial de git si alguna vez hace falta.
 
 Última actualización: **2026-08-29** (sesión larga; ver «Qué pasó el 2026-08-29»).
 

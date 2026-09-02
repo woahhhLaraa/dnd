@@ -1,6 +1,7 @@
 # FODA — la base canónica como sustrato de un orquestador LLM
 
-> Fecha: **2026-08-29**. Sustituye a `FODA_2026-08-19_OBSOLETO.md`, cuyas
+> Fecha: **2026-08-29**. Sustituye a `FODA_2026-08-19_OBSOLETO.md` (borrado el 2026-08-31; en el
+> historial de git), cuyas
 > debilidades 1, 2, 3 y 4 están todas cerradas y cuya «Conclusión operativa»
 > mandaba hacer dos fases que ya se hicieron.
 > Premisa: **todo lo interpretativo lo ejecuta un LLM**; la base es su única

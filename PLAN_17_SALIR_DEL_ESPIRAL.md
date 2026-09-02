@@ -259,24 +259,83 @@ efectos reales pero no numéricos (ventaja, resistencia, competencia). Guarda
 texto y página; **no entra en el agregador**. Sin esto, C2 obliga a marcar
 como «no automatizado» cosas que sí son efectos, solo que no aritméticos.
 
-### ⬜ C5 · Rellenar las fuentes que faltan — **el grueso, exige el manual**
+### ⬜ C5 · Declarar los efectos que faltan — **MEDIDO el 2026-08-31: son 21, no 528**
 
-El trabajo de contenido, una vez C1-C4 hacen que sea imposible dejarlo a
-medias:
+**Corrección importante a este mismo plan.** La versión anterior hablaba de
+«~528 registros» y de «semanas». Esa cifra era la de C2 (que TODO registro
+declare algo), no la del trabajo funcional. Medido contra la realidad:
 
-| Fuente | Registros | Estado |
+```
+variables calculables en reglas/efectos.yaml:  ca · pg_max · velocidad   (3)
+```
+
+Un efecto **solo puede tocar esas tres**. Así que el hueco funcional no son
+todos los rasgos: son los que mencionan una de las tres en su texto **ya
+transcrito y citado** y no la declaran. Contados con `efectos.origenes()`:
+
+| Variable | Candidatos sin declarar |
+|---|---|
+| `velocidad` | 10 |
+| `ca` | 6 |
+| `pg_max` | 5 |
+| **Total** | **21** |
+
+**Y casi todos se pueden cerrar sin abrir el manual**, porque su texto ya está
+transcrito con su página. Clasificados leyendo esos textos:
+
+**C5-a · Declarables hoy, vocabulario actual (~4)**
+| Rasgo | Texto citado | Efecto |
 |---|---|---|
-| `dotes/*.yaml` | 75 (54 con «+1 característica») | 0 con `efectos:` |
-| `clases/subclases/*.yaml` | 241 rasgos en 46 ficheros | 2 ficheros hechos |
-| `trasfondos/trasfondos.yaml` | 16 | sin revisar |
-| `clases/rasgos/*.yaml` | 158 (70 «suenan» numéricos) | 7 efectos declarados |
+| `Veloz` (dote) | «tu velocidad aumenta 3 m» | `velocidad +3`, sin condición |
+| `Defensa` (estilo) | «mientras lleves armadura ligera, media o pesada, +1 a la CA» | `ca +1`, `requiere: [con_armadura]` |
+| `Don de la fortaleza` | «PG máximos +40» | `pg_max +40` |
+| `Movimiento rápido`* | «velocidad aumenta 3 m mientras no lleves armadura pesada» | ver C5-b |
 
-⚠️ **Ese «70» es una heurística mía, no un hallazgo.** Muchos son falsos
-positivos: su número vive en la columna de `progresion`, que ya está
-contrastada por `verificar_srd.py`. Solo C2 dirá cuántos son de verdad,
-porque obliga a mirarlos uno a uno. **No lo trates como 63 agujeros.**
+**C5-b · Falta vocabulario: la condición «sin armadura pesada» (2)**
+`Movimiento rápido` (Bárbaro) y `Errante` (Explorador) condicionan a **no
+llevar armadura PESADA**, y las condiciones actuales solo distinguen
+`sin_armadura` / `con_armadura`. No es lo mismo: un bárbaro con armadura media
+sí conserva el bonificador. Hay que añadir la condición al vocabulario cerrado
+antes de declararlos; inventarse `sin_armadura` sería falsear la regla.
+
+**C5-c · Modelo insuficiente, y es un hallazgo (1)**
+`Maestro en armaduras medias`: «sumas **3 (en vez de 2)** a tu CA por Destreza
+si tu Destreza es 16 o más». Eso no es `add` ni `set` sobre `ca`: **cambia un
+parámetro de la fórmula de la armadura** (el tope de Destreza). El modelo
+actual —base/add/mul/min/max/set sobre una variable— no lo expresa. Es el
+equivalente al `ModifyItem` de Foundry. Decidir si se modela o se declara
+`no_automatizado`; no forzarlo.
+
+**C5-d · Situacionales → `conditional` o `no_automatizado` (~14)**
+`Puntería certera` (velocidad 0 tras usar el rasgo), `Atacante a la carga`
+(+3 m solo al correr), `Duelista defensivo` (reacción, +PB a la CA),
+`Forma grande` (10 minutos), `Aura de celeridad`, `Defensa gloriosa`,
+`Inspiración en combate`… Son efectos ciertos y citados que el motor **no
+debe** calcular. Con C4 ya hay dónde ponerlos.
+
+**Método, el mismo que funcionó en C3:** derivar de la prosa ya citada y
+exigir ida y vuelta. **Nada de esto necesita el PDF** salvo que el texto
+transcrito resulte ambiguo, y entonces se marca y se pregunta (regla 3).
+
+**Criterio de cierre:** los 21 candidatos, a cero. El chequeo que los cuenta
+es el de C6.
 
 ---
+
+### ⬜ C6 · Las cuatro listas escritas a mano que quedan
+
+La regla inviolable 6 nació de cinco casos; el sexto apareció al medir C5:
+
+| Lista | Qué se le escapa | Arreglo |
+|---|---|---|
+| `validar._PROMESAS` | **vigila `ca` y `pg_max`, no `velocidad`** — por eso los 10 rasgos de velocidad pasaron desapercibidos | derivarla de las variables `calculada` del vocabulario, no escribirla |
+| `verificar_chequeos.FUENTES` | audita 3 de las 6 que declara (las otras 3 ponen su lógica en `main()`) | descubrir por glob y no filtrar por nombre de función |
+| `verificar_srd.MAPA` | `pb`, `forma_salvaje`, `mov_sin_armadura_m` sin contraste externo | exigir que toda columna esté mapeada o declarada como no contrastable |
+| `verificar_foundry.MODULOS` | categorías de dato sin contrastar | ídem |
+
+`_PROMESAS` es el más urgente y el más barato: es literalmente la lista que
+tenía que haber avisado de los 10 huecos de velocidad, y su contenido correcto
+**ya está** en `reglas/efectos.yaml`.
 
 ## 5. ELIMINAR
 
@@ -313,47 +372,46 @@ Esto es lo bueno del proyecto y el espiral no es excusa para desmontarlo:
 
 ---
 
-## 7. Orden de ejecución
-
-C1 y C2 **antes** que C5, y no al revés: rellenar 120 registros a mano sin que
-el sistema exija el campo es garantizar que el 121 se quede fuera.
+## 7. Orden de ejecución — **revisado el 2026-08-31 tras medir C5**
 
 ```
-1. ✅ C1  _ORIGENES → descubrimiento + manifiesto   (hecho 2026-08-31)
-2. ✅ C4  `conditional` en el vocabulario           (hecho 2026-08-31)
-3. ✅ C3  mejora de característica por dote         (hecho 2026-08-31)
-4. ⬜ C5  rellenar: dotes → subclases → trasfondos  (el grueso, ~semanas)
-5. ⬜ C2  `efectos:` obligatorio + `no_automatizado`
-6. ⬜ Borrados de §5 (falta FODA_..._OBSOLETO.md)
+✅ C1  _ORIGENES → descubrimiento + manifiesto        (hecho)
+✅ C4  `conditional` en el vocabulario                (hecho)
+✅ C3  mejora de característica por dote · 54/54      (hecho)
+⬜ C6a `_PROMESAS` derivada del vocabulario           (~1 h, y es la que falló)
+⬜ C5a declarar los ~4 inequívocos                    (~2 h, sin manual)
+⬜ C5b condición «sin armadura pesada» + los 2 rasgos (~2 h, sin manual)
+⬜ C5d los ~14 situacionales como `conditional`       (~medio día, sin manual)
+⬜ C5c decidir qué hacer con `Maestro en armaduras medias`
+⬜ C6b las otras 3 listas escritas a mano
+⬜ C2  `efectos:` obligatorio                          (al final, no antes)
 ```
 
-**C2 se movió detrás de C5, y el plan original se equivocaba.** Decía que
-dejar la base en rojo con ~500 registros sin declarar «es el éxito, no el
-fracaso». En un proyecto de una sola persona eso es meses de rojo permanente
-durante los cuales **no se distingue una rotura nueva de la deuda conocida**,
-que es justo la señal que hace falta mientras se rellena. Primero se rellena,
-después se cierra la puerta.
+**Lo que cambia respecto a la versión anterior de este plan:** C5 pasa de
+«semanas y hace falta el manual» a **un día de trabajo sin abrir el PDF**,
+porque el texto ya está transcrito y citado y las variables calculables son
+tres. La lectura del manual queda solo para los casos en que la transcripción
+resulte ambigua.
 
-El paso 3 dejará la base en rojo con ~400 registros sin declarar. **Eso es el
-éxito, no el fracaso**: es la primera vez que el proyecto ve el tamaño real de
-lo que no sabe.
-
----
+**C6a va primero** por una razón concreta: es la lista que tenía que haber
+avisado de los 10 huecos de velocidad y no lo hizo. Arreglarla antes de
+rellenar significa que el propio chequeo te dice cuándo has terminado, en vez
+de tener que fiarte de una lista que yo escribí a mano hoy.
 
 ## 8. Criterio de cierre
 
-El plan está hecho cuando las cuatro cosas son ciertas a la vez:
+El plan está hecho cuando las cinco cosas son ciertas a la vez:
 
-1. Crear `clases/subclases/_prueba.yaml` hace fallar a `efectos.py` (C1).
-2. Quitar `efectos:` de cualquier rasgo hace fallar a `validar.py` (C2).
-3. La tabla invertida de §0 está del derecho: correcta en verde, rota en rojo,
-   para `Duro` (nivel 1) y para `Actor` (nivel 4) (C3).
-4. `generar_ficha.py --barrido --exhaustivo` sigue en 240/240 **y** el barrido
-   varía la dote elegida en vez de coger siempre «Mejora de característica»,
-   que es la única de las 75 que el esquema sabía expresar y por eso 240 fichas
-   verdes nunca tocaron el caso que rompe.
+1. ✅ Un fichero de regla que ningún patrón sepa recorrer hace fallar a
+   `efectos.py` (C1, probado con `reglas/_prueba_c1.yaml`).
+2. ✅ La tabla de §0 está del derecho para `Duro` y para `Actor` (C3).
+3. ⬜ **Los 21 candidatos de C5 están a cero**, y el chequeo que los cuenta
+   deriva su lista de variables del vocabulario, no de una tupla (C6a).
+4. ⬜ Ninguna de las listas escritas a mano de C6 sigue siéndolo.
+5. ⬜ Quitar `efectos:` de cualquier rasgo hace fallar a `validar.py` (C2).
 
----
+Y en todo momento, sin excepción: `validar.py` a 0 errores, las 17 fichas y el
+barrido 240/240 en verde, y los contrastes externos en 646 + 3020.
 
 ## 9. Sobre copiar código
 
