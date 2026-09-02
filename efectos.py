@@ -20,6 +20,7 @@ Vocabulario cerrado en `reglas/efectos.yaml`. Contrato en
 """
 import argparse
 import ast
+import functools
 import math
 import pathlib
 import sys
@@ -27,6 +28,17 @@ import sys
 import yaml
 
 B = pathlib.Path(__file__).parent
+
+
+# ── Lectura cacheada (2026-08-31) ─────────────────────────────────────────
+# Medido con cProfile sobre `validar.py`: el 98 % del tiempo era `safe_load`,
+# releyendo los mismos ficheros cientos de veces. Contrato idéntico al de
+# `calculo.cargar`: **lo devuelto es de solo lectura**, y las pruebas por
+# mutación corren en subproceso sobre una copia, así que la caché no puede
+# servir datos viejos entre mutaciones.
+@functools.lru_cache(maxsize=None)
+def _leer(rel):
+    return yaml.safe_load((B / rel).read_text(encoding="utf-8"))
 
 
 class ErrorDeEfectos(Exception):
@@ -101,8 +113,9 @@ def evaluar(formula, entorno):
 
 
 # ── Vocabulario ──────────────────────────────────────────────────────────
+@functools.lru_cache(maxsize=None)
 def cargar_vocabulario():
-    v = yaml.safe_load((B / "reglas/efectos.yaml").read_text(encoding="utf-8"))
+    v = _leer("reglas/efectos.yaml")
     for clave in ("variables", "operaciones", "condiciones", "base_multiple"):
         if clave not in v:
             raise ErrorDeEfectos(f"reglas/efectos.yaml no declara «{clave}»")
@@ -133,7 +146,7 @@ def cargar_manifiesto():
     if not f.exists():
         raise ErrorDeEfectos("falta reglas/fuentes_de_efectos.yaml: sin él la "
                              "cobertura del motor no es comprobable")
-    m = yaml.safe_load(f.read_text(encoding="utf-8"))
+    m = _leer("reglas/fuentes_de_efectos.yaml")
     for clave in ("fuentes", "excluidos"):
         if clave not in m:
             raise ErrorDeEfectos(
@@ -141,6 +154,7 @@ def cargar_manifiesto():
     return m
 
 
+@functools.lru_cache(maxsize=None)
 def origenes():
     """Las fuentes de efectos, descubiertas y contrastadas con el manifiesto.
 
@@ -195,7 +209,7 @@ def efectos_declarados(rutas=None):
         f = B / rel
         if not f.exists():
             raise ErrorDeEfectos(f"origen de efectos inexistente: {rel}")
-        doc = yaml.safe_load(f.read_text(encoding="utf-8"))
+        doc = _leer(rel)
         for reg, ancestros in _descender(doc, list(camino)):
             for ef in reg.get("efectos", []) or []:
                 salida.append(dict(

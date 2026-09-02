@@ -21,6 +21,31 @@
 
 ---
 
+## 🔎 Revisión completa del código (2026-08-31) → `PLAN_18_REVISION_COMPLETA.md`
+
+**El plan de trabajo vigente es el 18.** Absorbe lo que quedaba del 17.
+
+Dos hallazgos que no estaban en ninguna lista:
+
+1. **`calculo._TABLA_COSTE` duplicaba la tabla de compra por puntos**, con un
+   comentario encima señalando el YAML del que era copia. `validar.py` validaba
+   la del YAML y `calculo.py` calculaba con la suya; **nadie comparaba las
+   dos**. Corregir la base habría dejado la aritmética con los valores viejos y
+   todo en verde. Es el **séptimo** caso de la regla 6, y en el núcleo
+   aritmético. Cerrado leyendo la tabla de la base: falseando el YAML el coste
+   pasa de 27 a 117; antes se quedaba en 27.
+
+2. **El 98 % del tiempo de `validar.py` era reparsear los mismos ficheros.**
+   Medido con cProfile: 1068 llamadas a `yaml.safe_load`; `validar_subida()`
+   releía las tablas de clase 333 veces. Con `lru_cache` en los lectores:
+   **13,1 s → 3,9 s**. Seguro porque las mutaciones corren en subproceso sobre
+   una copia, así que cada una estrena caché.
+
+Cifras del día, todas verdes: `validar.py` 3,9 s · SRD 646 · Foundry 3020 ·
+17/17 fichas · barrido 240/240 en 136 s · mutaciones 26/26, 13/13, 10/10.
+
+---
+
 ## 🔧 Qué pasó el 2026-08-31 — se aplicó el Plan 17 (C1, C3, C4)
 
 Plan y método en **`PLAN_17_SALIR_DEL_ESPIRAL.md`**, escrito tras leer el

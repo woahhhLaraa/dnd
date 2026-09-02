@@ -1,5 +1,12 @@
 # PLAN 17 — Salir del espiral de verificadores
 
+> **Estado (2026-08-31): C1, C3 y C4 hechas.** Los puntos que quedaban
+> abiertos (C2, C5, C6) están **absorbidos en `PLAN_18_REVISION_COMPLETA.md`**,
+> que es el documento de trabajo hacia delante y trae las cifras remedidas.
+> Este fichero se conserva por lo que no está en ninguna otra parte: la
+> investigación sobre Foundry dnd5e y DiceCloud (§1) y el diagnóstico del
+> espiral (§2).
+
 > Escrito el **2026-08-31**, tras leer el código real de Foundry dnd5e y
 > DiceCloud (clonados, no sus README). Todas las cifras de este documento
 > están **medidas** con los comandos que se citan al lado. Si vuelves y no

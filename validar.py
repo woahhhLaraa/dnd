@@ -4,7 +4,7 @@ No consulta el manual: comprueba coherencia interna. Un dato inventado
 que no respete estas reglas hace fallar la validación.
 Uso: python3 validar.py
 """
-import re, json, sys, pathlib
+import functools, re, json, sys, pathlib
 try:
     import yaml
 except ImportError:
@@ -581,8 +581,13 @@ def _principales(txt):
         return [partes[0]], None
     return [partes[0], partes[2]], partes[1]
 
+@functools.lru_cache(maxsize=None)
 def _clases_data():
-    """Carga los 12 clases/*.yaml con PyYAML, indexados por el campo 'clase'."""
+    """Carga los 12 clases/*.yaml con PyYAML, indexados por el campo 'clase'.
+
+    Cacheada el 2026-08-31: se llamaba 5 veces y costaba 2,8 s de los 13.
+    Solo lectura, como `calculo.cargar`.
+    """
     out = {}
     for p in sorted((B / "clases").glob("*.yaml")):
         d = yaml.safe_load(p.read_text(encoding="utf-8"))
