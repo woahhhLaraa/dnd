@@ -34,6 +34,12 @@ dotes:
     prerrequisito: "rasgo Estilo de combate"
     repetible: false
     descripcion: "Mientras lleves puesta una armadura ligera, media o pesada, recibes un bonificador de +1 a la clase de armadura."
+    # «Mientras lleves puesta una armadura LIGERA, MEDIA O PESADA» son las
+    # tres que hay, así que la condición es `con_armadura` a secas. No lleva
+    # `sin_escudo`: el texto no lo pide, y añadirlo sería inventar una regla.
+    efectos:
+      - {objetivo: ca, op: add, formula: "1", requiere: [con_armadura],
+         pagina: {pdf: 211, libro: 209}}
 
   - nombre: Duelo
     pagina: {pdf: 211, libro: 209}

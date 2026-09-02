@@ -238,6 +238,79 @@ def n_columna_de_otro_nivel(r):
             "no lo lee y no hay nada que romper")
 
 
+
+
+# ══ TOPE · el `modifica_tope` del bloque C ════════════════════════════════
+# «Maestro en armaduras medias» cambia el «(máx. 2)» que la armadura media
+# impone al modificador de Destreza. Es el único rasgo de la base que lo hace,
+# y por eso es el que más fácil sería romper sin enterarse: ninguna de las 17
+# fichas lo toma, así que el barrido no lo toca. Se comprueba con un personaje
+# sintético, construido aquí mismo, y se exige lo que el manual dice — no que
+# el motor «no reviente».
+
+_GUION_CA = """
+import sys
+sys.path.insert(0, '.')
+import efectos as E
+base = {'especie': {'ref': 'especies/especies.yaml#Humano'}, 'nivel_total': 4,
+        'clases': [{'clase': 'Guerrero', 'nivel': 4}], 'equipo': [], 'dotes': []}
+mods = {'mod_fue': 2, 'mod_con': 2, 'mod_int': 0, 'mod_sab': 1, 'mod_car': 0}
+def ca(armadura, dote, des):
+    f = dict(base, equipo=[{'ref': armadura}],
+             dotes=([{'ref': 'dotes/generales.yaml#Maestro en armaduras medias'}]
+                    if dote else []))
+    return E.calcular_de_ficha(f, dict(mods, mod_des=des), 2, 30)['ca']
+MEDIA = 'equipo/armaduras.yaml#Cota de escamas'
+LIGERA = 'equipo/armaduras.yaml#Armadura de cuero tachonado'
+try:
+    print(','.join(str(x) for x in (
+        ca(MEDIA, False, 3), ca(MEDIA, True, 3),      # Des 16: 16 -> 17
+        ca(MEDIA, False, 2), ca(MEDIA, True, 2),      # Des 14: sin cambio
+        ca(LIGERA, False, 3), ca(LIGERA, True, 3))))  # ligera: sin cambio
+except Exception as e:
+    print('ERROR:' + type(e).__name__)
+"""
+
+_CA_ESPERADA = "16,17,16,16,15,15"
+
+
+def _ca_del_sintetico(raiz):
+    r = subprocess.run([sys.executable, "-c", _GUION_CA], cwd=raiz,
+                       capture_output=True, text=True)
+    return (r.stdout.strip().splitlines() or [r.stderr.strip()[-120:]])[-1]
+
+
+def t_tope_no_es_variable(r):
+    _sust(r, "dotes/generales.yaml", "op: modifica_tope, tope: mod_des",
+          "op: modifica_tope, tope: mod_suerte")
+    return "`modifica_tope` sobre `mod_suerte`, que no es variable declarada"
+
+
+def t_tope_sin_requiere(r):
+    _sust(r, "dotes/generales.yaml",
+          'formula: "3",\n         requiere: [con_armadura_media], pagina: {pdf: 208, libro: 206}',
+          'formula: "3", pagina: {pdf: 208, libro: 206}')
+    return ("`modifica_tope` sin `requiere`: un tope sin condición cambiaría la "
+            "CA de cualquier armadura, y el manual lo condiciona a la media")
+
+
+def t_tope_sin_formula(r):
+    _sust(r, "dotes/generales.yaml",
+          'op: modifica_tope, tope: mod_des, formula: "3"',
+          'op: modifica_tope, tope: mod_des, texto: "sube el tope"')
+    return "`modifica_tope` sin `formula`: no dice cuál es el tope nuevo"
+
+
+def t_armadura_sin_tope(r):
+    """El caso que de verdad importa: que NO se aplique en silencio."""
+    p = r / "equipo/armaduras.yaml"
+    txt = p.read_text(encoding="utf-8")
+    p.write_text(txt.replace(" (máx. 2)", ""), encoding="utf-8")
+    return ("las armaduras medias pierden su «(máx. 2)»: el tope se quedaría "
+            "sin nada que modificar, y aplicarlo a nada y seguir en verde sería "
+            "el fallo silencioso que este proyecto persigue")
+
+
 def _falla_por(raiz, etiqueta="efectos"):
     res = subprocess.run([sys.executable, "validar.py"], cwd=raiz,
                          capture_output=True, text=True)
@@ -327,6 +400,20 @@ def main():
         return 1
     print(" ✅ control · la base intacta pasa el chequeo de efectos")
 
+    # Y los seis números del personaje sintético del bloque TOPE quedan
+    # clavados: si cambian sin que nadie lo quiera, se ve aquí y no en una
+    # ficha de alguien. Es la CA de un guerrero con armadura media, con y sin
+    # «Maestro en armaduras medias», a Destreza 16 y 14, más el control de
+    # armadura ligera.
+    real = _ca_del_sintetico(BASE)
+    if real != _CA_ESPERADA:
+        print(f"✗ CONTROL: la CA del personaje sintético es {real!r} y se "
+              f"esperaba {_CA_ESPERADA!r} (Des16 media sin/con dote, Des14 "
+              f"media sin/con, ligera sin/con)")
+        return 1
+    print(f" ✅ control · el `modifica_tope` da {real} — el +1 aparece solo con "
+          f"armadura media y Destreza 16+")
+
     ok = total = 0
     for titulo, deben, no_deben, prueba in (
             ("FORMA · efectos mal escritos", F_DEBEN, [],
@@ -337,6 +424,12 @@ def main():
              [f_columna_inexistente, f_columna_y_formula,
               f_columna_no_numerica, f_columna_que_desaparece], [],
              lambda r: _falla_por(r)[0]),
+            ("TOPE · el `modifica_tope` de «Maestro en armaduras medias»",
+             [t_tope_no_es_variable, t_tope_sin_requiere, t_tope_sin_formula], [],
+             lambda r: _falla_por(r)[0]),
+            ("TOPE · y que NO se aplique en silencio",
+             [t_armadura_sin_tope], [],
+             lambda r: _ca_del_sintetico(r).startswith("ERROR:")),
             ("CARGA · ¿los efectos sostienen las fichas?",
              [c_formula_movida, c_pg_enano_movido, c_columna_movida],
              [c_condicion_relajada, n_columna_de_otro_nivel],

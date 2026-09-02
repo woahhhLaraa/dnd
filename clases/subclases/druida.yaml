@@ -16,7 +16,17 @@ subclases:
       9: ["Curar heridas en masa"]
     rasgos:
       - {nivel: 3, nombre: "Conjuros del círculo de la luna", desc: "Siempre tienes preparados los conjuros de la tabla al alcanzar el nivel de druida indicado. Además puedes lanzar los conjuros de este rasgo mientras utilizas tu Forma salvaje."}
-      - {nivel: 3, nombre: "Formas del círculo", desc: "Al usar Forma salvaje: Valor de desafío (máximo igual a tu nivel de druida dividido entre 3, redondeando abajo); Clase de armadura (tu CA pasa a ser 13 + mod. Sabiduría si es superior a la de la bestia); Puntos de golpe temporales (obtienes el triple de tu nivel de druida)."}
+      - nivel: 3
+        nombre: "Formas del círculo"
+        desc: "Al usar Forma salvaje: Valor de desafío (máximo igual a tu nivel de druida dividido entre 3, redondeando abajo); Clase de armadura (tu CA pasa a ser 13 + mod. Sabiduría si es superior a la de la bestia); Puntos de golpe temporales (obtienes el triple de tu nivel de druida)."
+        # No es una CA base del druida: es la de la BESTIA en la que se
+        # transforma, y solo si supera la que la bestia ya tiene. El motor no
+        # modela bestias, así que se cita y no se agrega. Declararla `base`
+        # daría 13 + mod. Sab a un druida en su forma normal, que es falso.
+        efectos:
+          - {objetivo: ca, op: conditional,
+             texto: "En Forma salvaje, la CA pasa a ser 13 + mod. Sabiduría si es superior a la de la bestia adoptada",
+             pagina: {pdf: 99, libro: 97}}
       - {nivel: 6, nombre: "Formas del círculo mejoradas", desc: "Mientras uses Forma salvaje: Resplandor lunar (tus ataques pueden causar su daño normal o radiante, eliges cada vez que aciertas); Aguante aumentado (sumas tu modificador por Sabiduría a tus TdS de Constitución)."}
       - {nivel: 10, nombre: "Paso de la luz lunar", desc: "Acción adicional: te teletransportas hasta 9 m a un espacio libre que veas y tienes ventaja en la siguiente tirada de ataque de este turno. Usos iguales a tu modificador por Sabiduría (mínimo 1), recuperados tras un descanso largo; también puedes recuperar usos gastando un espacio de nivel 2 o superior por cada uso (no requiere acción)."}
       - {nivel: 14, nombre: "Forma lunar", desc: "Luz lunar compartida: al usar Paso de la luz lunar puedes teletransportar también a una criatura voluntaria a 3 m o menos de ti, a un espacio libre a 3 m o menos de tu destino. Resplandor lunar mejorado: una vez por turno causas 2d10 de daño radiante adicional a un objetivo al que aciertes mientras usas tu Forma salvaje."}

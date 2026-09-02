@@ -3,9 +3,9 @@
 > Escrito el **2026-08-31**, después de aplicar el Plan 17 (C1, C3, C4). Todas
 > las cifras están **medidas hoy** con los comandos que se citan al lado.
 >
-> **Actualizado el 2026-09-02: los bloques A, B y A2 están HECHOS.** El
+> **Actualizado el 2026-09-02: los bloques A, B, A2 y C están HECHOS.** El
 > resultado, con lo que el censo destapó y no estaba en este plan, en el §11
-> (A y B) y el §12 (A2) al final.
+> (A y B), el §12 (A2) y el §13 (C) al final.
 >
 > Este documento **absorbe los puntos abiertos del `PLAN_17`** y pasa a ser el
 > único documento de trabajo hacia delante. El 17 se queda como registro de la
@@ -284,7 +284,7 @@ Por orden: primero los cinco de aritmética (empezando por
 `validar_mejoras_de_dote`, deuda propia), después los de contenido. Es el
 requisito de cualquier refactor futuro, y la red que hoy no existe.
 
-### Bloque C — declarar los 21 efectos (sin manual, ~1 día)
+### Bloque C — declarar los efectos que faltan · ✅ **HECHO (2026-09-02)**
 
 Solo hay **3 variables calculables** (`ca`, `pg_max`, `velocidad`), así que el
 hueco funcional son 21 rasgos, no 528. Su texto ya está transcrito y citado.
@@ -339,8 +339,8 @@ manual por decisión propia.
    motivo. **Hecho el 2026-09-02**: 0 sin declarar.
 2. ✅ Los 30 chequeos `validar_*` tienen prueba por mutación, o exención
    declarada. **Hecho el 2026-09-02**: 30/30, sin exenciones.
-3. Los 21 candidatos a efecto, a cero. **Los 9 de `velocidad` cerrados el
-   2026-09-02** (A2): quedan los de `ca` y `pg_max`.
+3. ✅ Los candidatos a efecto, a cero. **Hecho el 2026-09-02**: 9 de
+   `velocidad` (A2) y 7 de `ca`/`pg_max` (C). De 7 efectos a **25**.
 4. Quitar `efectos:` de cualquier rasgo hace fallar a `validar.py`.
 5. En todo momento: `validar.py` 0 errores, 17/17 fichas, barrido 240/240,
    contrastes en 646 + 3020, mutaciones en verde.
@@ -563,9 +563,111 @@ miraba nadie— y lo destapó tener por fin el dato, no leer el código.
 
 ```
 censo.py               697 unidades · 0 sin declarar · 515 pendientes
-validar.py             0 errores · 18 efectos (eran 8)
+validar.py             0 errores · 18 efectos (eran 8)   [→ 25 tras el bloque C]
 verificar_chequeos     64 silenciosas · 4 TOLERADO · línea base 64
 mutaciones_aritmetica  32/32     mutaciones_contenido  49/49
 mutaciones_censo       18/18     mutaciones_efectos    26/26
 17/17 fichas · barrido 240/240
 ```
+
+---
+
+## 13. Resultado — bloque C, ejecutado el 2026-09-02
+
+### Lo primero que salió al medirlo: no eran 21, y no estaban donde se creía
+
+Este plan estimaba «21 rasgos». Medidos contra la base, los candidatos reales
+que tocan una variable calculable son **16**: los 9 de `velocidad` (cerrados en
+A2) y **7** de `ca`/`pg_max`. La diferencia no es que sobraran: es que el ruido
+que parecía deuda no lo era. De los 57 rasgos que mencionan «PG» o «puntos de
+golpe», **56 hablan de curar, de PG temporales o de caer a 0**, y ninguno toca
+el máximo. Solo `Don de la fortaleza` («PG máximos +40») lo cambia.
+
+### La causa de que no se vieran: la promesa estaba escrita estrecha
+
+`ca` prometía con `"ca base"` y `"clase de armadura base"`. Eso caza a quien
+**fija** la CA y no ve a quien la **modifica**, que son seis rasgos —entre
+ellos el estilo de combate `Defensa`, un +1 permanente—. No era una lista corta
+por descuido: era una lista corta por diseño, escrita cuando solo había
+fórmulas base. El mismo defecto de siempre, un nivel más abajo.
+
+Se ampliaron a siete frases para `ca` y tres para `pg_max`, comprobando una a
+una que cazan los siete candidatos y ninguno más.
+
+**Y hubo que cambiar cómo se comparan.** `"a tu ca"` como subcadena suelta
+casaba dentro de «a tu **ca**pacidad de carga» del rasgo `Constitución
+poderosa` del Goliat, que no toca ninguna CA. Ahora la comparación lleva
+límite de palabra —puesto solo donde el borde de la frase es una letra, porque
+`"pg máximos +"` termina en un signo y exigirle límite detrás la haría no casar
+nunca con «PG máximos +40»—.
+
+### Los siete, resueltos
+
+| Cómo | Cuáles |
+|---|---|
+| `add` permanente | `Defensa` (+1 CA con armadura, estilo de combate) · `Don de la fortaleza` (+40 PG máximos) |
+| `conditional` | `Duelista defensivo` · `Inspiración en combate` · `Formas del círculo` · `Defensa gloriosa` |
+| **`modifica_tope`** (operación nueva) | `Maestro en armaduras medias` |
+
+`Formas del círculo` merece una nota, porque declararlo `base` habría sido el
+error fácil: «tu CA pasa a ser 13 + mod. Sabiduría» **no es la CA del druida**,
+es la de la bestia en la que se transforma, y solo si supera la que la bestia
+ya tiene. Como `base` habría dado 13 + mod. Sab a un druida en su forma normal.
+
+### `modifica_tope` — la decisión C4, tomada
+
+«Maestro en armaduras medias» dice «sumas **3 (en vez de 2)** a tu CA por
+Destreza». Eso no suma a la CA: cambia el «(máx. 2)» que la propia armadura
+impone, dentro de la fórmula que la armadura ya aporta. Se adoptó el
+`ModifyItem` de Foundry como concepto, que es lo que el §7bis ya señalaba.
+
+Se descartaron tres alternativas, y queda escrito por qué:
+
+- **`conditional`** sería mentir por clasificación: el efecto no es
+  situacional, es determinista, y el personaje saldría con un punto de CA de
+  menos **en silencio**.
+- **`add` con `max(min(mod_des - 2, 1), 0)`** es exacto, pero ese `2` sería una
+  copia del tope que vive en `equipo/armaduras.yaml` — el defecto nº 4 del §2
+  otra vez, y en un sitio donde nadie compararía las dos copias.
+- **Negarse a calcular** es coherente con la doctrina, pero convierte una dote
+  del manual en algo que la base no sabe montar.
+
+La forma: `tope` nombra la variable acotada y `formula` da el valor nuevo. **El
+2 no se copia a ninguna parte**: la armadura transporta su propio tope como
+dato y `modifica_tope` lo reescribe. Y **falla ruidosamente si no encuentra a
+quién modificar**, que es la mitad que importa: aplicar un tope a nada y seguir
+en verde sería el fallo silencioso de siempre.
+
+Comprobado con un personaje sintético, y clavado como control de
+`mutaciones_efectos.py`:
+
+```
+Des 16, armadura MEDIA    sin dote 16 · con dote 17     ← el +1
+Des 14, armadura MEDIA    sin dote 16 · con dote 16     ← mod +2, ya bajo ambos topes
+Des 16, armadura LIGERA   sin dote 15 · con dote 15     ← la ligera no tiene tope
+Des 16, armadura PESADA   sin dote 16 · con dote 16     ← ni la pesada usa Destreza
+Des 20, armadura MEDIA    sin dote 16 · con dote 17     ← el tope nuevo es 3, no infinito
+```
+
+El «si tu Destreza es 16 o más» del texto **no necesita condición**: con
+Destreza 15 o menos el modificador es +2 o menos y `min(mod_des, 3)` da
+exactamente lo mismo que `min(mod_des, 2)`. La frase del manual describe cuándo
+se nota, no cuándo se aplica — y eso queda escrito junto al efecto, porque es
+justo el tipo de razonamiento que a los seis meses parece un olvido.
+
+### Cifras al cerrar
+
+```
+validar.py             0 errores · 25 efectos (eran 8 antes de A2)
+censo.py               697 unidades · 0 sin declarar · 508 pendientes
+mutaciones_efectos     30/30 (eran 26: entran las dos familias TOPE)
+17/17 fichas · barrido 240/240
+```
+
+### Lo que queda del bloque D, y por qué sigue siendo el último
+
+Los 508 pendientes del censo son rasgos sin `efectos:` ni `no_automatizado:`.
+**Ninguno es ya un hueco funcional**: las tres variables calculables están
+cubiertas, y lo que falta es la frontera explícita del bloque D —decir «lo
+miramos y no toca» en vez de callarse—. Sigue yendo al final por la misma razón
+de siempre: activarlo antes dejaría la base en rojo durante todo el relleno.

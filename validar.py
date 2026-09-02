@@ -1954,6 +1954,25 @@ def validar_efectos():
             if tiene:
                 err.append(f"{d}: `conditional` trae {tiene}, y no debe: es un "
                            f"efecto que NO se calcula")
+        elif ef.get("op") == "modifica_tope":
+            # Bloque C: nombra la variable acotada y da su valor NUEVO. Se
+            # exige `formula` (el valor) y `tope` (a quién acota), y que ese
+            # tope sea una variable declarada: un tope sobre algo que no
+            # existe no modificaría nada y pasaría en verde.
+            if "formula" not in tiene:
+                err.append(f"{d}: `modifica_tope` sin `formula`: hay que decir "
+                           f"cuál es el tope nuevo")
+            variable = ef.get("tope")
+            if not variable:
+                err.append(f"{d}: `modifica_tope` sin `tope`: hay que decir a "
+                           f"qué variable acota el límite que se cambia")
+            elif variable not in vocab["variables"]:
+                err.append(f"{d}: `modifica_tope` sobre {variable!r}, que no es "
+                           f"una variable declarada en reglas/efectos.yaml")
+            if not (ef.get("requiere") or []):
+                err.append(f"{d}: `modifica_tope` sin `requiere`: un tope que "
+                           f"se aplicara siempre cambiaría la CA de cualquier "
+                           f"armadura, y el manual lo condiciona")
         elif len(tiene) != 1:
             err.append(f"{d}: un efecto debe traer `formula` O `columna`, "
                        f"y trae {tiene or 'ninguna de las dos'}")
@@ -2002,7 +2021,23 @@ def validar_efectos():
                 f"anuncia, un rasgo puede prometerla y no declararla y nadie "
                 f"lo diría")
             continue
-        promesas.append((nombre, tuple(f.lower() for f in frases)))
+        # ── Coincidencia con LÍMITE DE PALABRA (bloque C, 2026-09-02) ──
+        # Buscar la frase como subcadena suelta da falsos positivos que además
+        # son invisibles: «a tu ca» casaba dentro de «a tu CApacidad de carga»
+        # del rasgo «Constitución poderosa» del Goliat, que no toca la CA de
+        # nada. Un falso positivo aquí obliga a declarar ruido, y un
+        # manifiesto lleno de ruido no lo lee nadie.
+        #
+        # El guardián se pone solo donde el borde de la frase es una letra: la
+        # promesa «pg máximos +» termina en un signo, y exigirle límite detrás
+        # la haría no casar nunca con «PG máximos +40».
+        compiladas = []
+        for f in frases:
+            f = f.lower()
+            ini = r"(?<!\w)" if f[:1].isalnum() else ""
+            fin = r"(?!\w)" if f[-1:].isalnum() else ""
+            compiladas.append(re.compile(ini + re.escape(f) + fin))
+        promesas.append((nombre, tuple(compiladas)))
 
     con_efecto = {(ef["_archivo"], ef["_rasgo"], ef["objetivo"]) for ef in declarados}
     for rel, camino in E.origenes():
@@ -2010,7 +2045,7 @@ def validar_efectos():
         for reg, _anc in E._descender(doc, list(camino)):
             txt = (reg.get("desc") or reg.get("descripcion") or "").lower()
             for objetivo, frases in promesas:
-                if not any(f in txt for f in frases):
+                if not any(f.search(txt) for f in frases):
                     continue
                 if (rel, reg.get("nombre"), objetivo) not in con_efecto:
                     err.append(

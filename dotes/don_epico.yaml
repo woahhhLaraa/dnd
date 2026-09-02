@@ -7,6 +7,9 @@ fidelidad: "condensado"   # mecánica reescrita en frases cortas, no la prosa de
 dotes:
   - nombre: "Don de la fortaleza"
     pagina: {pdf: 212, libro: 210}
+    efectos:
+      # «Salud fortalecida: PG máximos +40», sin condición ni duración.
+      - {objetivo: pg_max, op: add, formula: "40", pagina: {pdf: 212, libro: 210}}
     prerrequisito: "nivel 19 o más"
     repetible: false
     mejora_caracteristica: {cantidad: 1, maximo: 30, entre: cualquiera}

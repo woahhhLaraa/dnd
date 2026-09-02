@@ -70,6 +70,10 @@ subclases:
       - nivel: 3
         nombre: Inspiración en combate
         desc: "Una criatura que tenga uno de tus dados de Inspiración bárdica puede usarlo para: Defensa (cuando un ataque la acierte, usa su reacción para tirar el dado y sumarlo a su CA contra ese ataque, pudiendo hacer que falle) u Ofensiva (justo después de acertar con una tirada de ataque, tira el dado y suma el resultado al daño)."
+        efectos:
+          - {objetivo: ca, op: conditional,
+             texto: "Defensa: quien tenga un dado de Inspiración bárdica puede gastarlo con su reacción para sumarlo a SU CA contra un ataque concreto",
+             pagina: {pdf: 69, libro: 67}}
       - nivel: 6
         nombre: Ataque adicional
         desc: "Al llevar a cabo la acción de atacar en tu turno haces dos ataques en vez de uno. Además puedes lanzar uno de tus trucos con tiempo de lanzamiento de una acción en vez de uno de esos ataques."

@@ -49,7 +49,14 @@ variables:
   ca:
     tipo: calculada
     desc: "Clase de Armadura"
-    promesas: ["ca base", "clase de armadura base"]
+    # Las dos primeras cazan quien FIJA la CA; las cuatro siguientes, quien la
+    # modifica. Hasta el bloque C solo estaban las dos primeras, así que seis
+    # rasgos que suman o sustituyen CA —entre ellos el estilo de combate
+    # «Defensa», que es +1 permanente— no los veía nadie: la promesa existía y
+    # se había escrito estrecha. Se comprobó una a una que estas seis frases
+    # cazan esos seis rasgos y ninguno más.
+    promesas: ["ca base", "clase de armadura base", "a la clase de armadura",
+               "a tu ca", "a la ca", "a su ca", "tu ca pasa a ser"]
     base_por_defecto: "10 + mod_des"
     pagina: {pdf: 43, libro: 41}
     fidelidad: literal
@@ -75,7 +82,12 @@ variables:
   pg_max:
     tipo: calculada
     desc: "puntos de golpe máximos"
-    promesas: ["pg máximos aumentan", "puntos de golpe máximos aumentan"]
+    # «PG máximos +40» del don épico no dice «aumentan», y por eso se escapaba.
+    # Ojo con la precisión: media docena de rasgos hablan de «la mitad de tus
+    # PG máximos» o de recuperar PG, y ninguno toca el MÁXIMO; por eso la
+    # frase lleva el signo, que es lo que distingue subirlo de leerlo.
+    promesas: ["pg máximos aumentan", "puntos de golpe máximos aumentan",
+               "pg máximos +"]
     base_por_defecto: null      # la aporta `calculo.puntos_golpe_nivel_1()`
   velocidad:
     tipo: calculada
@@ -99,7 +111,34 @@ variables:
 # Tomadas de DiceCloud v2 (`computeVariable/getAggregatorResult.js`), leídas
 # como concepto y reimplementadas: DiceCloud es GPL-3.0 y no se copia código.
 # Ver ANALISIS_REPOS.md §1.
-operaciones: [base, add, mul, min, max, set, conditional]
+operaciones: [base, add, mul, min, max, set, conditional, modifica_tope]
+
+# ── `modifica_tope` (bloque C del Plan 18, 2026-09-02) ───────────────────
+# Es el `ModifyItem` de Foundry dnd5e, adoptado como concepto (ANALISIS_REPOS
+# §2). Foundry lo tiene porque le hizo falta, y aquí hace falta por lo mismo:
+# hay un rasgo en toda la base que no es `add` ni `set`.
+#
+# El caso, y no hay otro: «Maestro en armaduras medias» dice «mientras lleves
+# armadura media, sumas **3 (en vez de 2)** a tu CA por Destreza si tu Destreza
+# es 16 o más» (pdf 208 = libro 206). Eso no suma a la CA: cambia el TOPE que
+# la propia armadura impone al modificador de Destreza —el «(máx. 2)» de
+# `equipo/armaduras.yaml`— dentro de la fórmula que ya aporta la armadura.
+#
+# Se descartaron tres alternativas, y conviene que quede por qué:
+#   · `conditional` — sería mentir por clasificación. El efecto NO es
+#     situacional: es determinista, y un personaje con la dote saldría con un
+#     punto de CA de menos EN SILENCIO, que es lo contrario de la doctrina.
+#   · `add` con `max(min(mod_des - 2, 1), 0)` — es exacto, pero ese `2` sería
+#     una COPIA del tope que vive en `equipo/armaduras.yaml`, y nadie
+#     compararía las dos. Es el defecto nº 4 del §2 del Plan 18 otra vez.
+#   · negarse a calcular — coherente, pero convierte una dote del manual en
+#     algo que la base no sabe montar.
+#
+# Forma: `tope` nombra la variable acotada (la que va dentro del `min(...)`) y
+# `formula` da el valor NUEVO. No entra en la agregación: se aplica ANTES,
+# reescribiendo el tope del efecto que sí agrega. Y falla ruidosamente si no
+# encuentra a quién modificar: aplicar un tope a nada y seguir en verde sería
+# exactamente el fallo silencioso que este proyecto persigue.
 
 # ── `conditional` (C4 del Plan 17, 2026-08-31) ───────────────────────────
 # Tomado de DiceCloud, cuyo esquema de efectos lo trae con este comentario en
@@ -162,5 +201,8 @@ condiciones:
   # La lista de armaduras pesadas la deduce `efectos.py` de
   # `equipo/armaduras.yaml`, nunca el LLM.
   sin_armadura_pesada: "no lleva puesta una armadura pesada (ligera o media sí)"
+  # Añadida el 2026-09-02 (bloque C) para «Maestro en armaduras medias», que
+  # es el único rasgo del manual que distingue la media de las otras dos.
+  con_armadura_media: "lleva puesta una armadura media"
   sin_escudo: "no embraza escudo"
   con_escudo: "embraza escudo"

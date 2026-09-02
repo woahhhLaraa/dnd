@@ -81,6 +81,10 @@ dotes:
 
   - nombre: "Duelista defensivo"
     pagina: {pdf: 206, libro: 204}
+    efectos:
+      - {objetivo: ca, op: conditional,
+         texto: "Parada: con arma sutil, reacción al ser acertado cuerpo a cuerpo para sumar el bonificador por competencia a la CA contra ESE ataque",
+         pagina: {pdf: 206, libro: 204}}
     prerrequisito: "nivel 4 o más, Destreza 13 o más"
     repetible: false
     mejora_caracteristica: {cantidad: 1, maximo: 20, entre: [Destreza]}
@@ -176,6 +180,18 @@ dotes:
     repetible: false
     mejora_caracteristica: {cantidad: 1, maximo: 20, entre: [Fuerza, Destreza]}
     descripcion: "Mejora de característica: Fuerza o Destreza +1 (máx. 20). Portador diestro: mientras lleves armadura media, sumas 3 (en vez de 2) a tu CA por Destreza si tu puntuación de Destreza es 16 o más."
+    # El único `modifica_tope` de toda la base (bloque C, 2026-09-02). No
+    # suma a la CA: cambia el «(máx. 2)» que la armadura media impone al
+    # modificador de Destreza. El 3 sale del manual; el 2 sigue viviendo en
+    # `equipo/armaduras.yaml` y aquí no se copia.
+    #
+    # El «si tu Destreza es 16 o más» del texto NO necesita condición: con
+    # Destreza 15 o menos el modificador es +2 o menos y `min(mod_des, 3)`
+    # devuelve exactamente lo mismo que `min(mod_des, 2)`. La frase del manual
+    # describe cuándo se NOTA, no cuándo se aplica.
+    efectos:
+      - {objetivo: ca, op: modifica_tope, tope: mod_des, formula: "3",
+         requiere: [con_armadura_media], pagina: {pdf: 208, libro: 206}}
 
   - nombre: "Maestro en armaduras pesadas"
     pagina: {pdf: 208, libro: 206}

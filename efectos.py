@@ -236,6 +236,7 @@ def estado_de_equipo(refs):
     # pesada. Qué armaduras son pesadas se LEE del grupo correspondiente, que
     # es el mismo sitio del que salen las otras condiciones.
     pesadas = {a["nombre"].lower() for a in d["armaduras_pesadas"]["tabla"]}
+    medias = {a["nombre"].lower() for a in d["armaduras_medias"]["tabla"]}
     escudos = {e["nombre"].lower() for e in d["escudos"]["tabla"]}
     llevados = {r.split("#")[-1].lower() for r in refs}
     con_arm = bool(llevados & nombres)
@@ -243,7 +244,8 @@ def estado_de_equipo(refs):
     con_pesada = bool(llevados & pesadas)
     return {"con_armadura": con_arm, "sin_armadura": not con_arm,
             "con_escudo": con_esc, "sin_escudo": not con_esc,
-            "sin_armadura_pesada": not con_pesada}
+            "sin_armadura_pesada": not con_pesada,
+            "con_armadura_media": bool(llevados & medias)}
 
 
 def aplica(ef, estado, vocab):
@@ -303,7 +305,8 @@ def agregar(variable, efectos, base, entorno, eleccion=None, decimal=False):
     # C4: los `conditional` se citan pero NO se agregan. Se filtran aquí, en
     # el único sitio por el que pasa la aritmética, para que añadir una
     # operación no calculable nunca pueda colarse en un número.
-    efectos = [e for e in efectos if e.get("op") != "conditional"]
+    efectos = [e for e in efectos
+               if e.get("op") not in ("conditional", "modifica_tope")]
 
     por_op = {}
     for ef in efectos:
@@ -519,11 +522,19 @@ def efectos_de_equipo(refs, entrenamientos=None, fuerza=None):
         if not m:
             raise ErrorDeEfectos(
                 f"fórmula de CA no reconocida en {reg['nombre']!r}: {f!r}")
+        # El tope de Destreza («máx. 2» de las armaduras medias) se guarda
+        # además como DATO en `_tope`, no solo cocido dentro de la cadena de la
+        # fórmula. Es lo que permite que `modifica_tope` lo cambie sin que nadie
+        # tenga que copiar el 2 a ninguna otra parte: la autoridad sigue siendo
+        # `equipo/armaduras.yaml`, y aquí solo se transporta.
         termino = ""
+        tope = int(m.group(2)) if m.group(2) else None
         if "mod. Des" in f:
-            termino = (f" + min(mod_des, {m.group(2)})" if m.group(2)
+            termino = (f" + min(mod_des, {tope})" if tope is not None
                        else " + mod_des")
-        salida.append(dict(marco, op="base", formula=m.group(1) + termino))
+        salida.append(dict(marco, op="base", formula=m.group(1) + termino,
+                           _base_num=int(m.group(1)),
+                           _tope=({"mod_des": tope} if tope is not None else {})))
         # La penalización de velocidad por Fuerza insuficiente.
         req = reg.get("fuerza")
         if req and fuerza is not None and fuerza < req:
@@ -602,7 +613,7 @@ def calcular_de_ficha(ficha, mods, pb, pg_base):
     # Cada efecto lleva su `nivel_clase`; se resuelve su fórmula a un entero
     # ANTES de agregar, para que ninguna variable signifique dos cosas a la vez.
     vocab = cargar_vocabulario()
-    resueltos = []
+    resueltos, topes = [], []
     for ef in efs:
         if not aplica(ef, estado, vocab):
             continue
@@ -618,6 +629,12 @@ def calcular_de_ficha(ficha, mods, pb, pg_base):
         if ef.get("op") == "conditional":
             continue
         ent = dict(entradas, nivel_clase=ef.get("_nivel_clase") or 0)
+        if ef.get("op") == "modifica_tope":
+            # No se agrega: reescribe el tope de OTRO efecto (ver la cabecera
+            # de `modifica_tope` en reglas/efectos.yaml). Se aparta aquí, ya
+            # con su fórmula resuelta a un entero.
+            topes.append((ef, evaluar(ef["formula"], ent)))
+            continue
         if ef.get("columna"):
             # `columna` lee la tabla dispersa de la clase que concede el efecto:
             # el stem sale de su propio `_archivo`, así que no hace falta
@@ -627,6 +644,25 @@ def calcular_de_ficha(ficha, mods, pb, pg_base):
             resueltos.append(dict(ef, _valor=v, formula=None))
         else:
             resueltos.append(dict(ef, formula=str(evaluar(ef["formula"], ent))))
+
+    # ── `modifica_tope`: se aplica ANTES de agregar ──────────────────────
+    # Y **falla ruidosamente si no encuentra a quién modificar**: un tope que
+    # se aplica a nada y deja la ficha en verde sería exactamente el fallo
+    # silencioso que este proyecto persigue. Si la condición del efecto se
+    # cumple (p. ej. `con_armadura_media`), tiene que existir el efecto con ese
+    # tope; que no exista significa que el modelo se ha desincronizado.
+    for ef, valor in topes:
+        variable = ef.get("tope")
+        destinos = [r for r in resueltos if variable in (r.get("_tope") or {})]
+        if not destinos:
+            raise ErrorDeEfectos(
+                f"«{ef.get('_rasgo')}» ({ef.get('_archivo')}) modifica el tope "
+                f"de {variable!r} y ningún efecto sobre «{ef.get('objetivo')}» "
+                f"tiene ese tope. O la condición del efecto está mal, o la "
+                f"fórmula de la armadura dejó de traer su «(máx. N)»")
+        for r in destinos:
+            r["_tope"] = dict(r["_tope"], **{variable: valor})
+            r["formula"] = f"{r['_base_num']} + min({variable}, {valor})"
 
     esp = yaml.safe_load((B / "especies/especies.yaml").read_text(encoding="utf-8"))
     nombre_esp = ficha["especie"]["ref"].split("#")[-1]

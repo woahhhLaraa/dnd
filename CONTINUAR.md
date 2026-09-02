@@ -23,9 +23,10 @@
 > documento del que hay que avisar «no lo leas» es un documento que ya sobra.
 > Sigue en el historial de git si alguna vez hace falta.
 
-Última actualización: **2026-09-02** — **bloques A y B del Plan 18 hechos**:
-existe `censo.py` y los 30 chequeos `validar_*` tienen prueba por mutación.
-Ver «EMPIEZA AQUÍ» más abajo.
+Última actualización: **2026-09-02** — **bloques A, B, A2 y C del Plan 18
+hechos**: existe `censo.py`, los 30 chequeos `validar_*` tienen prueba por
+mutación, las cuatro listas escritas a mano del §2 están cerradas y los efectos
+que faltaban están declarados (de 7 a **25**). Ver «EMPIEZA AQUÍ» más abajo.
 
 ---
 
@@ -42,7 +43,7 @@ python3 validar.py            # 0 errores · 2,6 s
 python3 verificar_srd.py      # 646 valores · 0 discrepancias
 python3 verificar_foundry.py  # 3020 valores · 0 discrepancias
 python3 cobertura.py          # 262 preguntas · 0 sin responder
-python3 censo.py              # 697 unidades · 0 sin declarar · 515 pendientes
+python3 censo.py              # 697 unidades · 0 sin declarar · 508 pendientes
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 17/17
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240 · 136 s
 ```
@@ -91,8 +92,8 @@ red puesta, el refactor del bloque F ya es una opción**, aunque la medición de
 | ~~**A**~~ | ~~`censo.py`~~ | ✅ **hecho (2026-09-02)** |
 | ~~**B**~~ | ~~Mutaciones para los 19 chequeos sin red~~ | ✅ **hecho (2026-09-02)** |
 | ~~**A2**~~ | ~~Las cuatro listas abiertas del §2~~ | ✅ **hecho (2026-09-02)** |
-| **C** | Declarar los efectos que faltan. **Los 9 de `velocidad` ya están** (A2); quedan los de `ca` y `pg_max` — **lo siguiente** | no |
-| **D** | `efectos:` obligatorio + `no_automatizado` | no |
+| ~~**C**~~ | ~~Declarar los efectos que faltan~~ | ✅ **hecho (2026-09-02)**: 9 de `velocidad` (A2) + 7 de `ca`/`pg_max`. De 7 efectos a **25** |
+| **D** | `efectos:` obligatorio + `no_automatizado` — **lo siguiente**. Ya no queda ningún hueco funcional: las 3 variables calculables están cubiertas, y lo que falta es la frontera explícita | no |
 | **E** | `requirements.txt`, versión de Python, ~50 líneas duplicadas | no |
 | **H** | Contrastar los **562 registros** del SRD estructurado que nadie pide, entre ellos los 255 rasgos de `classes24` — **lo destapó el censo** | no |
 | **F** | Refactor, **solo si sigue pareciendo necesario** | no |
@@ -237,7 +238,7 @@ es donde el desfase se vuelve mentira comprobable.
 
 `validar.py` debe dar, dentro de «INTEGRIDAD»: 683 dados · 543 conversiones ·
 391 conjuros en `tirada` · 677 pares de vecindad · 782 campos de ortografía ·
-391 citas de conjuro · 52 costes sin fuente externa · 18 efectos · 6
+391 citas de conjuro · 52 costes sin fuente externa · 25 efectos · 6
 materiales descompuestos · 8 conjuros con `tiradas` por efecto · 25 ataques
 de conjuro contrastados contra su texto · 65 prerrequisitos de dote evaluables ·
 333 saltos de nivel derivables · **54 mejoras de dote** (chequeo nuevo, C3 del
@@ -666,7 +667,7 @@ vez: cubría 1 de los 2 efectos de PG, guardaba un `1` fijo cuando el rasgo dice
 | `reglas/_ESQUEMA_efectos.md` | El contrato, **y lo que el modelo todavía no representa** |
 | `efectos.py` | Gramática de fórmulas (sin `eval()`), agregación, grafo de dependencias con ciclo como error explícito |
 | `validar_efectos()` | 6 efectos · 0 errores · 1 aviso declarado |
-| `_verificacion/mutaciones_efectos.py` | **26/26** — incluye la familia COLUMNA, que comprueba el escalado por nivel **en toda su escala** |
+| `_verificacion/mutaciones_efectos.py` | **30/30** — incluye la familia COLUMNA (el escalado por nivel **en toda su escala**) y la familia TOPE (el `modifica_tope` del bloque C) |
 
 ### La mitad del chequeo que de verdad vale
 
@@ -1064,7 +1065,7 @@ puntos sí eran nuevos y se contrastaron contra el código real:
 | `_verificacion/_auditoria_rasgos/` | Informes de las dos auditorías visuales (rasgos de clase, subclases, especies) y los dos briefings que se dieron a los agentes |
 | `_verificacion/glosario_especies.yaml` | Único puente es↔en escrito a mano, y solo porque son nombres propios; cada pareja se comprueba con velocidad + visión en la oscuridad |
 | `efectos.py` · `reglas/efectos.yaml` · `reglas/_ESQUEMA_efectos.md` | **Motor de efectos (Fase 14)**: las reglas de personaje como dato citado junto al rasgo que las concede, no como `if` de Python |
-| `_verificacion/mutaciones_efectos.py` | Prueba por mutación del motor y de `validar_efectos()` (26/26) |
+| `_verificacion/mutaciones_efectos.py` | Prueba por mutación del motor y de `validar_efectos()` (30/30) |
 | `materiales.py` | La descomposición del componente material, y la ÚNICA implementación de la derivación `materiales → coste` (Fase 14b-2) |
 | `_verificacion/mutaciones_materiales.py` | Prueba por mutación de `validar_materiales()` (10/10) |
 | `_verificacion/mutaciones_tiradas.py` | Prueba por mutación de `validar_tiradas()` y `validar_ataques()` (19/19) |
