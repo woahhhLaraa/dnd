@@ -1,4 +1,4 @@
-# ✅ Plan — estresar el verificador con agentes — **EJECUTADO (2026-08-30)**
+# ✅ Plan — estresar el verificador con agentes — **EJECUTADO (2026-08-30 y 2026-09-03)**
 
 > Escrito el **2026-08-30**, después de que el barrido automático diera
 > **240/240**. Ese 240/240 no significa que el sistema esté bien: significa que
@@ -108,3 +108,89 @@ prohibición (ejecutaron un `python3 -c` para inspeccionar un JSON) y los cuatro
 lo declararon solos. El briefing prohibía ejecutar *cualquier* script cuando lo
 que importaba era no ejecutar **el verificador**. Si se repite el experimento,
 esa es la línea que hay que reescribir.
+
+
+---
+
+# Ronda 2 — 2026-09-03
+
+Corrida después de cerrar las fases 1, 2 y 3 del `PLAN_19`, con la base muy
+cambiada desde la ronda 1. **20 fichas · 4 agentes · 6 huecos · 2 falsos
+positivos · 2 defectos de robustez · 3 hallazgos descartados.**
+
+| | El verificador salta | El verificador calla |
+|---|---|---|
+| **ILEGAL** | ✅ 15 de 21 decisiones de A, y la mayoría de las de B | 🔴 **6 huecos** |
+| **LEGAL** | 🔴 **2 falsos positivos** | ✅ el control impecable de B verifica en verde |
+
+## Lo que se corrigió del método antes de correr
+
+1. **La prohibición que la ronda 1 dejó apuntada.** El briefing prohibía
+   «ejecutar scripts» cuando lo que importa es no ejecutar **el verificador**.
+   Los cuatro agentes de la ronda 1 tropezaron con lo mismo y lo declararon
+   solos. Reescrita: prohibido ejecutar los verificadores, permitido `python3
+   -c`, `grep` y lo que haga falta para LEER datos. Ningún agente tropezó esta
+   vez.
+2. **Advertencia sobre las fichas de ejemplo.** En la ronda 1 los cuatro
+   agentes copiaron el mismo defecto de los ejemplos. Ahora el briefing dice
+   que los ejemplos son para ver la forma del YAML, y que una contradicción
+   entre un ejemplo y `_ESQUEMA.md` es un hallazgo por sí sola. **Funcionó**:
+   el agente C encontró así el hueco nº 4.
+3. **La multiclase queda fuera.** El verificador la rechaza a propósito desde
+   la fase 1 del `PLAN_19`, así que una ficha multiclase sería un falso
+   positivo garantizado contra una limitación ya declarada: mediría cero.
+
+## Los seis huecos
+
+| # | Hueco | Quién lo encontró |
+|---|---|---|
+| 1 | **Un conjuro que no es de la lista de la clase pasa.** `hechizos.json` trae `clases:` en cada conjuro y nadie lo mira: un Hechicero con un truco de Mago verifica en verde | A · ficha 2 |
+| 2 | **`pg_por_nivel` no se valida contra el dado.** Tres caras del mismo hueco: un `valor` mayor que las caras del dado de la clase (d8 → 9, d12 → 13); un `valor_establecido` que es el de OTRA clase (Guerrero 6, la ficha pone el 7 del Bárbaro) aunque `calculo.valor_establecido_pg()` ya existe y podría contrastarlo; y `metodo: maximo_dado` en un nivel que no es el 1 | A · fichas 3, 4, 5 · B · ficha 2 |
+| 3 | **Un idioma con `origen: {especie: …}` inventado pasa.** Ninguna de las 10 especies de la base concede idiomas (`idiomas: []` en todas), y no se comprueba ni el origen ni el número que pide `reglas/idiomas.yaml` («común y otros dos») | A · fichas 1 y 5 · B · ficha 2 |
+| 4 | **Un truco listado también como preparado cuenta dos veces.** No es hipotético: `personajes/draconido_hechicero_n4.yaml`, una ficha de la propia base, lleva «Rayo de escarcha» (nivel 0) en `trucos` **y** en `preparados`. La tabla concede 7 preparados y la ficha tiene 6 reales. Barridas las 17 fichas: solo esa | C |
+| 5 | **Las claves desconocidas no se rechazan.** `raza:` al nivel superior, `decisiones[].juicio`, `decisiones[].nota`: ninguna está en el esquema y ninguna se rechaza como tal — solo saltan de rebote si su texto pasa de 15 palabras | B · ficha 4 · A y C de rebote |
+| 6 | **El tope de 20 y el «+2» están cableados en Python.** `verificar_mejoras` compara `> 20` y exige la forma `+2`/`+1+1` con literales, mientras **42 de las 43 dotes generales** traen `mejora_caracteristica: {cantidad, maximo, entre}` estructurado. La única que no lo trae es «Mejora de característica», justo la que el esquema designa para cada entrada de `mejoras:`. Es el defecto nº 4 del §2 del `PLAN_18` otra vez: autoridad que vive en la base, copiada a Python, sin nadie que compare las copias | D · ficha 5 |
+
+## Los dos falsos positivos
+
+| # | Falso positivo | Quién |
+|---|---|---|
+| 7 | **`origen: {subclase: …}` no se reconoce.** La lista de orígenes válidos es `("dote","especie","rasgo","trasfondo","clase")` y le falta `subclase`, así que los conjuros de dominio del Clérigo —declarados exactamente como manda el esquema, y que la base tiene en `conjuros_siempre_preparados`— se rechazan uno a uno | B · ficha 2 |
+| 8 | **La comparación de competencias distingue mayúsculas.** `trasfondos.yaml` guarda «suministros de calígrafo» en minúscula y `clases/*.yaml` guarda «Armaduras ligeras» con mayúscula; una ficha que escriba la herramienta con la mayúscula natural del castellano se rechaza contra una lista que la contiene. Son dos defectos a la vez: la comparación literal y la base inconsistente entre ficheros | A · fichas 1, 2 y 5 |
+
+## Dos defectos de robustez
+
+9. **`calculo.py` corta con `sys.exit` en vez de informar**, así que el primer
+   defecto estructural **oculta todos los demás**: la ficha 3 de B declaraba
+   cinco y solo se vio uno. Un verificador que solo enseña el primer problema
+   obliga a iterar a ciegas.
+10. **Una ficha sin bloque `caracteristicas` revienta con un traceback**
+    (`buscar.py:174`, `KeyError`) sin imprimir ni una línea de diagnóstico.
+    Rechaza —el código de salida es 1— pero no dice qué falta.
+
+## Tres hallazgos descartados, y por qué
+
+La contención del método funcionó: el sobre obliga a citar la regla, y tres
+citas no decían lo que el agente creía.
+
+- **«Telepático» sin prerrequisito de característica** (A). A la declaró ilegal
+  por no cumplir «Int, Sab o Car 13+». La base dice `prerrequisito: 'nivel 4 o
+  más'`, y nada más. **El verificador tenía razón**: descartado.
+- **Habilidad de clase que duplica una del trasfondo** (A, dos fichas). A la
+  declaró «ILEGAL probable» diciendo ya en el sobre que no encontraba cita.
+  No la hay. Descartado por falta de regla, no por estar comprobado que sea
+  legal.
+- **La tabla de modificadores para en 20** (D). Es cierto que
+  `modificadores_por_puntuacion.tabla` llega hasta 20 mientras los dones
+  épicos permiten llegar a 30, pero `calculo.modificador()` usa la fórmula, no
+  la tabla, así que no hay defecto en el código. Si la tabla del manual llega
+  más allá, es una transcripción incompleta: **pendiente de leer la página**,
+  no un hallazgo del estrés.
+
+## Defecto del método en esta ronda, registrado
+
+Los agentes A y C inventaron claves dentro de `decisiones` (`juicio`, `nota`)
+para dejar ahí su razonamiento, y eso llenó la salida del verificador de
+errores de «texto copiado» que **no eran la decisión que querían medir**. El
+sobre ya existe para eso. Si se repite el experimento, el briefing debe decir
+que el razonamiento va SOLO en el sobre y que la ficha no lleva comentarios.
