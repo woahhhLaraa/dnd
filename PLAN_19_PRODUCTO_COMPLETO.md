@@ -149,12 +149,23 @@ fila de datos externos a 0 pendientes; `mutaciones_foundry.py` ampliada.
 no toca», que es lo que el bloque D dejó a medias **a propósito**: no se
 fabricaron 480 motivos sin leer los rasgos.
 
-**Por qué esta fase depende de la 3, y por qué eso la hace barata:** Foundry
-declara en el dato qué automatiza y qué no —**380 registros** lo dicen—. Con
-`classes24` ya contrastado, la mayoría de los 480 se resuelve **cruzando con lo
-que Foundry ya decidió**, y a mano solo quedan los que discrepan o los que
-Foundry no cubre. Eso convierte «leer 480 rasgos» en «leer los que nadie ha
-mirado todavía».
+**Por qué depende de la 3 — y CUÁNTO ayuda de verdad, medido el 2026-09-03.**
+Este plan decía que Foundry declara qué automatiza en «**380 registros**» y que
+por eso «la mayoría de los 480 se resuelve cruzando con lo que Foundry ya
+decidió». **Es optimista, y la cifra estaba mal.** Lo medido:
+
+| | |
+|---|---|
+| rasgos nuestros sin declarar | 480 — **233** de subclase, **150** de clase, ~97 de dotes/especies/trasfondos |
+| lo que el SRD cubre siquiera | los 159 rasgos de clase y los **58** de las 12 subclases que publica: unos **208** de los 480 |
+| de `classes24`, con señal utilizable | **160** con «Foundry Note», **74** con Active Effect, y **85 con ninguna de las dos** |
+
+O sea: el cruce ahorra del orden de **la mitad** de los rasgos de clase y una
+cuarta parte de los de subclase, y deja **más de 300 para leer a mano**. Sigue
+mereciendo la pena hacer el cruce primero —es trabajo que no hay que repetir—,
+pero esta fase **no es barata**, y planificarla como si lo fuera es cómo se
+llega a fabricar 480 motivos sin leer los rasgos, que es justo lo que el bloque
+D se negó a hacer.
 
 **Qué se toca:** `no_automatizado:` con su motivo en cada rasgo resuelto, y
 `_verificacion/rasgos_sin_declarar.json` encogiendo. La lista **solo puede
