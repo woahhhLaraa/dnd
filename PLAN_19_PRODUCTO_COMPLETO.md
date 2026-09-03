@@ -421,3 +421,112 @@ verificar_foundry      3020 valores · 0 discrepancias (sigue usando alcance.pie
 mutaciones_conversiones 16/16 (eran 13: entra la mitad DERIVADOS)
 17/17 fichas · barrido 240/240 · censo 697 · 0 sin declarar
 ```
+
+---
+
+## 16. Resultado — fase 3, primera mitad, ejecutada el 2026-09-03
+
+La fase 3 pedía contrastar los 562 registros del SRD que nadie miraba. Esta
+primera mitad cierra **las dos rebanadas más grandes de `classes24`** y, de
+paso, arregla un defecto del propio censo que las hacía invisibles.
+
+### 16.1 · Las clases (`classes24/class`, 12 registros)
+
+`verificar_clases()` contrasta dado de golpe, tipo de lanzador, oro inicial y
+—lo que de verdad faltaba— **las escalas por nivel** contra nuestra tabla de
+progresión: **536 valores**. Cierra `columna:druida.forma_salvaje` y
+`columna:monje.mov_sin_armadura_m`, que eran las dos únicas columnas sin fuente
+externa, y el par `externo:classes24/class`.
+
+Encontró **una discrepancia real**: Foundry modela los puntos de concentración
+del monje como una escala lineal `valor = nivel`, con 1 en el nivel 1; nuestra
+tabla pone 0. Manda la nuestra, y la evidencia es interna y citada: el rasgo
+que los concede, «Concentración de monje», es de **nivel 2** (pdf 151 = libro
+149) y su propio texto transcrito dice «2 en nivel 2 […] hasta 20 en nivel 20».
+Un monje de nivel 1 no tiene el rasgo. **La página no se ha releído**, y así
+queda dicho en la propia declaración.
+
+### 16.2 · Los rasgos de clase (`classes24/*/class-features/`, 159 registros)
+
+`verificar_rasgos_clase()` contrasta **135 valores**: nivel a nivel, qué
+niveles de cada clase conceden rasgo y cuántos.
+
+**Lo que NO hace, y se midió antes de decidirlo:** no empareja los nombres. De
+los 146 rasgos con nivel, la unicidad solo fuerza 75 parejas, y de esas solo
+dos términos ingleses aparecen más de una vez —«Epic Boon» y «Channel
+Divinity»—. Una biyección que no exige nada es un diccionario escrito a mano
+con otro nombre, así que se contrasta la **estructura**, que sí tiene dos
+fuentes independientes.
+
+**Diecisiete niveles cuentan distinto**, y cada uno lleva su declaración con el
+par exacto que se examinó —si cualquiera de los dos lados cambia, la venda se
+cae—. Trece son granularidad del pack (Pericia concedida dos veces, `Indómito`
+con usos crecientes, `Mystic Arcanum` por nivel de conjuro, rasgos que el pack
+publica sin fecha). **Cuatro son discrepancias de verdad**, todas del mismo
+tipo —el pack fecha un rasgo en un nivel y nosotros en otro— y todas
+**pendientes de leer la página**:
+
+| Rasgo | El pack | Nosotros |
+|---|---|---|
+| `Deflect Energy` / Desviar energía (monje) | N3 | N13 |
+| `Relentless Hunter` / Cazador persistente (explorador) | N14 | N13 |
+| `Cunning Strike` / Golpe astuto (pícaro) | N2 | N5 |
+| `Self-Restoration` / Autorrestablecimiento (monje) | no lo trae | N10 |
+
+### 16.3 · El defecto del censo que esto destapó
+
+El censo contaba el dato externo por pares `(carpeta, type)`. Pero
+`classes24/feat` mete en el mismo saco **cuatro cosas con cuatro contrastes
+distintos**: rasgos de clase (159), rasgos de subclase (58), metamagias (10) e
+invocaciones (28). Un módulo que contrastara solo los primeros habría cerrado
+el par entero, dando por miradas 96 unidades que nadie mira. Es el defecto nº 4
+del §2 del `PLAN_18` con otro disfraz.
+
+Arreglado: la unidad del censo es ahora la terna **(carpeta, rebanada, `type`)**
+—la rebanada es la subcarpeta con que el pack se agrupa él solo, no una
+elección nuestra—, y `paquete()` acepta `sub=` para que una llamada declare qué
+rebanada promete. Una llamada sin `sub=` sigue prometiendo el `type` entero, así
+que nada de lo que ya estaba en verde cambió de estado. El censo pasa de **697
+a 867 unidades**.
+
+Los comodines del manifiesto admiten ahora `*` en cualquier posición, no solo
+al final, porque desde el cambio la parte que varía suele estar en medio
+(`externo:equipment24/*/container`).
+
+### 16.4 · La otra mitad de `classes24` sigue bloqueada, y por qué
+
+Los 58 rasgos de subclase y las 12 subclases **no se pueden contrastar todavía**:
+el SRD publica una subclase por clase y nosotros cuatro, y hay que saber cuál
+es cuál. Se midió si la identidad era deducible sin traducir:
+
+- por **vector de niveles**: no discrimina, hay empates en casi todas las clases;
+- por **huella numérica del texto** —la misma técnica que empareja armas—:
+  acierta en **11 de 12**, pero en paladín deja un **empate a cuatro**.
+
+Un empate no es una deducción, así que queda declarado como pendiente con la
+medición dentro. Metamagias e invocaciones están bloqueadas por otra cosa: la
+base las trae como bloque de texto dentro de un rasgo, no como registros con
+nombre, y hay que decidir la forma antes de escribir el módulo.
+
+### 16.5 · Un hallazgo que no toca a esta fase
+
+El bárbaro tiene **dos rasgos distintos con el mismo nombre** —«Golpe brutal
+mejorado» en N13 y en N17—, y el pack los distingue con un «(2)». La
+duplicación es fiel al manual, pero significa que **el nombre no es clave**: un
+orquestador que elija rasgos por nombre no puede distinguirlos. No se ha
+tocado; queda anotado aquí porque el chequeo que lo detecte va en `validar.py`,
+con su prueba por mutación, y eso es trabajo propio.
+
+### Cifras al cerrar
+
+```
+validar.py             0 errores
+verificar_srd           646 valores · 0 discrepancias
+verificar_foundry      3691 valores · 0 discrepancias  (eran 3020)
+externo total          4337 valores
+censo.py                867 unidades · 0 sin declarar · 594 pendientes
+mutaciones_foundry      42/42 (eran 29)
+mutaciones_censo        20/20 (eran 18)
+verificar_chequeos      65 silenciosas · 12 TOLERADO · línea base 64
+17/17 fichas · barrido 240/240 · verificar_documentos en verde
+```

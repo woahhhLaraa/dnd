@@ -25,10 +25,17 @@
 > documento del que hay que avisar «no lo leas» es un documento que ya sobra.
 > Sigue en el historial de git si alguna vez hace falta.
 
-Última actualización: **2026-09-02** — **`PLAN_19` escrito y su fase 1 hecha**:
-el verificador ya no aprueba fichas multiclase sin comprobarlas (eran **cuatro**
-chequeos degradados a aviso, no tres), los dos chequeos que solo avisaban son
-error, y el repo declara y comprueba su entorno. Antes, los **bloques A, B, A2,
+Última actualización: **2026-09-03** — **`PLAN_19` fases 1, 2 y la primera
+mitad de la 3 hechas**. Lo último (fase 3): el SRD ya contrasta **las 12 clases
+y sus 159 rasgos de clase** —`verificar_foundry` pasa de 3020 a **3691**
+valores—, y el censo aprendió a contar por **rebanadas** del pack, porque
+`classes24/feat` mezclaba cuatro cosas distintas y cerrar una habría dado por
+miradas las otras 96 unidades. Quedan cuatro discrepancias de nivel entre el
+pack y nuestra tabla, declaradas una a una y **pendientes de leer la página**
+(ver `PLAN_19` §16). Antes: la fase 2 borró las conversiones a pies y la fase 1
+dejó de aprobar fichas multiclase sin comprobarlas (eran **cuatro** chequeos
+degradados a aviso, no tres), los dos chequeos que solo avisaban son error, y el
+repo declara y comprueba su entorno. Antes, los **bloques A, B, A2,
 C y D del Plan 18
 hechos**: existe `censo.py`, los 30 chequeos `validar_*` tienen prueba por
 mutación, las cuatro listas escritas a mano del §2 están cerradas, los efectos
@@ -50,9 +57,9 @@ se conserva por su investigación sobre Foundry y DiceCloud.
 ```bash
 python3 validar.py            # 0 errores · 2,6 s
 python3 verificar_srd.py      # 646 valores · 0 discrepancias
-python3 verificar_foundry.py  # 3020 valores · 0 discrepancias
+python3 verificar_foundry.py  # 3691 valores · 0 discrepancias
 python3 cobertura.py          # 262 preguntas · 0 sin responder
-python3 censo.py              # 697 unidades · 0 sin declarar · 492 pendientes
+python3 censo.py              # 867 unidades · 0 sin declarar · 594 pendientes
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 17/17
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240 · 136 s
 ```
@@ -79,7 +86,7 @@ el 2026-08-31 sin nada que la hiciera cumplir, y el propio repo ya tenía escrit
 la lección en `FUENTES.md:208`: *«una regla en prosa no impide nada»*. Desde el
 **2026-09-02** hay un script que enumera **siete clases de unidad** de la base y
 exige que cada una esté alcanzada por algún chequeo o declarada con su motivo en
-`_verificacion/censo_exenciones.yaml`. Hoy: **697 unidades, 0 sin declarar**. El
+`_verificacion/censo_exenciones.yaml`. Hoy: **867 unidades, 0 sin declarar**. El
 día que aparezca la novena lista, lo canta el censo.
 
 **4. Los 30 chequeos `validar_*` YA tienen prueba por mutación** (eran 11 el
@@ -204,7 +211,7 @@ importante: *consultar, no recordar*.
 ```bash
 python3 validar.py            # coherencia interna    -> 0 errores
 python3 verificar_srd.py      # contraste externo     -> 646 valores, 0 discrepancias
-python3 verificar_foundry.py  # contraste externo     -> 3020 valores, 0 discrepancias
+python3 verificar_foundry.py  # contraste externo     -> 3691 valores, 0 discrepancias
 python3 cobertura.py          # ¿puede responder?     -> 0 preguntas sin responder
 python3 censo.py              # ¿algo sin chequeo?    -> 0 unidades sin declarar
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 12/12
@@ -216,7 +223,7 @@ Y las pruebas por mutación, que es lo que da derecho a fiarse de lo anterior:
 python3 _verificacion/mutaciones_dados.py         # dados
 python3 _verificacion/mutaciones_conversiones.py  # conversiones de unidad
 python3 _verificacion/mutaciones_integridad.py    # tirada, vecindad, ortografía -> 24/24
-python3 _verificacion/mutaciones_foundry.py       # contraste externo            -> 29/29
+python3 _verificacion/mutaciones_foundry.py       # contraste externo            -> 42/42
 ```
 
 Y las tres del bloque B (2026-09-02), que cierran los 19 chequeos que no
@@ -226,7 +233,7 @@ tenían red, más la del censo:
 python3 _verificacion/mutaciones_aritmetica.py    # los 5 de aritmética  -> 32/32
 python3 _verificacion/mutaciones_contenido.py     # los 11 de contenido  -> 49/49
 python3 _verificacion/mutaciones_referencias.py   # los 3 de referencias -> 10/10
-python3 _verificacion/mutaciones_censo.py         # el propio censo      -> 18/18
+python3 _verificacion/mutaciones_censo.py         # el propio censo      -> 20/20
 ```
 
 **No hace falta acordarse de ninguna:** `verificar_documentos.py` las descubre
@@ -333,7 +340,7 @@ está en disco y es reproducible con los cuatro comandos de arriba.
    especies, dotes, trasfondos y herramientas contra el SRD 5.2 estructurado.
    **No traduce: empareja por claves independientes del idioma y deduce los
    vocabularios**, exigiendo que sean biyecciones. Probado por mutación en
-   `_verificacion/mutaciones_foundry.py` → **29/29**.
+   `_verificacion/mutaciones_foundry.py` → **42/42**.
 
 3. **Cuatro auditorías visuales con 12 agentes Sonnet** (tres tandas de 4),
    ficheros disjuntos, informes en `_verificacion/_auditoria_rasgos/`. Los
@@ -1073,7 +1080,7 @@ puntos sí eran nuevos y se contrastaron contra el código real:
 | `buscar.py` | Consulta determinista que falla ruidosamente (clase/conjuro/objeto inexistente → error, nunca `[]`) |
 | `verificar_personaje.py` | Trazabilidad de una ficha: cada `ref:` real, `calculado` recalculado y comparado |
 | `verificar_foundry.py` | Contraste ancho contra el SRD 5.2 estructurado en 6 módulos (conjuros, armas, armaduras, especies, dotes, trasfondos). No traduce: empareja por claves independientes del idioma y deduce los vocabularios, exigiendo que sean biyecciones |
-| `_verificacion/mutaciones_foundry.py` | Prueba por mutación del anterior (29/29; tarda >10 min) |
+| `_verificacion/mutaciones_foundry.py` | Prueba por mutación del anterior (42/42; tarda >10 min) |
 | `_verificacion/_auditoria_rasgos/` | Informes de las dos auditorías visuales (rasgos de clase, subclases, especies) y los dos briefings que se dieron a los agentes |
 | `_verificacion/glosario_especies.yaml` | Único puente es↔en escrito a mano, y solo porque son nombres propios; cada pareja se comprueba con velocidad + visión en la oscuridad |
 | `efectos.py` · `reglas/efectos.yaml` · `reglas/_ESQUEMA_efectos.md` | **Motor de efectos (Fase 14)**: las reglas de personaje como dato citado junto al rasgo que las concede, no como `if` de Python |
@@ -1158,6 +1165,6 @@ Offset confirmado en todo el manual: **página_pdf = página_libro + 2**.
    con `glob` en 14 sitios— y era el ejemplo que los demás no siguieron.
 
    **El corolario, y es el que duele:** se verificaba con obsesión que los
-   datos escritos fueran correctos (3666 valores externos, 149 mutaciones) y
+   datos escritos fueran correctos (4337 valores externos, y las mutaciones) y
    **no se verificaba nunca que estuvieran todos**. Comprobar la calidad de
    lo que hay no dice nada de lo que falta.

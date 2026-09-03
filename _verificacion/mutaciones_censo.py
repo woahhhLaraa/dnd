@@ -96,9 +96,15 @@ def u_rasgo_nuevo(r):
 # ══ El alcanzador que se vacía ════════════════════════════════════════════
 
 def a_mapa_recortado(r):
-    _sust(r, "verificar_srd.py", '"Sneak Attack":"ataque_furtivo"', '')
-    return ("`verificar_srd.MAPA` pierde la única columna del Pícaro: el "
-            "contraste sigue en verde y ya no contrasta nada de esa clase")
+    # Apuntaba a `"Sneak Attack":"ataque_furtivo"` hasta que `verificar_clases()`
+    # (2026-09-03) empezó a contrastar esa misma columna por la escala del pack:
+    # quitarla del MAPA dejó de dejarla sin mirar, así que la mutación pasó a
+    # decir la verdad —no hay hueco— en vez de a probar el censo. Se muda a
+    # `enemigo_predilecto`, que hoy SOLO alcanza `verificar_srd.MAPA`.
+    _sust(r, "verificar_srd.py", '"Favored Enemy":"enemigo_predilecto", ', '')
+    return ("`verificar_srd.MAPA` pierde `enemigo_predilecto`, la única "
+            "columna del Explorador que no contrasta ninguna escala: el "
+            "contraste sigue en verde y esa columna ya no la mira nadie")
 
 
 # ══ Promesas de cobertura que no se sostienen ═════════════════════════════
@@ -122,8 +128,11 @@ def p_promesa_sin_etiqueta(r):
 # ══ El manifiesto podrido ═════════════════════════════════════════════════
 
 def m_declaracion_muerta(r):
-    _sust(r, MANIFIESTO, '  - unidad: "columna:druida.forma_salvaje"',
-          '  - unidad: "columna:druida.forma_lunar"')
+    # Apuntaba a `columna:druida.forma_salvaje` hasta que `verificar_clases()`
+    # cerró ese hueco contra las escalas del pack y el censo mismo marcó la
+    # declaración como muerta. Se muda a una exención que sigue viva.
+    _sust(r, MANIFIESTO, '  - unidad: "columna:barbaro.n"',
+          '  - unidad: "columna:barbaro.nivel"')
     return ("una declaración que ya no corresponde a ninguna unidad: da por "
             "mirado lo que nadie mira, que es como empezaron los ocho")
 
@@ -195,11 +204,34 @@ def n_exencion_con_motivo(r):
             "para eso está el manifiesto")
 
 
+def u_rebanada_estrechada(r):
+    """La rebanada existe desde el 2026-09-03: `paquete(c, t, sub=...)` promete
+    UNA subcarpeta del pack y no el `type` entero. Si el censo no leyera el
+    `sub=`, un módulo podría cambiar de rebanada y las 159 unidades que dejó de
+    mirar seguirían contadas como alcanzadas."""
+    _sust(r, "verificar_foundry.py",
+          'paquete("classes24", "feat", sub="class-features")',
+          'paquete("classes24", "feat", sub="metamagic-options")')
+    return ("`verificar_rasgos_clase` cambia de rebanada: los 159 rasgos de "
+            "clase salen del contraste y el módulo sigue pidiendo el mismo pack")
+
+
+def u_rebanada_nueva(r):
+    (r / "_verificacion" / "foundry_srd52" / "classes24" / "barbarian"
+     / "class-features-2").mkdir(parents=True)
+    (r / "_verificacion" / "foundry_srd52" / "classes24" / "barbarian"
+     / "class-features-2" / "inventado.yml").write_text(
+        "_id: xxx\nname: Made Up\ntype: feat\nsystem: {}\n", encoding="utf-8")
+    return ("una rebanada nueva en el pack: nadie la pide y el censo la tiene "
+            "que ver como unidad propia, no diluida en `classes24/feat`")
+
+
 DEBEN = [u_fichero_de_regla, u_variable_calculable, u_columna_de_clase,
          u_chequeo_nuevo, u_dato_externo, a_mapa_recortado,
          p_promesa_a_chequeo_inexistente, p_promesa_sin_etiqueta,
          m_declaracion_muerta, m_declaracion_borrada, m_comodin_en_exentas,
-         m_exenta_y_pendiente, u_rasgo_nuevo]
+         m_exenta_y_pendiente, u_rasgo_nuevo,
+         u_rebanada_estrechada, u_rebanada_nueva]
 NO_DEBEN = [n_rasgo_no_automatizado, n_fichero_fuera_de_regla,
             n_columna_ya_contrastada, n_suite_sin_chequeos, n_exencion_con_motivo]
 # Mutaciones que NO deben hacer fallar al censo pero SÍ subir su recuento.

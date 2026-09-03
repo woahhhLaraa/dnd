@@ -60,6 +60,7 @@ chequeos las exige. El censo cuenta cobertura, no calidad.
     python3 censo.py --breve   # solo la última línea
 """
 import ast
+import fnmatch
 import functools
 import glob
 import pathlib
@@ -159,15 +160,37 @@ def fila_columnas():
     for arch, (_nom_en, cols) in S.MAPA.items():
         for campo in cols.values():
             alcanzadas.add(f"columna:{arch}.{campo}")
+
+    # ── Segundo alcanzador (fase 3 del PLAN_19, 2026-09-02) ──────────────
+    # `verificar_foundry.verificar_clases()` contrasta las columnas contra los
+    # `ScaleValue` del pack `classes24`, que es la fuente que el SRD de Open5e
+    # no publica. Con eso entran `forma_salvaje` y `mov_sin_armadura_m`, las
+    # dos únicas que estaban declaradas como pendientes en esta fila.
+    #
+    # Se lee el mapa que el módulo usa de verdad, no una copia: si alguien
+    # quita una escala de ahí, la columna vuelve a salir como hueco.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("_vf", B / "verificar_foundry.py")
+    vf = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(vf)
+    for columna in vf._ESCALA_A_COLUMNA.values():
+        for uid in list(universo):
+            if uid.endswith("." + columna):
+                alcanzadas.add(uid)
     return Fila("columna", "columnas de tabla de clase", universo, alcanzadas,
-                "verificar_srd.MAPA")
+                "verificar_srd.MAPA y las escalas de verificar_foundry")
 
 
 # ══ Fila 4 · categorías de dato externo ═══════════════════════════════════
 def _tipos_de_paquete():
-    """El universo real: (carpeta, `type`) con cuántos registros hay en cada
-    par. La carpeta sola no vale — `equipment24` trae seis `type` distintos y
-    los módulos solo piden tres."""
+    """El universo real: (carpeta, rebanada, `type`) con cuántos registros hay
+    en cada terna. La carpeta sola no vale — `equipment24` trae seis `type`
+    distintos y los módulos solo piden tres—, y el par (carpeta, `type`)
+    tampoco: `classes24/feat` mete en el mismo saco los rasgos de clase, los
+    de subclase, las metamagias y las invocaciones, que son cuatro cosas con
+    cuatro contrastes distintos. La `rebanada` es la carpeta contenedora del
+    fichero, que es como el propio pack los agrupa; no la elegimos nosotros.
+    """
     F = B / "_verificacion" / "foundry_srd52"
     if not F.exists():
         raise ErrorDeCenso(f"falta {F} (ver _verificacion/LEEME.md)")
@@ -186,17 +209,23 @@ def _tipos_de_paquete():
             if ln.startswith("type:"):
                 tipo = ln.split(":", 1)[1].strip().strip("\"'") or None
                 break
-        carpeta = pathlib.Path(f).relative_to(F).parts[0]
-        cuenta[(carpeta, tipo)] = cuenta.get((carpeta, tipo), 0) + 1
+        rel = pathlib.Path(f).relative_to(F)
+        carpeta, rebanada = rel.parts[0], pathlib.Path(f).parent.name
+        clave = (carpeta, rebanada, tipo)
+        cuenta[clave] = cuenta.get(clave, 0) + 1
     return cuenta
 
 
 def _pares_pedidos():
-    """Los `paquete(carpeta, tipo)` que piden los módulos de
-    `verificar_foundry.py`, leídos de sus llamadas reales.
+    """Las ternas `(carpeta, rebanada, tipo)` que piden los módulos de
+    `verificar_foundry.py`, leídas de sus llamadas reales.
 
     No se lee `MODULOS` —que solo dice qué módulos hay, no qué tocan— sino el
     argumento de cada llamada. Un módulo que deje de pedir un pack se nota.
+
+    La `rebanada` es `None` cuando la llamada no pasa `sub=`, y eso significa
+    «me hago cargo del `type` entero»: alcanza todas las rebanadas. Con `sub=`
+    alcanza solo esa, y las demás siguen siendo pendientes con nombre propio.
     """
     src = (B / "verificar_foundry.py").read_text(encoding="utf-8")
     arbol = ast.parse(src)
@@ -214,23 +243,40 @@ def _pares_pedidos():
             tipo = None
             if len(n.args) > 1 and isinstance(n.args[1], ast.Constant):
                 tipo = n.args[1].value
+            rebanada = None
             for kw in n.keywords:
                 if kw.arg == "tipo" and isinstance(kw.value, ast.Constant):
                     tipo = kw.value.value
-            pares.add((carpeta, tipo))
+                if kw.arg == "sub":
+                    if not isinstance(kw.value, ast.Constant):
+                        raise ErrorDeCenso(
+                            f"llamada a paquete() con sub= no literal en "
+                            f"{fn.name}(): el censo no puede saber qué "
+                            f"rebanada promete")
+                    rebanada = kw.value.value
+            pares.add((carpeta, rebanada, tipo))
     return pares
+
+
+def _uid_externo(carpeta, rebanada, tipo):
+    return f"externo:{carpeta}/{rebanada}/{tipo}"
 
 
 def fila_datos_externos():
     cuenta = _tipos_de_paquete()
-    universo = {f"externo:{c}/{t}": f"{n} registro" + ("s" if n != 1 else "")
-                for (c, t), n in cuenta.items()}
+    universo = {_uid_externo(*k): f"{n} registro" + ("s" if n != 1 else "")
+                for k, n in cuenta.items()}
 
     pedidos = _pares_pedidos()
     alcanzadas = set()
-    for (carpeta, tipo) in cuenta:
-        if (carpeta, tipo) in pedidos or (carpeta, None) in pedidos:
-            alcanzadas.add(f"externo:{carpeta}/{tipo}")
+    for (carpeta, rebanada, tipo) in cuenta:
+        # `None` en la rebanada pedida = el `type` entero; `None` en el tipo
+        # pedido = el pack entero. Los dos comodines son de la LLAMADA, no del
+        # manifiesto: los escribe quien se hace cargo, no quien perdona.
+        if any((carpeta, sub_p, tipo_p) in pedidos
+               for sub_p in (rebanada, None)
+               for tipo_p in (tipo, None)):
+            alcanzadas.add(_uid_externo(carpeta, rebanada, tipo))
     return Fila("externo", "categorías de dato externo", universo, alcanzadas,
                 "verificar_foundry.paquete()")
 
@@ -447,8 +493,17 @@ def cargar_manifiesto():
 # que nadie lee es la novena lista a mano. Se admite `prefijo:*` para declarar
 # un GRUPO — pero solo en `pendientes`, y el informe imprime siempre cuántas
 # unidades cubre cada comodín: un comodín que crece se ve crecer.
+#
+# El `*` vale en cualquier posición, no solo al final, porque desde que la
+# fila 4 cuenta rebanadas la parte que varía suele estar EN MEDIO
+# (`externo:equipment24/*/container` son 30 contenedores repartidos en 30
+# carpetas del pack). Un comodín de prefijo obligaría a declarar
+# `externo:equipment24/*`, que se tragaría también las armas y las
+# herramientas —que sí están contrastadas— si algún día dejaran de estarlo.
 def _casa(uid, patron):
-    return patron == uid or (patron.endswith("*") and uid.startswith(patron[:-1]))
+    if patron == uid:
+        return True
+    return "*" in patron and fnmatch.fnmatchcase(uid, patron)
 
 
 def _declarada(uid, declaraciones):

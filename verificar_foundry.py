@@ -47,14 +47,30 @@ def cargar_yaml(p):
     return yaml.safe_load(pathlib.Path(p).read_text(encoding="utf-8"))
 
 
-def paquete(carpeta, tipo=None):
-    """Todos los registros de un pack de Foundry, opcionalmente de un `type`."""
+def paquete(carpeta, tipo=None, sub=None):
+    """Todos los registros de un pack de Foundry, opcionalmente de un `type`.
+
+    `sub` acota a los registros cuya carpeta contenedora se llama así —el
+    pack los agrupa por su cuenta: `classes24/barbarian/class-features/`,
+    `equipment24/martial-melee/`—. Sirve para pedir UNA rebanada cuando el
+    resto del `type` todavía no se contrasta, y `censo.py` lo lee: un
+    `paquete(c, t)` sin `sub` promete el `type` entero, y uno con `sub`
+    promete solo esa rebanada y deja las demás como pendientes con nombre.
+    Así una cobertura parcial se ve, en vez de disfrazarse de completa.
+    """
     for f in sorted(glob.glob(str(FOUNDRY / carpeta / "**" / "*.yml"), recursive=True)):
         if "_folder" in f:
+            continue
+        if sub is not None and pathlib.Path(f).parent.name != sub:
             continue
         d = cargar_yaml(f)
         if tipo and d.get("type") != tipo:
             continue
+        # La ruta viaja con el registro porque el pack guarda información en
+        # ella —de qué clase es el rasgo, en qué rebanada vive— que no está
+        # dentro del YAML. La clave lleva guion bajo para que se distinga de
+        # los campos que el pack sí trae.
+        d["_ruta"] = f
         yield d
 
 
@@ -1180,6 +1196,510 @@ def verificar_conjuros_clases():
 
 
 # ── Orquestación ──────────────────────────────────────────────────────────
+
+# ── 19-1 · Clases (bloque H / fase 3 del PLAN_19) ─────────────────────────
+#
+# `classes24` es el pack más grande que **nadie pedía**: 12 clases con sus
+# advancements, 12 subclases y 255 rasgos. El censo (bloque A) lo midió y lo
+# declaró como pendiente; esto abre la primera mitad.
+#
+# Lo que se contrasta aquí son los 12 registros `class`, que traen cuatro
+# superficies que ninguna otra fuente cubría:
+#
+#   · `hd.denomination`      → nuestro `dado_golpe`
+#   · `spellcasting`         → nuestro `lanzador`
+#   · `wealth`               → el oro de la última opción de equipo inicial
+#   · `advancement.ScaleValue` → las columnas numéricas de la progresión,
+#     **incluidas las dos que el SRD de Open5e no publica** y que por eso
+#     estaban declaradas como pendientes en el censo: `forma_salvaje` del
+#     Druida y `mov_sin_armadura_m` del Monje.
+#
+# El mapa escala→columna es vocabulario de traducción, no cobertura escrita a
+# mano: lo que NO se admite es que sobre o falte algo en silencio. Toda escala
+# de Foundry tiene que estar mapeada o declarada, y toda columna nuestra tiene
+# que estar contrastada o declarada. Lo que quede fuera sale en el informe.
+
+# El mapa clase→nombre inglés **no se copia**: vive en `verificar_srd.MAPA` y
+# se lee de allí. Duplicarlo sería el defecto nº 4 del §2 del PLAN_18 otra vez.
+_ESCALA_A_COLUMNA = {
+    "Rages": "furias",
+    "Rage Damage": "dano_furia",
+    "Weapon Masteries Known": "maestria_armas",
+    "Cantrips Known": "trucos",
+    "Max Prepared Spells": "prep",
+    "Max Pact Magic Spells": "prep",
+    "Inspiration Die": "dado",
+    "Channel Divinity Uses": "canalizar",
+    "Wild Shape Uses": "forma_salvaje",
+    "Second Wind": "tomar_aliento",
+    "Martial Arts Die": "artes_marciales",
+    "Unarmored Movement": "mov_sin_armadura_m",
+    "Focus Points": "puntos_concentracion",
+    "Sneak Attack": "ataque_furtivo",
+    "Sorcery Points": "puntos_hechiceria",
+    "Eldritch Invocations Known": "invocaciones",
+}
+
+# Escalas que Foundry modela y nuestra tabla NO tiene como columna.
+#
+# ⚠ NO son exenciones: son **candidatas a columna que nos falte**, y ésa es
+# justamente la clase de hallazgo que este contraste existe para producir. Se
+# listan con lo que habría que mirar en la página, y hasta que alguien la lea
+# se quedan aquí en vez de desaparecer. Confirmarlas o descartarlas es lectura
+# visual, con el protocolo de `CONTINUAR.md` (§ Método de lectura visual).
+_ESCALA_SIN_COLUMNA = {
+    "Brutal Strike": "Bárbaro · dados de Golpe brutal por nivel",
+    "Divine Strike": "Clérigo · dados de Golpe divino por nivel",
+    "Wild Shape CR": "Druida · VD máximo de la bestia (0,25 / 0,5 / 1)",
+    "Known Forms": "Druida · formas conocidas",
+    "Elemental Fury": "Druida · dados de Furia elemental",
+    "Action Surge": "Guerrero · usos de Oleada de acción",
+    "Indomitable": "Guerrero · usos de Indomable",
+    "Aura Distance": "Paladín · alcance del aura, en pies",
+}
+
+# Columnas nuestras que Foundry no modela como escala, con su motivo.
+_COLUMNA_SIN_ESCALA = {
+    "n": "el índice de nivel, no un dato",
+    "pb": "el bonificador por competencia; `validar_clase` lo recalcula con la fórmula del manual",
+    "slots": "los espacios de conjuro; los contrasta `validar_clase` contra la tabla citada de reglas/generacion_personaje.yaml",
+    "espacios": "ídem, la columna del Brujo",
+    "nivel_espacios": "nivel de los espacios del Brujo; lo contrasta verificar_srd.py contra 'Slot Level'",
+    "enemigo_predilecto": "Explorador; lo contrasta verificar_srd.py contra 'Favored Enemy'",
+    "rasgos": "la lista de rasgos, no una cifra",
+}
+
+# Celdas concretas en que la escala del SRD discrepa de nuestra tabla y la
+# discrepancia está EXPLICADA. Como en `EXCEPCIONES_DETALLE`, cada una dice qué
+# evidencia la sostiene — y aquí, además, qué evidencia NO tiene: ninguna de
+# estas se ha vuelto a leer en la página, así que se apoyan en lo que la propia
+# base ya trae citado. Si algún día se lee y dice otra cosa, manda el manual.
+# La clave es (clase, columna, nivel); el valor, la terna
+# (lo_nuestro, lo_del_SRD, motivo). Los dos primeros NO son decorado: la
+# excepción solo calla si AMBOS lados siguen valiendo exactamente lo que se
+# examinó. Si cambia el nuestro, la excepción ya no lo ampara; si cambia el
+# del SRD, la fuente externa ha dicho otra cosa y hay que volver a mirar. Sin
+# eso, una excepción sería una venda permanente sobre esa celda —justo la
+# amenaza nº 3 del FODA: la tolerancia que se vuelve deuda invisible—.
+_EXCEPCIONES_ESCALA = {
+    ("Monje", "puntos_concentracion", 1): (0, 1, 
+        "Foundry modela «Focus Points» como una escala lineal value = nivel, "
+        "con 1 en el nivel 1. Nuestra tabla pone 0, y la base lo sostiene "
+        "sola: el rasgo que concede los puntos, «Concentración de monje», es "
+        "de NIVEL 2 (pdf 151 = libro 149) y su propio texto transcrito dice "
+        "«2 en nivel 2, según la columna \"Puntos de concentración\" de la "
+        "tabla, hasta 20 en nivel 20». Un monje de nivel 1 no tiene el rasgo, "
+        "así que no tiene puntos. La forma de la escala de Foundry —lineal "
+        "perfecta de 1 a 20— es la de una fórmula, no la de una columna "
+        "impresa con un hueco. NO se ha releído la página para esta celda: la "
+        "evidencia es interna y está citada."),
+}
+
+# 5 pies = 1,5 m. Es el factor DE JUEGO, el mismo que usa
+# `validar_conversiones()`, y no el físico (3,28084): medido sobre la base, el
+# de juego deja las conversiones exactas y el físico solo la mitad.
+_PIES_POR_METRO = 5 / 1.5
+
+
+def _escala_expandida(scale, niveles=20):
+    """La escala dispersa de Foundry, extendida a los 20 niveles.
+
+    Foundry solo lista los niveles en que el valor CAMBIA; nuestra progresión
+    los lista todos, arrastrando el valor y poniendo 0 antes de que empiece.
+    """
+    out, actual = {}, 0
+    puntos = {int(k): v.get("value") for k, v in (scale or {}).items()
+              if isinstance(v, dict)}
+    for n in range(1, niveles + 1):
+        if n in puntos:
+            actual = puntos[n]
+        out[n] = actual
+    return out
+
+
+def _nuestra_columna(doc, columna):
+    return {f["n"]: f.get(columna) for f in (doc.get("progresion") or [])
+            if isinstance(f, dict) and "n" in f}
+
+
+def verificar_clases():
+    inf = Informe("clases")
+    import verificar_srd as SRD
+
+    # nombre inglés -> stem nuestro, leído del mapa que ya existe
+    por_nombre_en = {en: stem for stem, (en, _cols) in SRD.MAPA.items()}
+    voc_lanzador = Vocabulario("progresión de lanzador")
+
+    vistas = set()
+    for d in paquete("classes24", "class"):
+        nom_en = d.get("name")
+        stem = por_nombre_en.get(nom_en)
+        if stem is None:
+            inf.error(f"la clase {nom_en!r} del pack no está en verificar_srd.MAPA: "
+                      f"o el SRD trae una clase que no tenemos, o el mapa se quedó corto")
+            continue
+        vistas.add(stem)
+        p = B / "clases" / f"{stem}.yaml"
+        if not p.exists():
+            inf.error(f"falta clases/{stem}.yaml para la clase {nom_en!r} del pack")
+            continue
+        doc = cargar_yaml(p)
+        ab = (doc.get("atributos_basicos") or {})
+        s = d.get("system") or {}
+        ctx = f"{doc.get('clase', stem)}"
+
+        # ── dado de golpe ────────────────────────────────────────────────
+        hd = (s.get("hd") or {}).get("denomination")
+        if hd:
+            inf.comprobados += 1
+            if str(ab.get("dado_golpe") or "").strip() != str(hd).strip():
+                inf.error(f"{ctx}: dado de golpe nuestro "
+                          f"{ab.get('dado_golpe')!r} vs SRD {hd!r}")
+
+        # ── tipo de lanzador ─────────────────────────────────────────────
+        prog = ((s.get("spellcasting") or {}).get("progression") or "").strip()
+        if prog:
+            inf.comprobados += 1
+            voc_lanzador.observa(prog, str(doc.get("lanzador") or "").strip(), ctx)
+
+        # ── el oro de la última opción de equipo inicial ─────────────────
+        # El manual cierra siempre con una opción que es solo oro (lo exige
+        # `validar_atributos_basicos`), así que es comparable con `wealth`.
+        wealth = s.get("wealth")
+        eq = ab.get("equipo_inicial") or {}
+        if wealth is not None and eq:
+            ultima = str(eq[sorted(eq)[-1]]).strip()
+            m = re.fullmatch(r"(\d+)\s*po", ultima)
+            inf.comprobados += 1
+            if not m:
+                inf.error(f"{ctx}: la última opción de equipo es {ultima!r} y no "
+                          f"una cifra de oro, así que no se puede contrastar "
+                          f"con el `wealth` {wealth} del SRD")
+            elif int(m.group(1)) != int(wealth):
+                inf.error(f"{ctx}: oro inicial nuestro {m.group(1)} po vs "
+                          f"SRD {wealth}")
+
+        # ── las escalas por nivel ────────────────────────────────────────
+        nuestras_cols = set()
+        for fila in (doc.get("progresion") or []):
+            if isinstance(fila, dict):
+                nuestras_cols |= set(fila)
+        cubiertas = set()
+        for a in s.get("advancement") or []:
+            if not isinstance(a, dict) or a.get("type") != "ScaleValue":
+                # TOLERADO: los demás `advancement` del SRD —competencias,
+                # dado de golpe, elección de subclase, concesión de rasgos—
+                # no son columnas de la tabla de clase, que es lo único que
+                # este bloque contrasta. Lo que sí son columnas nuestras y
+                # aquí no aparece lo caza el barrido de abajo
+                # (`nuestras_cols - cubiertas`), que no perdona ninguna.
+                continue
+            titulo = a.get("title")
+            columna = _ESCALA_A_COLUMNA.get(titulo)
+            if columna is None:
+                if titulo not in _ESCALA_SIN_COLUMNA:
+                    inf.error(
+                        f"{ctx}: el SRD trae la escala {titulo!r} y nadie ha "
+                        f"decidido qué columna nuestra es. O se mapea, o se "
+                        f"declara como columna que nos falta")
+                else:
+                    inf.nota(f"{ctx} · el SRD modela {titulo!r} como escala y "
+                             f"nuestra tabla no tiene esa columna — "
+                             f"{_ESCALA_SIN_COLUMNA[titulo]}. Candidata a "
+                             f"columna que falte: pendiente de leer la página")
+                continue
+            if columna not in nuestras_cols:
+                inf.error(f"{ctx}: la escala {titulo!r} debería ser la columna "
+                          f"{columna!r} y la progresión no la tiene")
+                continue
+            cubiertas.add(columna)
+            cfg = a.get("configuration") or {}
+            esperado = _escala_expandida(cfg.get("scale"))
+            unidades = ((cfg.get("distance") or {}).get("units") or "")
+            nuestra = _nuestra_columna(doc, columna)
+            for n in range(1, 21):
+                v_srd, v_nuestro = esperado.get(n), nuestra.get(n)
+                if v_srd is None or v_nuestro is None:
+                    # TOLERADO: un nivel que una de las dos tablas no lista no
+                    # es una discrepancia. Que la columna entera falte sí lo
+                    # es, y lo dice el chequeo de arriba.
+                    continue
+                inf.comprobados += 1
+                exc = _EXCEPCIONES_ESCALA.get((ctx, columna, n))
+                if exc:
+                    esp_nuestro, esp_srd, motivo = exc
+                    if (norm_txt(v_nuestro) == norm_txt(esp_nuestro)
+                            and norm_txt(v_srd) == norm_txt(esp_srd)):
+                        inf.nota(f"{ctx} N{n} · `{columna}`: discrepa del SRD y "
+                                 f"mandamos nosotros — {motivo}")
+                        continue
+                    inf.error(
+                        f"{ctx} N{n}: `{columna}` está declarada como excepción "
+                        f"para el par (nuestro {esp_nuestro!r}, SRD {esp_srd!r}) "
+                        f"y hoy el par es (nuestro {v_nuestro!r}, SRD {v_srd!r}). "
+                        f"La excepción ampara UN caso examinado, no la celda: o "
+                        f"se vuelve a mirar, o se actualiza la declaración")
+                    continue
+                if unidades == "ft":
+                    # El SRD da pies y nosotros metros: se compara en pies con
+                    # el factor de juego, igual que `alcance.pies`.
+                    try:
+                        propio = float(str(v_nuestro).replace(",", ".")) * _PIES_POR_METRO
+                    except ValueError:
+                        inf.error(f"{ctx} N{n}: `{columna}` es {v_nuestro!r} y "
+                                  f"no es un número")
+                        continue
+                    if abs(propio - float(v_srd)) > 0.5:
+                        inf.error(f"{ctx} N{n}: `{columna}` nuestro {v_nuestro} m "
+                                  f"son {propio:g} pies y el SRD da {v_srd}")
+                elif norm_txt(v_nuestro) != norm_txt(v_srd):
+                    inf.error(f"{ctx} N{n}: `{columna}` nuestro {v_nuestro!r} vs "
+                              f"SRD {v_srd!r} (escala {titulo!r})")
+
+        # Y al revés: ninguna columna nuestra puede quedarse sin decidir.
+        for col in sorted(nuestras_cols - cubiertas):
+            if col in _COLUMNA_SIN_ESCALA:
+                # TOLERADO: lo cubre `_COLUMNA_SIN_ESCALA`, que enumera una a
+                # una —con su motivo— las columnas nuestras que este pack no
+                # publica como escala. Una columna nueva que no esté ahí cae
+                # en el `inf.error` de tres líneas más abajo; y una entrada
+                # muerta de esa lista la caza `censo.py`, que exige que toda
+                # declaración corresponda a algo que existe.
+                continue
+            _, cols_srd = SRD.MAPA.get(stem, (None, {}))
+            if col in cols_srd.values():
+                # TOLERADO: lo cubre `verificar_srd.py`, que contrasta esta
+                # misma columna contra el mismo pack por otro camino (su
+                # `MAPA`). Callar aquí evita contarla dos veces; si dejara de
+                # contrastarla, desaparecería de `cols_srd` y esta rama ya no
+                # se tomaría.
+                continue
+            inf.error(f"{ctx}: la columna {col!r} no la contrasta ni "
+                      f"`verificar_srd.py` ni ninguna escala de este pack, y "
+                      f"no está declarada en `_COLUMNA_SIN_ESCALA`")
+
+    faltan = set(SRD.MAPA) - vistas
+    if faltan:
+        inf.error(f"clases de nuestra base que el pack no trae: {sorted(faltan)}")
+    for c in voc_lanzador.conflictos():
+        inf.error(c)
+    inf.nota("progresión de lanzador deducida: "
+             + ", ".join(f"{en}→{es}" for en, es in sorted(voc_lanzador.resuelto().items())))
+    return inf
+
+
+# ── 13k · Rasgos de clase ─────────────────────────────────────────────────
+# El pack agrupa los rasgos de clase en `classes24/<clase>/class-features/`, y
+# cada uno declara en `system.prerequisites.level` el nivel al que se obtiene.
+# Eso da una fuente externa para lo que hasta hoy solo decía nuestra
+# transcripción: QUÉ NIVELES de cada clase conceden rasgo y CUÁNTOS.
+#
+# Lo que este módulo NO hace, y conviene decirlo antes que nada: **no empareja
+# los nombres**. Se probó y no sale. De los 146 rasgos con nivel, la unicidad
+# solo fuerza 75 parejas, y de esas solo dos términos ingleses aparecen más de
+# una vez —«Epic Boon» y «Channel Divinity»—, así que la biyección no llega a
+# exigir nada: sería un diccionario escrito a mano con otro nombre. Se
+# contrasta la ESTRUCTURA (nivel a nivel, cuántos rasgos nuevos) que es lo que
+# sí tiene dos fuentes independientes.
+
+# Rasgos que el pack publica SIN nivel. No es un descuido nuestro: Foundry los
+# concede por otra vía (una elección, un `advancement` de la clase) y no les
+# pone `prerequisites.level`. Sin nivel no hay nada que contrastar, así que se
+# enumeran uno a uno —si el pack añade otro, el chequeo lo canta— y se dice
+# quién responde por cada uno.
+_RASGO_SIN_NIVEL = {
+    ("guerrero", "Weapon Mastery"): "nuestra tabla lo pone en N1 y el pack no le da nivel; el dato que sí contrasta es la columna `maestria_armas`, que va por escala",
+    ("paladin", "Fighting Style"): "el pack lo concede como elección de estilo sin nivel; nuestra tabla lo pone en N2",
+    ("explorador", "Extra Attack"): "sin nivel en el pack; nuestra tabla lo pone en N5, igual que guerrero y monje, donde el pack sí lo fecha",
+    ("explorador", "Fighting Style"): "ídem que en paladín: elección de estilo sin nivel; nuestra tabla lo pone en N2",
+    ("picaro", "Slippery Mind"): "sin nivel en el pack; nuestra tabla lo pone en N15",
+}
+
+# Niveles en que las dos fuentes cuentan distinto, con el par EXACTO que se
+# examinó. Igual que `_EXCEPCIONES_ESCALA`: la declaración ampara ese par y no
+# la casilla, así que si cualquiera de los dos lados cambia, la excepción deja
+# de tapar y hay que volver a mirar. Ninguna de estas se ha releído en la
+# página; la evidencia es la que se cita en cada una.
+_EXCEPCIONES_RASGOS = {
+    ("bardo", 9): (
+        (), ("Pericia",),
+        "el manual concede Pericia dos veces (N2 y N9) y el pack la publica "
+        "como un solo rasgo fechado en N2; nuestra tabla lista las dos "
+        "concesiones. Granularidad del pack, no dato distinto"),
+    ("guerrero", 1): (
+        ("Fighting Style", "Second Wind"),
+        ("Estilo de combate", "Maestría con armas", "Tomar aliento"),
+        "sobra `Maestría con armas`, que el pack publica sin nivel (ver "
+        "`_RASGO_SIN_NIVEL`); los otros dos coinciden"),
+    ("guerrero", 13): (
+        ("Studied Attacks",), ("Ataques estudiados", "Indómito (dos usos)"),
+        "sobra la mejora de `Indómito`, que nuestra tabla lista como entrada "
+        "propia en cada nivel en que sube y el pack modela como un solo rasgo "
+        "con usos crecientes"),
+    ("guerrero", 17): (
+        (), ("Acción súbita (dos usos)", "Indómito (tres usos)"),
+        "las dos son mejoras de rasgos ya obtenidos; ver la excepción de N13"),
+    ("monje", 3): (
+        ("Deflect Attacks", "Deflect Energy"), ("Desviar ataques",),
+        "el pack fecha `Deflect Energy` en N3 junto con `Deflect Attacks`; "
+        "nuestra tabla la pone en N13 como rasgo propio. Es la misma "
+        "discrepancia que la excepción de («monje», 13), y las dos siguen "
+        "PENDIENTES DE LEER LA PÁGINA: hasta entonces mandamos nosotros, "
+        "porque `Desviar energía` está transcrito con su página citada"),
+    ("monje", 10): (
+        ("Heightened Focus",), ("Autorrestablecimiento", "Concentración agudizada"),
+        "el pack no trae `Self-Restoration` en ningún nivel: es un hueco SUYO, "
+        "no nuestro. Nuestro `Autorrestablecimiento` está transcrito con "
+        "página citada"),
+    ("monje", 13): (
+        (), ("Desviar energía",),
+        "la otra mitad de la excepción de («monje», 3): el pack la fecha en N3 "
+        "y nosotros en N13. Pendiente de leer la página"),
+    ("explorador", 5): (
+        (), ("Ataque adicional",),
+        "`Extra Attack` lo publica el pack sin nivel (ver `_RASGO_SIN_NIVEL`)"),
+    ("explorador", 13): (
+        (), ("Cazador persistente",),
+        "el pack fecha `Relentless Hunter` en N14 y nuestra tabla en N13. Es "
+        "la misma discrepancia que («explorador», 14) y está PENDIENTE DE LEER "
+        "LA PÁGINA; hasta entonces mandamos nosotros, con la transcripción "
+        "citada"),
+    ("explorador", 14): (
+        ("Nature's Veil", "Relentless Hunter"), ("Velo de la naturaleza",),
+        "la otra mitad de la discrepancia de N13. `Velo de la naturaleza` sí "
+        "coincide en N14"),
+    ("picaro", 2): (
+        ("Cunning Action", "Cunning Strike"), ("Acción astuta",),
+        "el pack fecha `Cunning Strike` en N2 y nuestra tabla en N5. Misma "
+        "discrepancia que («picaro», 5), PENDIENTE DE LEER LA PÁGINA"),
+    ("picaro", 5): (
+        ("Uncanny Dodge",), ("Esquiva asombrosa", "Golpe astuto"),
+        "`Esquiva asombrosa` coincide; sobra `Golpe astuto`, la otra mitad de "
+        "la discrepancia de N2"),
+    ("picaro", 6): (
+        (), ("Pericia",),
+        "segunda concesión de Pericia, como en bardo N9: el pack publica una "
+        "sola, fechada en N1"),
+    ("picaro", 15): (
+        (), ("Mente escurridiza",),
+        "`Slippery Mind` lo publica el pack sin nivel (ver `_RASGO_SIN_NIVEL`)"),
+    ("brujo", 13): (
+        (), ("Arcanum místico (conjuro de nivel 7)",),
+        "el pack publica `Mystic Arcanum` como un solo rasgo fechado en N11; "
+        "nuestra tabla lista las cuatro concesiones (N11, N13, N15, N17), una "
+        "por nivel de conjuro. Granularidad del pack"),
+    ("brujo", 15): (
+        (), ("Arcanum místico (conjuro de nivel 8)",),
+        "ver la excepción de («brujo», 13)"),
+    ("brujo", 17): (
+        (), ("Arcanum místico (conjuro de nivel 9)",),
+        "ver la excepción de («brujo», 13)"),
+}
+
+
+def _indexa_rasgos(registros):
+    """Los rasgos de clase del pack, indexados por carpeta y nivel, con el
+    nombre COLAPSADO en los dos puntos: el pack publica las opciones de un
+    rasgo como registros hermanos («Divine Order», «Divine Order: Protector»,
+    «Divine Order: Thaumaturge») y nuestra tabla concede un rasgo, no tres."""
+    por_nivel = collections.defaultdict(lambda: collections.defaultdict(set))
+    sin_nivel = collections.defaultdict(set)
+    for d in registros:
+        carpeta = pathlib.Path(d["_ruta"]).parts[-3]
+        nivel = ((d.get("system") or {}).get("prerequisites") or {}).get("level")
+        nombre = str(d.get("name") or "").split(":")[0].strip()
+        if nivel is None:
+            sin_nivel[carpeta].add(nombre)
+        else:
+            por_nivel[carpeta][nivel].add(nombre)
+    return por_nivel, sin_nivel
+
+
+def verificar_rasgos_clase():
+    inf = Informe("rasgos de clase")
+    import verificar_srd as SRD
+    por_nombre_en = {en: stem for stem, (en, _cols) in SRD.MAPA.items()}
+
+    # carpeta del pack -> stem nuestro, deducido del registro `class` que hay
+    # en cada una; no se escribe a mano en ningún sitio.
+    carpeta_a_stem = {}
+    for d in paquete("classes24", "class"):
+        stem = por_nombre_en.get(d.get("name"))
+        if stem is not None:
+            carpeta_a_stem[pathlib.Path(d["_ruta"]).parts[-2]] = stem
+
+    idx_nivel, idx_sin = _indexa_rasgos(
+        paquete("classes24", "feat", sub="class-features"))
+
+    usadas_exc, usadas_sn = set(), set()
+    for carpeta, stem in sorted(carpeta_a_stem.items()):
+        p = B / "clases" / "rasgos" / f"{stem}.yaml"
+        if not p.exists():
+            inf.error(f"falta clases/rasgos/{stem}.yaml")
+            continue
+        doc = cargar_yaml(p)
+        ctx = str(doc.get("clase") or stem)
+        nuestros = collections.defaultdict(list)
+        for r in (doc.get("rasgos") or []):
+            if isinstance(r, dict) and "nivel" in r:
+                nuestros[r["nivel"]].append(str(r.get("nombre") or ""))
+
+        por_nivel, sin_nivel = idx_nivel[carpeta], idx_sin[carpeta]
+        for nombre in sorted(sin_nivel):
+            if (stem, nombre) in _RASGO_SIN_NIVEL:
+                # TOLERADO: lo cubre `_RASGO_SIN_NIVEL`, que enumera uno a uno
+                # —con su motivo— los rasgos que el pack publica sin fecha. Uno
+                # nuevo cae en el `inf.error` de aquí abajo, y una entrada
+                # muerta la caza el recuento del final de la función.
+                usadas_sn.add((stem, nombre))
+                continue
+            inf.error(f"{ctx}: el pack publica el rasgo {nombre!r} sin nivel y "
+                      f"nadie ha dicho quién responde por él. O se contrasta, "
+                      f"o se declara en `_RASGO_SIN_NIVEL`")
+
+        for n in sorted(set(por_nivel) | set(nuestros)):
+            suyos = tuple(sorted(por_nivel.get(n, ())))
+            mios = tuple(sorted(nuestros.get(n, ())))
+            if not suyos and not mios:
+                # TOLERADO: un nivel que ninguna de las dos fuentes usa no es
+                # un nivel; aparece solo porque el bucle recorre la unión.
+                continue
+            exc = _EXCEPCIONES_RASGOS.get((stem, n))
+            if exc:
+                esp_s, esp_m, motivo = exc
+                usadas_exc.add((stem, n))
+                if suyos == tuple(sorted(esp_s)) and mios == tuple(sorted(esp_m)):
+                    inf.nota(f"{ctx} N{n} · el pack y nuestra tabla cuentan "
+                             f"distinto y está declarado — {motivo}")
+                    continue
+                inf.error(
+                    f"{ctx} N{n}: hay una excepción declarada para el par "
+                    f"(pack {tuple(esp_s)}, nuestro {tuple(esp_m)}) y hoy el "
+                    f"par es (pack {suyos}, nuestro {mios}). La excepción "
+                    f"ampara lo que se examinó, no el nivel: o se vuelve a "
+                    f"mirar, o se actualiza la declaración")
+                continue
+            if len(suyos) != len(mios):
+                inf.error(
+                    f"{ctx} N{n}: el pack concede {len(suyos)} rasgo(s) "
+                    f"{suyos} y nuestra tabla {len(mios)} {mios}")
+                continue
+            # Cuadran: cada rasgo del pack es una afirmación contrastada sobre
+            # a qué nivel concede rasgo esta clase, y cuántos.
+            inf.comprobados += len(suyos)
+
+    muertas = set(_EXCEPCIONES_RASGOS) - usadas_exc
+    if muertas:
+        inf.error(f"excepciones de `_EXCEPCIONES_RASGOS` que ya no "
+                  f"corresponden a ningún nivel: {sorted(muertas)}. Una "
+                  f"declaración muerta es una venda que nadie ve")
+    muertas_sn = set(_RASGO_SIN_NIVEL) - usadas_sn
+    if muertas_sn:
+        inf.error(f"entradas de `_RASGO_SIN_NIVEL` que el pack ya no publica "
+                  f"sin nivel: {sorted(muertas_sn)}")
+    return inf
+
+
 MODULOS = {
     "conjuros": verificar_conjuros,
     "conjuros-detalle": verificar_conjuros_detalle,
@@ -1190,6 +1710,8 @@ MODULOS = {
     "dotes": verificar_dotes,
     "trasfondos": verificar_trasfondos,
     "herramientas": verificar_herramientas,
+    "clases": verificar_clases,
+    "rasgos-clase": verificar_rasgos_clase,
 }
 
 
