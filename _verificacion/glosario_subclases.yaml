@@ -1,0 +1,104 @@
+# Puente castellano -> inglés para las subclases, usado por verificar_foundry.py
+#
+# Las subclases son NOMBRES PROPIOS, igual que las especies, y este puente se
+# escribe a mano por la misma razón y con la misma cautela que
+# `glosario_especies.yaml`: no hay nada que «consultar en el manual» en cómo se
+# llama una senda o un colegio. Lo que el verificador NO hace nunca es traducir
+# una REGLA —escuelas de magia, tipos de daño, maestrías, progresión de
+# lanzador—: esas las deduce de los pares emparejados exigiendo biyección.
+#
+# ── Por qué a mano, si aquí sí se intentó deducirlo ──────────────────────
+# El 2026-09-03 se probaron dos deducciones y las dos fallan, y queda escrito
+# para que nadie las vuelva a intentar creyendo que sirven:
+#
+#   · Vector de niveles (a qué niveles concede rasgos cada subclase, y
+#     cuántos): NO discrimina. Las cuatro subclases de una clase comparten los
+#     mismos niveles, y en clérigo, pícaro y mago comparten también el recuento
+#     exacto.
+#
+#   · Huella numérica del texto (el solapamiento de las cifras del texto, la
+#     misma técnica que empareja armas): acierta 10 de 12. Se equivoca en
+#     BARDO —da «Colegio de la Danza» donde «College of Lore» es obviamente
+#     «Colegio del Conocimiento»— y en PALADÍN deja un empate a cuatro. Una
+#     técnica que se equivoca en el nombre más evidente de los doce no puede
+#     auditar a nadie, así que no se usa ni como corroboración.
+#
+# ── Cómo se audita esto, entonces ────────────────────────────────────────
+# Por lo que el mapeo hace saltar, no por lo que suene bien. Con cada pareja,
+# `verificar_subclases()` contrasta contra el SRD **a qué niveles concede
+# rasgos la subclase y cuántos en cada uno**, leídos de los `ItemGrant` del
+# registro `subclass` del pack. Un cruce entre clases distintas salta siempre
+# (los niveles de subclase difieren por clase: 3/6/10/14, 3/7/10/15/18,
+# 3/9/13/17…), y un cruce dentro de la misma clase salta cuando el recuento por
+# nivel difiere — que es lo que pasa en bárbaro, bardo, druida, guerrero,
+# monje, paladín, explorador, hechicero y brujo. En clérigo, pícaro y mago las
+# cuatro subclases tienen el mismo perfil, así que ahí el contraste NO audita
+# el mapeo: lo dice esta línea, en vez de dejarlo creer.
+#
+# El SRD 5.2 publica UNA subclase por clase. Las otras 36 salen del manual y
+# van con `null`: la lista está entera a propósito, para que se vea cuántas no
+# tienen contraparte externa y no para perdonarlas.
+edicion: "2024 (5.5e)"
+verificado: {metodo: "estructural", fecha: "2026-09-03"}
+
+subclases:
+  # ── Bárbaro ──
+  "Senda del Árbol del Mundo": null
+  "Senda del Berserker": "Path of the Berserker"
+  "Senda del Corazón Salvaje": null
+  "Senda del Fanático": null
+  # ── Bardo ──
+  "Colegio de la Danza": null
+  "Colegio del Conocimiento": "College of Lore"
+  "Colegio del Glamour": null
+  "Colegio del Valor": null
+  # ── Brujo ──
+  "Patrón Celestial": null
+  "Patrón Feérico": null
+  "Patrón Infernal": "Fiend Patron"
+  "Patrón Primigenio": null
+  # ── Clérigo ──
+  "Dominio de la Guerra": null
+  "Dominio de la Luz": null
+  "Dominio de la Vida": "Life Domain"
+  "Dominio del Engaño": null
+  # ── Druida ──
+  "Círculo de la Luna": null
+  "Círculo de la Tierra": "Circle of the Land"
+  "Círculo de las Estrellas": null
+  "Círculo del Mar": null
+  # ── Explorador ──
+  "Acechador en la Penumbra": null
+  "Cazador": "Hunter"
+  "Errante Feérico": null
+  "Señor de las Bestias": null
+  # ── Guerrero ──
+  "Caballero Arcano": null
+  "Campeón": "Champion"
+  "Guerrero Psiónico": null
+  "Maestro del Combate": null
+  # ── Hechicero ──
+  "Hechicería Aberrante": null
+  "Hechicería de Magia Salvaje": null
+  "Hechicería Dracónica": "Draconic Sorcery"
+  "Hechicería Mecánica": null
+  # ── Mago ──
+  "Abjurador": null
+  "Adivino": null
+  "Evocador": "Evoker"
+  "Ilusionista": null
+  # ── Monje ──
+  "Guerrero de la Mano Abierta": "Warrior of the Open Hand"
+  "Guerrero de la Misericordia": null
+  "Guerrero de la Sombra": null
+  "Guerrero de los Elementos": null
+  # ── Paladín ──
+  "Juramento de Entrega": "Oath of Devotion"
+  "Juramento de Gloria": null
+  "Juramento de los Antiguos": null
+  "Juramento de Venganza": null
+  # ── Pícaro ──
+  "Asesino": null
+  "Embaucador Arcano": null
+  "Ladrón": "Thief"
+  "Rebanaalmas": null

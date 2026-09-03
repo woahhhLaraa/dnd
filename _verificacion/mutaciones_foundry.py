@@ -37,6 +37,16 @@ def _json_hechizo(raiz, nombre, ruta, valor):
     p.write_text(json.dumps(d, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
 
 
+def _sust(raiz, rel, viejo, nuevo, cuenta=1):
+    """Sustitución textual. Para ficheros que se leen a mano —los glosarios—,
+    donde volver a volcarlos con `yaml.safe_dump` borraría los comentarios que
+    son la mitad del contenido."""
+    p = raiz / rel
+    t = p.read_text(encoding="utf-8")
+    assert viejo in t, f"la mutación no encaja en {rel}: {viejo[:70]!r}"
+    p.write_text(t.replace(viejo, nuevo, cuenta), encoding="utf-8")
+
+
 def _yaml_edit(raiz, rel, fn):
     p = raiz / rel
     d = yaml.safe_load(p.read_text(encoding="utf-8"))
@@ -383,6 +393,59 @@ def m_excepcion_de_rasgos_movida(r):
     return "nivel amparado por una excepción, cambiado (Monje N13 «Desviar energía» borrado)"
 
 
+# ── `verificar_subclases()`: el puente de nombres propios ─────────────────
+# El glosario se escribe a mano, así que lo que hay que probar es que el
+# contraste que lo respalda MUERDE: si el puente se cruza o nuestros datos se
+# mueven, el módulo tiene que saltar.
+
+GLOSARIO_SUB = "_verificacion/glosario_subclases.yaml"
+
+
+def _subclase(raiz, stem, nombre, fn):
+    def edita(d):
+        for sc in d["subclases"]:
+            if sc["nombre"] == nombre:
+                fn(sc)
+    _yaml_edit(raiz, f"clases/subclases/{stem}.yaml", edita)
+
+
+def m_rasgo_de_subclase_borrado(r):
+    def f(sc):
+        sc["rasgos"] = [x for x in sc["rasgos"] if x["nivel"] != 6]
+    _subclase(r, "barbaro", "Senda del Berserker", f)
+    return "un rasgo de subclase borrado (Senda del Berserker, N6)"
+
+
+def m_rasgo_de_subclase_movido(r):
+    def f(sc):
+        for x in sc["rasgos"]:
+            if x["nivel"] == 6:
+                x["nivel"] = 10
+    _subclase(r, "barbaro", "Senda del Berserker", f)
+    return "un rasgo de subclase movido de nivel (Senda del Berserker: N6 -> N10)"
+
+
+def m_glosario_cruzado_de_subclase(r):
+    """El cruce que el perfil de niveles SÍ distingue: el Berserker concede un
+    rasgo en N3 y el Corazón Salvaje dos."""
+    _sust(r, GLOSARIO_SUB, '"Senda del Berserker": "Path of the Berserker"',
+          '"Senda del Berserker": null')
+    _sust(r, GLOSARIO_SUB, '"Senda del Corazón Salvaje": null',
+          '"Senda del Corazón Salvaje": "Path of the Berserker"')
+    return "el puente apunta a otra subclase de la misma clase (Berserker -> Corazón Salvaje)"
+
+
+def m_glosario_incompleto(r):
+    _sust(r, GLOSARIO_SUB, '  "Senda del Fanático": null\n', '')
+    return ("una subclase nuestra que el glosario no menciona: nadie ha "
+            "decidido si el SRD la publica")
+
+
+def m_glosario_huerfano(r):
+    _sust(r, GLOSARIO_SUB, '"Ladrón": "Thief"', '"Ladrón": null')
+    return "una subclase del pack que ninguna línea del glosario reclama (Thief)"
+
+
 MUTACIONES = [
     m_coste_material_borrado, m_coste_material_cifra,
     m_coste_material_unidad, m_coste_material_ilegible,
@@ -403,6 +466,9 @@ MUTACIONES = [
     m_columna_sin_contrastar, m_excepcion_escala_movida,
     m_rasgo_de_nivel_borrado, m_rasgo_de_nivel_movido,
     m_rasgo_de_nivel_inventado, m_excepcion_de_rasgos_movida,
+    m_rasgo_de_subclase_borrado, m_rasgo_de_subclase_movido,
+    m_glosario_cruzado_de_subclase, m_glosario_incompleto,
+    m_glosario_huerfano,
 ]
 
 

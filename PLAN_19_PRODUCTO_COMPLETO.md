@@ -424,11 +424,13 @@ mutaciones_conversiones 16/16 (eran 13: entra la mitad DERIVADOS)
 
 ---
 
-## 16. Resultado — fase 3, primera mitad, ejecutada el 2026-09-03
+## 16. Resultado — fase 3, ejecutada el 2026-09-03
 
-La fase 3 pedía contrastar los 562 registros del SRD que nadie miraba. Esta
-primera mitad cierra **las dos rebanadas más grandes de `classes24`** y, de
-paso, arregla un defecto del propio censo que las hacía invisibles.
+La fase 3 pedía contrastar los 562 registros del SRD que nadie miraba y subir
+la superficie externa «de 3.666 a ~4.200 valores». Está en **4.395**, y
+`classes24` —la parte que el plan señalaba como la de más valor— queda cerrada
+salvo metamagias e invocaciones. De paso se arregló un defecto del propio censo
+que hacía invisible la mitad de ese hueco.
 
 ### 16.1 · Las clases (`classes24/class`, 12 registros)
 
@@ -493,20 +495,49 @@ Los comodines del manifiesto admiten ahora `*` en cualquier posición, no solo
 al final, porque desde el cambio la parte que varía suele estar en medio
 (`externo:equipment24/*/container`).
 
-### 16.4 · La otra mitad de `classes24` sigue bloqueada, y por qué
+### 16.4 · Las subclases (12 registros + 58 rasgos)
 
-Los 58 rasgos de subclase y las 12 subclases **no se pueden contrastar todavía**:
-el SRD publica una subclase por clase y nosotros cuatro, y hay que saber cuál
-es cuál. Se midió si la identidad era deducible sin traducir:
+Primero se intentó **deducir** qué subclase nuestra es la que el SRD publica,
+para no escribir nombres a mano. Las dos deducciones fallan, y queda escrito
+para que nadie las repita creyendo que sirven:
 
-- por **vector de niveles**: no discrimina, hay empates en casi todas las clases;
-- por **huella numérica del texto** —la misma técnica que empareja armas—:
-  acierta en **11 de 12**, pero en paladín deja un **empate a cuatro**.
+- **vector de niveles**: no discrimina. Las cuatro subclases de una clase
+  comparten los mismos niveles, y en clérigo, pícaro y mago comparten también
+  el recuento exacto.
+- **huella numérica del texto** —la técnica que empareja armas—: acierta **10
+  de 12**. Se equivoca en **bardo** (da «Colegio de la Danza» donde *College of
+  Lore* es «Colegio del Conocimiento») y en **paladín** deja un empate a
+  cuatro. Una técnica que falla en el nombre más evidente de los doce no puede
+  auditar a nadie, así que no se usa ni como corroboración.
 
-Un empate no es una deducción, así que queda declarado como pendiente con la
-medición dentro. Metamagias e invocaciones están bloqueadas por otra cosa: la
-base las trae como bloque de texto dentro de un rasgo, no como registros con
-nombre, y hay que decidir la forma antes de escribir el módulo.
+Lo que sí procede es el **precedente que el repo ya tenía**:
+`_verificacion/glosario_especies.yaml`, un puente de NOMBRES PROPIOS escrito a
+mano y auditable de un vistazo, para cosas en las que no hay nada que consultar
+en el manual. Las subclases son exactamente eso, así que se añade
+`_verificacion/glosario_subclases.yaml` con **las 48**, no solo las 12: las
+otras 36 van con `null`, para que se vea cuántas no tienen contraparte externa
+y no para perdonarlas.
+
+Y el puente **no se da por bueno porque suene bien**. `verificar_subclases()`
+contrasta con cada pareja a qué niveles concede rasgos la subclase y cuántos en
+cada uno, leído de los `ItemGrant` del registro `subclass` —el enlace va por
+`uuid` al `_id` del rasgo, que es independiente del idioma—. **58 valores, 0
+discrepancias**, y su suite prueba que el contraste muerde: un cruce del puente
+dentro de la misma clase salta.
+
+Dos cosas que el módulo dice en voz alta en vez de dejarlas creer:
+
+- en **clérigo, mago y pícaro** las cuatro subclases tienen el mismo perfil de
+  niveles, así que ahí el contraste comprueba nuestros datos pero **no audita
+  la línea del glosario**;
+- cuatro subclases conceden además **10 conjuros de lista ampliada** por el
+  mismo `ItemGrant`. Son conjuros, no rasgos —contarlos habría inflado el
+  recuento—, y nuestra base los lleva dentro del texto del rasgo, no como lista
+  con nombre: quedan sin contrastar, dicho.
+
+Metamagias (10) e invocaciones (28) siguen bloqueadas por otra cosa: la base las
+trae como bloque de texto dentro de un rasgo, no como registros con nombre, y
+hay que decidir la forma antes de escribir el módulo.
 
 ### 16.5 · Un hallazgo que no toca a esta fase
 
@@ -522,11 +553,21 @@ con su prueba por mutación, y eso es trabajo propio.
 ```
 validar.py             0 errores
 verificar_srd           646 valores · 0 discrepancias
-verificar_foundry      3691 valores · 0 discrepancias  (eran 3020)
-externo total          4337 valores
-censo.py                867 unidades · 0 sin declarar · 594 pendientes
-mutaciones_foundry      42/42 (eran 29)
+verificar_foundry      3749 valores · 0 discrepancias  (eran 3020)
+externo total          4395 valores                    (el plan pedía ~4200)
+censo.py                867 unidades · 0 sin declarar · 570 pendientes
+mutaciones_foundry      47/47 (eran 29)
 mutaciones_censo        20/20 (eran 18)
-verificar_chequeos      65 silenciosas · 12 TOLERADO · línea base 64
+verificar_chequeos      65 silenciosas · 13 TOLERADO · línea base 64
 17/17 fichas · barrido 240/240 · verificar_documentos en verde
 ```
+
+### Lo que la fase 3 deja abierto, medido
+
+| Rebanada | Registros | Por qué |
+|---|---|---|
+| `equipment24/*/consumable`, `container`, `loot` | 234 | **medido el 2026-09-03**: la huella (precio, peso) no empareja. De 63 registros de equipo de aventura y munición, 22 son únicos, **13 ambiguos y 28 sin pareja** —Foundry da peso 0 a lo que el manual pesa, y cuenta la munición por unidad donde el manual la cuenta por lote—. Sin biyección no hay contraste |
+| `classes24/metamagic-options`, `eldritch-invocation-options` | 38 | la base los trae como texto dentro de un rasgo, no como registros con nombre |
+| `origins24/*/feat` | 36 | rasgos de especie con granularidad distinta a propósito (Foundry parte «Elven Lineage» en tres) |
+| `tables24/*` | 45 | la base no modela tablas de tirada; antes que un módulo hace falta decidir si entran |
+| armas sueltas dentro de `classes24` | 3 | su contraste natural es el módulo `armas`, que hoy solo mira `equipment24` |

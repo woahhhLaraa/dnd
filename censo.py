@@ -216,6 +216,21 @@ def _tipos_de_paquete():
     return cuenta
 
 
+def _rebanadas_literales(nodo, donde):
+    """El `sub=` de una llamada a `paquete()`, que puede ser un nombre o una
+    tupla de nombres. Tiene que ser literal: una lista construida en tiempo de
+    ejecución dejaría al censo sin saber qué promete la llamada, que es
+    exactamente el agujero que la rebanada vino a cerrar."""
+    if isinstance(nodo, ast.Constant):
+        return [nodo.value]
+    if isinstance(nodo, (ast.Tuple, ast.List)):
+        if all(isinstance(e, ast.Constant) for e in nodo.elts):
+            return [e.value for e in nodo.elts]
+    raise ErrorDeCenso(
+        f"llamada a paquete() con sub= no literal en {donde}(): el censo no "
+        f"puede saber qué rebanada promete")
+
+
 def _pares_pedidos():
     """Las ternas `(carpeta, rebanada, tipo)` que piden los módulos de
     `verificar_foundry.py`, leídas de sus llamadas reales.
@@ -243,18 +258,14 @@ def _pares_pedidos():
             tipo = None
             if len(n.args) > 1 and isinstance(n.args[1], ast.Constant):
                 tipo = n.args[1].value
-            rebanada = None
+            rebanadas = [None]
             for kw in n.keywords:
                 if kw.arg == "tipo" and isinstance(kw.value, ast.Constant):
                     tipo = kw.value.value
                 if kw.arg == "sub":
-                    if not isinstance(kw.value, ast.Constant):
-                        raise ErrorDeCenso(
-                            f"llamada a paquete() con sub= no literal en "
-                            f"{fn.name}(): el censo no puede saber qué "
-                            f"rebanada promete")
-                    rebanada = kw.value.value
-            pares.add((carpeta, rebanada, tipo))
+                    rebanadas = _rebanadas_literales(kw.value, fn.name)
+            for rebanada in rebanadas:
+                pares.add((carpeta, rebanada, tipo))
     return pares
 
 

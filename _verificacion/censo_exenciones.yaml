@@ -127,48 +127,15 @@ pendientes:
   # subclase, metamagias e invocaciones—. Con la terna, cerrar una rebanada
   # deja de dar por cerradas las otras tres.
   #
-  # `classes24/class-features/feat` (159) se cerró ese mismo día con
-  # `verificar_rasgos_clase()`.
+  # De `classes24` ya no queda casi nada: `class-features/feat` (159) lo cerró
+  # `verificar_rasgos_clase()`, y `subclass` (12) más las doce carpetas de
+  # rasgos de subclase (58) las cerró `verificar_subclases()` con el puente de
+  # `_verificacion/glosario_subclases.yaml`, que es de nombres propios y se
+  # audita a mano igual que el de las especies. Ahí está escrito por qué no se
+  # deduce: se probaron el vector de niveles (no discrimina) y la huella
+  # numérica del texto (acierta 10 de 12 — se equivoca en bardo y empata a
+  # cuatro en paladín).
 
-  - unidad: "externo:classes24/*/subclass"
-    bloque: "H"
-    motivo: "las 12 subclases del SRD (una por clase) contra nuestras 48 del manual. MEDIDO el 2026-09-03: la identidad de la subclase NO es deducible. Se probó la huella numérica del texto —la misma técnica que empareja armas— y acierta en 11 de 12, pero en paladín deja un empate a cuatro, y un empate no es una deducción. Emparejarlas exigiría un diccionario de nombres escrito a mano, que es justo lo que este verificador no hace. Hace falta encontrar una clave independiente del idioma antes de escribir nada"
-  - unidad: "externo:classes24/path-of-the-berserker/feat"
-    bloque: "H"
-    motivo: "los 4 rasgos de la subclase que el SRD publica para esa clase —la nuestra sería Senda del Berserker (bárbaro), pero eso es una suposición, no una deducción—; bloqueados por lo mismo que la línea de arriba"
-  - unidad: "externo:classes24/lore/feat"
-    bloque: "H"
-    motivo: "los 4 rasgos de la subclase que el SRD publica para esa clase —la nuestra sería Colegio del Conocimiento (bardo), pero eso es una suposición, no una deducción—; bloqueados por lo mismo que la línea de arriba"
-  - unidad: "externo:classes24/life-domain/feat"
-    bloque: "H"
-    motivo: "los 5 rasgos de la subclase que el SRD publica para esa clase —la nuestra sería Dominio de la Vida (clérigo), pero eso es una suposición, no una deducción—; bloqueados por lo mismo que la línea de arriba"
-  - unidad: "externo:classes24/circle-of-land/feat"
-    bloque: "H"
-    motivo: "los 5 rasgos de la subclase que el SRD publica para esa clase —la nuestra sería Círculo de la Tierra (druida), pero eso es una suposición, no una deducción—; bloqueados por lo mismo que la línea de arriba"
-  - unidad: "externo:classes24/champion/feat"
-    bloque: "H"
-    motivo: "los 6 rasgos de la subclase que el SRD publica para esa clase —la nuestra sería Campeón (guerrero), pero eso es una suposición, no una deducción—; bloqueados por lo mismo que la línea de arriba"
-  - unidad: "externo:classes24/warrior-of-the-open-hand/feat"
-    bloque: "H"
-    motivo: "los 4 rasgos de la subclase que el SRD publica para esa clase —la nuestra sería Guerrero de la Mano Abierta (monje), pero eso es una suposición, no una deducción—; bloqueados por lo mismo que la línea de arriba"
-  - unidad: "externo:classes24/oath-of-devotion/feat"
-    bloque: "H"
-    motivo: "los 5 rasgos de la subclase que el SRD publica para esa clase —la nuestra sería Juramento de Entrega (paladín), pero eso es una suposición, no una deducción—; bloqueados por lo mismo que la línea de arriba"
-  - unidad: "externo:classes24/hunter/feat"
-    bloque: "H"
-    motivo: "los 5 rasgos de la subclase que el SRD publica para esa clase —la nuestra sería Cazador (explorador), pero eso es una suposición, no una deducción—; bloqueados por lo mismo que la línea de arriba"
-  - unidad: "externo:classes24/thief/feat"
-    bloque: "H"
-    motivo: "los 5 rasgos de la subclase que el SRD publica para esa clase —la nuestra sería Ladrón (pícaro), pero eso es una suposición, no una deducción—; bloqueados por lo mismo que la línea de arriba"
-  - unidad: "externo:classes24/draconic-sorcery/feat"
-    bloque: "H"
-    motivo: "los 5 rasgos de la subclase que el SRD publica para esa clase —la nuestra sería Hechicería Dracónica (hechicero), pero eso es una suposición, no una deducción—; bloqueados por lo mismo que la línea de arriba"
-  - unidad: "externo:classes24/fiend-patron/feat"
-    bloque: "H"
-    motivo: "los 5 rasgos de la subclase que el SRD publica para esa clase —la nuestra sería Patrón Infernal (brujo), pero eso es una suposición, no una deducción—; bloqueados por lo mismo que la línea de arriba"
-  - unidad: "externo:classes24/evoker/feat"
-    bloque: "H"
-    motivo: "los 5 rasgos de la subclase que el SRD publica para esa clase —la nuestra sería Evocador (mago), pero eso es una suposición, no una deducción—; bloqueados por lo mismo que la línea de arriba"
   - unidad: "externo:classes24/metamagic-options/feat"
     bloque: "H"
     motivo: "las 10 metamagias del SRD. Nuestra base las trae en el rasgo «Metamagia» del hechicero como un bloque de texto, no como registros con nombre, así que antes que el módulo hace falta decidir si se modelan una a una"

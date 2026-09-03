@@ -57,11 +57,17 @@ def paquete(carpeta, tipo=None, sub=None):
     `paquete(c, t)` sin `sub` promete el `type` entero, y uno con `sub`
     promete solo esa rebanada y deja las demás como pendientes con nombre.
     Así una cobertura parcial se ve, en vez de disfrazarse de completa.
+
+    Admite una tupla de nombres para lo que el pack reparte en varias carpetas
+    hermanas —los rasgos de subclase van uno por subclase—. Tiene que ser una
+    tupla de literales, no una variable: el censo la lee del código, y una
+    lista construida en tiempo de ejecución le taparía qué se promete.
     """
+    subs = (sub,) if isinstance(sub, str) else (None if sub is None else tuple(sub))
     for f in sorted(glob.glob(str(FOUNDRY / carpeta / "**" / "*.yml"), recursive=True)):
         if "_folder" in f:
             continue
-        if sub is not None and pathlib.Path(f).parent.name != sub:
+        if subs is not None and pathlib.Path(f).parent.name not in subs:
             continue
         d = cargar_yaml(f)
         if tipo and d.get("type") != tipo:
@@ -1700,6 +1706,161 @@ def verificar_rasgos_clase():
     return inf
 
 
+# ── 13l · Subclases ───────────────────────────────────────────────────────
+# El SRD 5.2 publica UNA subclase por clase (12) y nosotros tenemos las 48 del
+# manual. Emparejarlas necesita un puente de nombres propios, y vive fuera del
+# código —`_verificacion/glosario_subclases.yaml`— por la misma razón que el de
+# las especies: para que una persona pueda auditarlo de un vistazo sin leer
+# Python. Ahí está escrito por qué NO se deduce, con las dos deducciones que se
+# probaron y fallaron.
+#
+# Lo que se contrasta con cada pareja es numérico: a qué niveles concede rasgos
+# la subclase y cuántos en cada uno. El nivel no está en el rasgo —el pack deja
+# `prerequisites.level` a null en los rasgos de subclase— sino en los
+# `ItemGrant` del registro `subclass`, que apuntan por `uuid` al `_id` de cada
+# rasgo. Ese enlace es independiente del idioma.
+
+# Clases en que las cuatro subclases tienen el MISMO perfil de niveles, así que
+# el contraste comprueba nuestros datos pero NO audita la línea del glosario.
+# Se dice aquí para no dejarlo creer; el número sale medido, no supuesto.
+_CLASES_SIN_PERFIL_DISTINTIVO = ("Clérigo", "Mago", "Pícaro")
+
+
+def _concesiones(subclase):
+    """Lo que la subclase concede, separado por el PACK del que sale.
+
+    Un `ItemGrant` de subclase concede dos cosas distintas: sus rasgos (del
+    pack `classes24`) y, en algunas, conjuros de lista ampliada (del pack
+    `spells24` — el Patrón Infernal concede ocho). El `uuid` dice de cuál es,
+    y mezclarlos contaría ocho conjuros como ocho rasgos.
+
+    Devuelve (rasgos {_id: nivel}, conjuros {_id: nivel}, ajenos [uuid]).
+    """
+    rasgos, conjuros, ajenos = {}, {}, []
+    for a in (subclase.get("system") or {}).get("advancement") or []:
+        if a.get("type") != "ItemGrant":
+            continue
+        for it in (a.get("configuration") or {}).get("items") or []:
+            uuid = it.get("uuid") if isinstance(it, dict) else it
+            if not isinstance(uuid, str):
+                continue
+            partes = uuid.split(".")
+            pack = partes[2] if len(partes) > 2 else ""
+            if pack == "classes24":
+                rasgos[partes[-1]] = a.get("level")
+            elif pack == "spells24":
+                conjuros[partes[-1]] = a.get("level")
+            else:
+                ajenos.append(uuid)
+    return rasgos, conjuros, ajenos
+
+
+def verificar_subclases():
+    inf = Informe("subclases")
+    gl_path = B / "_verificacion" / "glosario_subclases.yaml"
+    if not gl_path.exists():
+        inf.nota("falta glosario_subclases.yaml — módulo omitido")
+        return inf
+    glosario = cargar_yaml(gl_path)["subclases"]
+
+    # Nuestras 48, con su clase y el perfil de niveles de sus rasgos.
+    nuestras, clase_de = {}, {}
+    for p in sorted((B / "clases" / "subclases").glob("*.yaml")):
+        doc = cargar_yaml(p)
+        for sc in (doc.get("subclases") or []):
+            nombre = sc.get("nombre")
+            perfil = collections.Counter(r["nivel"] for r in (sc.get("rasgos") or [])
+                                         if isinstance(r, dict) and "nivel" in r)
+            nuestras[nombre] = perfil
+            clase_de[nombre] = doc.get("clase")
+
+    sobran = set(glosario) - set(nuestras)
+    if sobran:
+        inf.error(f"el glosario nombra subclases que no están en "
+                  f"clases/subclases/: {sorted(sobran)}")
+    faltan = set(nuestras) - set(glosario)
+    if faltan:
+        inf.error(f"subclases nuestras que el glosario no menciona —ni con "
+                  f"`null`—: {sorted(faltan)}. La lista está entera a "
+                  f"propósito: una subclase que no aparezca es una que nadie "
+                  f"ha decidido si el SRD publica")
+
+    # Las 12 del pack, por nombre inglés, con los rasgos que conceden.
+    del_pack, rasgos_de = {}, {}
+    for d in paquete("classes24", "subclass"):
+        del_pack[d.get("name")] = d
+    # Las doce carpetas de rasgos de subclase, escritas una a una porque el
+    # censo lee esta tupla del código: así se ve exactamente qué rebanadas
+    # promete este módulo, y una que se añadiera al pack no quedaría cubierta
+    # por accidente.
+    por_id = {d.get("_id"): d for d in paquete(
+        "classes24", "feat", sub=(
+            "path-of-the-berserker", "lore", "life-domain", "circle-of-land",
+            "champion", "warrior-of-the-open-hand", "oath-of-devotion",
+            "hunter", "thief", "draconic-sorcery", "fiend-patron", "evoker"))}
+
+    vistas, conceden_conjuros = set(), {}
+    for es, en in sorted(glosario.items()):
+        if en is None or es not in nuestras:
+            # TOLERADO: `en is None` son las 36 subclases que el SRD no
+            # publica, contadas en la nota final; `es not in nuestras` ya ha
+            # salido por el error de `sobran` unas líneas más arriba. Ninguna
+            # de las dos se abandona en silencio.
+            continue
+        sc = del_pack.get(en)
+        if sc is None:
+            inf.error(f"{es}: el glosario apunta a {en!r} y el pack no trae "
+                      f"esa subclase")
+            continue
+        vistas.add(en)
+
+        rasgos_ids, conjuros_ids, ajenos = _concesiones(sc)
+        if ajenos:
+            inf.error(f"{es}: el registro {en!r} concede items de un pack que "
+                      f"este módulo no sabe clasificar: {sorted(ajenos)}")
+        if conjuros_ids:
+            conceden_conjuros[es] = len(conjuros_ids)
+        suyo = collections.Counter()
+        for _id, nivel in rasgos_ids.items():
+            if _id not in por_id:
+                inf.error(f"{es}: el registro {en!r} concede el rasgo {_id!r} "
+                          f"y ese rasgo no está en `subclass-features`")
+                continue
+            suyo[nivel] += 1
+        mio = nuestras[es]
+        if suyo != mio:
+            inf.error(f"{es} ({en}): el pack concede {dict(sorted(suyo.items()))} "
+                      f"rasgos por nivel y nuestra tabla "
+                      f"{dict(sorted(mio.items()))}")
+            continue
+        inf.comprobados += sum(suyo.values())
+
+    huerfanas = set(del_pack) - vistas
+    if huerfanas:
+        inf.error(f"subclases del pack que ninguna línea del glosario "
+                  f"reclama: {sorted(huerfanas)}")
+
+    ciegas = sorted({clase_de[es] for es, en in glosario.items()
+                     if en and es in clase_de
+                     and clase_de[es] in _CLASES_SIN_PERFIL_DISTINTIVO})
+    if ciegas:
+        inf.nota(f"en {', '.join(ciegas)} las cuatro subclases tienen el mismo "
+                 f"perfil de niveles, así que este contraste comprueba "
+                 f"nuestros datos pero NO audita la línea del glosario: un "
+                 f"cruce entre dos subclases de esa clase pasaría")
+    if conceden_conjuros:
+        detalle = ", ".join(f"{k} ({v})" for k, v in sorted(conceden_conjuros.items()))
+        inf.nota(f"conjuros de lista ampliada que el pack concede por "
+                 f"`ItemGrant` y este módulo NO contrasta —son conjuros, no "
+                 f"rasgos, y nuestra base los lleva dentro del texto del "
+                 f"rasgo, no como lista con nombre—: {detalle}")
+    sin_srd = sum(1 for v in glosario.values() if v is None)
+    inf.nota(f"{sin_srd} de nuestras {len(glosario)} subclases no las publica "
+             f"el SRD 5.2, que solo trae una por clase: quedan sin contraste "
+             f"externo por falta de fuente, no por falta de chequeo")
+    return inf
+
+
 MODULOS = {
     "conjuros": verificar_conjuros,
     "conjuros-detalle": verificar_conjuros_detalle,
@@ -1712,6 +1873,7 @@ MODULOS = {
     "herramientas": verificar_herramientas,
     "clases": verificar_clases,
     "rasgos-clase": verificar_rasgos_clase,
+    "subclases": verificar_subclases,
 }
 
 

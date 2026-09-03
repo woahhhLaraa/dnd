@@ -25,14 +25,15 @@
 > documento del que hay que avisar «no lo leas» es un documento que ya sobra.
 > Sigue en el historial de git si alguna vez hace falta.
 
-Última actualización: **2026-09-03** — **`PLAN_19` fases 1, 2 y la primera
-mitad de la 3 hechas**. Lo último (fase 3): el SRD ya contrasta **las 12 clases
-y sus 159 rasgos de clase** —`verificar_foundry` pasa de 3020 a **3691**
-valores—, y el censo aprendió a contar por **rebanadas** del pack, porque
+Última actualización: **2026-09-03** — **`PLAN_19` fases 1, 2 y 3 hechas**. La
+fase 3 contrasta contra el SRD **las 12 clases, sus 159 rasgos de clase, las 12
+subclases y sus 58 rasgos**: `verificar_foundry` pasa de 3020 a **3749**
+valores y el total externo a **4395**, por encima de los ~4200 que el plan
+pedía. El censo aprendió a contar por **rebanadas** del pack, porque
 `classes24/feat` mezclaba cuatro cosas distintas y cerrar una habría dado por
 miradas las otras 96 unidades. Quedan cuatro discrepancias de nivel entre el
-pack y nuestra tabla, declaradas una a una y **pendientes de leer la página**
-(ver `PLAN_19` §16). Antes: la fase 2 borró las conversiones a pies y la fase 1
+pack y nuestra tabla, declaradas una a una y **pendientes de leer la página**,
+y lo que sigue sin contrastar está medido y dicho (ver `PLAN_19` §16). Antes: la fase 2 borró las conversiones a pies y la fase 1
 dejó de aprobar fichas multiclase sin comprobarlas (eran **cuatro** chequeos
 degradados a aviso, no tres), los dos chequeos que solo avisaban son error, y el
 repo declara y comprueba su entorno. Antes, los **bloques A, B, A2,
@@ -57,9 +58,9 @@ se conserva por su investigación sobre Foundry y DiceCloud.
 ```bash
 python3 validar.py            # 0 errores · 2,6 s
 python3 verificar_srd.py      # 646 valores · 0 discrepancias
-python3 verificar_foundry.py  # 3691 valores · 0 discrepancias
+python3 verificar_foundry.py  # 3749 valores · 0 discrepancias
 python3 cobertura.py          # 262 preguntas · 0 sin responder
-python3 censo.py              # 867 unidades · 0 sin declarar · 594 pendientes
+python3 censo.py              # 867 unidades · 0 sin declarar · 570 pendientes
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 17/17
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240 · 136 s
 ```
@@ -72,8 +73,9 @@ se entere. Cuatro cerrados (`_CA_SIN_ARMADURA`, `_ORIGENES`, las cifras de
 `verificar_documentos`, `_TABLA_COSTE`) y, desde el **2026-09-02**, los cuatro
 que quedaban: `validar._PROMESAS`, `verificar_chequeos.FUENTES` y
 `verificar_srd.MAPA` cerrados, y `verificar_foundry.MODULOS` **medido y
-declarado** —562 registros del SRD que nadie contrasta— como bloque H. Detalle
-en el §2 y el §12 del Plan 18.
+declarado** —562 registros del SRD que nadie contrastaba— como bloque H, que la
+fase 3 del `PLAN_19` cerró en su mayor parte. Detalle en el §2 y el §12 del
+Plan 18, y el resultado en el §16 del Plan 19.
 
 **2. El verificador estaba INVERTIDO con las dotes.** Una ficha de nivel 1 que
 tomaba `Duro` y aplicaba bien su +2 PG era **rechazada**, y la misma ficha con
@@ -111,7 +113,7 @@ red puesta, el refactor del bloque F ya es una opción**, aunque la medición de
 | ~~**C**~~ | ~~Declarar los efectos que faltan~~ | ✅ **hecho (2026-09-02)**: 9 de `velocidad` (A2) + 7 de `ca`/`pg_max`. De 7 efectos a **25** |
 | ~~**D**~~ | ~~`efectos:` obligatorio + `no_automatizado`~~ | ✅ **hecho (2026-09-02)**: la puerta está cerrada — un rasgo nuevo que no diga nada hace fallar a `validar.py`. Los 480 conocidos van **enumerados**, no bajo un comodín |
 | **E** | `requirements.txt`, versión de Python, ~50 líneas duplicadas | no |
-| **H** | Contrastar los **562 registros** del SRD estructurado que nadie pide, entre ellos los 255 rasgos de `classes24` — **lo destapó el censo** | no |
+| ~~**H**~~ | ~~Contrastar los **562 registros** del SRD estructurado que nadie pide~~ | ✅ **hecho (2026-09-03, fase 3 del `PLAN_19`)**: entran las 12 clases, sus 159 rasgos, las 12 subclases y sus 58 rasgos. Lo que queda —equipo, metamagias, invocaciones, rasgos de especie, tablas— está **medido** y declarado en `PLAN_19` §16 |
 | **F** | Refactor, **solo si sigue pareciendo necesario** | no |
 | **G** | Los casos ambiguos y las descripciones de conjuro | **sí** |
 
@@ -211,7 +213,7 @@ importante: *consultar, no recordar*.
 ```bash
 python3 validar.py            # coherencia interna    -> 0 errores
 python3 verificar_srd.py      # contraste externo     -> 646 valores, 0 discrepancias
-python3 verificar_foundry.py  # contraste externo     -> 3691 valores, 0 discrepancias
+python3 verificar_foundry.py  # contraste externo     -> 3749 valores, 0 discrepancias
 python3 cobertura.py          # ¿puede responder?     -> 0 preguntas sin responder
 python3 censo.py              # ¿algo sin chequeo?    -> 0 unidades sin declarar
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 12/12
@@ -223,7 +225,7 @@ Y las pruebas por mutación, que es lo que da derecho a fiarse de lo anterior:
 python3 _verificacion/mutaciones_dados.py         # dados
 python3 _verificacion/mutaciones_conversiones.py  # conversiones de unidad
 python3 _verificacion/mutaciones_integridad.py    # tirada, vecindad, ortografía -> 24/24
-python3 _verificacion/mutaciones_foundry.py       # contraste externo            -> 42/42
+python3 _verificacion/mutaciones_foundry.py       # contraste externo            -> 47/47
 ```
 
 Y las tres del bloque B (2026-09-02), que cierran los 19 chequeos que no
@@ -340,7 +342,7 @@ está en disco y es reproducible con los cuatro comandos de arriba.
    especies, dotes, trasfondos y herramientas contra el SRD 5.2 estructurado.
    **No traduce: empareja por claves independientes del idioma y deduce los
    vocabularios**, exigiendo que sean biyecciones. Probado por mutación en
-   `_verificacion/mutaciones_foundry.py` → **42/42**.
+   `_verificacion/mutaciones_foundry.py` → **47/47**.
 
 3. **Cuatro auditorías visuales con 12 agentes Sonnet** (tres tandas de 4),
    ficheros disjuntos, informes en `_verificacion/_auditoria_rasgos/`. Los
@@ -1080,7 +1082,7 @@ puntos sí eran nuevos y se contrastaron contra el código real:
 | `buscar.py` | Consulta determinista que falla ruidosamente (clase/conjuro/objeto inexistente → error, nunca `[]`) |
 | `verificar_personaje.py` | Trazabilidad de una ficha: cada `ref:` real, `calculado` recalculado y comparado |
 | `verificar_foundry.py` | Contraste ancho contra el SRD 5.2 estructurado en 6 módulos (conjuros, armas, armaduras, especies, dotes, trasfondos). No traduce: empareja por claves independientes del idioma y deduce los vocabularios, exigiendo que sean biyecciones |
-| `_verificacion/mutaciones_foundry.py` | Prueba por mutación del anterior (42/42; tarda >10 min) |
+| `_verificacion/mutaciones_foundry.py` | Prueba por mutación del anterior (47/47; tarda >10 min) |
 | `_verificacion/_auditoria_rasgos/` | Informes de las dos auditorías visuales (rasgos de clase, subclases, especies) y los dos briefings que se dieron a los agentes |
 | `_verificacion/glosario_especies.yaml` | Único puente es↔en escrito a mano, y solo porque son nombres propios; cada pareja se comprueba con velocidad + visión en la oscuridad |
 | `efectos.py` · `reglas/efectos.yaml` · `reglas/_ESQUEMA_efectos.md` | **Motor de efectos (Fase 14)**: las reglas de personaje como dato citado junto al rasgo que las concede, no como `if` de Python |
@@ -1157,7 +1159,7 @@ Offset confirmado en todo el manual: **página_pdf = página_libro + 2**.
    | `verificar_documentos` (cifras) | `efectos` desde la Fase 14 | ✅ cerrada |
    | `verificar_chequeos.FUENTES` | audita 3 de las 6 que declara | ✅ cerrada (A2) |
    | `verificar_srd.MAPA` | `slots`, `forma_salvaje`, `mov_sin_armadura_m` | ✅ cerrada (A2) |
-   | `verificar_foundry.MODULOS` | 9 pares (carpeta, `type`) · 562 registros | ⬜ medida y declarada → bloque H |
+   | `verificar_foundry.MODULOS` | 9 pares (carpeta, `type`) · 562 registros | ✅ cerrada la mayor parte (fase 3); el resto medido |
    | `validar._PROMESAS` | `velocidad`, y con ella 9 rasgos | ✅ cerrada (A2) |
 
    Cuando el mismo defecto sale cinco veces no es descuido repetido: es que
@@ -1165,6 +1167,6 @@ Offset confirmado en todo el manual: **página_pdf = página_libro + 2**.
    con `glob` en 14 sitios— y era el ejemplo que los demás no siguieron.
 
    **El corolario, y es el que duele:** se verificaba con obsesión que los
-   datos escritos fueran correctos (4337 valores externos, y las mutaciones) y
+   datos escritos fueran correctos (4395 valores externos, y las mutaciones) y
    **no se verificaba nunca que estuvieran todos**. Comprobar la calidad de
    lo que hay no dice nada de lo que falta.

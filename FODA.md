@@ -24,7 +24,7 @@ reproducen con los cinco comandos del final.
    **No queda manual que transcribir.**
 3. **Cuatro validadores independientes, y ninguno repite al otro.**
    `validar.py` cruza tablas transcritas por separado; `verificar_srd.py` y
-   `verificar_foundry.py` contrastan **4.337 valores** contra fuentes externas
+   `verificar_foundry.py` contrastan **4.395 valores** contra fuentes externas
    sin traducir (emparejan por claves independientes del idioma y exigen
    biyección); `cobertura.py` pregunta si la base sabe responder.
 4. **Cada chequeo nuevo se prueba por mutación, en las dos direcciones.**
@@ -32,7 +32,7 @@ reproducen con los cinco comandos del final.
    `mutaciones_integridad.py` (24/24), `mutaciones_efectos.py` (36/36),
    `mutaciones_pg.py` (13/13), `mutaciones_materiales.py` (10/10),
    `mutaciones_tiradas.py` (19/19), `mutaciones_prerrequisitos.py` (10/10), `mutaciones_subida.py` (7/7), `mutaciones_nivel20.py` (18/18) y
-   `mutaciones_foundry.py` (42/42). La mitad
+   `mutaciones_foundry.py` (47/47). La mitad
    de cada suite son **controles negativos**: datos raros pero legítimos que no
    deben hacer saltar nada. No es simetría estética — la primera versión del
    chequeo de dados se disparaba con su propia documentación.
@@ -56,7 +56,7 @@ Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
   automatizado. Aquí la frontera era el silencio.
 - **Foundry no tiene tests.** Su `package.json` trae `build`, `lint` y
   `watch`. Sustituyen verificación por cientos de miles de jugadores. Este
-  proyecto tiene una usuaria, así que sus 4337 valores y sus mutaciones
+  proyecto tiene una usuaria, así que sus 4395 valores y sus mutaciones
   **son el sustituto correcto** y no se tocan. De Foundry se copia la
   arquitectura, nunca la ausencia de pruebas.
 - **Una dote que sube una característica usa en Foundry el MISMO mecanismo
@@ -195,7 +195,7 @@ Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
 
    **La lección de fondo, que vale para todo el proyecto:** se verificaba con
    obsesión que **lo escrito fuera correcto** y nunca que **estuviera todo**.
-   4337 valores contrastados y las mutaciones no dicen nada sobre los
+   4395 valores contrastados y las mutaciones no dicen nada sobre los
    registros que ningún módulo llega a mirar.
 
 9. **✅ CERRADA (2026-09-02) — los 30 chequeos `validar_*` ya tienen prueba
@@ -352,7 +352,7 @@ el margen y seguir.
 ```bash
 python3 validar.py            # coherencia interna
 python3 verificar_srd.py      # 646 valores contra el SRD
-python3 verificar_foundry.py  # 3691 valores contra el SRD estructurado
+python3 verificar_foundry.py  # 3749 valores contra el SRD estructurado
 python3 cobertura.py          # ¿puede responder?
 python3 _verificacion/mutaciones_integridad.py   # 24/24
 python3 _verificacion/mutaciones_efectos.py      # 36/36
