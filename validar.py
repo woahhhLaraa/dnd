@@ -142,7 +142,13 @@ def validar_clase(p):
                 err.append(f"columna '{col}' decrece: {vals}")
 
     # mejoras de característica: deben existir al menos en 4, 8, 12, 16
-    mejoras = {f["n"] for f in filas if any("Mejora de característica" in r for r in f["rasgos"])}
+    # El marcador se LEE de `reglas/subida_de_nivel.yaml` (auditoría del
+    # 2026-09-03): aquí estaba la cadena escrita a mano, y con `in` sobre el
+    # texto en vez de la comparación que declara la base.
+    import calculo
+    mejoras = {f["n"] for f in filas
+               if any(calculo.es_marcador_de("mejora_caracteristica_o_dote", r)
+                      for r in f["rasgos"])}
     faltan = {4,8,12,16} - mejoras
     if faltan:
         err.append(f"faltan mejoras de característica en niveles {sorted(faltan)}")
@@ -825,11 +831,24 @@ def validar_generacion():
     mods = (met.get("modificadores_por_puntuacion") or {}).get("tabla") or {}
     if not mods:
         err.append("sin tabla de modificadores por puntuación")
+    # La tabla se contrasta contra `calculo.modificador()`, que es LA
+    # implementación que usa todo el proyecto — no contra una copia de la
+    # fórmula escrita aquí (auditoría del 2026-09-03). Hasta hoy esta línea
+    # decía `(p - 10) // 2`: una TERCERA copia de la misma regla, así que la
+    # tabla de la base y la fórmula de `calculo.py` podían divergir sin que
+    # este chequeo se enterara — contrastaba validar.py contra la base,
+    # dejando fuera justo al módulo que hace la cuenta de verdad.
+    #
+    # La base trae `formula:` Y `tabla:` a propósito, y esta es la razón de
+    # ser de esa duplicación: la fórmula es la implementación y la tabla es su
+    # prueba. Es el patrón de `cobertura.py` con las 18 habilidades.
+    import calculo
     for k, v in mods.items():
         rango = [int(x) for x in re.findall(r"\d+", str(k))]
         for p in range(rango[0], rango[-1] + 1):
-            if (p - 10) // 2 != v:
-                err.append(f"modificador de {k} es {v}, la fórmula da {(p - 10) // 2} para {p}")
+            if calculo.modificador(p) != v:
+                err.append(f"modificador de {k} es {v} en la tabla y "
+                           f"calculo.modificador({p}) da {calculo.modificador(p)}")
                 break
 
     # --- conjunto estándar por clase ---

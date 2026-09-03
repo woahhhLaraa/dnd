@@ -27,13 +27,32 @@ import sys
 
 import yaml
 
-from calculo import B, cargar, _archivo_clase
+from calculo import B, cargar, es_marcador_de, _archivo_clase
 
 CARS = ("fue", "des", "con", "int", "sab", "car")
 _LARGO = {"fue": "Fuerza", "des": "Destreza", "con": "Constitución",
           "int": "Inteligencia", "sab": "Sabiduría", "car": "Carisma"}
 _CORTO = {v: k for k, v in _LARGO.items()}
-CONJUNTO = [15, 14, 13, 12, 10, 8]
+
+
+# El conjunto estándar se LEE de la base (auditoría del 2026-09-03). Estaba
+# copiado aquí como `[15, 14, 13, 12, 10, 8]` mientras
+# `reglas/generacion_personaje.yaml` lo declara en
+# `metodos_generacion_caracteristicas.conjunto_estandar.puntuaciones`, y nadie
+# comparaba las dos copias: corregir la base habría dejado al generador
+# repartiendo los valores viejos con todo en verde.
+def _conjunto_estandar():
+    g = cargar("reglas/generacion_personaje.yaml") or {}
+    p = ((g.get("metodos_generacion_caracteristicas") or {})
+         .get("conjunto_estandar") or {}).get("puntuaciones")
+    if not p:
+        sys.exit("✗ reglas/generacion_personaje.yaml no declara "
+                 "`metodos_generacion_caracteristicas.conjunto_estandar."
+                 "puntuaciones`: sin él no hay conjunto estándar que repartir")
+    return list(p)
+
+
+CONJUNTO = _conjunto_estandar()
 
 
 def _reparto(clase_d):
@@ -80,7 +99,8 @@ def generar(clase, nivel, especie=None, trasfondo=None, subclase=None):
 
     # ── mejoras de característica, una por cada nivel que las conceda
     niveles_mej = [n for n in sorted(prog) if n <= nivel
-                   and "Mejora de característica" in (prog[n].get("rasgos") or [])]
+                   and any(es_marcador_de("mejora_caracteristica_o_dote", r)
+                           for r in (prog[n].get("rasgos") or []))]
     final = {c: base.get(c, 8) + ajuste.get(c, 0) for c in CARS}
     ppal = _reparto(clase_d)
     orden_subida = [c for c in ppal if ppal[c] >= 13] or ["con"]
@@ -138,7 +158,7 @@ def generar(clase, nivel, especie=None, trasfondo=None, subclase=None):
     }
 
     # ── subclase, si la tabla la pide
-    if any("Subclase de" in r for n in sorted(prog) if n <= nivel
+    if any(es_marcador_de("subclase", r) for n in sorted(prog) if n <= nivel
            for r in (prog[n].get("rasgos") or [])):
         subs = (cargar(f"clases/subclases/{stem}.yaml") or {}).get("subclases", [])
         elegida = next((s for s in subs if s["nombre"] == subclase), subs[0])

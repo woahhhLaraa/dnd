@@ -11,6 +11,8 @@ el Manual del Jugador y la discrepancia se resuelve leyendo la página.
 """
 import json, re, sys, pathlib
 
+import calculo
+
 B = pathlib.Path(__file__).parent
 SRD = B / "_verificacion" / "srd2024_open5e_clases.json"
 
@@ -108,7 +110,18 @@ def main():
         for f in c["features"]:
             if f["name"] == "Ability Score Improvement":
                 asi_srd = {g["level"] for g in (f.get("gained_at") or [])}
-        asi_nuestro = {n for n, f in nuestro.items() if "Mejora de característica" in f.get("rasgos","")}
+        # El marcador se LEE de `reglas/subida_de_nivel.yaml` vía `calculo`
+        # (auditoría del 2026-09-03): era la cuarta copia cableada de la misma
+        # cadena.
+        #
+        # Se compara por subcadena a propósito, y aquí sí toca: `leer_nuestro`
+        # parsea el .yaml con regex, no con PyYAML, así que `f["rasgos"]` es el
+        # TEXTO CRUDO de entre los corchetes —no una lista—, y `es_marcador_de`
+        # sobre él iteraría carácter a carácter. Lo que se quita es la copia
+        # del literal, no el modo de comparar.
+        marca = calculo.marcador("mejora_caracteristica_o_dote")
+        asi_nuestro = {n for n, f in nuestro.items()
+                       if marca in f.get("rasgos", "")}
         if asi_srd and asi_srd != asi_nuestro:
             solo_srd, solo_n = sorted(asi_srd-asi_nuestro), sorted(asi_nuestro-asi_srd)
             # Falta en lo nuestro: error, hay que revisarlo.

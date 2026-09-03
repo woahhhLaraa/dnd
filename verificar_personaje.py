@@ -263,8 +263,12 @@ def verificar_compra_puntos(ficha, inf):
     if car.get("metodo") != "compra_puntos":
         return
     total = calculo.coste_compra_puntos(car["base"])
-    if total != 27:
-        inf.error(f"compra por puntos suma {total}, debería ser 27")
+    # El presupuesto se LEE de la base (auditoría del 2026-09-03): era un `27`
+    # cableado aquí mientras la tabla de coste del MISMO bloque del YAML ya se
+    # leía, con un comentario encima explicando por qué había que leerla.
+    presupuesto = calculo.puntos_totales()
+    if total != presupuesto:
+        inf.error(f"compra por puntos suma {total}, debería ser {presupuesto}")
 
 
 # ── Recomputar `calculado` ────────────────────────────────────────────────
@@ -367,7 +371,8 @@ def _niveles_de_mejora(ficha):
     d = cargar(c["ref"].split("#")[0]) or {}
     return [f["n"] for f in d.get("progresion", [])
             if f["n"] <= c["nivel"]
-            and "Mejora de característica" in (f.get("rasgos") or [])]
+            and any(calculo.es_marcador_de("mejora_caracteristica_o_dote", r)
+                    for r in (f.get("rasgos") or []))]
 
 
 # ── C3 del Plan 17: el +1 que concede una DOTE ───────────────────────────
@@ -582,7 +587,8 @@ def verificar_dotes_y_subclase(ficha, inf):
             if not any(s["nombre"] == nombre for s in d.get("subclases", [])):
                 inf.error(f"la subclase {nombre!r} no existe en {archivo}")
             niveles = [f["n"] for f in (cargar(c["ref"].split("#")[0]) or {}).get("progresion", [])
-                       if any(r.startswith("Subclase de") for r in (f.get("rasgos") or []))]
+                       if any(calculo.es_marcador_de("subclase", r)
+                              for r in (f.get("rasgos") or []))]
             if niveles and c["nivel"] < min(niveles):
                 inf.error(f"la ficha declara subclase en el nivel {c['nivel']} y "
                           f"{c['clase']} no la concede hasta el {min(niveles)}")

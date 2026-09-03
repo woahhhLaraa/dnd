@@ -88,9 +88,19 @@ def main():
         "srd": re.search(r"verificar_srd\.py.*?-> (\d+) valores", cont),
         "foundry": re.search(r"verificar_foundry\.py.*?-> (\d+) valores", cont),
     }
+    # Una promesa que DESAPARECE tiene que hacer fallar, no avisar (2026-09-03).
+    # Estos tres avisos eran `⚠` y no contaban como fallo, así que la
+    # reescritura de CONTINUAR.md de ese mismo día se llevó por delante cuatro
+    # anclas —once cifras dejaron de contrastarse contra la realidad— y el
+    # script siguió imprimiendo «los documentos de estado cuadran con la base».
+    # Es el modo de fallo que este módulo existe para cazar, dentro del propio
+    # módulo. El criterio de producto completo del PLAN_19 §12.1 ya lo prohíbe
+    # con todas las letras: «ningún chequeo se degrada a aviso».
     for clave, m in prometido.items():
         if not m:
-            print(f" ⚠ CONTINUAR.md ya no promete una cifra para «{clave}»")
+            print(f" ❌ CONTINUAR.md ya no promete una cifra para «{clave}» · "
+                  f"la realidad da {real[clave]} y nadie la contrasta")
+            fallos += 1
             continue
         dice, es = int(m.group(1)), real[clave]
         ok = dice == es
@@ -106,7 +116,9 @@ def main():
                   r"\s+sin\s+fuente\s+externa\s+·\s+(\d+)\s+efectos",
                   cont, re.S)
     if not m:
-        print(" ⚠ CONTINUAR.md ya no enumera las cifras de INTEGRIDAD")
+        print(" ❌ CONTINUAR.md ya no enumera las cifras de INTEGRIDAD · "
+              "ocho cifras sin contrastar")
+        fallos += 1
     else:
         for i, clave in enumerate(("dados", "conversiones", "tirada", "vecindad",
                                    "ortografia", "citas", "costes", "efectos")):
@@ -118,7 +130,9 @@ def main():
 
     m2 = re.search(r"\*{0,2}(\d+) mejoras de dote", cont)
     if not m2:
-        print(" ⚠ CONTINUAR.md ya no dice cuántas mejoras de dote hay")
+        print(f" ❌ CONTINUAR.md ya no dice cuántas mejoras de dote hay · "
+              f"la realidad da {real['mejoras']} y nadie la contrasta")
+        fallos += 1
     else:
         dice, es = int(m2.group(1)), real["mejoras"]
         ok = dice == es

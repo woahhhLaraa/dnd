@@ -25,10 +25,16 @@ import sys
 
 import yaml
 
-from calculo import B, cargar, es_marcador, _archivo_clase
+from calculo import (B, cargar, es_marcador, es_marcador_de, marcador,
+                     _archivo_clase)
 
-MARCADOR_MEJORA = "Mejora de característica"
-MARCADOR_RASGO_SUB = "Rasgo de subclase"
+# Se LEEN de la base —`reglas/subida_de_nivel.yaml → elecciones`/`concesiones`,
+# que les da nombre— en vez de escribirse aquí. Eran dos cadenas cableadas al
+# lado de un `es_marcador()` que ya leía el fichero: detectar el marcador se
+# leía y despacharlo se copiaba. `validar.py` importa `MARCADOR_RASGO_SUB` de
+# aquí, así que la copia cableada era además carga estructural.
+MARCADOR_MEJORA = marcador("mejora_caracteristica_o_dote")
+MARCADOR_RASGO_SUB = marcador("rasgo_de_subclase")
 
 
 # La copia cableada que había aquí aceptaba «Subclase de» SIN espacio final,
@@ -76,7 +82,7 @@ def que_pasa(clase, nivel, subclase=None):
 
     # 2. Marcadores → elecciones o rasgos de subclase.
     for r in fila.get("rasgos", []):
-        if r.startswith("Subclase de"):
+        if es_marcador_de("subclase", r):
             sub = cargar(f"clases/subclases/{stem}.yaml") or {}
             opciones = [s["nombre"] for s in sub.get("subclases", [])]
             if not opciones:
@@ -102,9 +108,9 @@ def que_pasa(clase, nivel, subclase=None):
                          f"clases/subclases/{stem}.yaml")
             nuevos = [x for x in (s.get("rasgos") or []) if x.get("nivel") == nivel]
             if not nuevos:
-                sys.exit(f"✗ la tabla de {clase} concede «Rasgo de subclase» en "
-                         f"el nivel {nivel} y «{subclase}» no tiene ninguno de "
-                         f"ese nivel")
+                sys.exit(f"✗ la tabla de {clase} concede «{MARCADOR_RASGO_SUB}» "
+                         f"en el nivel {nivel} y «{subclase}» no tiene ninguno "
+                         f"de ese nivel")
             for x in nuevos:
                 concede.append({"tipo": "rasgo_de_subclase", "nombre": x["nombre"],
                                 "subclase": subclase, "pagina": s.get("pagina"),

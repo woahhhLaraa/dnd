@@ -17,6 +17,12 @@ Uso: python3 cobertura.py [-v]
 import json, sys, re, pathlib
 import yaml
 
+# Los marcadores de la tabla se preguntan a `calculo`, que los lee de
+# `reglas/subida_de_nivel.yaml`. Aquí estaban las tres cadenas escritas a mano
+# (auditoría del 2026-09-03). `calculo` no importa nada del proyecto, así que
+# no hay ciclo.
+from calculo import es_marcador_de
+
 B = pathlib.Path(__file__).parent
 VERBOSE = "-v" in sys.argv
 
@@ -461,9 +467,10 @@ def cobertura_subir_nivel(inf):
 
         for fila in d.get("progresion", []):
             for r in fila.get("rasgos", []):
-                if r == "Mejora de característica" or r.startswith("Subclase de"):
+                if (es_marcador_de("mejora_caracteristica_o_dote", r)
+                        or es_marcador_de("subclase", r)):
                     continue
-                if r == "Rasgo de subclase":
+                if es_marcador_de("rasgo_de_subclase", r):
                     if fila["n"] not in niveles_sub:
                         inf.hueco(b, clase,
                                   "la tabla concede un rasgo de subclase en un nivel que ninguna subclase cubre",

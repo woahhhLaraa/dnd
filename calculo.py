@@ -92,6 +92,75 @@ def es_marcador(nombre):
     return n in literales or any(n.startswith(pref) for pref in patrones)
 
 
+# ── Los marcadores, uno a uno y por su nombre ────────────────────────────
+# `es_marcador()` responde «¿esto es UN marcador?». Pero la auditoría del
+# 2026-09-03 encontró que siete sitios no preguntan eso: preguntan «¿es ESTE
+# marcador?» —el de mejora, el de subclase— y para distinguirlos volvían a
+# escribir la cadena a mano, con `es_marcador()` leyendo la base al lado sin
+# que nadie la usara para esto. Detectar el marcador y despacharlo eran dos
+# listas, y solo una se leía.
+#
+# La base ya los tiene CON NOMBRE: `concesiones`/`elecciones` de
+# `reglas/subida_de_nivel.yaml` traen un campo `marcador` bajo una clave
+# semántica (`rasgo_de_subclase`, `subclase`, `mejora_caracteristica_o_dote`),
+# que además es la misma cadena que `subir_nivel.py` ya emite como `tipo`.
+#
+# Y el índice se CONTRASTA contra la lista plana `marcadores` en vez de
+# confiar en ella: son el mismo dato escrito dos veces DENTRO de la base, y
+# hasta hoy nadie las comparaba. Si divergen, se para.
+@functools.lru_cache(maxsize=None)
+def _marcadores_con_nombre():
+    d = cargar("reglas/subida_de_nivel.yaml") or {}
+    idx = {}
+    for bloque in ("concesiones", "elecciones"):
+        for clave, cuerpo in (d.get(bloque) or {}).items():
+            if isinstance(cuerpo, dict) and cuerpo.get("marcador"):
+                idx[clave] = str(cuerpo["marcador"]).strip()
+    if not idx:
+        sys.exit("✗ reglas/subida_de_nivel.yaml no da nombre a ningún marcador "
+                 "en `concesiones`/`elecciones`: sin eso no se puede pedir uno "
+                 "concreto sin volver a escribirlo a mano")
+    literales, patrones = _marcadores()
+    for clave, m in sorted(idx.items()):
+        if not (m in literales or any(m.startswith(p) for p in patrones)):
+            sys.exit(f"✗ reglas/subida_de_nivel.yaml se contradice: "
+                     f"{_bloque_de(clave)}«{clave}» declara el marcador «{m}» y "
+                     f"la lista `marcadores` no lo reconoce. Son el mismo dato "
+                     f"escrito dos veces y han divergido")
+    return idx
+
+
+def _bloque_de(clave):
+    """Solo para el mensaje de error de arriba: en qué bloque vive la clave."""
+    d = cargar("reglas/subida_de_nivel.yaml") or {}
+    for bloque in ("concesiones", "elecciones"):
+        if clave in (d.get(bloque) or {}):
+            return f"{bloque}."
+    return ""
+
+
+def marcador(clave):
+    """El literal del marcador que la base llama `clave`, leído de la base."""
+    idx = _marcadores_con_nombre()
+    if clave not in idx:
+        sys.exit(f"✗ reglas/subida_de_nivel.yaml no declara ningún marcador "
+                 f"llamado «{clave}». Los que hay: {', '.join(sorted(idx))}")
+    return idx[clave]
+
+
+def es_marcador_de(clave, nombre):
+    """¿`nombre` es el marcador que la base llama `clave`?
+
+    Respeta la forma que declare la base: un `patron` con `<…>` compara por
+    prefijo («Subclase de <clase>» → «Subclase de »), un literal compara
+    entero. Así el «Subclase deluxe» que ya hizo divergir dos copias en la
+    Fase 16 no puede volver a colarse por un lado y no por el otro.
+    """
+    m = marcador(clave)
+    n = (nombre or "").strip()
+    return n.startswith(m.split("<", 1)[0]) if "<" in m else n == m
+
+
 # ── Modificador por puntuación ──────────────────────────────────────────
 # reglas/generacion_personaje.yaml → modificadores_por_puntuacion
 def modificador(puntuacion):
@@ -114,6 +183,24 @@ def _tabla_coste():
     cp = cargar("reglas/generacion_personaje.yaml")[
         "metodos_generacion_caracteristicas"]["coste_en_puntos"]
     return {int(k): v for k, v in cp["tabla_coste"].items()}
+
+
+def puntos_totales():
+    """El presupuesto de la compra por puntos, leído de la base.
+
+    La ironía del 2026-09-03: la tabla de arriba se arregló para que se leyera,
+    con once líneas de comentario explicando por qué, y el TOTAL que la
+    acompaña —dos líneas más arriba en el mismo bloque del YAML— se quedó
+    cableado como `!= 27` en `verificar_personaje.py` y como dos literales en
+    el `main` de aquí abajo.
+    """
+    cp = cargar("reglas/generacion_personaje.yaml")[
+        "metodos_generacion_caracteristicas"]["coste_en_puntos"]
+    if "puntos_totales" not in cp:
+        sys.exit("✗ reglas/generacion_personaje.yaml no declara "
+                 "`coste_en_puntos.puntos_totales`: sin él no hay presupuesto "
+                 "contra el que comprobar una compra por puntos")
+    return int(cp["puntos_totales"])
 
 
 def coste_compra_puntos(scores):
@@ -440,7 +527,8 @@ def main():
         scores = {"fue": a.fue, "des": a.des, "con": a.con,
                   "int": a.int_, "sab": a.sab, "car": a.car}
         total = coste_compra_puntos(scores)
-        print(total, "de 27" if total != 27 else "de 27 ✓")
+        presupuesto = puntos_totales()
+        print(total, f"de {presupuesto}" + ("" if total != presupuesto else " ✓"))
 
 
 if __name__ == "__main__":

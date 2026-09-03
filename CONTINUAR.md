@@ -51,6 +51,26 @@ Las 15 suites de `_verificacion/mutaciones_*.py` están todas en verde;
 de sus nombres ni de sus cifras — las contrasta contra lo que este fichero y
 `FODA.md` dicen.
 
+### Las cifras que este documento promete
+
+`verificar_documentos.py` las lee **de aquí** y las contrasta contra la salida
+real en cada pasada. No son decoración: son las anclas del chequeo, y por eso
+van en prosa y no dentro del bloque de comandos de arriba.
+
+> **Repuestas el 2026-09-03.** La reescritura de este fichero de ese mismo día
+> las borró sin querer, y `verificar_documentos.py` solo avisaba con `⚠`: once
+> cifras dejaron de contrastarse y el script siguió diciendo «los documentos
+> de estado cuadran con la base». Ahora borrarlas **hace fallar** el script
+> —criterio del `PLAN_19` §12.1: «ningún chequeo se degrada a aviso»—, que es
+> justo el modo de fallo que este proyecto persigue.
+
+- `verificar_srd.py` -> 646 valores contrastados · 0 discrepancias
+- `verificar_foundry.py` -> 3749 valores contrastados · 0 discrepancias
+- INTEGRIDAD: 683 dados · 436 conversiones · 391 conjuros en `tirada` · 677
+  pares de vecindad · 782 campos de ortografía · 391 citas de conjuro · 52
+  costes sin fuente externa · 25 efectos
+- 54 mejoras de dote estructuradas, leídas de `dotes/*.yaml`
+
 **Contenido cerrado, sin manual pendiente de transcribir ni de auditar:** 391
 conjuros, 12 clases, 48 subclases, 158 rasgos de clase, 75 dotes, 10
 especies, 16 trasfondos, equipo, munición, reglas de generación y multiclase
