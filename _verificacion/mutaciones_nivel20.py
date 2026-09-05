@@ -296,11 +296,17 @@ def m_dos_clases_nivel_alto(r):
 
 
 def n_una_sola_clase_sigue_pasando(r):
-    """Control: lo que se cierra es la multiclase, no las fichas de siempre."""
+    """Control: lo que se cierra es la multiclase, no las fichas de siempre.
+
+    Perturbaba con un campo extra (`_nota_prueba`) hasta el 2026-09-05, y
+    entonces `verificar_claves()` —que cierra el hueco nº 5 de la ronda 2—
+    empezó a rechazar, con razón, cualquier clave que el esquema no
+    contemple. El control no era falso: era su VEHÍCULO el que dejó de ser
+    legal. Se cambia por uno que sí lo es y la intención no se toca."""
     def edita(d):
-        d["_nota_prueba"] = "campo extra que nadie lee"
+        d["jugador"] = "Lara"
     _editar(r, CLERIGO, edita)
-    return ("un campo extra en una ficha de UNA clase: el cierre de la "
+    return ("rellenar `jugador` en una ficha de UNA clase: el cierre de la "
             "multiclase no puede llevarse por delante lo que ya funcionaba")
 
 
@@ -496,6 +502,47 @@ def n_idioma_de_rasgo_de_clase(r):
             "verdad: es legítimo y tiene que seguir pasando")
 
 
+# ── Hueco nº 5: las claves que el esquema no contempla ───────────────────
+# La tentación era rechazar las tres claves que los agentes inventaron. Eso
+# habría sido el parche puntual, y la cuarta se colaría igual. La lista de
+# claves válidas se LEE de `personajes/_ESQUEMA.md`, así que estas tres
+# mutaciones prueban la misma máquina, no tres remiendos.
+
+def e_clave_raza(r):
+    _sust(r, CLERIGO_N5, "nivel_total: 5", "nivel_total: 5\nraza: \"Enano\"")
+    return "una clave `raza:` duplicando `especie:`, que el esquema no tiene"
+
+
+def e_clave_en_singular(r):
+    """La más traicionera de las tres: `caracteristica` en singular no es una
+    clave de más, es el bloque OBLIGATORIO enmascarado — con ella presente,
+    quien lea por encima ve un bloque de características que no existe."""
+    _sust(r, CLERIGO_N5, "caracteristicas:\n  metodo:",
+          "caracteristica:\n  metodo:")
+    return ("`caracteristica` en singular: no sobra una clave, falta el "
+            "bloque obligatorio")
+
+
+def e_clave_nunca_vista(r):
+    """La que ningún agente probó, y es la que justifica hacerlo por
+    descubrimiento: si la lista se hubiera escrito a mano con las tres que
+    aparecieron, esta se colaría."""
+    _sust(r, CLERIGO_N5, "nivel_total: 5", "nivel_total: 5\ninventario_secreto: 3")
+    return ("una clave que nadie había inventado todavía: la lista sale del "
+            "esquema, no de los casos que ya se vieron")
+
+
+def n_clave_de_prosa_libre(r):
+    """CONTROL NEGATIVO: `historia` y `personalidad` no están en el bloque de
+    ejemplo del esquema, sino en su sección «Prosa libre». Las dos fuentes
+    cuentan, y un chequeo que solo leyera el ejemplo rechazaría fichas
+    legítimas de la propia base."""
+    _sust(r, CLERIGO_N5, "nivel_total: 5",
+          "nivel_total: 5\nhistoria: \"Creció entre yunques y letanías.\"")
+    return ("un campo `historia:`, que el esquema permite en «Prosa libre» "
+            "aunque no salga en su bloque de ejemplo")
+
+
 ESTRES = [e_dote_sin_prerrequisito, e_subclase_de_otra_clase,
           e_competencia_como_ref, e_escudo_sin_entrenamiento,
           e_conjuro_de_subclase_inventado, e_conjuro_de_subclase_a_destiempo,
@@ -505,12 +552,13 @@ ESTRES = [e_dote_sin_prerrequisito, e_subclase_de_otra_clase,
           e_conjuro_de_otra_clase, e_truco_entre_los_preparados,
           e_conjuro_repetido_en_las_dos_listas,
           e_idioma_por_especie, e_idioma_fuera_de_tabla,
-          e_idioma_de_rasgo_inexistente, e_idiomas_de_mas_por_eleccion]
+          e_idioma_de_rasgo_inexistente, e_idiomas_de_mas_por_eleccion,
+          e_clave_raza, e_clave_en_singular, e_clave_nunca_vista]
 NO_DEBEN = [n_otro_reparto_legal, n_otro_conjuro, n_prosa_de_decisiones,
             n_una_sola_clase_sigue_pasando,
             n_conjuros_de_subclase_bien_declarados, n_categoria_con_mayuscula,
             n_pg_tirada_al_minimo, n_conjuro_de_dote_de_otra_lista,
-            n_idioma_de_rasgo_de_clase]
+            n_idioma_de_rasgo_de_clase, n_clave_de_prosa_libre]
 MULTICLASE = [m_dos_clases, m_dos_clases_nivel_alto]
 
 
@@ -523,6 +571,51 @@ def _falla(raiz, ficha):
 def _falla_cualquiera(raiz):
     return any(_falla(raiz, f)
                for f in (MONJE, MAGO, CLERIGO, CLERIGO_N5, DRUIDA))
+
+
+# ── Robustez: un fallo no puede llevarse por delante el informe ──────────
+# Los dos defectos de robustez de la ronda 2 no son reglas nuevas: son sobre
+# CÓMO se informa. Por eso no valen las mutaciones normales, que solo miran
+# el código de salida —un traceback también «falla»—. Estas miran la SALIDA.
+ROBUSTEZ = []
+
+
+def _robustez(fn):
+    ROBUSTEZ.append(fn)
+    return fn
+
+
+@_robustez
+def rb_bloque_ausente_se_explica(raiz):
+    """Una ficha sin `caracteristicas` moría con un `KeyError` en
+    `buscar.py:174` sin imprimir una sola línea. Rechazaba, pero no decía qué
+    faltaba."""
+    _sust(raiz, CLERIGO_N5, "caracteristicas:\n  metodo:", "caracteristica:\n  metodo:")
+    r = subprocess.run([sys.executable, "verificar_personaje.py", CLERIGO_N5],
+                       cwd=raiz, capture_output=True, text=True)
+    salida = r.stdout + r.stderr
+    bien = (r.returncode != 0 and "Traceback" not in salida
+            and "caracteristica" in salida)
+    return bien, ("una ficha sin el bloque `caracteristicas`: tiene que "
+                  "EXPLICARLO, no reventar con un traceback mudo")
+
+
+@_robustez
+def rb_un_fallo_no_tapa_los_demas(raiz):
+    """`calculo` cortaba con `sys.exit` ante un `pg_por_nivel` con un hueco, y
+    con él se iban los chequeos que venían detrás: la ficha 3 del agente B
+    declaraba CINCO defectos y solo se veía UNO."""
+    def edita(d):
+        d["pg_por_nivel"] = [e for e in d["pg_por_nivel"] if e["nivel"] != 3]
+        d["competencias"]["idiomas"].append({"nombre": "Gigántico"})
+    _editar(raiz, CLERIGO_N5, edita)
+    r = subprocess.run([sys.executable, "verificar_personaje.py", CLERIGO_N5],
+                       cwd=raiz, capture_output=True, text=True)
+    salida = r.stdout + r.stderr
+    bien = (r.returncode != 0 and "pg_por_nivel" in salida
+            and "Gigántico" in salida)
+    return bien, ("dos defectos independientes a la vez: el hueco en "
+                  "`pg_por_nivel` no puede tapar el idioma inventado")
 
 
 def main():
@@ -555,8 +648,18 @@ def main():
                     print("        ↑ " + ("NO DETECTADA" if esperado
                                            else "FALSO POSITIVO"))
 
+    print("\n Robustez · el informe no se pierde por el primer fallo")
+    for fn in ROBUSTEZ:
+        with tempfile.TemporaryDirectory() as tmp:
+            raiz = pathlib.Path(tmp) / "base"
+            shutil.copytree(BASE, raiz, symlinks=True,
+                            ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+            bien, desc = fn(raiz)
+            ok += bien
+            print(f"   {'✅' if bien else '❌'} {desc}")
+
     total = (len(MEJORAS) + len(CONJUROS) + len(ESTRES) + len(MULTICLASE)
-             + len(NO_DEBEN))
+             + len(NO_DEBEN) + len(ROBUSTEZ))
     print("\n" + "═" * 74)
     print(f"{'✅' if ok == total else '❌'} {ok}/{total}")
     return 0 if ok == total else 1

@@ -34,6 +34,8 @@ que nueve de diecisiete fichas violaran la regla 6 de su propio esquema.
 
 Uso: python3 verificar_personaje.py personajes/aerin.yaml
 """
+import functools
+import pathlib
 import re
 import sys
 
@@ -913,6 +915,54 @@ def calcular_bloque(ficha):
     return bloque, avisos
 
 
+# ── Claves que el esquema no contempla ───────────────────────────────────
+# Hueco nº 5 de la ronda 2: una clave inventada NO se rechazaba. Un `raza:`
+# duplicando `especie:`, un `caracteristica:` en singular enmascarando que
+# falta el bloque obligatorio, un `decisiones[].nota` — tres agentes metieron
+# tres claves distintas y ninguna saltó como tal; solo saltaban de rebote si
+# su texto pasaba de 15 palabras.
+#
+# La tentación era rechazar esas tres. Eso habría sido el parche puntual:
+# la cuarta clave inventada volvería a colarse. Lo que se hace es leer la
+# lista de claves válidas **del propio `_ESQUEMA.md`** —el bloque de ejemplo
+# más la sección «Prosa libre»— y contrastar contra ella. El esquema es el
+# contrato, así que es el esquema quien tiene que decir qué cabe; si mañana
+# gana un campo, el chequeo lo aprende solo. Es la regla inviolable 6
+# aplicada a la forma de la ficha: la lista se DESCUBRE, no se teclea.
+@functools.lru_cache(maxsize=1)
+def _claves_del_esquema():
+    ruta = pathlib.Path(__file__).parent / "personajes" / "_ESQUEMA.md"
+    if not ruta.exists():
+        return frozenset()
+    t = ruta.read_text(encoding="utf-8")
+    claves = set()
+    for bloque in re.findall(r"```yaml\n(.*?)```", t, re.S):
+        limpio = "\n".join(l for l in bloque.splitlines()
+                           if not l.strip().startswith("#"))
+        claves |= set(re.findall(r"^([a-zA-Z_][\w]*):", limpio, re.M))
+    sec = re.search(r"## Prosa libre.*?\n(.*?)\n##", t, re.S)
+    if sec:
+        claves |= set(re.findall(r"`([a-z_]+)`", sec.group(1)))
+    return frozenset(claves)
+
+
+def verificar_claves(ficha, inf):
+    permitidas = _claves_del_esquema()
+    if not permitidas:
+        inf.error("no se pudo leer `personajes/_ESQUEMA.md`: sin el contrato "
+                  "no se puede comprobar qué claves valen")
+        return
+    for k in ficha:
+        if k in permitidas:
+            inf.comprobados += 1
+        else:
+            inf.error(
+                f"la ficha trae la clave {k!r}, que `personajes/_ESQUEMA.md` "
+                f"no contempla. O es un descuido —`raza` por `especie`, "
+                f"`caracteristica` por `caracteristicas`—, o el esquema tiene "
+                f"que documentarla primero")
+
+
 # ── Idiomas ──────────────────────────────────────────────────────────────
 # Hueco nº 3 de la ronda 2 de estrés: un idioma podía declarar el origen que
 # le diera la gana y nadie lo miraba. Dos agentes lo destaparon con el mismo
@@ -1141,17 +1191,37 @@ def main():
     inf = Informe()
     contador = [0]
     _recorrer_refs(ficha, inf, contador)
-    verificar_habilidades(ficha, inf)
-    verificar_categorias(ficha, inf)
-    verificar_compra_puntos(ficha, inf)
-    verificar_pg_por_nivel(ficha, inf)
-    verificar_idiomas(ficha, inf)
-    verificar_mejoras(ficha, inf)
-    verificar_conjuros(ficha, inf)
-    verificar_dotes_y_subclase(ficha, inf)
-    verificar_forma_competencias(ficha, inf)
-    verificar_calculado(ficha, inf)
-    verificar_sin_copias(ficha, inf)
+
+    # Los dos defectos de ROBUSTEZ de la ronda 2 de estrés se arreglan aquí,
+    # porque son el mismo problema visto dos veces: un chequeo que revienta se
+    # lleva por delante a los que venían detrás.
+    #
+    #   · una ficha sin bloque `caracteristicas` moría con un `KeyError` en
+    #     `buscar.py:174` **sin imprimir una sola línea**: rechazaba, sí, pero
+    #     no decía qué faltaba;
+    #   · un `pg_por_nivel` con un hueco hacía `sys.exit` desde `calculo`, y
+    #     la ficha 3 del agente B declaraba CINCO defectos de los que solo se
+    #     veía UNO. Un verificador que solo enseña el primer problema obliga a
+    #     iterar a ciegas, que es justo lo que este proyecto no quiere.
+    #
+    # Cada chequeo corre en su propia red: si revienta, se convierte en un
+    # error con su nombre delante y los demás siguen. No se traga nada — un
+    # fallo sigue siendo un fallo—, solo se deja de perder el resto del
+    # informe por culpa del primero.
+    for chequeo in (verificar_claves, verificar_habilidades,
+                    verificar_categorias, verificar_compra_puntos,
+                    verificar_pg_por_nivel, verificar_idiomas,
+                    verificar_mejoras, verificar_conjuros,
+                    verificar_dotes_y_subclase, verificar_forma_competencias,
+                    verificar_calculado, verificar_sin_copias):
+        try:
+            chequeo(ficha, inf)
+        except KeyError as e:
+            inf.error(f"{chequeo.__name__}: la ficha no trae {e}, y este "
+                      f"chequeo lo necesita. Falta un bloque obligatorio "
+                      f"(ver `personajes/_ESQUEMA.md`)")
+        except SystemExit as e:
+            inf.error(f"{chequeo.__name__}: {e}")
 
     print(f"{contador[0]} referencias comprobadas.")
     for a in inf.avisos:

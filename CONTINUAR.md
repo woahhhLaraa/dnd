@@ -83,6 +83,20 @@ especies, 16 trasfondos, equipo, munición, reglas de generación y multiclase
 **Encargo del 2026-09-03, textual: revisar el código buscando mejor
 solución a los "parches puntuales" en vez de seguir apilando verificadores.**
 
+> **Hecha la mitad, el 2026-09-05.** Los diez hallazgos de la ronda 2 están
+> cerrados, y siguiendo el encargo: no diez arreglos, sino **cuatro
+> mecanismos y tres correcciones de dato** (detalle en `PLAN_ESTRES.md` →
+> «Cierre de la ronda 2»). El más ilustrativo es el de las claves
+> desconocidas: en vez de rechazar las tres que los agentes inventaron, la
+> lista válida se **lee de `personajes/_ESQUEMA.md`**, y así rechaza también
+> una cuarta que nadie había probado.
+>
+> **Lo que queda de este encargo, y es la mitad que importa:** la pregunta
+> era si el patrón vive en el resto del código. `calculo.py`, `efectos.py`,
+> `subir_nivel.py` y `generar_ficha.py` **siguen sin mirarse con esta lupa**;
+> ninguna ronda de estrés los ha tocado. El punto 2 de aquí abajo sigue
+> vigente entero.
+
 ### Por qué esto va primero
 
 Es la misma lección que ya cerró el espiral una vez (`PLAN_17`, §2): el

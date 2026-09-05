@@ -194,3 +194,68 @@ para dejar ahí su razonamiento, y eso llenó la salida del verificador de
 errores de «texto copiado» que **no eran la decisión que querían medir**. El
 sobre ya existe para eso. Si se repite el experimento, el briefing debe decir
 que el razonamiento va SOLO en el sobre y que la ficha no lleva comentarios.
+
+
+---
+
+## Cierre de la ronda 2 — 2026-09-05
+
+**Los diez hallazgos, cerrados.** Y la forma de cerrarlos importa tanto como
+el hecho: la clasificación previa dijo que **solo 5 de los 10 eran parches
+puntuales genuinos**, así que no se hicieron diez arreglos. Se hicieron
+cuatro mecanismos y tres correcciones de dato.
+
+| # | Hallazgo | Cómo se cerró |
+|---|---|---|
+| 1 | Conjuro que no es de la lista de su clase | Los 391 registros traen `clases`. Se extiende el mecanismo que ya usaban armas/armaduras/herramientas: reúne lo permitido, comprueba membresía |
+| 2 | `pg_por_nivel` sin contrastar (3 caras) | Los métodos legales salen de `metodos` y el valor fijo de la tabla citada; `calculo.valor_establecido_pg()` ya existía y ahora se usa para verificar. Cero números cableados |
+| 3 | Idioma con origen inventado | Mismo mecanismo que el nº 1, aplicado a la única superficie de la ficha que no pasaba por ningún contraste porque no lleva `ref:` |
+| 4 | Truco contado también como preparado | Se comprueba el contenido de la lista, no su longitud: ningún conjuro en las dos listas, y el nivel del conjuro tiene que corresponder con la lista en la que vive |
+| 5 | Claves desconocidas del YAML | **Ni una sola clave escrita a mano.** La lista válida se LEE de `personajes/_ESQUEMA.md` —su bloque de ejemplo más la sección «Prosa libre»—. Rechaza las tres que los agentes inventaron y una cuarta que nadie probó |
+| 6 | El tope de 20 cableado en Python | «Mejora de característica» gana su `mejora_caracteristica` estructurado, y `validar.py` contrasta el texto de la dote contra su campo: las dos copias ya no pueden divergir |
+| 7 | `origen: {subclase: …}` rechazado en falso | Afinado, no relajado: el origen no solo se acepta, se **comprueba** contra `conjuros_siempre_preparados` |
+| 8 | Competencias sensibles a mayúsculas | Se normaliza la capitalización, que es ortografía. Las tildes NO, y hay mutación que lo fija |
+| 9 | `sys.exit` que tapaba los demás errores | Cada chequeo corre en su propia red: un fallo se convierte en error con su nombre y los demás siguen |
+| 10 | `KeyError` mudo | Ídem: nombra el bloque que falta en vez de reventar |
+
+### Tres defectos VIVOS en la base, que los agentes predijeron sin saberlo
+
+Es el resultado más incómodo de la ronda, y el que más justifica repetirla:
+**tres de los casos que los agentes inventaron para probar un hueco estaban
+ocurriendo de verdad en las fichas del repo.**
+
+| Lo que el agente inventó | Lo que había |
+|---|---|
+| «Tañido por los muertos» (conjuro de Brujo) en un Hechicero | «Descarga sobrenatural», conjuro de Brujo, en `draconido_hechicero_n4.yaml` |
+| Un truco contado entre los preparados | «Rayo de escarcha» en `trucos` **y** en `preparados`, misma ficha |
+| «Élfico» en vez del canónico «Elfo» | Las dos fichas de `gnomo_mago` |
+
+El tercero es el más elocuente: **ya era un defecto conocido**.
+`_ejemplo_aerin.yaml` lleva escrito el comentario que lo explica y dice que
+«ningún validador lo pilló, porque `idiomas` no lleva `ref:`». Se corrigió el
+dato en el ejemplo y se dejó vivo en las otras dos, porque nadie cerró el
+hueco. Parche puntual en estado puro.
+
+### Un control negativo que se quedó viejo, y por qué se registra
+
+`n_una_sola_clase_sigue_pasando` perturbaba añadiendo un campo extra a la
+ficha. Al cerrar el hueco nº 5, esa perturbación pasó a ser ilegal y el
+control empezó a fallar. **No era un falso positivo: era el vehículo del
+control lo que había dejado de ser legal.** Se le cambió el vehículo y la
+intención no se tocó. Merece registro porque la tentación —relajar el chequeo
+nuevo para que el control viejo siguiera pasando— es exactamente el error que
+el método prohíbe.
+
+### Cifras al cerrar
+
+```
+mutaciones_nivel20     48/48 (eran 18 al empezar el día)
+18/18 fichas           (17 antes: entra `enano_clerigo_n5.yaml`)
+validar.py 0 errores · censo 867 · srd 646 · foundry 3749
+verificar_chequeos     67 silenciosas · 20 declaradas `# TOLERADO:`
+```
+
+**Lo que la ronda 2 NO cerró, y queda para la auditoría pendiente:** la
+pregunta de si el patrón de autoridad duplicada vive también en `calculo.py`,
+`efectos.py`, `subir_nivel.py` y `generar_ficha.py`, que ninguna ronda de
+estrés ha tocado todavía.
