@@ -111,6 +111,9 @@ pg_por_nivel:
      cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.metodos[tirar]"}}
 
 calculado:
+  # Lo escribió el motor, no una lectura independiente de la
+  # página. Ver `PLAN_20_AUDITORIA.md` §1.2.
+  _origen: {metodo: motor, informe: null, fecha: "2026-09-05"}
   pg_max: 44
   ca: 15
   bonif_competencia: 3

@@ -75,6 +75,9 @@ dotes:
   - {ref: "dotes/origen.yaml#Sanador", origen: {trasfondo: Ermitaño}}
 
 calculado:
+  # Lo escribió el motor, no una lectura independiente de la
+  # página. Ver `PLAN_20_AUDITORIA.md` §1.2.
+  _origen: {metodo: motor, informe: null, fecha: "2026-09-05"}
   pg_max: 10
   ca: 15
   bonif_competencia: 2

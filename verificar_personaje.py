@@ -369,10 +369,66 @@ def verificar_calculado(ficha, inf):
             comprobaciones.append(("bonif_ataque_conjuros",
                                     calculo.bonif_ataque_conjuros(apt_mod, pb_esperado)))
 
+    sobran = set(calc) - {c for c, _ in comprobaciones} - {"_origen"}
+    if sobran:
+        inf.error(f"`calculado` trae campos que el verificador no recalcula: "
+                  f"{sorted(sobran)}. Un número en `calculado` que nadie "
+                  f"contrasta es un número inventado")
     for campo, esperado in comprobaciones:
         real = calc.get(campo)
         if real != esperado:
             inf.error(f"calculado.{campo} = {real!r}, pero recalculado da {esperado!r}")
+
+
+# ── De dónde sale el bloque `calculado` ──────────────────────────────────
+# Fase 1.2 de la auditoría (2026-09-05). El problema que cierra es de forma,
+# no de aritmética: la ficha se ESCRIBE con `calculo`/`efectos` (por
+# `--calcular`) y se VERIFICA recalculando con `calculo`/`efectos`. El círculo
+# está cerrado, así que un error del motor produce una ficha coherente y
+# equivocada, y sale en verde. `mutaciones_motor.py` lo midió: 7 de 11 trozos
+# del motor se pueden corromper sin que ninguna ficha se queje.
+#
+# Esto no arregla la aritmética —eso lo hace el mandato «el calculista» de la
+# ronda 3 de estrés—, pero hace VISIBLE lo que hoy es invisible: si un número
+# lo escribió el motor o una lectura independiente de la página.
+#
+# La regla dura, y es la que da sentido a todo: `calcular_bloque()` escribe
+# SIEMPRE `metodo: motor` y NUNCA puede firmar `agente-manual`. Si el
+# escritor puede firmar como oráculo, no hay oráculo.
+_METODOS_DE_ORIGEN = ("motor", "agente-manual")
+
+
+def verificar_origen_del_calculado(ficha, inf):
+    calc = ficha.get("calculado")
+    if not isinstance(calc, dict):
+        # TOLERADO: la ausencia del bloque entero la caza `verificar_calculado`,
+        # que lo compara campo a campo y saca un error por cada uno. Repetirlo
+        # aquí daría dos mensajes para un solo defecto.
+        return
+    o = calc.get("_origen")
+    if not isinstance(o, dict):
+        inf.error("`calculado` no dice de dónde sale. Necesita `_origen` con "
+                  "`metodo` (" + " | ".join(_METODOS_DE_ORIGEN) + "), porque "
+                  "un número escrito por el motor y otro leído a mano de la "
+                  "página no valen lo mismo")
+        return
+    metodo = o.get("metodo")
+    if metodo not in _METODOS_DE_ORIGEN:
+        inf.error(f"`calculado._origen.metodo` es {metodo!r} y solo vale "
+                  f"{list(_METODOS_DE_ORIGEN)}")
+        return
+    if metodo == "agente-manual":
+        informe = o.get("informe")
+        if not informe:
+            inf.error("`_origen.metodo: agente-manual` sin `informe:`. Un "
+                      "número que dice venir de una lectura independiente "
+                      "tiene que decir DÓNDE está esa lectura")
+            return
+        if not (pathlib.Path(__file__).parent / str(informe)).exists():
+            inf.error(f"`_origen.informe` apunta a {informe!r} y ese fichero "
+                      f"no existe: la derivación tiene que poder leerse")
+            return
+    inf.comprobados += 1
 
 
 # ── Las mejoras de característica, que nadie justificaba ─────────────────
@@ -912,6 +968,12 @@ def calcular_bloque(ficha):
             apt = calculo.modificador(final[clave])
             bloque["cd_conjuros"] = calculo.cd_conjuros(apt, pb)
             bloque["bonif_ataque_conjuros"] = calculo.bonif_ataque_conjuros(apt, pb)
+    # SIEMPRE `motor`, y no hay parámetro para cambiarlo. Este es el escritor:
+    # si pudiera firmar `agente-manual`, la firma no valdría nada. Un número
+    # solo puede declararse leído a mano si lo escribió una lectura a mano.
+    import datetime
+    bloque["_origen"] = {"metodo": "motor", "informe": None,
+                         "fecha": datetime.date.today().isoformat()}
     return bloque, avisos
 
 
@@ -1211,6 +1273,7 @@ def main():
     for chequeo in (verificar_claves, verificar_habilidades,
                     verificar_categorias, verificar_compra_puntos,
                     verificar_pg_por_nivel, verificar_idiomas,
+                    verificar_origen_del_calculado,
                     verificar_mejoras, verificar_conjuros,
                     verificar_dotes_y_subclase, verificar_forma_competencias,
                     verificar_calculado, verificar_sin_copias):

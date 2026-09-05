@@ -62,6 +62,9 @@ dotes:
   - {ref: "dotes/origen.yaml#Afortunado", origen: {trasfondo: Comerciante}}
 
 calculado:
+  # Lo escribió el motor, no una lectura independiente de la
+  # página. Ver `PLAN_20_AUDITORIA.md` §1.2.
+  _origen: {metodo: motor, informe: null, fecha: "2026-09-05"}
   pg_max: 8
   ca: 12
   bonif_competencia: 2

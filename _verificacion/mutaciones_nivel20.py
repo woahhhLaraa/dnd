@@ -543,6 +543,47 @@ def n_clave_de_prosa_libre(r):
             "aunque no salga en su bloque de ejemplo")
 
 
+# ── Fase 1.2 de la auditoría: de dónde sale el bloque `calculado` ────────
+# El muro entre quien escribe el número y quien lo verifica. No arregla la
+# aritmética —eso es el mandato «el calculista»—, hace visible si un número
+# lo escribió el motor o una lectura independiente de la página.
+
+def e_calculado_sin_origen(r):
+    def edita(d):
+        d["calculado"].pop("_origen", None)
+    _editar(r, CLERIGO_N5, edita)
+    return "`calculado` sin `_origen`: no dice de dónde sale"
+
+
+def e_origen_agente_sin_informe(r):
+    """Firmar como lectura independiente sin decir dónde está la lectura."""
+    def edita(d):
+        d["calculado"]["_origen"] = {"metodo": "agente-manual", "informe": None,
+                                     "fecha": "2026-09-05"}
+    _editar(r, CLERIGO_N5, edita)
+    return ("`_origen: agente-manual` sin `informe:`: una firma que no se "
+            "puede ir a leer no vale")
+
+
+def e_origen_informe_inexistente(r):
+    def edita(d):
+        d["calculado"]["_origen"] = {
+            "metodo": "agente-manual",
+            "informe": "_verificacion/_aritmetica/no-existe.md",
+            "fecha": "2026-09-05"}
+    _editar(r, CLERIGO_N5, edita)
+    return "`_origen.informe` apunta a un fichero que no existe"
+
+
+def e_campo_de_mas_en_calculado(r):
+    """Un número en `calculado` que el verificador no recalcula es un número
+    inventado: hasta hoy sobraba en silencio."""
+    def edita(d):
+        d["calculado"]["iniciativa"] = 3
+    _editar(r, CLERIGO_N5, edita)
+    return "un campo en `calculado` que nadie recalcula"
+
+
 ESTRES = [e_dote_sin_prerrequisito, e_subclase_de_otra_clase,
           e_competencia_como_ref, e_escudo_sin_entrenamiento,
           e_conjuro_de_subclase_inventado, e_conjuro_de_subclase_a_destiempo,
@@ -553,7 +594,9 @@ ESTRES = [e_dote_sin_prerrequisito, e_subclase_de_otra_clase,
           e_conjuro_repetido_en_las_dos_listas,
           e_idioma_por_especie, e_idioma_fuera_de_tabla,
           e_idioma_de_rasgo_inexistente, e_idiomas_de_mas_por_eleccion,
-          e_clave_raza, e_clave_en_singular, e_clave_nunca_vista]
+          e_clave_raza, e_clave_en_singular, e_clave_nunca_vista,
+          e_calculado_sin_origen, e_origen_agente_sin_informe,
+          e_origen_informe_inexistente, e_campo_de_mas_en_calculado]
 NO_DEBEN = [n_otro_reparto_legal, n_otro_conjuro, n_prosa_de_decisiones,
             n_una_sola_clase_sigue_pasando,
             n_conjuros_de_subclase_bien_declarados, n_categoria_con_mayuscula,

@@ -131,7 +131,15 @@ quitar el `math.floor`; `max(1,…)`→`max(0,…)` en `pg_de_subida`; invertir
 **Una mutación que ninguna ficha caza es un hueco de cobertura aritmética, y la
 suite lo nombra** — esa lista dirige 1.4.
 
-**1.2 · `_origen` en el bloque `calculado`.** Hace visible si un número lo
+**1.2 · `_origen` en el bloque `calculado`** — ✅ **HECHA (2026-09-05)**.
+El muro es real y está probado: `--calcular` no tiene forma de escribir
+`agente-manual`, y las cuatro mutaciones nuevas cazan la firma sin informe, el
+informe inexistente, el método inventado y el `_origen` ausente. De propina
+saltó un hueco que no estaba en el plan: **un campo de más en `calculado` que
+el verificador no recalcula pasaba en silencio** — un número inventado con
+aspecto de calculado. Ahora falla. `mutaciones_nivel20` 48/48 → **52/52**.
+
+El diseño original: Hace visible si un número lo
 escribió el motor o una lectura independiente:
 ```yaml
 calculado:

@@ -142,6 +142,19 @@ elecciones:                      # SOLO si el personaje tiene más de una forma
                                   # Monje/Hechicero dracónico multiclase
 
 calculado:                       # lo escriben calculo.py y efectos.py — nunca a mano
+  # De dónde sale este bloque, y no es burocracia: la ficha se ESCRIBE con
+  # `calculo`/`efectos` (por `--calcular`) y se VERIFICA recalculando con
+  # `calculo`/`efectos`. El círculo está cerrado, así que un error del motor
+  # produce una ficha coherente y equivocada. `mutaciones_motor.py` lo midió
+  # el 2026-09-05: 7 de 11 trozos del motor se pueden corromper sin que
+  # ninguna ficha se queje.
+  #
+  # `metodo` ∈ {motor, agente-manual}. `--calcular` escribe SIEMPRE `motor` y
+  # no tiene forma de escribir lo otro: si el escritor pudiera firmar como
+  # oráculo, no habría oráculo. Solo una lectura independiente de la página
+  # —el mandato «el calculista» de `PLAN_ESTRES.md`— pone `agente-manual`, y
+  # entonces `informe:` tiene que apuntar a la derivación escrita.
+  _origen: {metodo: motor, informe: null, fecha: "2026-09-05"}
   pg_max: 9
   ca: 12
   bonif_competencia: 2
