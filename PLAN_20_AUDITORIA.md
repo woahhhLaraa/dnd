@@ -392,7 +392,56 @@ el mismo modo de fallo que ese script existe para cazar.
 
 ---
 
-## Fase 3 · Fila 8 del censo — «constantes de dominio en Python»
+## Fase 3 · Fila 9 del censo — «constantes de dominio en Python»
+
+> **✅ LA FILA, HECHA (2026-09-05). Los grupos de cierre, empezados.**
+>
+> **Cifra remedida: 39, no 34** — la base ha crecido desde que se midió
+> (`municion.yaml`, `derivadas`, `pendientes`). Nace con **0 alcanzadas y 39
+> de deuda enumerada**: un motivo de relleno NO cuenta como declaración, que
+> sería justo el perdón que esta fila existe para no dar. Solo pasa a
+> `declaradas` el día que alguien escribe por qué el literal se queda.
+>
+> **Un límite declarado, no escondido:** el criterio solo ve literales que
+> caben ENTEROS en una colección. El «disperso» que este plan preveía no lo
+> detecta esta prueba, y no se inventa un detector para eso.
+>
+> **Y una clase que el plan no había previsto, que NO es falso positivo:** los
+> literales que EXIGEN claves (`for clave in (...): if clave not in v: raise`).
+> No son copias del vocabulario, son el requisito que la base debe cumplir, y
+> derivarlos haría el chequeo vacuo. La taxonomía ya los cubre: son
+> `subconjunto`, se declaran con motivo **enumerando lo que dejan fuera**, y si
+> la colección crece la declaración deja de cuadrar → rojo, y alguien decide si
+> lo nuevo también se exige. Hoy nada hace esa pregunta.
+>
+> **Cinco mutaciones nuevas** en `mutaciones_censo` (23/23 → 26/26 → **31/31**):
+> un literal nuevo, el mismo DENTRO de una función, una declaración desfasada
+> por crecer la colección, y dos controles negativos —un literal que no es
+> vocabulario de la base, y doce líneas que desplazan todos los literales del
+> módulo, porque la huella es el CONJUNTO y no la línea—.
+>
+> **Grupos cerrados hasta ahora: 39 → 30.**
+> - listas de ficheros de `equipo/` y `dotes/` → `glob`. Y con ellas salió que
+>   `buscar.py` no tenía `municion.yaml` en su tupla **desde que ese fichero se
+>   creó**: un objeto suyo no se encontraba y el mensaje decía que no existía.
+> - los cuatro literales de grupos de armadura → `efectos.grupos_de_armadura()`.
+>   Queda UN literal declarado con motivo: cuál de las claves no es armadura,
+>   porque esa distinción la base la tiene en el nombre de la clave y no la
+>   etiqueta en ningún sitio.
+> - el emparejamiento «Bárbaro» → `barbaro`, escrito dos veces, →
+>   `efectos.clases_por_nombre()`, que lo lee del `clase:` de cada fichero.
+> - dos mapas se DECLARAN con motivo real, no se derivan: sus claves son la
+>   mitad izquierda de una correspondencia (fichero→validador,
+>   fichero→cuenta esperada), y que cubran el directorio ya lo comprueba el
+>   propio chequeo.
+>
+> **Queda:** las 6 características y sus abreviaturas (el emparejamiento **no
+> está en la base**: hace falta `reglas/caracteristicas.yaml` con su página),
+> las 18 habilidades, la página cableada de `armaduras.yaml`, y el resto de la
+> deuda enumerada.
+
+### El diseño (como se escribió)
+
 
 La cabecera del censo rechazó esta fila con un argumento correcto: detectarlas
 por la **forma** del literal es una heurística con falsos positivos. Pero no se
@@ -489,7 +538,7 @@ Fase 1  aritmética           ✅ 1.1 mutaciones_motor  ✅ 1.2 _origen  ✅ 1.3
                              ✅ 1.6 la huella del guardián del silencio
 Fase 2  equipo/              ✅ CERRADA (2.1 directorios · 2.2 derivadas ·
                              2.3 control · 2.4 municion · 2.5 ancla)
-Fase 3  fila 9              primero la fila con las 34; luego cada grupo, viéndola bajar
+Fase 3  fila 9              ✅ la fila (39 medidas) · grupos de cierre en marcha: 39 → 30
 Fase 4  vocabularios        necesita que la fila 9 haya declarado los `for clave in (...)`
 ```
 

@@ -391,7 +391,8 @@ def ca(des_mod, con_mod=0, sab_mod=0, clase=None, armadura=None, escudo=False):
     if armadura:
         d = cargar("equipo/armaduras.yaml")
         entrada = None
-        for grupo in ("armaduras_ligeras", "armaduras_medias", "armaduras_pesadas"):
+        import efectos                      # perezoso, como en `_tiene_ca_de_rasgo`
+        for grupo in efectos.grupos_de_armadura()[0]:
             for a in d[grupo]["tabla"]:
                 if a["nombre"].lower() == armadura.lower():
                     entrada = a
@@ -507,16 +508,14 @@ def _tiene_ca_de_rasgo(clase):
 
 
 def _archivo_clase(nombre):
-    mapa = {
-        "Bárbaro": "barbaro.yaml", "Bardo": "bardo.yaml", "Brujo": "brujo.yaml",
-        "Clérigo": "clerigo.yaml", "Druida": "druida.yaml",
-        "Explorador": "explorador.yaml", "Guerrero": "guerrero.yaml",
-        "Hechicero": "hechicero.yaml", "Mago": "mago.yaml", "Monje": "monje.yaml",
-        "Paladín": "paladin.yaml", "Pícaro": "picaro.yaml",
-    }
+    """El emparejamiento nombre→fichero se DERIVA: cada `clases/*.yaml`
+    declara su propio `clase:`. Iba escrito a mano aquí y otra vez en
+    `efectos._RASGOS_DE_CLASE`, dos copias que nadie comparaba (fase 3)."""
+    import efectos                          # perezoso, como más arriba
+    mapa = efectos.clases_por_nombre()
     if nombre not in mapa:
         sys.exit(f"✗ clase desconocida: {nombre!r} (¿nombre exacto, con tilde?)")
-    return mapa[nombre]
+    return f"{mapa[nombre]}.yaml"
 
 
 # ── CLI ────────────────────────────────────────────────────────────────

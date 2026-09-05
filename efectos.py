@@ -367,15 +367,62 @@ def efectos_declarados(rutas=None):
     return salida
 
 
+# ── Los grupos de `equipo/armaduras.yaml`, derivados (fase 3 del PLAN_20) ─
+# La tupla `("armaduras_ligeras", "armaduras_medias", "armaduras_pesadas")`
+# estaba escrita CUATRO veces —aquí, en `calculo.ca()`, en `validar_equipo` y
+# en `verificar_foundry`— y en dos de ellas con `"escudos"` detrás. Cuatro
+# copias del mismo vocabulario que nadie comparaba: si el fichero ganara un
+# grupo, dos de las cuatro lo verían y dos no, en silencio.
+#
+# Los grupos se descubren: las claves que traen `tabla`. Lo único que queda
+# escrito es CUÁL de ellas no es armadura, porque esa distinción —armadura vs
+# escudo— la base la tiene en el nombre de la clave y no la etiqueta en
+# ningún sitio. Un literal declarado con motivo en vez de cuatro copias.
+_CLAVE_DE_ESCUDOS = "escudos"
+
+
+@functools.lru_cache(maxsize=1)
+def grupos_de_armadura():
+    """`(grupos_de_armadura, grupos_de_escudo)`, descubiertos del fichero."""
+    d = _leer("equipo/armaduras.yaml")
+    tablas = [k for k, v in d.items()
+              if isinstance(v, dict) and isinstance(v.get("tabla"), list)]
+    if _CLAVE_DE_ESCUDOS not in tablas:
+        raise ErrorDeEfectos(
+            f"`equipo/armaduras.yaml` ya no trae un grupo «{_CLAVE_DE_ESCUDOS}»: "
+            f"la distinción armadura/escudo se apoya en esa clave y hay que "
+            f"decidir de nuevo cómo se hace, no seguir adivinando")
+    return (tuple(k for k in tablas if k != _CLAVE_DE_ESCUDOS),
+            (_CLAVE_DE_ESCUDOS,))
+
+
+# ── Los nombres de las 12 clases, derivados ──────────────────────────────
+# El emparejamiento «Bárbaro» → `barbaro` estaba escrito dos veces, aquí y en
+# `calculo._archivo_clase`. Sale de la base: cada `clases/*.yaml` declara su
+# propio `clase:`.
+@functools.lru_cache(maxsize=1)
+def clases_por_nombre():
+    """`{"Bárbaro": "barbaro", …}` — nombre declarado → tallo del fichero."""
+    mapa = {}
+    for q in sorted((B / "clases").glob("*.yaml")):
+        d = _leer(q.relative_to(B).as_posix())
+        nombre = (d or {}).get("clase")
+        if not nombre:
+            raise ErrorDeEfectos(
+                f"clases/{q.name} no declara `clase:`, así que no hay forma de "
+                f"saber con qué nombre se la cita desde una ficha")
+        mapa[nombre] = q.stem
+    return mapa
+
+
 # ── Estado: qué condiciones cumple el personaje ──────────────────────────
-_ARMADURAS = ("armaduras_ligeras", "armaduras_medias", "armaduras_pesadas")
 
 
 def estado_de_equipo(refs):
     """Deduce las condiciones del equipo de la ficha. Lo deduce el código a
     partir de `equipo/armaduras.yaml`, no el LLB a ojo."""
     d = yaml.safe_load((B / "equipo/armaduras.yaml").read_text(encoding="utf-8"))
-    nombres = {a["nombre"].lower() for g in _ARMADURAS for a in d[g]["tabla"]}
+    nombres = {a["nombre"].lower() for g in grupos_de_armadura()[0] for a in d[g]["tabla"]}
     # `sin_armadura_pesada` (bloque A2, 2026-09-02): el Bárbaro y el Explorador
     # conservan su +3 m con armadura ligera o media y solo lo pierden con la
     # pesada. Qué armaduras son pesadas se LEE del grupo correspondiente, que
@@ -606,12 +653,6 @@ if __name__ == "__main__":
 
 
 # ── De la ficha a los efectos que de verdad tiene el personaje ───────────
-_RASGOS_DE_CLASE = {
-    "Bárbaro": "barbaro", "Bardo": "bardo", "Brujo": "brujo",
-    "Clérigo": "clerigo", "Druida": "druida", "Explorador": "explorador",
-    "Guerrero": "guerrero", "Hechicero": "hechicero", "Mago": "mago",
-    "Monje": "monje", "Paladín": "paladin", "Pícaro": "picaro",
-}
 
 _RE_CA = None
 
@@ -640,7 +681,7 @@ def efectos_de_equipo(refs, entrenamientos=None, fuerza=None):
     d = yaml.safe_load((B / "equipo/armaduras.yaml").read_text(encoding="utf-8"))
     pag = {"pdf": 218, "libro": 216}
     idx = {}
-    for g in _ARMADURAS:
+    for g in grupos_de_armadura()[0]:
         for a in d[g]["tabla"]:
             idx[a["nombre"].lower()] = ("armadura", a)
     for e in d["escudos"]["tabla"]:
@@ -703,7 +744,7 @@ def efectos_de_ficha(ficha):
 
     for c in ficha.get("clases", []):
         nombre, nivel = c["clase"], c["nivel"]
-        stem = _RASGOS_DE_CLASE.get(nombre)
+        stem = clases_por_nombre().get(nombre)
         if stem is None:
             raise ErrorDeEfectos(f"clase desconocida: {nombre!r}")
         for rel, camino, filtro in (

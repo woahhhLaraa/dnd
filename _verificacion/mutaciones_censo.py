@@ -207,6 +207,62 @@ def m_clasificacion_de_equipo_muerta(r):
             "existe: declaración muerta")
 
 
+def u_constante_de_dominio_nueva(r):
+    """Fila 9 (fase 3). Un literal de Python cuyas cadenas son TODAS
+    vocabulario de una colección de la base es autoridad duplicada, y tiene
+    que salir aunque nadie lo haya puesto en la lista."""
+    p = r / "buscar.py"
+    t = p.read_text(encoding="utf-8")
+    p.write_text(t + '\n\n_INVENTADA = ("Bardo", "Clérigo", "Druida", "Mago")\n',
+                 encoding="utf-8")
+    return ("un literal nuevo en Python con cuatro nombres de clase, que no "
+            "está en `constantes_de_dominio.json`")
+
+
+def u_constante_dentro_de_funcion(r):
+    """Si solo se miraran las constantes de módulo, meter el literal dentro de
+    una función lo haría desaparecer del censo."""
+    p = r / "buscar.py"
+    t = p.read_text(encoding="utf-8")
+    p.write_text(t + '\n\ndef _inventada():\n'
+                     '    return ("Bardo", "Clérigo", "Druida", "Mago")\n',
+                 encoding="utf-8")
+    return "el mismo literal, pero DENTRO de una función"
+
+
+def u_declaracion_de_constante_desfasada(r):
+    """El diente del `subconjunto`: si la colección crece, el `deja_fuera` de
+    la declaración deja de cuadrar y alguien tiene que decidir si lo nuevo
+    entra también en el literal. Hoy nada hace esa pregunta."""
+    _sust(r, "reglas/efectos.yaml", "condiciones:\n",
+          "condiciones:\n  con_montura:\n    desc: \"prueba\"\n", 1)
+    return ("una condición NUEVA en el vocabulario: el literal de "
+            "`estado_de_equipo()` la deja fuera y su declaración ya no cuadra")
+
+
+def n_literal_que_no_es_de_la_base(r):
+    """CONTROL NEGATIVO: un literal de tres cadenas que NO son vocabulario del
+    juego no es una constante de dominio. Si saltara, la fila obligaría a
+    declarar cualquier tupla de texto y el manifiesto se llenaría de ruido."""
+    p = r / "buscar.py"
+    t = p.read_text(encoding="utf-8")
+    p.write_text(t + '\n\n_COLORES = ("rojo", "verde", "azul", "amarillo")\n',
+                 encoding="utf-8")
+    return "un literal de cuatro cadenas que no son vocabulario de la base"
+
+
+def n_constante_movida_de_linea(r):
+    """CONTROL NEGATIVO: la huella es el CONJUNTO, no la línea. Editar por
+    encima de un literal no puede invalidar el fichero de declaraciones — la
+    lección que `verificar_chequeos.py` aprendió con las gemelas."""
+    p = r / "buscar.py"
+    t = p.read_text(encoding="utf-8")
+    i = t.index("\n", t.index("import"))
+    p.write_text(t[:i] + "\n# " + "\n# ".join(["empuje"] * 12) + t[i:],
+                 encoding="utf-8")
+    return "doce líneas de comentario que desplazan todos los literales del módulo"
+
+
 def n_rasgo_no_automatizado(r):
     _sust(r, "clases/rasgos/picaro.yaml", "rasgos:\n",
           'rasgos:\n  - nombre: "Reflejos de sombra"\n    nivel: 1\n'
@@ -333,9 +389,12 @@ DEBEN = [u_fichero_de_regla, u_variable_calculable, u_columna_de_clase,
          m_excluido_muerto, m_deuda_muerta,
          u_efecto_nuevo_sin_carga,
          u_fichero_de_equipo_sin_clasificar, u_directorio_nuevo_sin_declarar,
-         m_clasificacion_de_equipo_muerta]
+         m_clasificacion_de_equipo_muerta,
+         u_constante_de_dominio_nueva, u_constante_dentro_de_funcion,
+         u_declaracion_de_constante_desfasada]
 NO_DEBEN = [n_rasgo_no_automatizado, n_yaml_en_directorio_no_de_regla,
-            n_columna_ya_contrastada, n_suite_sin_chequeos, n_exencion_con_motivo]
+            n_columna_ya_contrastada, n_suite_sin_chequeos, n_exencion_con_motivo,
+            n_literal_que_no_es_de_la_base, n_constante_movida_de_linea]
 # Mutaciones que NO deben hacer fallar al censo pero SÍ subir su recuento.
 # Quedó vacía al cerrar el bloque D: la única que había —el rasgo nuevo— ahora
 # tiene que fallar, no solo contarse. Se conserva el mecanismo porque la fila

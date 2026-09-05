@@ -111,8 +111,7 @@ def inventario_equipo():
             for v in o:
                 walk(v)
 
-    for fn in ("armas.yaml", "armaduras.yaml", "herramientas.yaml", "aventureros.yaml",
-               "municion.yaml"):
+    for fn in sorted(p.name for p in (B / "equipo").glob("*.yaml")):
         d = cargar(f"equipo/{fn}")
         if d:
             walk(d)
@@ -329,7 +328,7 @@ def cobertura_trasfondos(inf, inv_equipo):
     lista = next((v for v in d.values() if isinstance(v, list)), [])
 
     dotes = set()
-    for fn in ("origen.yaml", "generales.yaml", "estilo_de_combate.yaml", "don_epico.yaml"):
+    for fn in sorted(p.name for p in (B / "dotes").glob("*.yaml")):
         dd = cargar(f"dotes/{fn}") or {}
         for v in dd.values():
             if isinstance(v, list):

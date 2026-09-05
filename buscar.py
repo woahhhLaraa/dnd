@@ -91,8 +91,13 @@ def equipo(nombre, archivo=None):
                     return r
         return None
 
-    orden = ("armas.yaml", "armaduras.yaml", "herramientas.yaml",
-             "aventureros.yaml", "municion.yaml")
+    # Los ficheros se DESCUBREN del directorio (fase 3 del PLAN_20). Iban
+    # escritos a mano, y `municion.yaml` estuvo fuera de esta tupla desde que
+    # se creó: un objeto suyo no se encontraba y el mensaje decía que no
+    # existía. El orden no cambia el resultado —si un nombre está en dos
+    # ficheros, el camino de abajo exige `archivo` explícito en vez de
+    # devolver el primero—, así que basta con que estén todos.
+    orden = tuple(sorted(p.name for p in (B / "equipo").glob("*.yaml")))
     if archivo:
         fn = archivo.split("/")[-1]
         if fn not in orden:
@@ -130,8 +135,7 @@ def equipo(nombre, archivo=None):
 def dote(nombre):
     """Busca una dote por nombre exacto en dotes/*.yaml. Falla si no existe."""
     nombre_norm = nombre.strip().lower()
-    for fn in ("generales.yaml", "origen.yaml", "estilo_de_combate.yaml",
-               "don_epico.yaml"):
+    for fn in sorted(p.name for p in (B / "dotes").glob("*.yaml")):
         d = cargar(f"dotes/{fn}")
         for dt in d["dotes"]:
             if dt["nombre"].strip().lower() == nombre_norm:

@@ -575,7 +575,8 @@ def verificar_armaduras():
         })
 
     emparejadas = ambiguas = 0
-    for grupo in ("armaduras_ligeras", "armaduras_medias", "armaduras_pesadas", "escudos"):
+    import efectos as _E
+    for grupo in sum(_E.grupos_de_armadura(), ()):
         for a in d.get(grupo, {}).get("tabla", []):
             pc = _precio_a_pc(a.get("precio"))
             cand = srd.get(pc, [])

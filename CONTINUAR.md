@@ -42,7 +42,7 @@ python3 validar.py            # 0 errores
 python3 verificar_srd.py      # 646 valores · 0 discrepancias
 python3 verificar_foundry.py  # 3749 valores · 0 discrepancias
 python3 cobertura.py          # 0 preguntas sin responder
-python3 censo.py              # 912 unidades · 0 sin declarar · 591 pendientes
+python3 censo.py              # 942 unidades · 0 sin declarar · 619 pendientes
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 18/18
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240
 python3 verificar_documentos.py   # ¿CONTINUAR.md y FODA.md dicen la verdad?
@@ -136,8 +136,20 @@ solución a los "parches puntuales" en vez de seguir apilando verificadores.**
 >   del censo queda anclada, que es la que más se mueve y la que nadie
 >   contrastaba.
 >
-> **Lo siguiente:** la fase 3 (la fila de constantes de dominio en Python) y
-> más tandas a ciegas del calculista para bajar la fila 8 de 4/25.
+> - **Fase 3 · la novena fila del censo: constantes de dominio en Python.**
+>   Un literal de Python cuyas cadenas están TODAS en el vocabulario de una
+>   colección de la base es autoridad duplicada. Medidas **39** (umbral ≥3
+>   cadenas, declarado), y es **la única fila que debe tender a cero**: solo
+>   se salda borrando el literal. Ya va por 30. De ahí salió que `buscar.py`
+>   no tenía `municion.yaml` en su tupla desde que ese fichero se creó — un
+>   objeto suyo no se encontraba y el mensaje decía que no existía.
+>
+> **Lo siguiente:** seguir bajando la fila 9 (quedan las 6 características y
+> sus abreviaturas, que necesitan `reglas/caracteristicas.yaml` porque **el
+> emparejamiento no está en la base**; las 18 habilidades; y la página
+> cableada de `armaduras.yaml`), la **fase 4** (vocabularios cerrados sin
+> consumidor exhaustivo) y más tandas a ciegas del calculista para bajar la
+> fila 8 de 4/25.
 > `subir_nivel.py` y `generar_ficha.py` siguen sin mirarse con esta lupa: el
 > punto 2 de aquí abajo sigue vigente para ellos.
 

@@ -604,9 +604,225 @@ def fila_efectos_con_carga():
                 manifiesto="_verificacion/efectos_sin_carga.json")
 
 
+# ══ Fila 9 · constantes de dominio en Python ══════════════════════════════
+# Fase 3 de la auditoría (2026-09-05). La cabecera de este censo había
+# rechazado esta fila con un argumento correcto: detectar una constante de
+# dominio por la FORMA del literal —«parece una lista de nombres del juego»—
+# es una heurística con falsos positivos. Sigue siendo verdad.
+#
+# Pero no se aplica a una prueba de PERTENENCIA, que es lo que se usa aquí:
+#
+#   Un literal es constante de dominio si sus cadenas están, TODAS, en el
+#   vocabulario de UNA colección de la base — y las colecciones se descubren:
+#   claves de cada mapa, `nombre:` de cada lista, ficheros de cada directorio,
+#   valores por ruta de clave.
+#
+# **El umbral se declara, no se esconde:** ≥3 cadenas distintas. Con ≥2 el
+# recuento sube a 60 y la mayoría de lo nuevo es navegación estructural
+# (`("n", "rasgos")`), que no es vocabulario del juego sino la forma del
+# fichero. Bajarlo llenaría el manifiesto de ruido, y un manifiesto lleno de
+# ruido no lo lee nadie: que es como se pierde otra vez.
+#
+# **Y un límite declarado:** el criterio solo ve literales que caben ENTEROS
+# en una colección. Un literal que mezcle vocabulario de dos colecciones —el
+# «disperso» que el plan preveía— no lo detecta esta prueba. No se inventa un
+# detector para eso: se dice que no está.
+_UMBRAL_CONSTANTES = 3
+_SIN_MIRAR = "sin mirar todavía"
+
+
+def _colecciones_de_la_base():
+    """Los vocabularios de la base, DESCUBIERTOS. Nada de esto va a mano."""
+    import json as J
+    col = {}
+
+    def add(nombre, valores):
+        v = {x for x in valores if isinstance(x, str) and x}
+        if len(v) >= _UMBRAL_CONSTANTES:
+            col[nombre] = v
+
+    for d in sorted(B.iterdir()):
+        if d.is_dir() and not d.name.startswith("."):
+            add(f"ficheros:{d.name}/", [q.name for q in d.glob("*.yaml")])
+            add(f"tallos:{d.name}/", [q.stem for q in d.glob("*.yaml")])
+
+    porruta = {}
+    for q in sorted(B.rglob("*.yaml")):
+        rel = q.relative_to(B).as_posix()
+        if rel.startswith(("personajes/", "_verificacion/")):
+            continue
+        try:
+            doc = yaml.safe_load(q.read_text(encoding="utf-8"))
+        except Exception:                                   # noqa: BLE001
+            continue
+
+        def rec(nodo, ruta):
+            if isinstance(nodo, dict):
+                add(f"claves:{rel}:{ruta}", nodo.keys())
+                for k, v in nodo.items():
+                    if isinstance(v, str):
+                        porruta.setdefault(k, set()).add(v)
+                    rec(v, f"{ruta}.{k}" if ruta else str(k))
+            elif isinstance(nodo, list):
+                add(f"nombres:{rel}:{ruta}",
+                    [x.get("nombre") for x in nodo if isinstance(x, dict)])
+                add(f"lista:{rel}:{ruta}", [x for x in nodo if isinstance(x, str)])
+                for x in nodo:
+                    rec(x, ruta)
+        rec(doc, "")
+    for k, v in porruta.items():
+        add(f"valores:{k}", v)
+
+    try:
+        h = J.loads((B / "hechizos.json").read_text(encoding="utf-8"))
+        regs = h if isinstance(h, list) else (h.get("hechizos") or [])
+        add("nombres:hechizos.json",
+            [x.get("nombre") for x in regs if isinstance(x, dict)])
+    except Exception:                                       # noqa: BLE001
+        pass
+    return col
+
+
+def _literales_de_modulo(rel):
+    """Todo literal `Dict`/`Set`/`List`/`Tuple` de cadenas, TAMBIÉN dentro de
+    funciones: si solo se miraran las constantes de módulo, meter el literal
+    dentro de una función lo haría desaparecer."""
+    import ast as A
+    arbol = A.parse((B / rel).read_text(encoding="utf-8"))
+    for n in A.walk(arbol):
+        cadenas = None
+        if isinstance(n, (A.List, A.Tuple, A.Set)):
+            if n.elts and all(isinstance(e, A.Constant) and isinstance(e.value, str)
+                              for e in n.elts):
+                cadenas = [e.value for e in n.elts]
+        elif isinstance(n, A.Dict):
+            claves = [k for k in n.keys if k is not None]
+            if claves and len(claves) == len(n.keys) and all(
+                    isinstance(k, A.Constant) and isinstance(k.value, str)
+                    for k in claves):
+                cadenas = [k.value for k in claves]
+        if cadenas and len(set(cadenas)) >= _UMBRAL_CONSTANTES:
+            yield n.lineno, tuple(sorted(set(cadenas)))
+
+
+def constantes_de_dominio():
+    """[(huella, modulo, cadenas, coleccion, clase)], ordenado y sin líneas.
+
+    **La identidad es la huella del CONJUNTO, no la línea**, para que editar
+    por encima no invalide el fichero de declaraciones — la misma lección que
+    `verificar_chequeos.py` aprendió con las gemelas.
+    """
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("_vc", B / "verificar_chequeos.py")
+    vc = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(vc)
+
+    col = _colecciones_de_la_base()
+    salida, vistas = [], set()
+    for rel in vc.fuentes():
+        for _ln, cad in _literales_de_modulo(rel):
+            s = set(cad)
+            encajan = [c for c, v in col.items() if s <= v]
+            if not encajan:
+                continue
+            # La colección más ESTRECHA que lo contiene, y a igualdad la
+            # primera por nombre: determinista, y la que más dice.
+            cual = min(encajan, key=lambda c: (len(col[c]), c))
+            huella = f"{rel}::" + "|".join(cad)
+            if huella in vistas:
+                continue
+            vistas.add(huella)
+            clase = "copia_exacta" if s == col[cual] else "subconjunto"
+            salida.append((huella, rel, cad, cual, clase,
+                           tuple(sorted(col[cual] - s))))
+    return sorted(salida)
+
+
+def fila_constantes_de_dominio():
+    """La única fila que debe tender a CERO.
+
+    Las otras ocho cuentan cobertura: suben cuando la base crece y se saldan
+    alcanzando lo nuevo. Esta cuenta autoridad duplicada, y solo se salda
+    BORRANDO el literal —derivándolo en tiempo de ejecución—. Por eso
+    `alcanzada` aquí significa «la constante ya no existe».
+    """
+    import json
+    halladas = constantes_de_dominio()
+    universo = {h: f"{rel}: {len(cad)} cadenas de «{cual}» ({clase})"
+                for h, rel, cad, cual, clase, _fuera in halladas}
+    porhuella = {h: (cual, clase, fuera) for h, _r, _c, cual, clase, fuera in halladas}
+
+    f = B / "_verificacion" / "constantes_de_dominio.json"
+    if not f.exists():
+        f.write_text(json.dumps(
+            {"_nota": "Literales de Python cuyas cadenas están TODAS en el "
+                      "vocabulario de una colección de la base: autoridad "
+                      "duplicada. Deuda enumerada, no permiso — solo puede "
+                      "bajar, y se salda DERIVANDO el literal en tiempo de "
+                      "ejecución, no editando esta lista.",
+             "_umbral": _UMBRAL_CONSTANTES,
+             "_como_se_salda": {
+                 "copia_exacta": "se deriva: el literal desaparece",
+                 "subconjunto": "se deriva, o se declara aquí con `motivo` y "
+                                "`deja_fuera` enumerado. Si la colección "
+                                "crece, `deja_fuera` deja de cuadrar y el "
+                                "censo se pone rojo: alguien tiene que "
+                                "decidir si lo nuevo también entra"},
+             "_fecha": "2026-09-05",
+             "constantes": [
+                 {"huella": h, "coleccion": cual, "clase": clase,
+                  "motivo": _SIN_MIRAR + " (fase 3, PLAN_20_AUDITORIA.md)",
+                  "deja_fuera": list(fuera)}
+                 for h, _r, _c, cual, clase, fuera in halladas]},
+            ensure_ascii=False, indent=1), encoding="utf-8")
+
+    doc = json.loads(f.read_text(encoding="utf-8"))
+    declaradas, deuda, muertas_de_dentro = {}, {}, []
+    vivas = []
+    for e in doc["constantes"]:
+        if e["huella"] not in porhuella:
+            continue        # ya no existe: se poda más abajo
+        vivas.append(e)
+        cual, clase, fuera = porhuella[e["huella"]]
+        if list(e.get("deja_fuera") or []) != list(fuera):
+            muertas_de_dentro.append(
+                f"{e['huella'].split('::')[0]}: su `deja_fuera` ya no cuadra "
+                f"—la colección «{cual}» ha cambiado—. Decide si lo nuevo "
+                f"entra en el literal o actualiza la declaración")
+            continue
+        # Un motivo de relleno NO es una declaración: eso sería el perdón que
+        # esta fila existe para no dar. Mientras nadie haya mirado el literal,
+        # va como DEUDA enumerada —contada, visible, y solo puede bajar—, y
+        # pasa a `declaradas` el día que alguien escriba por qué se queda.
+        if str(e.get("motivo", "")).startswith(_SIN_MIRAR):
+            deuda[e["huella"]] = (f"constante de dominio que nadie ha mirado "
+                                  f"todavía ({clase}, de «{cual}»)")
+        else:
+            declaradas[e["huella"]] = f"{e['motivo']} [constantes_de_dominio.json]"
+
+    # PODA: lo derivado sale de la lista. La deuda solo puede bajar.
+    if len(vivas) != len(doc["constantes"]):
+        idas = [e["huella"] for e in doc["constantes"] if e["huella"] not in porhuella]
+        doc["constantes"] = vivas
+        f.write_text(json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8")
+        print(f" ✅ {len(idas)} constante(s) de dominio derivadas y fuera de la deuda:")
+        for h in idas:
+            print(f"      · {h.split('::')[0]} — {h.split('::')[1][:60]}…")
+
+    for m in muertas_de_dentro:
+        print(f" ❌ declaración desfasada · {m}")
+
+    # Una declaración desfasada NO entra ni en `declaradas` ni en `deuda`: su
+    # unidad sale SIN DECLARAR y el censo se pone rojo, que es el punto.
+    return Fila("constante", "constantes de dominio en Python", universo,
+                set(), "que el literal DESAPAREZCA (se derive en ejecución)",
+                declaradas, deuda=deuda,
+                manifiesto="_verificacion/constantes_de_dominio.json")
+
+
 FILAS = (fila_ficheros_de_regla, fila_variables, fila_columnas,
          fila_datos_externos, fila_chequeos, fila_modulos, fila_rasgos,
-         fila_efectos_con_carga)
+         fila_efectos_con_carga, fila_constantes_de_dominio)
 
 
 # ══ El manifiesto de declaraciones ════════════════════════════════════════

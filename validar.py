@@ -577,8 +577,19 @@ def validar_dotes():
     if not d.exists():
         return "dotes", ["falta dotes/"], []
 
+    # El número de dotes por fichero es una guardia contra perder una en
+    # silencio: no se deriva del propio fichero, porque entonces diría «tiene
+    # las que tiene». Lo que SÍ se deriva es la lista de ficheros, y el mapa
+    # tiene que cubrirla: un `dotes/*.yaml` nuevo sin cuenta declarada es un
+    # error. Antes la lista iba a mano y el fichero nuevo no lo miraba nadie
+    # —así vivió `equipo/municion.yaml` (fase 2.4)—.
     esperadas = {"origen.yaml": 10, "generales.yaml": 43,
                  "estilo_de_combate.yaml": 10, "don_epico.yaml": 12}
+    hallados = sorted(q.name for q in d.glob("*.yaml"))
+    for fn in hallados:
+        if fn not in esperadas:
+            err.append(f"dotes/{fn} no tiene cuenta esperada en `validar_dotes`: "
+                       f"nadie comprobaría que no se pierde una dote suya")
     nombres = set()
     total = 0
     for fn, n_esperado in esperadas.items():
@@ -643,7 +654,8 @@ def _eq_armas(data, err, warn):
 
 def _eq_armaduras(data, err, warn):
     n = 0
-    for grupo in ("armaduras_ligeras", "armaduras_medias", "armaduras_pesadas", "escudos"):
+    import efectos as _E
+    for grupo in sum(_E.grupos_de_armadura(), ()):
         filas = data.get(grupo, {}).get("tabla", [])
         n += len(filas)
         for a in filas:
