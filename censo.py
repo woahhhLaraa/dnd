@@ -127,9 +127,8 @@ def fila_ficheros_de_regla():
     # también: un directorio de regla sin clasificar es exactamente la clase
     # de agujero que este censo existe para contar, y dejarlo fuera del
     # universo lo hacía invisible —así vivió `equipo/` hasta la fase 2.1—.
-    de_regla, pendientes = E.directorios_de_regla()
     universo = {}
-    for d in de_regla + pendientes:
+    for d in E.directorios_de_regla():
         for p in sorted((B / d).rglob("*.yaml")):
             rel = p.relative_to(B).as_posix()
             universo[f"regla:{rel}"] = rel
@@ -142,15 +141,19 @@ def fila_ficheros_de_regla():
                   for e in E.cargar_manifiesto()["excluidos"]}
     # Y los ficheros de un directorio PENDIENTE: declarados uno a uno con el
     # motivo del directorio, para que la cuenta los vea y digan por qué.
-    # Solo los ENUMERADOS: un `.yaml` nuevo en un directorio pendiente sale
-    # sin declarar y el censo se pone rojo. La deuda es una lista que solo
-    # puede menguar, no un permiso para el directorio entero.
-    for d in E.cargar_manifiesto()["directorios"]["pendientes"]:
-        for rel in (d.get("ficheros") or []):
+    # Las tres formas legítimas de que un fichero de regla no tenga `efectos:`
+    # dentro. `pendientes` es deuda ENUMERADA fichero a fichero: un `.yaml`
+    # nuevo sin clasificar sale sin declarar y el censo se pone rojo.
+    for d in E.cargar_manifiesto()["derivadas"]:
+        for rel in E._rutas_del_patron(d["patron"]):
             declaradas.setdefault(
                 f"regla:{rel}",
-                f"directorio pendiente de clasificar — {d['motivo']} "
-                f"[fuentes_de_efectos.yaml]")
+                f"fuente derivada: sus efectos los fabrica "
+                f"`efectos.{d['deriva']}()` [fuentes_de_efectos.yaml]")
+    for e in E.cargar_manifiesto()["pendientes"]:
+        declaradas.setdefault(
+            f"regla:{e['ruta']}",
+            f"pendiente de clasificar — {e['motivo']} [fuentes_de_efectos.yaml]")
     return Fila("regla", "ficheros de regla", universo, alcanzadas,
                 "efectos.origenes() y su manifiesto", declaradas,
                 manifiesto="reglas/fuentes_de_efectos.yaml")
@@ -466,20 +469,17 @@ def fila_modulos():
 def fila_rasgos():
     import efectos as E
 
+    # Los registros los da `efectos.registros_de()`, no los descubre esta fila
+    # descendiendo ella misma (fase 2.2). El motivo es concreto: descender por
+    # el `camino` solo sabe leer árboles de rasgos, y por eso
+    # `equipo/armaduras.yaml` —una TABLA— no había forma de contarlo aquí. Que
+    # el censo tuviera que conocer la forma de cada fichero era el defecto;
+    # ahora la conoce quien la fabrica.
     universo, alcanzadas = {}, set()
-    for rel, camino in E.origenes():
-        doc = E._leer(rel)
-        for reg, _anc in E._descender(doc, list(camino)):
-            if not isinstance(reg, dict):
-                continue
-            nombre = reg.get("nombre")
-            if not nombre:
-                continue
-            uid = f"rasgo:{rel}#{nombre}"
+    for rel in E.fuentes_de_registros():
+        for uid, nombre, alcanzado, _motivo in E.registros_de(rel):
             universo[uid] = nombre
-            # `no_automatizado` es la «Foundry Note» del bloque D: decir «lo
-            # miramos y no toca» es una respuesta legítima; callarse no.
-            if reg.get("efectos") or reg.get("no_automatizado"):
+            if alcanzado:
                 alcanzadas.add(uid)
 
     # ── La deuda va ENUMERADA, no bajo un comodín (bloque D) ────────────
@@ -559,7 +559,27 @@ def fila_efectos_con_carga():
     # tocando esta lista.
     f = B / "_verificacion" / "efectos_sin_carga.json"
     if f.exists():
-        listados = json.loads(f.read_text(encoding="utf-8"))["efectos"]
+        doc = json.loads(f.read_text(encoding="utf-8"))
+        listados = doc["efectos"]
+        # PODA: lo que ya sostiene una lectura independiente sale de la lista.
+        # Sin esto la deuda no bajaría nunca en disco, y un efecto que hoy
+        # tiene carga y mañana la pierda —porque su ficha se despromueva—
+        # volvería a estar «declarado» sin que nadie lo dijera. Es el mismo
+        # mecanismo de `chequeos_silenciosos.json` y `motor_sin_carga.json`:
+        # la deuda solo puede bajar, y baja SOLA cuando se paga.
+        saldados = [x for x in listados if x in alcanzadas]
+        if saldados:
+            listados = [x for x in listados if x not in alcanzadas]
+            doc["efectos"] = listados
+            doc["_ultima_poda"] = {
+                "fecha": "2026-09-05",
+                "saldados": [universo.get(x, x) for x in saldados]}
+            f.write_text(json.dumps(doc, ensure_ascii=False, indent=1),
+                         encoding="utf-8")
+            print(f" ✅ {len(saldados)} efecto(s) que ya sostiene una lectura "
+                  f"independiente salen de la deuda:")
+            for x in saldados:
+                print(f"      · {universo.get(x, x)}")
     else:
         listados = sorted(set(universo) - alcanzadas)
         f.write_text(json.dumps(

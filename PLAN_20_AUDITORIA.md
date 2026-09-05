@@ -227,6 +227,16 @@ habría sido el verde que miente. Arreglado con
 REPARTE. 🔴 **Queda relanzar la tanda a ciegas** (los dos agentes murieron por
 límite de sesión).
 
+**✅ Tanda a ciegas (2026-09-05) — 8 de 8.** `draconido_hechicero_n3` y
+`draconido_monje_n2`, elegidas **por la fila 8** (dos efectos de deuda cada
+una, y las dos con fórmulas de CA que nadie sostenía). Los ocho valores
+coinciden con el motor; detalle y los dos hallazgos, en `PLAN_ESTRES.md` →
+«Lo que dieron las dos tandas». Las dos fichas pasan a `_origen: agente-manual`
+con su informe y la **fila 8 va de 0/25 a 4/25** — el primer movimiento real de
+esa cuenta. `efectos_sin_carga.json` se PODA solo cuando algo se salda: sin
+eso la deuda no bajaba nunca en disco y un efecto que perdiera su carga
+volvería a estar «declarado» sin que nadie lo dijera.
+
 ---
 
 ## Fase 1.5 · El `KeyError` que la propia fase 1 introdujo — ✅ HECHA (2026-09-05)
@@ -292,6 +302,18 @@ guardián sin guardián: ninguna suite mutaba `verificar_chequeos.py`.
 ---
 
 ## Fase 2 · El punto ciego de `equipo/`, sin rojo a medias
+
+> **Estado (2026-09-05): ✅ 2.1, ✅ 2.2, ✅ 2.3 · pendientes 2.4 y 2.5.**
+> Cifras REMEDIDAS, no las predichas: fila 1 de 49 a **54**, fila 7 de 519 a
+> **532**, total de 893 a **912**. `mutaciones_censo` de 23/23 a **26/26**.
+> `equipo/municion.yaml` queda como el único `pendiente`, que es 2.4.
+>
+> **Y un hallazgo que no estaba en el plan, encontrado al escribir 2.2:**
+> `calculo.ca()` cableaba el `10` de la CA sin armadura mientras
+> `reglas/efectos.yaml` la declaraba y `efectos.py` la leía. Dos
+> implementaciones de la misma regla sin nadie comparándolas — lo que este
+> mismo plan prohíbe escribir, ya escrito. Cerrado con `validar_ca_base` y
+> cuatro mutaciones (`mutaciones_aritmetica` 36/36 → **40/40**).
 
 El orden es contraintuitivo y hay que respetarlo: `origenes()` **lanza** en
 cuanto `equipo` entra con ficheros sin clasificar, y lo importan cuatro
@@ -442,7 +464,8 @@ Fase 1  aritmética           ✅ 1.1 mutaciones_motor  ✅ 1.2 _origen  ✅ 1.3
                                 🔴 tanda A CIEGAS por relanzar
                              ✅ 1.5 el KeyError propio
                              ✅ 1.6 la huella del guardián del silencio
-Fase 2  equipo/              2.1 directorios → 2.2 derivadas → 2.3 control → 2.4 municion → 2.5 ancla
+Fase 2  equipo/              ✅ 2.1 directorios  ✅ 2.2 derivadas  ✅ 2.3 control
+                             🔴 2.4 municion → 🔴 2.5 ancla
 Fase 3  fila 9              primero la fila con las 34; luego cada grupo, viéndola bajar
 Fase 4  vocabularios        necesita que la fila 9 haya declarado los `for clave in (...)`
 ```
@@ -451,8 +474,10 @@ Fase 4  vocabularios        necesita que la fila 9 haya declarado los `for clave
 plan la llamaba 9 suponiendo que la de constantes llegaría antes; llega
 después). La fase 3 creará la **fila 9**.
 
-**Lo siguiente, por orden:** relanzar la tanda a ciegas del calculista (1.4), y
-después la **fase 2** (`equipo/`), que es la primera sin empezar.
+**Lo siguiente, por orden:** cerrar la **fase 2** con 2.4 (`municion.yaml`, que
+no lo valida nadie) y 2.5 (anclar la cifra del censo en
+`verificar_documentos.py`); luego la **fase 3**. Y seguir bajando la fila 8 de
+4/25 con más tandas a ciegas del calculista, que ya funcionan.
 
 Las fases **1 y 2 son independientes** y pueden ir en paralelo (ficheros
 disjuntos), salvo 1.3, que quiere los efectos derivados de 2.2: si van en
@@ -473,7 +498,7 @@ python3 verificar_srd.py && python3 verificar_foundry.py && python3 cobertura.py
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done
 python3 generar_ficha.py --barrido --exhaustivo
 python3 _verificacion/mutaciones_motor.py       # nueva, fase 1.1
-python3 _verificacion/mutaciones_aritmetica.py # 36/36 desde la fase 1.5
+python3 _verificacion/mutaciones_aritmetica.py # 40/40 desde la CA base
 python3 _verificacion/mutaciones_silencios.py  # nueva, fase 1.6
 python3 verificar_documentos.py                # corre las suites (~5 min)
 ```

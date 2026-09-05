@@ -6,14 +6,10 @@
   "efecto:clases/rasgos/barbaro.yaml#Defensa sin armadura·ca·base",
   "efecto:clases/rasgos/barbaro.yaml#Movimiento rápido·velocidad·add",
   "efecto:clases/rasgos/explorador.yaml#Errante·velocidad·add",
-  "efecto:clases/rasgos/monje.yaml#Defensa sin armadura·ca·base",
-  "efecto:clases/rasgos/monje.yaml#Movimiento sin armadura·velocidad·add",
   "efecto:clases/subclases/bardo.yaml#Inspiración en combate·ca·conditional",
   "efecto:clases/subclases/bardo.yaml#Juego de pies deslumbrante·ca·base",
   "efecto:clases/subclases/druida.yaml#Formas del círculo·ca·conditional",
   "efecto:clases/subclases/explorador.yaml#Emboscador pavoroso·velocidad·conditional",
-  "efecto:clases/subclases/hechicero.yaml#Resistencia dracónica·ca·base",
-  "efecto:clases/subclases/hechicero.yaml#Resistencia dracónica·pg_max·add",
   "efecto:clases/subclases/monje.yaml#Paradigma elemental·velocidad·conditional",
   "efecto:clases/subclases/paladin.yaml#Aura de celeridad·velocidad·add",
   "efecto:clases/subclases/paladin.yaml#Aura de celeridad·velocidad·conditional",
@@ -28,5 +24,14 @@
   "efecto:dotes/origen.yaml#Duro·pg_max·add",
   "efecto:especies/especies.yaml#Aguante enano·pg_max·add",
   "efecto:especies/especies.yaml#Forma grande·velocidad·conditional"
- ]
+ ],
+ "_ultima_poda": {
+  "fecha": "2026-09-05",
+  "saldados": [
+   "Defensa sin armadura → ca (base)",
+   "Movimiento sin armadura → velocidad (add)",
+   "Resistencia dracónica → ca (base)",
+   "Resistencia dracónica → pg_max (add)"
+  ]
+ }
 }

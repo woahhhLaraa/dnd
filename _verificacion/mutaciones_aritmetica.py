@@ -26,7 +26,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from _arnes import principal, sust                     # noqa: E402
 
 CHEQUEOS = ("validar_mejoras_de_dote", "validar_atributos_basicos",
-            "validar_conjuros_cd",
+            "validar_conjuros_cd", "validar_ca_base",
             "validar_generacion", "validar_competencias_clase",
             "validar_ataques")
 
@@ -321,6 +321,60 @@ def n_formula_reescrita(r):
     return "la fórmula redactada de otra forma, con el mismo 8: es legal"
 
 
+# ══ CA base sin armadura · «CA base sin armadura» ═════════════════════════
+# El defecto que estas mutaciones fijan: la regla vive en `reglas/efectos.yaml
+# → variables.ca.base_por_defecto` (pdf 43 = libro 41), la lee `efectos.py`, y
+# `calculo.ca()` tenía el `10` CABLEADO. Dos implementaciones de la misma
+# regla en el mismo repositorio, sin nadie comparándolas. Lo destapó —de
+# rebote— la tanda a ciegas del calculista: los dos agentes informaron de que
+# la base no declaraba esta CA, y se equivocaban porque el mandato les prohíbe
+# abrir justo el fichero donde está.
+#
+# Ojo con lo que NO demuestra una mutación de la base: cambiar el
+# `base_por_defecto` mueve a los dos caminos a la vez, y el chequeo sigue en
+# verde con razón. Lo que hay que romper es el CÓDIGO, uno de los dos a la
+# vez, que es como se separan de verdad.
+
+def cab_numero_recableado(r):
+    """El defecto exacto que había hasta el 2026-09-05, reproducido entero.
+
+    **Van dos cambios a la vez, y es a propósito.** Recablear el `10` cuando
+    la base también dice `10` no cambia ni un número: por eso el defecto pudo
+    vivir tanto tiempo, y por eso una mutación de un solo paso no lo demuestra.
+    Se separan cuando la base cambia y una copia no se entera — que es
+    exactamente lo que se reproduce aquí, y lo que el chequeo tiene que ver.
+    """
+    sust(r, "calculo.py", "    return int(m.group(1))\n",
+         "    return 10\n", 1)
+    sust(r, "reglas/efectos.yaml", '    base_por_defecto: "10 + mod_des"',
+         '    base_por_defecto: "12 + mod_des"')
+    return ("`calculo.ca()` vuelve a cablear el 10 mientras la base corrige a "
+            "12: las dos copias se separan")
+
+
+def cab_declaracion_borrada(r):
+    sust(r, "reglas/efectos.yaml", '    base_por_defecto: "10 + mod_des"\n', "")
+    return "desaparece `variables.ca.base_por_defecto` de la base"
+
+
+def cab_forma_desconocida(r):
+    """Si la regla cambia de forma, las implementaciones no pueden seguir
+    fingiendo que la entienden."""
+    sust(r, "reglas/efectos.yaml", '    base_por_defecto: "10 + mod_des"',
+         '    base_por_defecto: "10 + mod_des + mod_sab"')
+    return ("`base_por_defecto` pasa a una forma que las implementaciones no "
+            "saben leer, y siguen dando su número de siempre")
+
+
+def n_cab_numero_distinto(r):
+    """CONTROL NEGATIVO: cambiar el NÚMERO de la base es legítimo —así se
+    corrige una transcripción—, y los dos caminos tienen que seguirlo. Si esto
+    saltara, el chequeo estaría exigiendo el 10 en vez de exigir que se lea."""
+    sust(r, "reglas/efectos.yaml", '    base_por_defecto: "10 + mod_des"',
+         '    base_por_defecto: "11 + mod_des"')
+    return "la base declara `11 + mod_des` y las dos implementaciones la siguen"
+
+
 BLOQUES = [
     ("MEJORAS DE DOTE · la deuda del 2026-08-31", "mejoras de dote",
      [md_prosa_sin_estructura, md_estructura_sin_prosa, md_ida_y_vuelta_rota,
@@ -345,6 +399,9 @@ BLOQUES = [
     ("CD DE CONJUROS", "CD de conjuros",
      [cd_base_cambiada, cd_sin_pagina, cd_bloque_borrado],
      [n_formula_reescrita]),
+    ("CA BASE SIN ARMADURA", "CA base sin armadura",
+     [cab_numero_recableado, cab_declaracion_borrada, cab_forma_desconocida],
+     [n_cab_numero_distinto]),
     ("ATAQUES DE CONJURO", "ataques de conjuro",
      [at_cuerpo_a_cuerpo_mal_etiquetado, at_directo_sin_tiradas,
       at_ataque_a_distancia_movido],

@@ -351,6 +351,39 @@ _RE_CA_FORMULA = re.compile(
 )
 
 
+# ── La CA base sin armadura: 10, y el 10 SE LEE ──────────────────────────
+# Lo destapó la tanda a ciegas del mandato «el calculista» (2026-09-05): los
+# dos agentes, cada uno con su ficha, informaron de que la base no declaraba
+# en ninguna parte la CA por defecto de quien no lleva armadura. **Se
+# equivocaban, y por culpa del método**: sí la declara —`reglas/efectos.yaml →
+# variables.ca.base_por_defecto`, citada en pdf 43 = libro 41— pero ese
+# fichero es justo el que el mandato les prohíbe abrir, porque es el
+# vocabulario del motor cuya independencia se está comprando.
+#
+# Solo que al ir a comprobarlo apareció el defecto de verdad, y es peor que el
+# que ellos creyeron ver: `efectos.py` SÍ lee ese `base_por_defecto`
+# (`efectos.py` → `calcular()`), y aquí estaba cableado `10 + des_mod`. Dos
+# implementaciones de la misma regla en el mismo repositorio, y nadie
+# comparándolas — el defecto nº 4 del §2 del Plan 18, y exactamente lo que el
+# propio PLAN_20 prohíbe escribir («no escribir un segundo calculador»)
+# encontrado ya escrito. Medido antes de arreglarlo: poniendo `11 + mod_des`
+# en la base, tres fichas se quejan por el camino del motor y `calculo.ca()`
+# seguía diciendo 12.
+@functools.lru_cache(maxsize=1)
+def _ca_base_sin_armadura():
+    decl = ((cargar("reglas/efectos.yaml").get("variables") or {})
+            .get("ca") or {}).get("base_por_defecto")
+    m = re.match(r"^\s*(\d+)\s*\+\s*mod_des\s*$", str(decl or ""))
+    if not m:
+        sys.exit(
+            f"✗ `reglas/efectos.yaml → variables.ca.base_por_defecto` dice "
+            f"{decl!r}, y esta función solo sabe implementar «N + mod_des».\n"
+            f"  Si la regla ha cambiado de forma, esta función tiene que "
+            f"cambiar con ella: callarse y seguir dando 10 sería volver a "
+            f"tener dos copias que divergen.")
+    return int(m.group(1))
+
+
 def ca(des_mod, con_mod=0, sab_mod=0, clase=None, armadura=None, escudo=False):
     """Calcula CA. Si `armadura` es un nombre, se busca en equipo/armaduras.yaml
     y se parsea su fórmula. Si `armadura` es None, se usa la Defensa sin
@@ -388,7 +421,7 @@ def ca(des_mod, con_mod=0, sab_mod=0, clase=None, armadura=None, escudo=False):
                     f"personaje lo tiene (nivel, subclase, escudo).\n"
                     f"  Usa la ficha: efectos.calcular_de_ficha(...) — o "
                     f"`python3 verificar_personaje.py <ficha>`.")
-        valor = 10 + des_mod
+        valor = _ca_base_sin_armadura() + des_mod
 
     if escudo:
         d = cargar("equipo/armaduras.yaml")

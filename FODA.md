@@ -201,7 +201,7 @@ Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
 9. **✅ CERRADA (2026-09-02) — los 30 chequeos `validar_*` ya tienen prueba
    por mutación.** Eran 11 de 30 el 2026-08-31.
 
-   El bloque B del Plan 18 añadió tres suites: `mutaciones_aritmetica` 36/36 (6
+   El bloque B del Plan 18 añadió tres suites: `mutaciones_aritmetica` 40/40 (7
    chequeos, empezando por `mejoras_de_dote`, que era deuda del mismo día; las
    cuatro últimas las trajo la CD de conjuros, fase 1 de `PLAN_20_AUDITORIA.md`),
    `mutaciones_contenido` 49/49 (11) y `mutaciones_referencias` 10/10 (3). La
@@ -227,8 +227,8 @@ Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
 10. **✅ CERRADA (2026-09-02) — la regla inviolable 6 ya no es prosa.**
    *(era 🔴 desde el 2026-08-31, el mismo día en que se escribió)*
 
-   `censo.py` la convierte en una cuenta: **893 unidades censadas, 0 sin
-   declarar, 595 pendientes con su bloque y su motivo**. Ocho clases de unidad
+   `censo.py` la convierte en una cuenta: **912 unidades censadas, 0 sin
+   declarar, 591 pendientes con su bloque y su motivo**. Ocho clases de unidad
    —la séptima, los módulos de herramienta, la añadió el bloque A2; la octava,
    los efectos con carga, la fase 1.3 de `PLAN_20_AUDITORIA.md`—, ocho
    universos descubiertos (glob, AST y el vocabulario de la base), y un

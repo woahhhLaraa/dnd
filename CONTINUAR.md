@@ -42,7 +42,7 @@ python3 validar.py            # 0 errores
 python3 verificar_srd.py      # 646 valores · 0 discrepancias
 python3 verificar_foundry.py  # 3749 valores · 0 discrepancias
 python3 cobertura.py          # 0 preguntas sin responder
-python3 censo.py              # 893 unidades · 0 sin declarar · 595 pendientes
+python3 censo.py              # 912 unidades · 0 sin declarar · 591 pendientes
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 18/18
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240
 python3 verificar_documentos.py   # ¿CONTINUAR.md y FODA.md dicen la verdad?
@@ -119,10 +119,22 @@ solución a los "parches puntuales" en vez de seguir apilando verificadores.**
 >   condición y 67 ramas colapsaban en 41. El guardián del silencio dejaba
 >   crecer su propia deuda, y no lo mutaba nadie.
 >
-> **Lo siguiente:** relanzar a ciegas la tanda del calculista (los dos agentes
-> murieron por límite de sesión), y la **fase 2** — el punto ciego de
-> `equipo/`. `subir_nivel.py` y `generar_ficha.py` siguen sin mirarse con esta
-> lupa: el punto 2 de aquí abajo sigue vigente para ellos.
+> - **Tanda a ciegas del calculista** · **8 de 8**. Dos agentes que recibieron
+>   la ficha SIN su bloque `calculado` derivaron a mano los ocho valores de
+>   dos fichas y coinciden con el motor. **La fila 8 pasa de 0/25 a 4/25**: el
+>   primer contraste externo real de la aritmética. Y de rebote destapó que
+>   `calculo.ca()` cableaba el `10` de la CA sin armadura mientras la base la
+>   declaraba y `efectos.py` la leía — dos implementaciones sin nadie
+>   comparándolas.
+> - **Fases 2.1, 2.2 y 2.3** · `equipo/` deja de ser invisible. Los
+>   DIRECTORIOS de regla también se descubren ahora, `armaduras.yaml` entra
+>   como fuente `derivada` (sus 13 registros al censo) y el control negativo
+>   que exigía que el censo NO se enterara **se invierte, no se borra**.
+>
+> **Lo siguiente:** cerrar la fase 2 con `municion.yaml` (no lo valida nadie)
+> y el ancla de la cifra del censo; luego la fase 3. `subir_nivel.py` y
+> `generar_ficha.py` siguen sin mirarse con esta lupa: el punto 2 de aquí
+> abajo sigue vigente para ellos.
 
 ### Por qué esto va primero
 

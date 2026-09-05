@@ -2341,6 +2341,59 @@ def validar_conjuros_cd():
     return f"CD de conjuros ({n})", err, []
 
 
+def validar_ca_base():
+    """Que las DOS implementaciones de la CA base sin armadura lean la base.
+
+    La regla vive en `reglas/efectos.yaml → variables.ca.base_por_defecto`,
+    citada en pdf 43 = libro 41. La lee `efectos.calcular()`, y hasta el
+    2026-09-05 `calculo.ca()` llevaba el `10` cableado: dos implementaciones
+    de la misma regla en el mismo repositorio, y nadie comparándolas. Medido
+    entonces: poniendo `11 + mod_des` en la base, tres fichas se quejaban por
+    el camino del motor y `calculo.ca()` seguía dando 12.
+
+    Este chequeo es lo que impide que vuelva a separarse. No reimplementa la
+    regla —eso sería una tercera copia—: le pide el número a cada camino y
+    exige que coincidan con lo que la base declara.
+    """
+    err = []
+    import efectos as E
+    vocab = E.cargar_vocabulario()
+    decl = ((vocab.get("variables") or {}).get("ca") or {}).get("base_por_defecto")
+    if not decl:
+        return "CA base sin armadura", [
+            "`reglas/efectos.yaml → variables.ca.base_por_defecto` no declara "
+            "la CA de quien no lleva armadura: sin ella, cada módulo se "
+            "inventa la suya"], []
+
+    m = re.match(r"^\s*(\d+)\s*\+\s*mod_des\s*$", str(decl))
+    if not m:
+        return "CA base sin armadura", [
+            f"`base_por_defecto` dice {decl!r}, y las dos implementaciones "
+            f"solo saben «N + mod_des». Si la regla cambia de forma, cambian "
+            f"ellas o el contraste deja de valer"], []
+    base = int(m.group(1))
+
+    # Camino 1: `calculo.ca()`, el de la línea de órdenes.
+    des = 2
+    if calculo.ca(des) != base + des:
+        err.append(f"`calculo.ca({des})` da {calculo.ca(des)} y la base "
+                   f"declara {decl!r}, o sea {base + des}. El número está "
+                   f"cableado otra vez")
+
+    # Camino 2: el motor de efectos, que es el que escribe las fichas. Sin
+    # `try`: si `calcular()` cambia de forma y esta llamada deja de valer, el
+    # chequeo tiene que ROMPERSE ruidosamente, no saltarse su propia mitad en
+    # silencio y seguir imprimiendo verde. (Escrito así en el primer intento,
+    # el `except` se tragaba un `KeyError` y este camino no se comprobaba: la
+    # familia del hueco nº 10 de la ronda 2, otra vez.)
+    del_motor = E.calcular({"mod_des": des}, [], {"ca": None},
+                           {"sin_armadura": True, "sin_escudo": True})["ca"]
+    if del_motor != base + des:
+        err.append(f"`efectos.calcular()` da una CA base de {del_motor} y la "
+                   f"base declara {base + des}")
+    return "CA base sin armadura (2 caminos)", err, []
+
+
 def validar_puntos_golpe():
     err, warn = [], []
     g = yaml.safe_load((B / "reglas/generacion_personaje.yaml").read_text(encoding="utf-8"))
@@ -2947,7 +3000,7 @@ def main():
 
     print("── CREACIÓN DE PERSONAJE " + "─"*37)
     for fn in (validar_atributos_basicos, validar_generacion, validar_puntos_golpe,
-               validar_conjuros_cd,
+               validar_conjuros_cd, validar_ca_base,
                validar_rasgos_clase,
                validar_competencias_clase, validar_habilidades, validar_idiomas):
         nom, err, warn = fn()

@@ -329,3 +329,58 @@ listas que el propio repo mantiene:
 
 Una ficha se elige **porque ejercita algo de esas listas**, y al aprobarse lo
 tacha. Criterio de cierre: fila 8 a 25/25 y `motor_sin_carga.json` vacío.
+
+## Lo que dieron las dos tandas (2026-09-05)
+
+### Primera tanda — descartada, y por qué eso fue un acierto
+
+Dos calculistas derivaron `pg_max`, `ca` y `velocidad` de `goliat_druida` y
+`enano_clerigo_n5`. **Los seis valores coincidieron.** Y aun así **no
+cuentan**: los datos crudos y el bloque `calculado` viven en el mismo fichero,
+así que leer la ficha era ver los números. Los dos lo declararon solos, sin
+que nadie preguntara — el sobre cerrado funcionando. Una derivación anclada al
+número que ya se vio no es independiente por honesta que sea, así que las dos
+fichas se quedaron en `_origen: motor` y la fila 8 siguió en 0/25. Contarlas
+habría sido el verde que miente.
+
+**Arreglo, y es de forma:** `verificar_personaje.py --datos-crudos <ficha>`
+emite la ficha sin su `calculado`. **La ceguera no se pide, se REPARTE.**
+
+### Segunda tanda, a ciegas — 8 de 8, y dos hallazgos
+
+`draconido_hechicero_n3` y `draconido_monje_n2`, elegidas **por la fila 8**:
+son las dos que más deuda cerraban (dos efectos cada una), y las dos ejercitan
+fórmulas de CA que ninguna lectura independiente sostenía.
+
+| | calculista | motor |
+|---|---:|---:|
+| hechicero · `pg_max` / `ca` / `velocidad` / `cd_conjuros` / `bonif_ataque` | 24 · 15 · 9 · 13 · +5 | idénticos |
+| monje · `pg_max` / `ca` / `velocidad` | 17 · 15 · 12 | idénticos |
+
+Las dos fichas pasan a `_origen: agente-manual` con su informe, y la **fila 8
+va de 0/25 a 4/25**: el primer movimiento real de esa cuenta.
+
+**Hallazgo 1 — y es un defecto DEL MÉTODO.** Los dos agentes informaron, por
+separado, de que «la base no declara en ningún sitio la CA por defecto sin
+armadura». **Se equivocaban**: la declara `reglas/efectos.yaml → variables.ca.
+base_por_defecto`, citada en pdf 43 = libro 41. No podían verlo porque ese
+fichero es justo el que el mandato les prohíbe abrir — es el vocabulario del
+motor cuya independencia se está comprando. La ceguera que hace valer sus
+números les esconde parte de la base, así que **un calculista volverá a
+informar de esto**. Queda escrito aquí para que el siguiente contraste no lo
+tome por hallazgo nuevo, y sin relajar la prohibición: el precio es correcto.
+
+**Hallazgo 2 — real, y lo destapó ir a comprobar el 1.** `efectos.py` sí lee
+ese `base_por_defecto`; **`calculo.ca()` tenía el `10` cableado**. Dos
+implementaciones de la misma regla en el mismo repositorio y nadie
+comparándolas: el defecto nº 4 del §2 del Plan 18, y justo lo que el PLAN_20
+prohíbe escribir («no escribir un segundo calculador») encontrado ya escrito.
+Medido antes de arreglarlo: poniendo `11 + mod_des` en la base, tres fichas se
+quejaban por el camino del motor y `calculo.ca()` seguía diciendo 12. Cerrado
+con `validar_ca_base` (contrasta los DOS caminos contra lo declarado) y cuatro
+mutaciones nuevas.
+
+**Nota sobre la mutación que lo fija:** recablear el `10` cuando la base
+también dice `10` no cambia ni un número — por eso el defecto vivió tanto. La
+mutación tiene que cambiar las dos cosas a la vez para que las copias se
+separen, y así está escrita, con su motivo.

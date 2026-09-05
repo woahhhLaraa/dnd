@@ -156,41 +156,31 @@ def directorios_de_regla():
     abajo para los ficheros sueltos.
     """
     m = cargar_manifiesto()
-    d = m["directorios"]
-    fuera = {e["ruta"] for e in d["no_son_regla"]}
-    pendientes = {e["ruta"] for e in d["pendientes"]}
+    fuera = {e["ruta"] for e in m["directorios"]["no_son_regla"]}
     hallados = {p.name for p in sorted(B.iterdir())
                 if p.is_dir() and not p.name.startswith(".")
                 and any(p.rglob("*.yaml"))}
-    # Una declaración que apunta a un fichero que ya no existe es una
-    # declaración muerta: engorda la cuenta sin cubrir nada. Es el defecto
-    # que la fase 0 cerró en `censo.Fila`, aquí un nivel más arriba.
-    muertas = sorted(f for e in d["pendientes"] for f in (e.get("ficheros") or [])
-                     if not (B / f).exists())
-    if muertas:
-        raise ErrorDeEfectos(
-            "`fuentes_de_efectos.yaml` → `directorios.pendientes` declara "
-            "ficheros que no existen:\n  · " + "\n  · ".join(muertas)
-            + "\nUna declaración muerta sube la cuenta de deuda saldada sin "
-              "saldar nada. Bórrala.")
-    sin_declarar = sorted(hallados - fuera - pendientes - _DECLARADOS_EN_FUENTES())
+    sin_declarar = sorted(hallados - fuera - _DECLARADOS_EN_MANIFIESTO())
     if sin_declarar:
         raise ErrorDeEfectos(
             "directorios con ficheros `.yaml` que nadie ha clasificado:\n  · "
             + "\n  · ".join(sin_declarar)
-            + "\nDeclara cada uno en `reglas/fuentes_de_efectos.yaml` → "
-              "`directorios`: como `no_son_regla` (con el motivo) o como "
-              "`pendientes` (deuda declarada). Y si es de regla, clasifica "
-              "sus ficheros en `fuentes` o `excluidos`.")
-    return tuple(sorted(hallados - fuera - pendientes)), tuple(sorted(pendientes))
+            + "\nDeclara cada uno en `reglas/fuentes_de_efectos.yaml`: o el "
+              "directorio entero en `directorios.no_son_regla` (con su "
+              "motivo), o sus ficheros en `fuentes`, `derivadas`, "
+              "`excluidos` o `pendientes`.")
+    return tuple(sorted(hallados - fuera))
 
 
-def _DECLARADOS_EN_FUENTES():
-    """Los directorios que ya salen de un patrón de `fuentes` o de una ruta de
-    `excluidos`: están clasificados fichero a fichero, así que declararlos
-    otra vez arriba sería una segunda lista que mantener."""
+def _DECLARADOS_EN_MANIFIESTO():
+    """Los directorios que ya salen de alguna clasificación fichero a fichero.
+    Se DEDUCEN de las cuatro listas en vez de repetirse arriba: una segunda
+    lista que mantener es como empezaron los ocho."""
     m = cargar_manifiesto()
-    rutas = [f["patron"] for f in m["fuentes"]] + [e["ruta"] for e in m["excluidos"]]
+    rutas = ([f["patron"] for f in m["fuentes"]]
+             + [d["patron"] for d in m["derivadas"]]
+             + [e["ruta"] for e in m["excluidos"]]
+             + [e["ruta"] for e in m["pendientes"]])
     return {r.split("/", 1)[0] for r in rutas if "/" in r}
 
 
@@ -200,11 +190,105 @@ def cargar_manifiesto():
         raise ErrorDeEfectos("falta reglas/fuentes_de_efectos.yaml: sin él la "
                              "cobertura del motor no es comprobable")
     m = _leer("reglas/fuentes_de_efectos.yaml")
-    for clave in ("fuentes", "excluidos"):
+    for clave in ("fuentes", "derivadas", "pendientes", "excluidos", "directorios"):
         if clave not in m:
             raise ErrorDeEfectos(
                 f"reglas/fuentes_de_efectos.yaml no declara «{clave}»")
     return m
+
+
+def _rutas_del_patron(patron):
+    return tuple(sorted(q.relative_to(B).as_posix() for q in B.glob(patron)))
+
+
+@functools.lru_cache(maxsize=None)
+def derivadas():
+    """Las fuentes DERIVADAS: ficheros cuyos registros no llevan `efectos:`
+    porque el motor los fabrica de campos que ya están en la tabla.
+
+    Devuelve [(ruta, funcion, campos), ...]. La función se resuelve con
+    `getattr` sobre este módulo: una declaración que apunte a algo que ya no
+    existe es un ERROR, no un salto silencioso — es la misma promesa que
+    `origenes()` hace con los ficheros.
+    """
+    salida = []
+    for d in cargar_manifiesto()["derivadas"]:
+        fn = globals().get(d["deriva"])
+        if not callable(fn):
+            raise ErrorDeEfectos(
+                f"`fuentes_de_efectos.yaml` declara que {d['patron']} deriva "
+                f"sus efectos de `efectos.{d['deriva']}()`, y esa función no "
+                f"existe. O se renombró sin actualizar aquí, o la declaración "
+                f"nunca fue cierta.")
+        rutas = _rutas_del_patron(d["patron"])
+        if not rutas:
+            raise ErrorDeEfectos(
+                f"`fuentes_de_efectos.yaml` → `derivadas` declara el patrón "
+                f"{d['patron']!r}, que hoy no encaja con ningún fichero: "
+                f"declaración muerta.")
+        for rel in rutas:
+            salida.append((rel, fn, tuple(c["campo"] for c in d["campos"])))
+    return tuple(salida)
+
+
+def registros_de(rel):
+    """Los registros de un fichero de regla, con si algo los alcanza y por qué.
+
+    Devuelve [(uid, nombre, alcanzado, motivo), ...]. Existe para que el censo
+    NO tenga que saber la forma de cada fichero: antes `fila_rasgos` descendía
+    ella misma por el `camino`, y por eso no había manera de contar
+    `equipo/armaduras.yaml`, cuya forma es una tabla y no un árbol de rasgos.
+    """
+    for ruta, fn, campos in derivadas():
+        if ruta != rel:
+            continue
+        doc = _leer(rel)
+        # Los grupos se DESCUBREN —las claves que traen `tabla`—, no se
+        # enumeran: añadir «armaduras_exóticas» no puede pasar desapercibido.
+        salida = []
+        for grupo, cuerpo in doc.items():
+            if not (isinstance(cuerpo, dict) and isinstance(cuerpo.get("tabla"), list)):
+                continue
+            for reg in cuerpo["tabla"]:
+                if not isinstance(reg, dict) or not reg.get("nombre"):
+                    continue
+                nombre = reg["nombre"]
+                # Alcanzado = la función declarada FABRICA de verdad algún
+                # efecto para este registro. No basta con que el fichero esté
+                # declarado: eso sería el manifiesto dándose la razón solo.
+                try:
+                    producidos = fn([f"{rel}#{nombre}"],
+                                    entrenamientos=["Escudos"], fuerza=None)
+                except Exception:
+                    producidos = []
+                salida.append((f"rasgo:{rel}#{nombre}", nombre, bool(producidos),
+                               f"efecto derivado por `efectos.{fn.__name__}()` "
+                               f"de los campos {', '.join(campos)}"))
+        return salida
+
+    for ruta, camino in origenes():
+        if ruta != rel:
+            continue
+        salida = []
+        for reg, _anc in _descender(_leer(rel), list(camino)):
+            if not isinstance(reg, dict) or not reg.get("nombre"):
+                continue
+            # `no_automatizado` es la «Foundry Note»: decir «lo miramos y no
+            # toca» es una respuesta legítima; callarse no.
+            alcanzado = bool(reg.get("efectos") or reg.get("no_automatizado"))
+            salida.append((f"rasgo:{rel}#{reg['nombre']}", reg["nombre"],
+                           alcanzado, None))
+        return salida
+
+    raise ErrorDeEfectos(f"{rel} no es una fuente ni una derivada declarada")
+
+
+def fuentes_de_registros():
+    """Todos los ficheros cuyos registros hay que censar: las fuentes con
+    `efectos:` y las derivadas. Se descubre de las dos listas, para que añadir
+    una derivada nueva entre en el censo sin tocar el censo."""
+    return (tuple(rel for rel, _c in origenes())
+            + tuple(rel for rel, _fn, _c in derivadas()))
 
 
 @functools.lru_cache(maxsize=None)
@@ -216,7 +300,14 @@ def origenes():
     C1: convierte «se me olvidó enchufar una fuente» en un error ruidoso.
     """
     m = cargar_manifiesto()
-    excluidos = {e["ruta"] for e in m["excluidos"]}
+    # `excluidos` («la miramos y no concede nada»), `derivadas` («los efectos
+    # existen y los fabrica esta función») y `pendientes` («deuda declarada»)
+    # son las tres formas legítimas de que un fichero de regla NO tenga que
+    # llevar `efectos:` dentro. Lo que sigue prohibido es el silencio.
+    excluidos = ({e["ruta"] for e in m["excluidos"]}
+                 | {r for d in m["derivadas"]
+                    for r in _rutas_del_patron(d["patron"])}
+                 | {e["ruta"] for e in m["pendientes"]})
 
     encontrados = {}
     for fuente in m["fuentes"]:
@@ -227,8 +318,7 @@ def origenes():
     # Todo fichero de regla debe estar clasificado: o lo recorre un patrón,
     # o se declara excluido con su motivo.
     sin_clasificar = []
-    de_regla, _pendientes = directorios_de_regla()
-    for d in de_regla:
+    for d in directorios_de_regla():
         for p in sorted((B / d).rglob("*.yaml")):
             rel = p.relative_to(B).as_posix()
             if rel not in encontrados and rel not in excluidos:
@@ -238,9 +328,10 @@ def origenes():
             "ficheros de regla que el motor no sabe si mirar:\n  · "
             + "\n  · ".join(sin_clasificar)
             + "\nDeclara cada uno en `reglas/fuentes_de_efectos.yaml`: como "
-              "`fuentes` (con su camino de descenso) o como `excluidos` (con "
-              "el motivo). No hacerlo es el fallo que este chequeo existe "
-              "para impedir.")
+              "`fuentes` (con su camino de descenso), `derivadas` (con la "
+              "función que fabrica sus efectos), `excluidos` (con el motivo) "
+              "o `pendientes` (deuda declarada). No hacerlo es el fallo que "
+              "este chequeo existe para impedir.")
 
     return tuple(sorted(encontrados.items()))
 
