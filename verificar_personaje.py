@@ -704,6 +704,9 @@ def verificar_conjuros(ficha, inf):
             ref = str(entrada.get("ref") or "")
             nombre_c = ref.split("#")[-1]
             if not nombre_c:
+                inf.error(f"conjuros.{clave}: una entrada no nombra ningún "
+                          f"conjuro (`ref: {ref!r}`). Se descartaba en "
+                          f"silencio, y descartada no cuenta contra la tabla")
                 continue
             if nombre_c in vistos:
                 inf.error(f"conjuros: {nombre_c!r} aparece en "
@@ -717,7 +720,9 @@ def verificar_conjuros(ficha, inf):
         for entrada in (conj.get(clave) or []):
             nombre_c = str(entrada.get("ref") or "").split("#")[-1]
             if not nombre_c:
-                continue
+                # Ya lo dijo el bucle de repetidos, unas líneas más arriba, que
+                # recorre estas mismas dos listas.
+                continue  # TOLERADO: lo avisa el bucle de conjuros repetidos
             reg = buscar.conjuro(nombre_c)
             niv = reg.get("nivel")
             if nivel_esperado == 0 and niv != 0:

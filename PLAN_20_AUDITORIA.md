@@ -207,6 +207,88 @@ todos los efectos que aplica**. Divergen → hallazgo, y la derivación escrita
 dice de quién es el error. **Se dirige por la fila 9**, empezando por los 18
 medidos y priorizando los que 1.1 señale como no cazados por nadie.
 
+**Primera tanda (dos calculistas) — hecha, y con dos resultados.** Los dos
+derivaron a mano `pg_max`, `ca` y `velocidad` de dos fichas distintas y **los
+seis valores coinciden con el motor**: primer contraste externo real de la
+aritmética. Y los dos pararon en el mismo sitio, con la misma frase: ningún
+fichero de la base definía la fórmula de `cd_conjuros` ni de
+`bonif_ataque_conjuros`. Vivía cableada en `calculo.py`, con su cita **en un
+comentario de Python**. Dos agentes independientes redescubrieron por el camino
+contrario el hallazgo del inventario.
+
+**Y un defecto del método, que declararon ellos solos:** los datos crudos y el
+bloque `calculado` viven en el MISMO fichero, así que leer la ficha es ver los
+números. La ceguera se pedía y no se podía cumplir. **Esas dos derivaciones NO
+cuentan como segunda transcripción** —una derivación anclada al número que ya
+se vio no es independiente, por honesta que sea—, así que las fichas **no** se
+promovieron a `_origen: agente-manual` y la fila 8 sigue en 0/25. Contarlas
+habría sido el verde que miente. Arreglado con
+`verificar_personaje.py --datos-crudos <ficha>`: la ceguera no se pide, se
+REPARTE. 🔴 **Queda relanzar la tanda a ciegas** (los dos agentes murieron por
+límite de sesión).
+
+---
+
+## Fase 1.5 · El `KeyError` que la propia fase 1 introdujo — ✅ HECHA (2026-09-05)
+
+`validar_conjuros_cd()` terminaba comprobando que `calculo` leyera el `base` de
+la base. Con el bloque `cd_salvacion` borrado,
+`_regla_de_conjuros()["cd_salvacion"]["base"]` lanzaba `KeyError` y `validar.py`
+**moría sin imprimir la etiqueta del chequeo**: la mutación `cd_bloque_borrado`
+contaba como no detectada, **35/36**.
+
+**Por qué tiene apartado propio y no un arreglo callado.** Es la misma familia
+que el hueco nº 10 de la ronda 2 —un chequeo que explota en vez de hablar—
+reaparecida en código escrito el mismo día que se cerró aquella, y por la misma
+mano. Que el patrón vuelva tan rápido es el dato: **no basta con arreglar
+instancias**.
+
+- `calculo._base_de_conjuros()`: faltar un dato de la base es un mensaje que
+  dice QUÉ falta, nunca una traza.
+- `validar_conjuros_cd()`: no llama a `calculo` si la estructura ya vino mal, y
+  contrasta las DOS fórmulas en vez de solo la CD.
+
+**Medido:** `mutaciones_aritmetica` **36/36** · `validar.py` 0 errores.
+
+---
+
+## Fase 1.6 · El guardián del silencio dejaba crecer su propia deuda — ✅ HECHA (2026-09-05)
+
+**No estaba en el plan: salió de verificar el verde de la fase 1.5.**
+`verificar_chequeos.py` imprimía «✅ ninguna rama silenciosa nueva» con **67
+ramas silenciosas y una línea base de 64**. Su huella era
+`fichero::funcion::cuerpo`, y el cuerpo de casi todas es la palabra `continue`:
+las 67 colapsaban en **41 huellas**. Una rama silenciosa nueva que fuera gemela
+textual de otra ya declarada entraba sin ruido — y tres lo hicieron.
+
+Es **el hallazgo nº 4 de este mismo plan** (el censo se puede inflar en
+silencio) en otro guardián, con una diferencia que lo hace peor: en el censo la
+deuda crecía; aquí crecía **mientras el chequeo decía que no**. Y el sexto
+guardián sin guardián: ninguna suite mutaba `verificar_chequeos.py`.
+
+- **La huella lleva la condición**, no solo el cuerpo: 67 → **65 huellas
+  distintas**. Las gemelas que quedan —la misma guarda escrita dos veces en la
+  misma función— llevan un ordinal **por orden de línea, no por número de
+  línea**, para que editar por encima no invalide el fichero.
+- **Pagadas las dos que se pudieron atribuir:** `verificar_conjuros`
+  descartaba en silencio una entrada de conjuro cuyo `ref` no nombra nada.
+  Ahora una avisa y la otra se declara.
+- **La tercera se deja en deuda enumerada, a propósito:** un `tipo:` mal
+  escrito saca una variable del chequeo de `promesas` sin ruido, porque nada
+  comprueba que `tipo` esté en un vocabulario cerrado. **Eso es la fase 4.**
+  Anotarla como tolerada habría exigido nombrar quién la cubre, y hoy no la
+  cubre nadie.
+- **`_verificacion/mutaciones_silencios.py`** (nuevo, 6/6): la primera
+  mutación es exactamente el caso que antes pasaba callado, y está comprobado
+  contra el árbol anterior al arreglo — con la huella vieja da **68
+  silenciosas, línea base 64 y «✅ ninguna nueva»**.
+- La migración de la línea base va con su `_migracion:` dentro del JSON: las
+  huellas nuevas no se pueden comparar una a una con las viejas, así que lo que
+  se conserva es **la cuenta, y la cuenta baja** (67 − 2 = 65).
+
+**Lección, que es la de la usuaria:** el arreglo no fue anotar las tres ramas
+—eso habría sido el parche puntual—, fue que la huella dejara de mentir.
+
 ---
 
 ## Fase 2 · El punto ciego de `equipo/`, sin rojo a medias
@@ -354,12 +436,23 @@ de las tres salta.**
 ## Orden y dependencias
 
 ```
-Fase 0  censo no inflable ──────► bloquea todo lo demás
-Fase 1  aritmética          1.1 mutaciones_motor → 1.2 _origen → 1.3 fila 9 → 1.4 estrés
-Fase 2  equipo/             2.1 directorios → 2.2 derivadas → 2.3 control → 2.4 municion → 2.5 ancla
-Fase 3  fila 8              primero la fila con las 34; luego cada grupo, viéndola bajar
-Fase 4  vocabularios        necesita que la fila 8 haya declarado los `for clave in (...)`
+Fase 0  censo no inflable    ✅ hecha
+Fase 1  aritmética           ✅ 1.1 mutaciones_motor  ✅ 1.2 _origen  ✅ 1.3 fila 8
+                             ✅ 1.4 mandato escrito y primera tanda
+                                🔴 tanda A CIEGAS por relanzar
+                             ✅ 1.5 el KeyError propio
+                             ✅ 1.6 la huella del guardián del silencio
+Fase 2  equipo/              2.1 directorios → 2.2 derivadas → 2.3 control → 2.4 municion → 2.5 ancla
+Fase 3  fila 9              primero la fila con las 34; luego cada grupo, viéndola bajar
+Fase 4  vocabularios        necesita que la fila 9 haya declarado los `for clave in (...)`
 ```
+
+**Nota de numeración:** la fila de efectos con carga entró como **fila 8** (el
+plan la llamaba 9 suponiendo que la de constantes llegaría antes; llega
+después). La fase 3 creará la **fila 9**.
+
+**Lo siguiente, por orden:** relanzar la tanda a ciegas del calculista (1.4), y
+después la **fase 2** (`equipo/`), que es la primera sin empezar.
 
 Las fases **1 y 2 son independientes** y pueden ir en paralelo (ficheros
 disjuntos), salvo 1.3, que quiere los efectos derivados de 2.2: si van en
@@ -379,7 +472,9 @@ python3 validar.py && python3 censo.py && python3 verificar_chequeos.py
 python3 verificar_srd.py && python3 verificar_foundry.py && python3 cobertura.py
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done
 python3 generar_ficha.py --barrido --exhaustivo
-python3 _verificacion/mutaciones_motor.py      # nueva, fase 1
+python3 _verificacion/mutaciones_motor.py       # nueva, fase 1.1
+python3 _verificacion/mutaciones_aritmetica.py # 36/36 desde la fase 1.5
+python3 _verificacion/mutaciones_silencios.py  # nueva, fase 1.6
 python3 verificar_documentos.py                # corre las suites (~5 min)
 ```
 

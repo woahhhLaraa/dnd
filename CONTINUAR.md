@@ -42,7 +42,7 @@ python3 validar.py            # 0 errores
 python3 verificar_srd.py      # 646 valores · 0 discrepancias
 python3 verificar_foundry.py  # 3749 valores · 0 discrepancias
 python3 cobertura.py          # 0 preguntas sin responder
-python3 censo.py              # 892 unidades · 0 sin declarar · 595 pendientes
+python3 censo.py              # 893 unidades · 0 sin declarar · 595 pendientes
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 18/18
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240
 python3 verificar_documentos.py   # ¿CONTINUAR.md y FODA.md dicen la verdad?
@@ -94,11 +94,35 @@ solución a los "parches puntuales" en vez de seguir apilando verificadores.**
 > lista válida se **lee de `personajes/_ESQUEMA.md`**, y así rechaza también
 > una cuarta que nadie había probado.
 >
-> **Lo que queda de este encargo, y es la mitad que importa:** la pregunta
-> era si el patrón vive en el resto del código. `calculo.py`, `efectos.py`,
-> `subir_nivel.py` y `generar_ficha.py` **siguen sin mirarse con esta lupa**;
-> ninguna ronda de estrés los ha tocado. El punto 2 de aquí abajo sigue
-> vigente entero.
+> **La otra mitad ya tiene plan y está en marcha: `PLAN_20_AUDITORIA.md`.**
+> Ese documento es el estado vivo del encargo — qué se midió, qué se cerró y
+> qué falta. Lo hecho hasta hoy (2026-09-05):
+>
+> - **Fase 0** · el censo ya no se puede inflar en silencio.
+> - **Fase 1.1** · `mutaciones_silencios.py` aparte, la primera suite que muta
+>   **el motor** (`mutaciones_motor.py`): 4 de 11 mutaciones las caza alguna
+>   ficha, y las 7 restantes quedan **enumeradas** en `motor_sin_carga.json`
+>   como trozos de aritmética que hoy no protege nada.
+> - **Fase 1.2** · el bloque `calculado` lleva `_origen`, y `--calcular` no
+>   puede firmar como `agente-manual`: si el escritor puede firmar de oráculo,
+>   no hay oráculo.
+> - **Fase 1.3** · octava fila del censo, «efectos con carga»: 25 unidades,
+>   0 alcanzadas, 25 en deuda. Nace en verde sin perdonar nada.
+> - **Fase 1.4** · la CD de conjuros **entra en la base**. Dos calculistas
+>   independientes pararon en el mismo sitio: la fórmula vivía cableada en
+>   `calculo.py` con su cita en un comentario de Python.
+> - **Fase 1.5** · el `KeyError` que ese mismo cierre introdujo — un chequeo
+>   que explota en vez de hablar, la familia del hueco nº 10 de la ronda 2,
+>   reaparecida el mismo día. `mutaciones_aritmetica` a 36/36.
+> - **Fase 1.6** · `verificar_chequeos.py` decía «ninguna rama silenciosa
+>   nueva» con 67 silenciosas y una línea base de 64: su huella ignoraba la
+>   condición y 67 ramas colapsaban en 41. El guardián del silencio dejaba
+>   crecer su propia deuda, y no lo mutaba nadie.
+>
+> **Lo siguiente:** relanzar a ciegas la tanda del calculista (los dos agentes
+> murieron por límite de sesión), y la **fase 2** — el punto ciego de
+> `equipo/`. `subir_nivel.py` y `generar_ficha.py` siguen sin mirarse con esta
+> lupa: el punto 2 de aquí abajo sigue vigente para ellos.
 
 ### Por qué esto va primero
 

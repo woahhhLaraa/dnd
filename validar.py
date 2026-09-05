@@ -2110,6 +2110,13 @@ def validar_efectos():
     promesas = []
     for nombre, v in (vocab.get("variables") or {}).items():
         if (v or {}).get("tipo") != "calculada":
+            # Va sin anotación de tolerancia A PROPÓSITO: para anotarla habría
+            # que nombrar quién la cubre, y hoy no la cubre nadie. Un `tipo:` mal
+            # escrito (`calculadas`) saca a esa variable de este chequeo sin
+            # ruido, porque nada comprueba que `tipo` esté en un vocabulario
+            # cerrado. Eso es la fase 4 de `PLAN_20_AUDITORIA.md`; hasta
+            # entonces queda como deuda enumerada en
+            # `_verificacion/chequeos_silenciosos.json`, contada y visible.
             continue
         frases = (v or {}).get("promesas")
         if not frases:

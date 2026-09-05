@@ -141,8 +141,19 @@ def main():
                         continue
                     # ¿Está declarada como tolerancia con firma?
                     ventana = "\n".join(lineas[nodo.lineno - 1:ultimo.lineno + 1])
+                    # La huella lleva la CONDICIÓN, no solo el cuerpo. Hasta el
+                    # 2026-09-05 era `rel::funcion::cuerpo`, y el cuerpo de casi
+                    # todas es la palabra `continue`: 67 ramas colapsaban en 41
+                    # huellas. Con eso, una rama silenciosa NUEVA que fuera
+                    # gemela textual de una ya declarada entraba sin que nadie
+                    # lo dijera —y tres lo hicieron: la deuda subió de 64 a 67
+                    # con el chequeo en verde—. Es el mismo modo de fallo que la
+                    # fase 0 de `PLAN_20_AUDITORIA.md` cerró en `censo.py`: un
+                    # guardián cuya deuda enumerada puede crecer sin ruido.
+                    # Con la condición dentro, las 67 dan 65 huellas distintas.
                     entrada = (rel, fn.name, ultimo.lineno,
-                               lineas[ultimo.lineno - 1].strip())
+                               lineas[ultimo.lineno - 1].strip(),
+                               ast.unparse(nodo.test))
                     (tolerados if "# TOLERADO:" in ventana else silencios).append(entrada)
 
     # ── La línea base declarada ──────────────────────────────────────────
@@ -154,7 +165,18 @@ def main():
     # puede crecer sin que alguien lo vea.
     import json
     base_f = B / "_verificacion/chequeos_silenciosos.json"
-    huella = sorted(f"{r}::{fn}::{src}" for r, fn, _ln, src in silencios)
+    # Las gemelas que quedan —la misma guarda escrita dos veces en la misma
+    # función— llevan un ordinal por línea, para que un tercer clon tampoco
+    # pueda entrar callado. El ordinal va por orden de línea y no por número
+    # de línea: editar por encima no invalida el fichero.
+    import collections
+    _n = collections.Counter()
+    huella = []
+    for r, fn, _ln, src, test in sorted(silencios, key=lambda e: (e[0], e[1], e[2])):
+        clave = f"{r}::{fn}::{src}::si {test}"
+        _n[clave] += 1
+        huella.append(clave if _n[clave] == 1 else f"{clave}#{_n[clave]}")
+    huella = sorted(huella)
     if base_f.exists():
         declaradas = json.loads(base_f.read_text(encoding="utf-8"))["ramas"]
         nuevas = [h for h in huella if h not in declaradas]
@@ -171,10 +193,10 @@ def main():
 
     print("¿Hay chequeos que abandonen un registro en silencio?")
     print("─" * 74)
-    for rel, fn, ln, src in tolerados:
+    for rel, fn, ln, src, _t in tolerados:
         print(f" ✅ TOLERADO declarado · {rel}:{ln} en {fn}()")
-    for rel, fn, ln, src in silencios:
-        print(f" ❌ SILENCIO · {rel}:{ln} en {fn}() → {src!r}")
+    for rel, fn, ln, src, test in silencios:
+        print(f" ❌ SILENCIO · {rel}:{ln} en {fn}() → si {test}: {src}")
         print(f"      esa rama abandona un registro sin decir nada. O avisa, o "
               f"se declara con `# TOLERADO: <quién lo cubre>`")
     print("─" * 74)
