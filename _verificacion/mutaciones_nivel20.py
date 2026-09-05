@@ -34,6 +34,10 @@ MAGO = "personajes/gnomo_mago_n20.yaml"
 CLERIGO = "personajes/aasimar_clerigo.yaml"
 # Cuarta ficha: la única con una subclase que concede conjuros (ronda 2).
 CLERIGO_N5 = "personajes/enano_clerigo_n5.yaml"
+# Quinta ficha: la única con un idioma concedido por un RASGO DE CLASE
+# («Druídico»), que es el caso que el chequeo de idiomas no puede
+# llevarse por delante al cerrar el hueco nº 3.
+DRUIDA = "personajes/goliat_druida.yaml"
 
 
 def _sust(raiz, rel, viejo, nuevo, n=1):
@@ -447,6 +451,51 @@ def n_conjuro_de_dote_de_otra_lista(r):
             "magia» a un Clérigo: la dote lo permite y no cuenta contra la tabla")
 
 
+# ── Hueco nº 3: los idiomas, que no llevan `ref:` y por eso nadie miraba ──
+
+def e_idioma_por_especie(r):
+    """Lo que dos agentes inventaron por separado, uno con el señuelo de que
+    el idioma se llama igual que la especie. Ninguna de las 10 especies de
+    esta base concede idiomas."""
+    _sust(r, CLERIGO_N5, "    - {nombre: Enano}",
+          "    - {nombre: Enano, origen: {especie: Enano}}")
+    return ("un idioma que dice venir de la especie: ninguna especie de esta "
+            "base concede idiomas")
+
+
+def e_idioma_fuera_de_tabla(r):
+    """El nombre no canónico. Estaba VIVO en dos fichas de la base —«Élfico»
+    en vez de «Elfo»—, y el propio `_ejemplo_aerin.yaml` llevaba escrito que
+    era un bug real que ningún validador pillaba «porque `idiomas` no lleva
+    `ref:`». Se arregló en el ejemplo y se quedó en las otras dos."""
+    _sust(r, CLERIGO_N5, "    - {nombre: Gigante}", "    - {nombre: Gigántico}")
+    return "un idioma que no está en la tabla: «Gigántico» en vez de «Gigante»"
+
+
+def e_idioma_de_rasgo_inexistente(r):
+    _sust(r, CLERIGO_N5, "    - {nombre: Gigante}",
+          "    - {nombre: Gigante, origen: {clase: Clérigo, rasgo: \"Lengua divina\"}}")
+    return ("un idioma que dice venir de un rasgo que su clase no tiene")
+
+
+def e_idiomas_de_mas_por_eleccion(r):
+    _sust(r, CLERIGO_N5, "    - {nombre: Gigante}",
+          "    - {nombre: Gigante}\n    - {nombre: Goblin, origen: {regla: \"reglas/idiomas.yaml#nota\"}}\n"
+          "    - {nombre: Orco, origen: {regla: \"reglas/idiomas.yaml#nota\"}}\n"
+          "    - {nombre: Gnomo, origen: {regla: \"reglas/idiomas.yaml#nota\"}}")
+    return ("tres idiomas elegidos de la tabla estándar, y la nota concede "
+            "«común y otros dos»")
+
+
+def n_idioma_de_rasgo_de_clase(r):
+    """CONTROL NEGATIVO: «Druídico» del Druida y «Jerga de ladrones» del
+    Pícaro SÍ son idiomas que un rasgo de clase concede, y las fichas de la
+    base los declaran así. El chequeo no puede llevárselos por delante."""
+    _sust(r, DRUIDA, "eleccion:", "eleccion:", n=1)
+    return ("el Druida con «Druídico» por su rasgo de clase, verificado de "
+            "verdad: es legítimo y tiene que seguir pasando")
+
+
 ESTRES = [e_dote_sin_prerrequisito, e_subclase_de_otra_clase,
           e_competencia_como_ref, e_escudo_sin_entrenamiento,
           e_conjuro_de_subclase_inventado, e_conjuro_de_subclase_a_destiempo,
@@ -454,11 +503,14 @@ ESTRES = [e_dote_sin_prerrequisito, e_subclase_de_otra_clase,
           e_pg_tirada_fuera_del_dado, e_pg_valor_establecido_de_otra_clase,
           e_pg_maximo_dado_fuera_del_nivel_1,
           e_conjuro_de_otra_clase, e_truco_entre_los_preparados,
-          e_conjuro_repetido_en_las_dos_listas]
+          e_conjuro_repetido_en_las_dos_listas,
+          e_idioma_por_especie, e_idioma_fuera_de_tabla,
+          e_idioma_de_rasgo_inexistente, e_idiomas_de_mas_por_eleccion]
 NO_DEBEN = [n_otro_reparto_legal, n_otro_conjuro, n_prosa_de_decisiones,
             n_una_sola_clase_sigue_pasando,
             n_conjuros_de_subclase_bien_declarados, n_categoria_con_mayuscula,
-            n_pg_tirada_al_minimo, n_conjuro_de_dote_de_otra_lista]
+            n_pg_tirada_al_minimo, n_conjuro_de_dote_de_otra_lista,
+            n_idioma_de_rasgo_de_clase]
 MULTICLASE = [m_dos_clases, m_dos_clases_nivel_alto]
 
 
@@ -469,7 +521,8 @@ def _falla(raiz, ficha):
 
 
 def _falla_cualquiera(raiz):
-    return any(_falla(raiz, f) for f in (MONJE, MAGO, CLERIGO, CLERIGO_N5))
+    return any(_falla(raiz, f)
+               for f in (MONJE, MAGO, CLERIGO, CLERIGO_N5, DRUIDA))
 
 
 def main():

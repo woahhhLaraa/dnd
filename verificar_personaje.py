@@ -913,6 +913,117 @@ def calcular_bloque(ficha):
     return bloque, avisos
 
 
+# ── Idiomas ──────────────────────────────────────────────────────────────
+# Hueco nº 3 de la ronda 2 de estrés: un idioma podía declarar el origen que
+# le diera la gana y nadie lo miraba. Dos agentes lo destaparon con el mismo
+# invento por caminos distintos —«Celestial por ser Aasimar», «Enano por ser
+# Enano»—, y el segundo con el señuelo de que el idioma se llama igual que la
+# especie. **Ninguna de las 10 especies de esta base concede idiomas**, ni
+# ninguno de los 16 trasfondos: se comprobó campo a campo el 2026-09-05.
+#
+# Es el mismo mecanismo que armas, armaduras y herramientas: reúne lo que la
+# base permite, y contrasta. Lo que la base permite son tres cosas, y las
+# tres se comprueban:
+#   · la ELECCIÓN de la tabla estándar (`reglas/idiomas.yaml` → nota), que
+#     concede «común y otros dos»;
+#   · un RASGO DE CLASE que conceda uno —«Druídico» del Druida, «Jerga de
+#     ladrones» del Pícaro—, y entonces el rasgo tiene que existir de verdad
+#     en esa clase y a un nivel ya alcanzado;
+#   · nada más.
+def verificar_idiomas(ficha, inf):
+    idiomas = (ficha.get("competencias") or {}).get("idiomas") or []
+    if not idiomas:
+        # TOLERADO: que la ficha no declare idiomas es un hueco del ESQUEMA,
+        # no de esta comprobación, y lo cubre `verificar_forma_competencias`.
+        # Aquí solo se comprueba lo que hay.
+        return
+    tablas = cargar("reglas/idiomas.yaml") or {}
+    validos = {x["nombre"] for grupo in ("estandar", "inusuales")
+               for x in (tablas.get(grupo) or []) if isinstance(x, dict)}
+    if not validos:
+        inf.error("reglas/idiomas.yaml no trae tablas legibles: no se pueden "
+                  "comprobar los idiomas")
+        return
+
+    por_eleccion = 0
+    for e in idiomas:
+        if not isinstance(e, dict):
+            inf.error(f"competencias.idiomas: entrada que no es un mapa: {e!r}")
+            continue
+        nombre = e.get("nombre")
+        if nombre not in validos:
+            inf.error(f"competencias.idiomas: {nombre!r} no está en las tablas "
+                      f"de `reglas/idiomas.yaml` (revisa el nombre exacto: la "
+                      f"tabla dice «Elfo», no «Élfico»)")
+            continue
+        o = e.get("origen") or {}
+        if not o:
+            # TOLERADO: no es abandonar el registro, es aprobarlo. Un idioma
+            # sin `origen` es uno de los elegidos, y su nombre ya se ha
+            # contrastado contra la tabla tres líneas más arriba.
+            inf.comprobados += 1
+            continue
+        if "especie" in o or "trasfondo" in o:
+            inf.error(
+                f"competencias.idiomas: {nombre!r} dice venir de "
+                f"{'la especie' if 'especie' in o else 'el trasfondo'}, y en "
+                f"esta base NINGUNA especie ni trasfondo concede idiomas. Los "
+                f"que no vienen de un rasgo de clase se ELIGEN de la tabla "
+                f"estándar (`reglas/idiomas.yaml` → nota)")
+            continue
+        if "regla" in o:
+            # TOLERADO: ídem, es la rama que aprueba. Y no se va de rositas:
+            # el recuento `por_eleccion` se contrasta al final contra el
+            # «común y otros dos» de la nota.
+            por_eleccion += 1
+            inf.comprobados += 1
+            continue
+        if "clase" in o and "rasgo" in o:
+            # TOLERADO: lo cubre `_comprueba_idioma_de_rasgo`, que es quien
+            # habla —aprueba o da el error— para este caso.
+            _comprueba_idioma_de_rasgo(ficha, nombre, o, inf)
+            continue
+        inf.error(f"competencias.idiomas: {nombre!r} declara un `origen` que "
+                  f"este chequeo no sabe comprobar: {o!r}")
+
+    # «Común y otros DOS» — la nota de la tabla. Los que vienen de un rasgo de
+    # clase van aparte y no cuentan contra ese par.
+    if por_eleccion > 2:
+        inf.error(f"competencias.idiomas: {por_eleccion} idiomas elegidos de "
+                  f"la tabla estándar, y `reglas/idiomas.yaml` concede «común "
+                  f"y otros dos»")
+    if "Común" not in {e.get("nombre") for e in idiomas if isinstance(e, dict)}:
+        inf.error("competencias.idiomas: falta «Común», que la nota de "
+                  "`reglas/idiomas.yaml` da a todo personaje")
+
+
+def _comprueba_idioma_de_rasgo(ficha, nombre, origen, inf):
+    """Un idioma que dice venir de un rasgo de clase: el rasgo tiene que
+    existir en esa clase, y el personaje haber llegado a su nivel."""
+    clase = origen.get("clase")
+    rasgo = origen.get("rasgo")
+    suya = next((c for c in (ficha.get("clases") or [])
+                 if c.get("clase") == clase), None)
+    if suya is None:
+        inf.error(f"competencias.idiomas: {nombre!r} dice venir de la clase "
+                  f"{clase!r} y el personaje no la tiene")
+        return
+    stem = suya["ref"].split("#")[0].split("/")[-1].replace(".yaml", "")
+    doc = cargar(f"clases/rasgos/{stem}.yaml") or {}
+    r = next((x for x in (doc.get("rasgos") or [])
+              if x.get("nombre") == rasgo), None)
+    if r is None:
+        inf.error(f"competencias.idiomas: {nombre!r} dice venir del rasgo "
+                  f"{rasgo!r} de {clase}, y esa clase no tiene ese rasgo")
+        return
+    if r.get("nivel", 1) > suya.get("nivel", 1):
+        inf.error(f"competencias.idiomas: {rasgo!r} es de nivel "
+                  f"{r.get('nivel')} y el personaje es de nivel "
+                  f"{suya.get('nivel')}")
+        return
+    inf.comprobados += 1
+
+
 # ── `pg_por_nivel`: que el valor CREÍBLE lo sea de verdad ────────────────
 # Hueco nº 2 de la ronda 2 de estrés (2026-09-05), y es patrón espiral puro:
 # `calculo.pg_max_de_ficha()` SUMABA el `valor` de cada nivel sin mirar si ese
@@ -1034,6 +1145,7 @@ def main():
     verificar_categorias(ficha, inf)
     verificar_compra_puntos(ficha, inf)
     verificar_pg_por_nivel(ficha, inf)
+    verificar_idiomas(ficha, inf)
     verificar_mejoras(ficha, inf)
     verificar_conjuros(ficha, inf)
     verificar_dotes_y_subclase(ficha, inf)

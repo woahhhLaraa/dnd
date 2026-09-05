@@ -154,6 +154,30 @@ ausente, conector `y`/`o` cambiado) — las 8 detectadas.
 
 ## Correcciones registradas
 
+- **«Élfico» por «Elfo» en dos fichas, y el arreglo que se quedó a medias →
+  ronda 2 de estrés (2026-09-05)** — el nombre canónico de la tabla es
+  «Elfo»; `gnomo_mago.yaml` y `gnomo_mago_n20.yaml` decían «Élfico».
+
+  Lo que hace este caso distinto de un typo cualquiera es que **el defecto ya
+  era conocido**. `personajes/_ejemplo_aerin.yaml` lleva escrito, en un
+  comentario que sigue ahí:
+
+  > *«el nombre canónico de la tabla es "Elfo", no "Élfico" (bug real: la
+  > versión anterior de este ejemplo tenía ambos errores y ningún validador lo
+  > pilló, porque `idiomas` no lleva `ref:`)»*
+
+  Se arregló **en el ejemplo** y se quedó vivo en las otras dos fichas, porque
+  lo que se hizo fue corregir el dato y no cerrar el hueco: sin `ref:`, los
+  idiomas no pasaban por ningún contraste. Es el parche puntual en estado
+  puro, y por eso este caso se registra aunque el dato sea trivial.
+
+  Cerrado de verdad ahora: `verificar_idiomas()` contrasta cada nombre contra
+  las tablas de `reglas/idiomas.yaml`, comprueba el origen que declara —una
+  especie o un trasfondo NO conceden idiomas en esta base, un rasgo de clase
+  sí y tiene que existir— y cuenta que los elegidos no pasen de los «otros
+  dos» que da la nota. Con mutación en las dos direcciones, y con el Druida y
+  su «Druídico» como control negativo.
+
 - **Dos conjuros mal puestos en una ficha de la base → ronda 2 de estrés
   (2026-09-05)** — `personajes/draconido_hechicero_n4.yaml` llevaba dos
   defectos que ningún chequeo miraba, porque los dos chequeos de conjuros

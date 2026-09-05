@@ -61,7 +61,7 @@ competencias:
   idiomas:
   - nombre: Común
   - nombre: Gnomo
-  - nombre: Élfico
+  - nombre: Elfo
 equipo:
 - ref: equipo/armas.yaml#Daga
   origen:
@@ -218,7 +218,7 @@ decisiones:
     registro: Gnomo
     campo: linajes
 - en: creación
-  eleccion: 'idiomas: Común, Gnomo, Élfico'
+  eleccion: 'idiomas: Común, Gnomo, Elfo'
   cita:
     archivo: reglas/idiomas.yaml
     campo: nota
