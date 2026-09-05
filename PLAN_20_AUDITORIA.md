@@ -101,7 +101,29 @@ precedente bueno del repo es otro: `valor_establecido_pg()` lee la tabla
 `validar_puntos_golpe()` usa para CONTRASTAR las dos transcripciones»*. La
 independencia viene de **fuera del código**.
 
-**1.1 · `_verificacion/mutaciones_motor.py`** (nuevo, barato, y ya mide).
+**1.1 · `_verificacion/mutaciones_motor.py`** — ✅ **HECHA (2026-09-05)**, y su
+medición es peor que la estimación del plan:
+
+> **Solo 4 de 11 mutaciones del motor las caza alguna ficha.** Siete trozos de
+> motor no los protege nada:
+>
+> | Hueco | Qué significa |
+> |---|---|
+> | `aplica()` deja de mirar `requiere` | **todo efecto condicionado se aplicaría siempre** — la CA sin armadura del Bárbaro sumaría llevando cota de malla, y las 18 fichas siguen en verde |
+> | desaparecen los bucles `min`, `max` y `set` | tres de las seis operaciones de la agregación se pueden borrar enteras |
+> | el bucle `mul` divide en vez de multiplicar | |
+> | se quita el `math.floor` final | |
+> | el mínimo de 1 de los PG por nivel pasa a 0 | y la base lo trae estructurado sin que nadie lo lea |
+>
+> Las 4 que sí se cazan: el bucle `add`, los PG del nivel 1 con Constitución, y
+> las condiciones `con_armadura`/`con_escudo` invertidas.
+>
+> La deuda va **enumerada** en `_verificacion/motor_sin_carga.json`, patrón de
+> `chequeos_silenciosos.json`: solo puede bajar, se salda **escribiendo fichas
+> que ejerciten esa aritmética** —no tocando la lista— y un hueco nuevo hace
+> fallar la suite. Esa lista es el encargo literal del mandato «el calculista».
+
+El diseño original:
 Muta **el motor**, no la base, y exige que alguna ficha con su `calculado`
 congelado falle: `+=`→`-=` en el bucle `add`; borrar el bucle `min`/`max`;
 quitar el `math.floor`; `max(1,…)`→`max(0,…)` en `pg_de_subida`; invertir

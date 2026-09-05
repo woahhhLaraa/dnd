@@ -1,0 +1,13 @@
+{
+ "_nota": "Trozos del motor que NINGUNA ficha de `personajes/` protege: se pueden corromper y todas las fichas siguen verificando en verde. Es deuda enumerada, no permiso. Solo puede bajar, y se salda escribiendo fichas que ejerciten esa aritmética — el mandato «el calculista» de la ronda 3 de estrés, no tocando esta lista.",
+ "_fecha": "2026-09-05",
+ "huecos": [
+  "el bucle `mul` divide en vez de multiplicar",
+  "desaparece el bucle `min` de la agregación",
+  "desaparece el bucle `max` de la agregación",
+  "desaparece el bucle `set` de la agregación",
+  "se quita el `math.floor` final de la agregación",
+  "el mínimo de 1 de los PG por nivel pasa a 0",
+  "`aplica()` deja de mirar `requiere`: todo efecto se aplica siempre"
+ ]
+}

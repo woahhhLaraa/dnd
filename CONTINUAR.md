@@ -49,7 +49,7 @@ python3 verificar_documentos.py   # ¿CONTINUAR.md y FODA.md dicen la verdad?
 python3 verificar_chequeos.py     # ¿algún chequeo abandona un registro en silencio?
 ```
 
-Las 15 suites de `_verificacion/mutaciones_*.py` están todas en verde;
+Las 17 suites de `_verificacion/mutaciones_*.py` están todas en verde;
 `verificar_documentos.py` las descubre por patrón y no hace falta acordarse
 de sus nombres ni de sus cifras — las contrasta contra lo que este fichero y
 `FODA.md` dicen.
