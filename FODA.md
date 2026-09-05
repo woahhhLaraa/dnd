@@ -226,7 +226,7 @@ Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
 10. **✅ CERRADA (2026-09-02) — la regla inviolable 6 ya no es prosa.**
    *(era 🔴 desde el 2026-08-31, el mismo día en que se escribió)*
 
-   `censo.py` la convierte en una cuenta: **867 unidades censadas, 0 sin
+   `censo.py` la convierte en una cuenta: **892 unidades censadas, 0 sin
    declarar, 492 pendientes con su bloque y su motivo**. Siete clases de unidad
    —la séptima, los módulos de herramienta, la añadió el bloque A2—, siete
    universos descubiertos (glob, AST y el vocabulario de la base), y un

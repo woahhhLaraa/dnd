@@ -63,6 +63,7 @@ import ast
 import fnmatch
 import functools
 import glob
+import json
 import pathlib
 import sys
 
@@ -478,15 +479,97 @@ def fila_rasgos():
             f"sin declarar de la deuda conocida")
     import json
     conocidos = json.loads(f.read_text(encoding="utf-8"))["rasgos"]
-    deuda = {f"rasgo:{uid}": "todavía no dice si toca alguna variable calculable"
+    deuda = {f"rasgo:{uid}": f"{len(conocidos)} rasgos que todavía no dicen "
+                             f"si tocan alguna variable calculable"
              for uid in conocidos}
     return Fila("rasgo", "rasgos con texto", universo, alcanzadas,
                 "su propio `efectos:` o `no_automatizado:`", deuda=deuda,
                 manifiesto="_verificacion/rasgos_sin_declarar.json")
 
 
+# ══ Fila 8 · efectos con carga ════════════════════════════════════════════
+# Fase 1.3 de la auditoría (2026-09-05). La fila que mide si el motor de
+# efectos es carga o decoración.
+#
+# El motivo, medido: de los 25 efectos declarados en la base, **solo 7 los
+# aplica alguna ficha de `personajes/`**. Los otros 18 —entre ellos `Duro`,
+# que es el efecto que motivó el Plan 17, y el único `modifica_tope` que
+# existe— se pueden corromper sin que nada se rompa. `verificar_calculado` ya
+# escribió la frase para UNA variable: «para que el efecto sea carga y no
+# decoración: si no lo sostuviera ninguna ficha, corromperlo no rompería
+# nada». Esta fila lo convierte en una cuenta para las 25.
+#
+# **Alcanzada exige DOS cosas**, y la segunda es la que importa: que alguna
+# ficha aplique el efecto, y que esa ficha tenga `_origen.metodo:
+# agente-manual`. Una ficha escrita por el motor no sostiene nada — pinchar
+# el motor la movería a ella también, que es justo el círculo que la fase 1.2
+# vino a hacer visible. Por eso la fila nace en 0 alcanzadas aunque 7 efectos
+# ya se apliquen: la deuda no es «nadie los usa», es «nadie los ha verificado
+# desde fuera del motor».
+def fila_efectos_con_carga():
+    import efectos as E
+    import yaml as Y
+
+    def clave(e):
+        return (e.get("_archivo"), e.get("_rasgo"), e.get("objetivo"), e.get("op"))
+
+    universo = {}
+    for e in E.efectos_declarados():
+        arch, rasgo, obj, op = clave(e)
+        universo[f"efecto:{arch}#{rasgo}·{obj}·{op}"] = f"{rasgo} → {obj} ({op})"
+
+    alcanzadas = set()
+    for p in sorted((B / "personajes").glob("*.yaml")):
+        try:
+            ficha = Y.safe_load(p.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not isinstance(ficha, dict):
+            continue
+        origen = (ficha.get("calculado") or {}).get("_origen") or {}
+        if origen.get("metodo") != "agente-manual":
+            continue        # el motor no puede firmar como su propio oráculo
+        try:
+            aplicados = E.efectos_de_ficha(ficha)
+        except Exception:
+            continue
+        for e in aplicados:
+            arch, rasgo, obj, op = clave(e)
+            alcanzadas.add(f"efecto:{arch}#{rasgo}·{obj}·{op}")
+
+    # Deuda ENUMERADA, como los rasgos del bloque D: se salda escribiendo
+    # fichas con lectura independiente (el mandato «el calculista»), no
+    # tocando esta lista.
+    f = B / "_verificacion" / "efectos_sin_carga.json"
+    if f.exists():
+        listados = json.loads(f.read_text(encoding="utf-8"))["efectos"]
+    else:
+        listados = sorted(set(universo) - alcanzadas)
+        f.write_text(json.dumps(
+            {"_nota": "Efectos declarados que NINGUNA ficha con `_origen: "
+                      "agente-manual` sostiene. Es deuda enumerada, no "
+                      "permiso: solo puede bajar, y se salda con el mandato "
+                      "«el calculista» de PLAN_ESTRES.md, no editando esta "
+                      "lista.",
+             "_fecha": "2026-09-05",
+             "_como_se_salda": "una ficha cuyo `calculado` haya calculado a "
+                               "mano un agente desde la página, y que aplique "
+                               "ese efecto, lo pincha aquí",
+             "efectos": listados},
+            ensure_ascii=False, indent=1), encoding="utf-8")
+    deuda = {uid: f"{len(listados)} efectos que ninguna ficha con lectura "
+                  f"independiente sostiene: se pueden corromper y las fichas "
+                  f"siguen en verde"
+             for uid in listados}
+    return Fila("efecto", "efectos con carga", universo, alcanzadas,
+                "una ficha con `_origen: agente-manual` que lo aplique",
+                deuda=deuda,
+                manifiesto="_verificacion/efectos_sin_carga.json")
+
+
 FILAS = (fila_ficheros_de_regla, fila_variables, fila_columnas,
-         fila_datos_externos, fila_chequeos, fila_modulos, fila_rasgos)
+         fila_datos_externos, fila_chequeos, fila_modulos, fila_rasgos,
+         fila_efectos_con_carga)
 
 
 # ══ El manifiesto de declaraciones ════════════════════════════════════════
@@ -607,11 +690,17 @@ def main():
                 print(f"      · {quienes}")
                 print(f"        {motivo}")
         if en_deuda:
+            # El texto lo pone la FILA, no el informe. Estuvo cableado aquí
+            # —hablando de rasgos— hasta que la fila 8 lo heredó y empezó a
+            # decir «25 rasgos» de unos efectos. Es la misma lección: el
+            # informe no sabe de qué habla cada fila; la fila sí.
             print(f"    ⬜ PENDIENTES (deuda enumerada): {len(en_deuda)}")
-            print(f"      · [D] {len(en_deuda)} rasgos que todavía no dicen si "
-                  f"tocan alguna variable calculable")
-            print(f"        enumerados en _verificacion/rasgos_sin_declarar.json, "
-                  f"que solo puede bajar; uno nuevo hace fallar a validar.py")
+            motivos = {fila.deuda[u] for u in en_deuda if u in fila.deuda}
+            for m in sorted(motivos):
+                print(f"      · [D] {m}")
+            if fila.manifiesto:
+                print(f"        enumerados en {fila.manifiesto}, que solo "
+                      f"puede bajar; uno nuevo hace fallar al censo")
         if pend_fila:
             # Igual que las exentas: se agrupa por (bloque, motivo). Siete
             # clases con el MISMO problema en `slots` son un hueco, no siete.

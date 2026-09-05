@@ -258,13 +258,31 @@ def m_deuda_muerta(r):
             "bajar, y una entrada que no corresponde a nada la infla")
 
 
+def u_efecto_nuevo_sin_carga(r):
+    """Fila 8 (auditoría, fase 1.3). Un efecto nuevo en la base entra en el
+    universo, y como ninguna ficha con lectura independiente lo sostiene ni
+    está en `efectos_sin_carga.json`, sale SIN DECLARAR. Es la puerta que la
+    fila cierra: la deuda enumerada solo puede bajar."""
+    p2 = r / "clases/rasgos/barbaro.yaml"
+    t = p2.read_text(encoding="utf-8")
+    t = t.replace('  - nombre: "Furia"\n',
+                  '  - nombre: "Furia"\n'
+                  '    efectos:\n'
+                  '      - {objetivo: velocidad, op: add, formula: "1",\n'
+                  '         pagina: {pdf: 53, libro: 51}}\n', 1)
+    p2.write_text(t, encoding="utf-8")
+    return ("un efecto NUEVO en la base que ninguna ficha sostiene y que no "
+            "está en la deuda enumerada")
+
+
 DEBEN = [u_fichero_de_regla, u_variable_calculable, u_columna_de_clase,
          u_chequeo_nuevo, u_dato_externo, a_mapa_recortado,
          p_promesa_a_chequeo_inexistente, p_promesa_sin_etiqueta,
          m_declaracion_muerta, m_declaracion_borrada, m_comodin_en_exentas,
          m_exenta_y_pendiente, u_rasgo_nuevo,
          u_rebanada_estrechada, u_rebanada_nueva,
-         m_excluido_muerto, m_deuda_muerta]
+         m_excluido_muerto, m_deuda_muerta,
+         u_efecto_nuevo_sin_carga]
 NO_DEBEN = [n_rasgo_no_automatizado, n_fichero_fuera_de_regla,
             n_columna_ya_contrastada, n_suite_sin_chequeos, n_exencion_con_motivo]
 # Mutaciones que NO deben hacer fallar al censo pero SÍ subir su recuento.

@@ -151,7 +151,22 @@ hay oráculo. `agente-manual` exige `informe:` a un fichero que exista.
 Toca `personajes/_ESQUEMA.md` (de donde `verificar_claves` ya lee las claves),
 `verificar_personaje.py` y las 18 fichas.
 
-**1.3 · Fila 9 del censo — «efectos con carga».** Convierte el 7/25 en una
+**1.3 · Fila 8 del censo — «efectos con carga»** — ✅ **HECHA (2026-09-05)**.
+Nació como estaba diseñada: **25 unidades · 0 alcanzadas · 25 en deuda
+enumerada**. Cero alcanzadas aunque 7 efectos ya se apliquen, porque
+«alcanzada» exige que la ficha que lo aplica tenga `_origen: agente-manual` —
+una ficha escrita por el motor no sostiene nada: pinchar el motor la movería a
+ella también. Censo 867 → **892**.
+
+De propina, otro cableado del mismo día: el informe del censo tenía el texto de
+la deuda enumerada **escrito a mano hablando de rasgos**, y al heredar la fila
+nueva decía «25 rasgos» de unos efectos. Ahora el texto lo pone la fila; el
+informe no sabe de qué habla cada una, la fila sí.
+
+*(Es la fila 8, no la 9: el plan la numeró suponiendo que la de constantes
+llegaría antes. Llega después.)*
+
+El diseño original: Convierte el 7/25 en una
 cuenta que solo puede subir y dice cuál falta.
 - Universo: descubierto con `efectos.efectos_declarados()`, por
   `(archivo, rasgo, objetivo, op)`.
