@@ -138,7 +138,60 @@ def cargar_vocabulario():
 # de regla que ningún patrón sepa recorrer y que no esté declarado como
 # excluido ES UN ERROR: no se puede añadir una fuente sin decidir qué se
 # hace con ella.
-_DIRECTORIOS_DE_REGLA = ("especies", "clases", "dotes", "trasfondos", "reglas")
+# ── Fase 2.1 del PLAN_20 (2026-09-05): también los DIRECTORIOS se descubren
+# `_DIRECTORIOS_DE_REGLA` era una tupla literal de cinco nombres y le faltaba
+# `equipo`. El arreglo de C1 había sustituido una tupla cableada de RUTAS por
+# un descubrimiento por patrón **dentro de una tupla cableada de
+# DIRECTORIOS**: mismo patrón, un nivel más arriba, y con `censo.py` tomando
+# su universo de aquí, `equipo/armaduras.yaml` —fuente real de efectos— no lo
+# censaba nadie.
+@functools.lru_cache(maxsize=None)
+def directorios_de_regla():
+    """Los directorios de primer nivel con `.yaml`, menos los declarados «no
+    son regla». Devuelve `(de_regla, pendientes)`.
+
+    Un directorio nuevo sin declarar es un ERROR: no se puede añadir una
+    familia entera de ficheros al repositorio y que el motor decida solo que
+    no le incumbe. Es la misma promesa que `origenes()` hace un nivel más
+    abajo para los ficheros sueltos.
+    """
+    m = cargar_manifiesto()
+    d = m["directorios"]
+    fuera = {e["ruta"] for e in d["no_son_regla"]}
+    pendientes = {e["ruta"] for e in d["pendientes"]}
+    hallados = {p.name for p in sorted(B.iterdir())
+                if p.is_dir() and not p.name.startswith(".")
+                and any(p.rglob("*.yaml"))}
+    # Una declaración que apunta a un fichero que ya no existe es una
+    # declaración muerta: engorda la cuenta sin cubrir nada. Es el defecto
+    # que la fase 0 cerró en `censo.Fila`, aquí un nivel más arriba.
+    muertas = sorted(f for e in d["pendientes"] for f in (e.get("ficheros") or [])
+                     if not (B / f).exists())
+    if muertas:
+        raise ErrorDeEfectos(
+            "`fuentes_de_efectos.yaml` → `directorios.pendientes` declara "
+            "ficheros que no existen:\n  · " + "\n  · ".join(muertas)
+            + "\nUna declaración muerta sube la cuenta de deuda saldada sin "
+              "saldar nada. Bórrala.")
+    sin_declarar = sorted(hallados - fuera - pendientes - _DECLARADOS_EN_FUENTES())
+    if sin_declarar:
+        raise ErrorDeEfectos(
+            "directorios con ficheros `.yaml` que nadie ha clasificado:\n  · "
+            + "\n  · ".join(sin_declarar)
+            + "\nDeclara cada uno en `reglas/fuentes_de_efectos.yaml` → "
+              "`directorios`: como `no_son_regla` (con el motivo) o como "
+              "`pendientes` (deuda declarada). Y si es de regla, clasifica "
+              "sus ficheros en `fuentes` o `excluidos`.")
+    return tuple(sorted(hallados - fuera - pendientes)), tuple(sorted(pendientes))
+
+
+def _DECLARADOS_EN_FUENTES():
+    """Los directorios que ya salen de un patrón de `fuentes` o de una ruta de
+    `excluidos`: están clasificados fichero a fichero, así que declararlos
+    otra vez arriba sería una segunda lista que mantener."""
+    m = cargar_manifiesto()
+    rutas = [f["patron"] for f in m["fuentes"]] + [e["ruta"] for e in m["excluidos"]]
+    return {r.split("/", 1)[0] for r in rutas if "/" in r}
 
 
 def cargar_manifiesto():
@@ -174,7 +227,8 @@ def origenes():
     # Todo fichero de regla debe estar clasificado: o lo recorre un patrón,
     # o se declara excluido con su motivo.
     sin_clasificar = []
-    for d in _DIRECTORIOS_DE_REGLA:
+    de_regla, _pendientes = directorios_de_regla()
+    for d in de_regla:
         for p in sorted((B / d).rglob("*.yaml")):
             rel = p.relative_to(B).as_posix()
             if rel not in encontrados and rel not in excluidos:

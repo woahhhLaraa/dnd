@@ -122,8 +122,14 @@ class Fila:
 def fila_ficheros_de_regla():
     import efectos as E
 
+    # El universo sale de `efectos.directorios_de_regla()`, que DESCUBRE los
+    # directorios en vez de llevarlos escritos. Los `pendientes` entran
+    # también: un directorio de regla sin clasificar es exactamente la clase
+    # de agujero que este censo existe para contar, y dejarlo fuera del
+    # universo lo hacía invisible —así vivió `equipo/` hasta la fase 2.1—.
+    de_regla, pendientes = E.directorios_de_regla()
     universo = {}
-    for d in E._DIRECTORIOS_DE_REGLA:
+    for d in de_regla + pendientes:
         for p in sorted((B / d).rglob("*.yaml")):
             rel = p.relative_to(B).as_posix()
             universo[f"regla:{rel}"] = rel
@@ -134,6 +140,17 @@ def fila_ficheros_de_regla():
     alcanzadas = {f"regla:{rel}" for rel, _camino in E.origenes()}
     declaradas = {f"regla:{e['ruta']}": e["motivo"] + " [fuentes_de_efectos.yaml]"
                   for e in E.cargar_manifiesto()["excluidos"]}
+    # Y los ficheros de un directorio PENDIENTE: declarados uno a uno con el
+    # motivo del directorio, para que la cuenta los vea y digan por qué.
+    # Solo los ENUMERADOS: un `.yaml` nuevo en un directorio pendiente sale
+    # sin declarar y el censo se pone rojo. La deuda es una lista que solo
+    # puede menguar, no un permiso para el directorio entero.
+    for d in E.cargar_manifiesto()["directorios"]["pendientes"]:
+        for rel in (d.get("ficheros") or []):
+            declaradas.setdefault(
+                f"regla:{rel}",
+                f"directorio pendiente de clasificar — {d['motivo']} "
+                f"[fuentes_de_efectos.yaml]")
     return Fila("regla", "ficheros de regla", universo, alcanzadas,
                 "efectos.origenes() y su manifiesto", declaradas,
                 manifiesto="reglas/fuentes_de_efectos.yaml")

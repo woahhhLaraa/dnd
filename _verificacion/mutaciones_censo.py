@@ -165,6 +165,42 @@ def m_exenta_y_pendiente(r):
 
 # ══ Controles negativos: NO deben saltar ══════════════════════════════════
 
+def u_fichero_de_equipo_sin_clasificar(r):
+    """Esta mutación **era un control negativo** hasta el 2026-09-05, con este
+    comentario: *«un YAML en `equipo/`, que no es directorio de regla: no entra
+    en el universo de la fila 1»*. Era falso, y el test fijaba el error como
+    correcto: `equipo/armaduras.yaml` **sí** es fuente de efectos —de ahí salen
+    la CA de las 13 armaduras, el escudo y el −3 m por Fuerza—, y `equipo`
+    faltaba de `_DIRECTORIOS_DE_REGLA`, de donde el censo tomaba su universo.
+    El guardián de «la cobertura se descubre» tenía el defecto que persigue,
+    con una mutación que lo blindaba.
+
+    Cambió de lista, no se borró: la propiedad que protegía sigue siendo real y
+    la protege ahora `n_yaml_en_directorio_no_de_regla`, con un directorio que
+    de verdad no es regla."""
+    (r / "equipo" / "monturas.yaml").write_text("monturas: []\n", encoding="utf-8")
+    return ("un YAML nuevo en `equipo/`, que es directorio de regla PENDIENTE: "
+            "la deuda enumerada no lo cubre y sale sin declarar")
+
+
+def u_directorio_nuevo_sin_declarar(r):
+    """**La mutación que habría cazado el defecto original.** Un directorio
+    entero de `.yaml` que nadie ha clasificado no puede pasar en silencio: es
+    exactamente lo que le pasó a `equipo/` durante toda su vida."""
+    (r / "objetos").mkdir()
+    (r / "objetos" / "varas.yaml").write_text("varas: []\n", encoding="utf-8")
+    return ("un directorio nuevo (`objetos/`) con un `.yaml`, sin declarar en "
+            "`fuentes_de_efectos.yaml → directorios`")
+
+
+def m_pendiente_muerto(r):
+    """Una declaración de deuda que apunta a un fichero borrado: sube la cuenta
+    de «saldada» sin saldar nada. Fase 0 aplicada a los directorios."""
+    (r / "equipo" / "municion.yaml").unlink()
+    return ("un fichero declarado en `directorios.pendientes.ficheros` que ya "
+            "no existe: declaración muerta")
+
+
 def n_rasgo_no_automatizado(r):
     _sust(r, "clases/rasgos/picaro.yaml", "rasgos:\n",
           'rasgos:\n  - nombre: "Reflejos de sombra"\n    nivel: 1\n'
@@ -174,10 +210,17 @@ def n_rasgo_no_automatizado(r):
             "legítima del bloque D, no un hueco")
 
 
-def n_fichero_fuera_de_regla(r):
-    (r / "equipo" / "monturas.yaml").write_text("monturas: []\n", encoding="utf-8")
-    return ("un YAML en `equipo/`, que no es directorio de regla: no entra en "
-            "el universo de la fila 1")
+
+
+def n_yaml_en_directorio_no_de_regla(r):
+    """SUSTITUTO del control negativo que se invirtió (ver
+    `u_fichero_de_equipo_sin_clasificar` en DEBEN). La propiedad que aquel
+    control codificaba —**no todo `.yaml` del repositorio es una regla**— es
+    verdadera y hay que seguir protegiéndola; lo que era falso es que
+    `equipo/` fuera el ejemplo."""
+    (r / "personajes" / "prueba.yaml").write_text("nombre: x\n", encoding="utf-8")
+    return ("un YAML en `personajes/`, declarado «no es regla» con su motivo: "
+            "no entra en el universo de la fila 1")
 
 
 def n_columna_ya_contrastada(r):
@@ -282,8 +325,10 @@ DEBEN = [u_fichero_de_regla, u_variable_calculable, u_columna_de_clase,
          m_exenta_y_pendiente, u_rasgo_nuevo,
          u_rebanada_estrechada, u_rebanada_nueva,
          m_excluido_muerto, m_deuda_muerta,
-         u_efecto_nuevo_sin_carga]
-NO_DEBEN = [n_rasgo_no_automatizado, n_fichero_fuera_de_regla,
+         u_efecto_nuevo_sin_carga,
+         u_fichero_de_equipo_sin_clasificar, u_directorio_nuevo_sin_declarar,
+         m_pendiente_muerto]
+NO_DEBEN = [n_rasgo_no_automatizado, n_yaml_en_directorio_no_de_regla,
             n_columna_ya_contrastada, n_suite_sin_chequeos, n_exencion_con_motivo]
 # Mutaciones que NO deben hacer fallar al censo pero SÍ subir su recuento.
 # Quedó vacía al cerrar el bloque D: la única que había —el rasgo nuevo— ahora

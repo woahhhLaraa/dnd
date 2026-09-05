@@ -28,6 +28,52 @@
 edicion: "2024 (5.5e)"
 verificado: {metodo: "estructural", fecha: "2026-08-31"}
 
+# ── Los DIRECTORIOS de regla, descubiertos (fase 2.1 del PLAN_20 — 2026-09-05)
+#
+# Hasta hoy `efectos.py` llevaba `_DIRECTORIOS_DE_REGLA` como tupla literal de
+# cinco nombres, y le faltaba `equipo`. Es el mismo defecto que este fichero
+# arregló un nivel más abajo: se sustituyó una tupla cableada de RUTAS por un
+# descubrimiento por patrón… **dentro de una tupla cableada de DIRECTORIOS**.
+#
+# Y no era inocuo. `censo.py` toma su universo de esa misma tupla, así que
+# `equipo/armaduras.yaml` —que **sí** es fuente de efectos: de ahí salen la CA
+# de las armaduras, el escudo y el −3 m por Fuerza— no lo censaba nadie. El
+# guardián de «la cobertura se descubre» tenía el defecto que persigue.
+#
+# Ahora los directorios de primer nivel con `.yaml` se DESCUBREN, y cada uno
+# tiene que estar en una de estas tres listas. Uno nuevo sin declarar es un
+# error, igual que un fichero sin clasificar.
+directorios:
+  # No son regla: su contenido no concede nada al personaje.
+  no_son_regla:
+    - ruta: "personajes"
+      motivo: "las fichas, que CONSUMEN las reglas; verlas como fuente sería circular"
+    - ruta: "_verificacion"
+      motivo: "líneas base y manifiestos de las suites de mutación, no contenido del juego"
+
+  # Sí son regla, y todavía no están clasificadas fichero a fichero. Entran en
+  # el universo del censo —para que el agujero se cuente— pero `origenes()` no
+  # revienta por ellas todavía. **Es deuda declarada, no permiso: esta lista
+  # solo puede vaciarse.** Un directorio se saca de aquí clasificando sus
+  # ficheros abajo, en `fuentes`, `derivadas` o `excluidos`.
+  #
+  # `ficheros:` NO es decoración: es la deuda ENUMERADA. El censo declara
+  # exactamente estos cinco y ninguno más, así que un `.yaml` NUEVO en un
+  # directorio pendiente sale como unidad SIN DECLARAR y el censo se pone en
+  # rojo. Sin esa lista, meter ficheros en `equipo/` saldría gratis mientras
+  # el directorio siguiera pendiente — que es justo el agujero que la fase 2
+  # está cerrando, con otro nombre. Un fichero de aquí que ya no exista es
+  # una declaración muerta, y también es error.
+  pendientes:
+    - ruta: "equipo"
+      motivo: "fase 2 de PLAN_20_AUDITORIA.md: armaduras.yaml es fuente derivada de efectos y municion.yaml no lo valida nadie"
+      ficheros:
+        - "equipo/armaduras.yaml"
+        - "equipo/armas.yaml"
+        - "equipo/aventureros.yaml"
+        - "equipo/herramientas.yaml"
+        - "equipo/municion.yaml"
+
 # `patron`  — glob relativo a la raíz de la base.
 # `camino`  — claves por las que descender hasta el registro que puede
 #             llevar `efectos:`. Lista vacía = el propio documento.
