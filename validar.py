@@ -2610,6 +2610,25 @@ _MEJORA_FRAG = re.compile(
 _CARACTS = ("Fuerza", "Destreza", "Constitución", "Inteligencia",
             "Sabiduría", "Carisma")
 
+# La dote genérica «Mejora de característica» (pdf 209 = libro 207) redacta lo
+# mismo de otra forma, porque no es una sub-mejora dentro de una dote mayor:
+# es la dote entera. Su texto no encaja en `_MEJORA_FRAG`, y hasta el
+# 2026-09-03 era la ÚNICA de las 43 dotes sin `mejora_caracteristica`
+# estructurado — justo la que `personajes/_ESQUEMA.md` designa para cada
+# entrada de `mejoras:`—. La consecuencia: su «+2» y su tope de 20 vivían
+# CABLEADOS en `verificar_personaje.py`, sin fuente que nadie contrastara. Es
+# el defecto nº 4 del §2 del PLAN_18 (autoridad de la base copiada a Python) y
+# lo destapó la ronda 2 de estrés con agentes.
+#
+# El reparto no necesita campo propio: las formas legales de repartir
+# `cantidad` son sus particiones en partes de al menos 1 — con `cantidad: 1`
+# solo cabe [1], y con `cantidad: 2` caben [2] y [1,1], que es exactamente lo
+# que dice el texto. Un campo `reparto:` sería un tercer sitio donde decir lo
+# que ya dice `cantidad`.
+_MEJORA_GENERICA = re.compile(
+    r'^\s*Aumenta en (\d+) una puntuación de característica de tu elección, '
+    r'o aumenta dos en 1 cada una\. No puede superar (\d+)\.')
+
 
 def _mejora_a_prosa(m):
     """estructura -> fragmento del manual. Es la mitad de vuelta."""
@@ -2641,6 +2660,33 @@ def validar_mejoras_de_dote():
             desc = str(x.get("descripcion", ""))
             m = _MEJORA_FRAG.match(desc)
             est = x.get("mejora_caracteristica")
+
+            # La forma genérica va primero porque su texto es el de la dote
+            # entera, no un fragmento dentro de otra: si encaja, no hay
+            # `_MEJORA_FRAG` que buscar.
+            mg = _MEJORA_GENERICA.match(desc)
+            if mg:
+                if not est:
+                    err.append(f"«{nom}» ({rel}) concede una mejora de "
+                               f"característica en su texto y no la declara "
+                               f"en `mejora_caracteristica`")
+                    continue
+                prometido = (int(mg.group(1)), int(mg.group(2)))
+                declarado = (est.get("cantidad"), est.get("maximo"))
+                if declarado != prometido:
+                    err.append(
+                        f"«{nom}» ({rel}): su texto promete cantidad "
+                        f"{prometido[0]} y máximo {prometido[1]}, y "
+                        f"`mejora_caracteristica` declara {declarado[0]} y "
+                        f"{declarado[1]}")
+                elif est.get("entre") != "cualquiera":
+                    err.append(
+                        f"«{nom}» ({rel}): su texto dice «de tu elección», "
+                        f"así que `entre` tiene que ser «cualquiera» y es "
+                        f"{est.get('entre')!r}")
+                else:
+                    n_ok += 1
+                continue
 
             # (a) la prosa promete un +1 y no hay estructura -> el caso Actor
             if m and not est:

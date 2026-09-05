@@ -225,6 +225,7 @@ dotes:
     pagina: {pdf: 209, libro: 207}
     prerrequisito: "nivel 4 o más"
     repetible: true
+    mejora_caracteristica: {cantidad: 2, maximo: 20, entre: cualquiera}
     descripcion: "Aumenta en 2 una puntuación de característica de tu elección, o aumenta dos en 1 cada una. No puede superar 20."
 
   - nombre: "Mente aguda"

@@ -1,0 +1,145 @@
+nombre: "Doran Piedrafría"
+jugador: null
+nivel_total: 5
+
+# Esta ficha entró en la base el 2026-09-05, y de dónde sale importa: la
+# construyó un agente de la RONDA 2 DE ESTRÉS (`PLAN_ESTRES.md`) con cinco
+# defectos deliberados, y al arreglarlos quedó la única ficha que ejercita
+# una superficie que ninguna de las otras 17 tocaba: **una subclase que
+# concede conjuros siempre preparados**. Que nadie la ejercitara es
+# exactamente por lo que el falso positivo de `origen: {subclase: …}` pudo
+# vivir sin que ningún chequeo lo notara.
+
+especie:
+  ref: "especies/especies.yaml#Enano"
+  rasgos_elegidos: {}
+
+trasfondo:
+  ref: "trasfondos/trasfondos.yaml#Acólito"
+
+clases:
+  - clase: Clérigo
+    ref: "clases/clerigo.yaml"
+    nivel: 5
+    subclase: "clases/subclases/clerigo.yaml#Dominio de la Guerra"
+
+caracteristicas:
+  metodo: conjunto_estandar
+  base: {fue: 12, des: 10, con: 14, int: 8, sab: 15, car: 13}
+  ajuste_trasfondo: {sab: 2, car: 1}
+  final: {fue: 12, des: 10, con: 14, int: 8, sab: 18, car: 15}
+
+competencias:
+  salvaciones: [Sabiduría, Carisma]
+  habilidades:
+    - {nombre: Perspicacia, origen: {trasfondo: Acólito}}
+    - {nombre: Religión, origen: {trasfondo: Acólito}}
+    - {nombre: Historia, origen: {clase: Clérigo}}
+    - {nombre: Medicina, origen: {clase: Clérigo}}
+  armas:
+    - {categoria: "Armas sencillas", origen: {clase: Clérigo}}
+  armaduras:
+    - {categoria: "Armaduras ligeras", origen: {clase: Clérigo}}
+    - {categoria: "Armaduras medias", origen: {clase: Clérigo}}
+    - {categoria: "Escudos", origen: {clase: Clérigo}}
+  herramientas:
+    - {categoria: "suministros de calígrafo", origen: {trasfondo: Acólito}}
+  # Ninguna especie de esta base concede idiomas: los dos que van además de
+  # Común se ELIGEN de la tabla estándar (`reglas/idiomas.yaml`), y por eso
+  # no llevan `origen: {especie: …}`.
+  idiomas:
+    - {nombre: Común}
+    - {nombre: Enano}
+    - {nombre: Gigante}
+
+equipo:
+  - {ref: "equipo/armaduras.yaml#Camisa de malla", origen: {clase: Clérigo, opcion: A}}
+  - {ref: "equipo/armaduras.yaml#Escudo", origen: {clase: Clérigo, opcion: A}}
+  - {ref: "equipo/armas.yaml#Maza", origen: {clase: Clérigo, opcion: A}}
+  - {ref: "equipo/aventureros.yaml#Paquete de sacerdote", origen: {clase: Clérigo, opcion: A}}
+  - {ref: "equipo/aventureros.yaml#Símbolo sagrado", origen: {clase: Clérigo, opcion: A}}
+  - {ref: "equipo/herramientas.yaml#Suministros de calígrafo", origen: {trasfondo: Acólito, opcion: A}}
+  - {ref: "equipo/aventureros.yaml#Libro", origen: {trasfondo: Acólito, opcion: A, nota: "de oraciones"}}
+  - {ref: "equipo/aventureros.yaml#Pergamino", origen: {trasfondo: Acólito, opcion: A, cantidad: 10}}
+  - {ref: "equipo/aventureros.yaml#Túnica", origen: {trasfondo: Acólito, opcion: A}}
+
+conjuros:
+  # 4 trucos y 9 preparados es lo que concede la tabla en el nivel 5. Todo lo
+  # que lleva `origen` va aparte: los de la dote y los seis que el Dominio de
+  # la Guerra tiene siempre preparados en los niveles 3 y 5.
+  trucos:
+    - {ref: "hechizos.json#Llama sagrada", origen: {clase: Clérigo}}
+    - {ref: "hechizos.json#Guía", origen: {clase: Clérigo}}
+    - {ref: "hechizos.json#Taumaturgia", origen: {clase: Clérigo}}
+    - {ref: "hechizos.json#Luz", origen: {clase: Clérigo}}
+    - {ref: "hechizos.json#Piedad con los moribundos", origen: {dote: "Iniciado en la magia"}}
+    - {ref: "hechizos.json#Resistencia", origen: {dote: "Iniciado en la magia"}}
+  preparados:
+    - {ref: "hechizos.json#Bendición", origen: {clase: Clérigo}}
+    - {ref: "hechizos.json#Curar heridas", origen: {clase: Clérigo}}
+    - {ref: "hechizos.json#Palabra de curación", origen: {clase: Clérigo}}
+    - {ref: "hechizos.json#Detectar magia", origen: {clase: Clérigo}}
+    - {ref: "hechizos.json#Santuario", origen: {clase: Clérigo}}
+    - {ref: "hechizos.json#Augurio", origen: {clase: Clérigo}}
+    - {ref: "hechizos.json#Calmar emociones", origen: {clase: Clérigo}}
+    - {ref: "hechizos.json#Restablecimiento menor", origen: {clase: Clérigo}}
+    - {ref: "hechizos.json#Disipar magia", origen: {clase: Clérigo}}
+    - {ref: "hechizos.json#Arma espiritual", origen: {subclase: "Dominio de la Guerra", nivel: 3}}
+    - {ref: "hechizos.json#Arma mágica", origen: {subclase: "Dominio de la Guerra", nivel: 3}}
+    - {ref: "hechizos.json#Escudo de fe", origen: {subclase: "Dominio de la Guerra", nivel: 3}}
+    - {ref: "hechizos.json#Saeta guía", origen: {subclase: "Dominio de la Guerra", nivel: 3}}
+    - {ref: "hechizos.json#Espíritus guardianes", origen: {subclase: "Dominio de la Guerra", nivel: 5}}
+    - {ref: "hechizos.json#Manto del cruzado", origen: {subclase: "Dominio de la Guerra", nivel: 5}}
+    - {ref: "hechizos.json#Detectar el bien y el mal", origen: {dote: "Iniciado en la magia"}}
+
+dotes:
+  - {ref: "dotes/origen.yaml#Iniciado en la magia", origen: {trasfondo: Acólito}}
+
+mejoras:
+  - {nivel: 4, sube: {sab: 1, car: 1}, ref: "dotes/generales.yaml#Mejora de característica"}
+
+pg_por_nivel:
+  - {nivel: 1, clase: Clérigo, metodo: maximo_dado, valor: 8,
+     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.nivel_1"}}
+  - {nivel: 2, clase: Clérigo, metodo: valor_establecido, valor: 5,
+     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
+  - {nivel: 3, clase: Clérigo, metodo: valor_establecido, valor: 5,
+     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
+  - {nivel: 4, clase: Clérigo, metodo: valor_establecido, valor: 5,
+     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
+  - {nivel: 5, clase: Clérigo, metodo: tirada, valor: 6,
+     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.metodos[tirar]"}}
+
+calculado:
+  pg_max: 44
+  ca: 15
+  bonif_competencia: 3
+  cd_conjuros: 15
+  bonif_ataque_conjuros: 7
+  velocidad: 9
+
+decisiones:
+  - en: "creación"
+    eleccion: "método de características: conjunto estándar, Sabiduría como principal"
+    cita: {archivo: "reglas/generacion_personaje.yaml", campo: "metodos_generacion_caracteristicas.conjunto_estandar"}
+  - en: "creación"
+    eleccion: "ajuste de trasfondo Acólito: +2 Sabiduría, +1 Carisma"
+    cita: {archivo: "trasfondos/trasfondos.yaml", registro: Acólito, campo: caracteristicas}
+  - en: "creación"
+    eleccion: "habilidades de clase Clérigo: Historia, Medicina"
+    cita: {archivo: "clases/clerigo.yaml", campo: "atributos_basicos.habilidades"}
+  - en: "creación"
+    eleccion: "dote de trasfondo Acólito: Iniciado en la magia, lista de clérigo"
+    cita: {archivo: "trasfondos/trasfondos.yaml", registro: Acólito, campo: dote}
+  - en: "nivel 3"
+    eleccion: "subclase: Dominio de la Guerra"
+    cita: {archivo: "clases/clerigo.yaml", campo: "progresion[n=3].rasgos"}
+  - en: "nivel 4"
+    eleccion: "mejora de característica: +1 Sabiduría, +1 Carisma"
+    cita: {archivo: "dotes/generales.yaml", registro: "Mejora de característica", campo: descripcion}
+  - en: "creación/nivel 5"
+    eleccion: "conjuros de dominio siempre preparados, niveles 3 y 5"
+    cita: {archivo: "clases/subclases/clerigo.yaml", registro: "Dominio de la Guerra", campo: conjuros_siempre_preparados}
+  - en: "creación"
+    eleccion: "equipo inicial opción A, clase y trasfondo"
+    cita: {archivo: "clases/clerigo.yaml", campo: "atributos_basicos.equipo_inicial.a"}

@@ -137,6 +137,12 @@ def _recorrer_refs(nodo, inf, contador):
 
 
 # ── Categorías de armas/armaduras/herramientas ────────────────────────────
+def _norm_cat(s):
+    """Un nombre de categoría, comparable: se le quitan los espacios de sobra
+    y la capitalización, que no son dato. Las tildes se quedan."""
+    return re.sub(r"\s+", " ", str(s or "")).strip().lower()
+
+
 def verificar_categorias(ficha, inf):
     """`competencias.armas/armaduras/herramientas` van como texto literal de
     categoría (no `ref:` a equipo/ — esas categorías no son registros
@@ -195,7 +201,18 @@ def verificar_categorias(ficha, inf):
                 # `atributos_basicos`/`trasfondos.yaml`, que declara la apertura.
                 continue
             cat = e["categoria"]
-            if cat not in permitidas:
+            # La comparación NORMALIZA MAYÚSCULAS, y eso es afinar el chequeo,
+            # no relajarlo: la capitalización de un nombre de categoría es
+            # ortografía, no dato. La base misma es inconsistente —
+            # `trasfondos.yaml` guarda «suministros de calígrafo» en minúscula
+            # y `clases/*.yaml` guarda «Armaduras ligeras» con mayúscula—, así
+            # que una ficha que escribiera la herramienta con la mayúscula
+            # natural del castellano se rechazaba contra una lista que la
+            # contenía. Lo destapó la ronda 2 de estrés (agente A, 3 fichas).
+            #
+            # Las TILDES no se normalizan a propósito: en castellano sí son
+            # dato, y este proyecto ya perdió tiempo con la tilde de `Clérigo`.
+            if _norm_cat(cat) not in {_norm_cat(p) for p in permitidas}:
                 inf.error(f"competencias.{campo}: {cat!r} no está en lo que "
                           f"conceden las clases (ni el trasfondo, si aplica) "
                           f"del personaje ({sorted(permitidas)})")
@@ -396,6 +413,46 @@ def _mejora_de_dote(ref):
     return None
 
 
+def _valida_reparto(quien, mej, sube, final, inf):
+    """Comprueba un reparto `sube:` contra el `mejora_caracteristica` que la
+    dote declara EN LA BASE.
+
+    Es el ÚNICO camino, y eso es el punto. Foundry lo dejó escrito (ver
+    `PLAN_17` §1.2): allí «una dote que sube una característica usa el MISMO
+    mecanismo que la mejora de nivel 4», y por eso no se puede olvidar
+    conectar uno de los dos. Aquí eran dos caminos — el de las dotes leía
+    `mejora_caracteristica` de la base, y el de `mejoras:` llevaba el `+2` y
+    el tope de 20 CABLEADOS—, y el segundo se desincronizó en silencio: la
+    ronda 2 de estrés lo destapó cuando una dote con `maximo: 30` chocó
+    contra un `> 20` de Python que ninguna página respaldaba.
+    """
+    cant, tope, entre = mej.get("cantidad"), mej.get("maximo"), mej.get("entre")
+    valores = list(sube.values())
+    # Las formas legales de repartir `cantidad` son sus particiones en partes
+    # de 1 o más: con `cantidad: 1` solo cabe [1]; con 2, [2] y [1,1] — que es
+    # exactamente lo que dice el texto de la dote genérica. No hace falta un
+    # campo `reparto:` que lo repita, y en cambio SÍ hace falta exigir que
+    # ninguna parte sea 0 o negativa: `{fue: 3, des: -1}` suma 2 y no es
+    # ninguna de las dos formas.
+    if (sum(valores) != cant
+            or any(not isinstance(v, int) or v < 1 for v in valores)):
+        inf.error(f"{quien} concede +{cant} y la ficha reparte {sube!r}: cada "
+                  f"parte tiene que ser de 1 o más y sumar exactamente {cant}")
+    for k in sube:
+        if k not in _CARS:
+            inf.error(f"{quien} sube {k!r}, que no es una característica")
+            continue
+        if isinstance(entre, list):
+            permitidas = {_ABREV[c] for c in entre}
+            if k not in permitidas:
+                inf.error(f"{quien} solo permite subir {entre}, y la ficha "
+                          f"sube {k!r}")
+        valor = (final or {}).get(k)
+        if isinstance(valor, int) and isinstance(tope, int) and valor > tope:
+            inf.error(f"{quien} deja {k} en {valor} y su texto dice "
+                      f"«máx. {tope}»")
+
+
 def _subidas_por_dote(ficha, inf):
     """{caracteristica: total} que aportan las dotes de la ficha. Valida de
     paso que lo elegido sea una de las opciones que la dote permite."""
@@ -416,24 +473,9 @@ def _subidas_por_dote(ficha, inf):
                       f"Añade `sube:` a esa dote (opciones: "
                       f"{mej.get('entre')})")
             continue
-        if sum(sube.values()) != mej.get("cantidad"):
-            inf.error(f"«{nombre}» concede +{mej.get('cantidad')} y la ficha "
-                      f"reparte {sum(sube.values())}: {sube!r}")
-        entre = mej.get("entre")
+        final = (ficha.get("caracteristicas") or {}).get("final") or {}
+        _valida_reparto(f"«{nombre}»", mej, sube, final, inf)
         for k, v in sube.items():
-            if k not in _CARS:
-                inf.error(f"«{nombre}» sube {k!r}, que no es una característica")
-                continue
-            if isinstance(entre, list):
-                permitidas = {_ABREV[c] for c in entre}
-                if k not in permitidas:
-                    inf.error(f"«{nombre}» solo permite subir {entre}, y la "
-                              f"ficha sube {k!r}")
-            tope = mej.get("maximo")
-            valor = ((ficha.get("caracteristicas") or {}).get("final") or {}).get(k)
-            if isinstance(valor, int) and isinstance(tope, int) and valor > tope:
-                inf.error(f"«{nombre}» deja {k} en {valor} y su texto dice "
-                          f"«máx. {tope}»")
             total[k] = total.get(k, 0) + v
     return total
 
@@ -463,22 +505,27 @@ def verificar_mejoras(ficha, inf):
                       f"= {esperado}. Una puntuación sin justificar es una "
                       f"puntuación inventada")
 
-    # 2. Cada mejora reparte exactamente +2, como dice la dote.
+    # 2. Cada mejora reparte lo que dice LA DOTE QUE LA CONCEDE, leída de la
+    #    base por el `ref:` de la propia entrada. Aquí vivía el defecto que
+    #    destapó la ronda 2 de estrés: el `+2` y el tope de 20 estaban
+    #    cableados con literales, y `dotes/generales.yaml#Mejora de
+    #    característica` era la única de las 43 dotes sin
+    #    `mejora_caracteristica` estructurado — justo la que el esquema
+    #    designa para cada entrada de `mejoras:`. Ya lo trae, y este bucle lo
+    #    lee por el mismo camino que las dotes.
     for m in mejoras:
         sube = m.get("sube") or {}
-        total = sum(sube.values())
-        forma_ok = (sorted(sube.values()) == [2] or sorted(sube.values()) == [1, 1])
-        if total != 2 or not forma_ok:
-            inf.error(f"la mejora de nivel {m.get('nivel')} reparte {sube!r}: "
-                      f"la dote dice «aumenta en 2 una puntuación, o aumenta "
-                      f"dos en 1 cada una»")
-        for k in sube:
-            if k not in _CARS:
-                inf.error(f"la mejora de nivel {m.get('nivel')} sube {k!r}, "
-                          f"que no es una característica")
-            elif final.get(k, 0) > 20:
-                inf.error(f"la mejora de nivel {m.get('nivel')} deja {k} en "
-                          f"{final.get(k)}: la dote dice «No puede superar 20»")
+        ref = m.get("ref") or ""
+        mej = _mejora_de_dote(ref)
+        quien = f"la mejora de nivel {m.get('nivel')}"
+        if not mej:
+            inf.error(f"{quien} no dice de qué dote sale, o su `ref` no "
+                      f"resuelve a una que conceda mejora de característica: "
+                      f"{ref!r}. Sin eso no hay cantidad ni tope que aplicar "
+                      f"—y cablearlos aquí fue el defecto que la ronda 2 de "
+                      f"estrés destapó")
+            continue
+        _valida_reparto(quien, mej, sube, final, inf)
 
     # 3. Cada nivel con «Mejora de característica» tiene que estar gastado:
     #    o en una mejora, o en una dote tomada en ese nivel. Ni de más ni de
@@ -508,6 +555,66 @@ def verificar_mejoras(ficha, inf):
 # `decisiones`**, que ningún script lee. Se reutiliza la convención que el
 # equipo ya usa: un conjuro con `origen:` es un extra y tiene que decir de
 # dónde sale; uno sin `origen:` cuenta contra la tabla.
+# Las fuentes de un conjuro EXTRA que este chequeo sabe reconocer. Vive como
+# constante porque el mensaje de error la nombra: un origen que no esté aquí
+# tiene que salir por pantalla con la lista de los que sí, no como un «no dice
+# de qué sale» que parece culpa de la ficha cuando es un hueco del chequeo.
+_ORIGENES_DE_CONJURO = ("dote", "especie", "rasgo", "trasfondo", "clase",
+                        "subclase")
+
+
+def _comprueba_conjuro_de_subclase(ficha, entrada, origen, clave, inf):
+    """Un conjuro que dice venir de la subclase tiene que estar de verdad en
+    la tabla `conjuros_siempre_preparados` de esa subclase, a un nivel que el
+    personaje ya haya alcanzado."""
+    c = ficha["clases"][0]
+    sub_ref = (c.get("subclase") or {}).get("ref") if isinstance(c.get("subclase"), dict) else c.get("subclase")
+    nombre_sub = str(origen.get("subclase") or "").strip()
+    if not sub_ref:
+        inf.error(f"conjuros.{clave}: {entrada.get('ref')!r} dice venir de la "
+                  f"subclase {nombre_sub!r} y la ficha no declara subclase")
+        return
+    doc = cargar(str(sub_ref).split("#")[0]) or {}
+    sub = next((x for x in (doc.get("subclases") or [])
+                if x.get("nombre") == str(sub_ref).split("#")[-1]), None)
+    if sub is None:
+        return          # la ref rota la caza `_recorrer_refs`, no este chequeo
+    if nombre_sub and nombre_sub != sub.get("nombre"):
+        inf.error(f"conjuros.{clave}: {entrada.get('ref')!r} dice venir de "
+                  f"{nombre_sub!r} y la subclase de la ficha es "
+                  f"{sub.get('nombre')!r}")
+        return
+    tabla = sub.get("conjuros_siempre_preparados") or {}
+    if not tabla:
+        inf.error(f"conjuros.{clave}: {entrada.get('ref')!r} dice venir de la "
+                  f"subclase {sub.get('nombre')!r}, y esa subclase no tiene "
+                  f"tabla de conjuros siempre preparados en la base")
+        return
+    nombre_conj = str(entrada.get("ref") or "").split("#")[-1]
+    concedidos = {}
+    for niv, lista in tabla.items():
+        for n in (lista or []):
+            concedidos.setdefault(n, int(niv))
+    if nombre_conj not in concedidos:
+        inf.error(f"conjuros.{clave}: {nombre_conj!r} dice venir de "
+                  f"{sub.get('nombre')!r} y no está en su tabla de conjuros "
+                  f"siempre preparados ({sorted(concedidos)})")
+        return
+    exige = concedidos[nombre_conj]
+    if c["nivel"] < exige:
+        inf.error(f"conjuros.{clave}: {nombre_conj!r} lo concede "
+                  f"{sub.get('nombre')!r} en el nivel {exige} y el personaje "
+                  f"es de nivel {c['nivel']}")
+        return
+    declarado = origen.get("nivel")
+    if declarado is not None and int(declarado) != exige:
+        inf.error(f"conjuros.{clave}: {nombre_conj!r} declara `nivel` "
+                  f"{declarado} y la tabla de {sub.get('nombre')!r} lo "
+                  f"concede en el {exige}")
+        return
+    inf.comprobados = getattr(inf, "comprobados", 0) + 1
+
+
 def verificar_conjuros(ficha, inf):
     if not una_sola_clase(ficha, inf):
         return
@@ -553,9 +660,22 @@ def verificar_conjuros(ficha, inf):
                 f"conjuro de más sin fuente es un conjuro inventado")
         for s in extras:
             o = s.get("origen") or {}
-            if not any(k in o for k in ("dote", "especie", "rasgo", "trasfondo", "clase")):
+            if not any(k in o for k in _ORIGENES_DE_CONJURO):
                 inf.error(f"conjuros.{clave}: {s.get('ref')!r} declara `origen` "
-                          f"sin decir de qué sale: {o!r}")
+                          f"sin decir de qué sale: {o!r}. Fuentes que este "
+                          f"chequeo sabe reconocer: {sorted(_ORIGENES_DE_CONJURO)}")
+                continue
+            # `subclase` no estaba en la lista, y era un FALSO POSITIVO de los
+            # que más duelen: los conjuros de dominio del Clérigo —declarados
+            # exactamente como manda el esquema— se rechazaban uno a uno. Lo
+            # destapó la ronda 2 de estrés (agente B, ficha 2).
+            #
+            # Se arregla AFINANDO, no relajando: la base trae la tabla en
+            # `conjuros_siempre_preparados`, así que el origen no solo se
+            # acepta, se COMPRUEBA. Un conjuro de dominio inventado, o puesto
+            # a un nivel al que la subclase todavía no lo concede, ahora salta.
+            if "subclase" in o:
+                _comprueba_conjuro_de_subclase(ficha, s, o, clave, inf)
 
 
 # ── Tres huecos que destapó el estrés con agentes (2026-08-30) ───────────

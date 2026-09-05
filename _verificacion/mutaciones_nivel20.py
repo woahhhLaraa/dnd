@@ -32,6 +32,8 @@ MONJE = "personajes/draconido_monje_n20.yaml"
 MAGO = "personajes/gnomo_mago_n20.yaml"
 # Tercera ficha: la única con escudo Y entrenamiento con escudos.
 CLERIGO = "personajes/aasimar_clerigo.yaml"
+# Cuarta ficha: la única con una subclase que concede conjuros (ronda 2).
+CLERIGO_N5 = "personajes/enano_clerigo_n5.yaml"
 
 
 def _sust(raiz, rel, viejo, nuevo, n=1):
@@ -91,6 +93,69 @@ def m_supera_veinte(r):
         d["caracteristicas"]["final"]["des"] = 17
     _editar(r, MONJE, f)
     return "una mejora que dejaría Sabiduría en 22: la dote dice «No puede superar 20»"
+
+
+# ══ EL TOPE Y LA CANTIDAD SE LEEN DE LA BASE ═════════════════════════════
+# La ronda 2 de estrés destapó que `verificar_mejoras` llevaba el «+2» y el
+# tope de 20 CABLEADOS con literales, mientras 42 de las 43 dotes generales ya
+# traían `mejora_caracteristica: {cantidad, maximo, entre}` estructurado. La
+# que faltaba era «Mejora de característica», justo la que el esquema designa
+# para cada entrada de `mejoras:`.
+#
+# Estas mutaciones no prueban «que salte»: prueban que el número que aplica
+# SALE DE LA BASE. Un chequeo con el 20 cableado pasaría las dos primeras.
+
+def m_tope_de_la_dote_bajado(r):
+    """Se baja el tope de la dote a 19 SIN tocar la ficha. Las dos fichas de
+    nivel 20 tienen una característica en 20 exacto, así que un verificador
+    que lea la base tiene que rechazarlas ahora, y uno con el 20 cableado
+    seguiría en verde."""
+    _sust(r, "dotes/generales.yaml",
+          "mejora_caracteristica: {cantidad: 2, maximo: 20, entre: cualquiera}",
+          "mejora_caracteristica: {cantidad: 2, maximo: 19, entre: cualquiera}")
+    return ("el tope de «Mejora de característica» bajado a 19 en la BASE: la "
+            "ficha no se toca, y su 20 exacto deja de ser legal")
+
+
+def m_cantidad_de_la_dote_cambiada(r):
+    """Ídem con la cantidad: si sube a 3, los repartos de +2 de las fichas
+    dejan de cuadrar. Un `!= 2` cableado no lo notaría."""
+    _sust(r, "dotes/generales.yaml",
+          "mejora_caracteristica: {cantidad: 2, maximo: 20, entre: cualquiera}",
+          "mejora_caracteristica: {cantidad: 3, maximo: 20, entre: cualquiera}")
+    return ("la cantidad de «Mejora de característica» puesta en 3 en la BASE: "
+            "los repartos de +2 de las fichas dejan de cuadrar")
+
+
+def m_estructura_de_la_dote_borrada(r):
+    """Sin `mejora_caracteristica` no hay cantidad ni tope que aplicar. El
+    verificador tiene que NEGARSE, no suponer los que llevaba cableados."""
+    _sust(r, "dotes/generales.yaml",
+          "    mejora_caracteristica: {cantidad: 2, maximo: 20, entre: cualquiera}\n",
+          "")
+    return ("borrada la `mejora_caracteristica` de la dote: el verificador se "
+            "queda sin fuente y tiene que negarse, no suponer")
+
+
+def m_mejora_sin_ref(r):
+    """Una entrada de `mejoras:` que no dice de qué dote sale. Antes daba
+    igual —se suponía la genérica—; ahora es lo que ata la entrada a su
+    autoridad."""
+    _editar(r, MONJE, lambda d: d["mejoras"][0].pop("ref", None))
+    return "una mejora sin `ref`: no dice de qué dote saca su cantidad y su tope"
+
+
+def m_reparto_con_parte_negativa(r):
+    """`{sab: 3, des: -1}` suma 2 y NO es ninguna de las dos formas que el
+    texto permite. El chequeo viejo solo miraba la suma y la forma [2]/[1,1]
+    sobre los valores, así que este caso se le colaba."""
+    def f(d):
+        d["mejoras"][0]["sube"] = {"sab": 3, "des": -1}
+        d["caracteristicas"]["final"]["sab"] = 21
+        d["caracteristicas"]["final"]["des"] = 17
+    _editar(r, MONJE, f)
+    return ("un reparto de {sab: 3, des: -1}: suma 2 pero ninguna parte puede "
+            "ser 0 ni negativa")
 
 
 # ══ CONJUROS ═════════════════════════════════════════════════════════════
@@ -186,7 +251,10 @@ def e_escudo_sin_entrenamiento(r):
 
 
 MEJORAS = [m_caracteristica_regalada, m_mejora_borrada, m_mejora_de_tres,
-           m_mejora_en_nivel_falso, m_supera_veinte]
+           m_mejora_en_nivel_falso, m_supera_veinte,
+           m_tope_de_la_dote_bajado, m_cantidad_de_la_dote_cambiada,
+           m_estructura_de_la_dote_borrada, m_mejora_sin_ref,
+           m_reparto_con_parte_negativa]
 CONJUROS = [c_truco_de_mas, c_preparado_de_menos, c_extra_sin_fuente]
 # ══ MULTICLASE · el «✅» que mentía (fase 1 del PLAN_19, 2026-09-02) ══════
 # Hasta hoy CUATRO chequeos de `verificar_personaje.py` se degradaban a aviso
@@ -232,10 +300,78 @@ def n_una_sola_clase_sigue_pasando(r):
             "multiclase no puede llevarse por delante lo que ya funcionaba")
 
 
+# ══ Ronda 2 de estrés (2026-09-05) ═══════════════════════════════════════
+# Los dos FALSOS POSITIVOS que encontró, arreglados AFINANDO y no relajando,
+# más los controles negativos que prueban que siguen afinados. La ficha que
+# los sostiene es `enano_clerigo_n5.yaml`, que entró en la base por esto: era
+# la única superficie —una subclase que concede conjuros— que no ejercitaba
+# ninguna de las 17 anteriores, y por eso el falso positivo pudo vivir.
+
+def e_conjuro_de_subclase_inventado(r):
+    """El arreglo del falso positivo NO es «acepta `subclase` y calla»: la
+    base trae `conjuros_siempre_preparados`, así que el origen se COMPRUEBA."""
+    _sust(r, CLERIGO_N5, '"hechizos.json#Arma espiritual", origen: {subclase',
+          '"hechizos.json#Bola de fuego", origen: {subclase')
+    return ("un conjuro que dice venir del Dominio de la Guerra y no está en "
+            "su tabla de siempre preparados")
+
+
+def e_conjuro_de_subclase_a_destiempo(r):
+    """El nivel también se comprueba: `Espíritus guardianes` lo concede el
+    dominio en el nivel 5, no en el 3."""
+    _sust(r, CLERIGO_N5,
+          '"hechizos.json#Espíritus guardianes", origen: {subclase: "Dominio de la Guerra", nivel: 5}',
+          '"hechizos.json#Espíritus guardianes", origen: {subclase: "Dominio de la Guerra", nivel: 3}')
+    return ("un conjuro de dominio que declara un nivel distinto del que la "
+            "tabla de la subclase dice")
+
+
+def e_conjuro_de_otra_subclase(r):
+    _sust(r, CLERIGO_N5,
+          '"hechizos.json#Arma mágica", origen: {subclase: "Dominio de la Guerra"',
+          '"hechizos.json#Arma mágica", origen: {subclase: "Dominio de la Vida"')
+    return ("un conjuro que dice venir de una subclase que no es la del "
+            "personaje")
+
+
+def n_conjuros_de_subclase_bien_declarados(r):
+    """CONTROL NEGATIVO, y es el falso positivo que destapó la ronda 2: los
+    seis conjuros de dominio del Clérigo, declarados exactamente como manda
+    el esquema, se rechazaban uno a uno porque `subclase` no estaba en la
+    lista de orígenes que el chequeo sabía reconocer."""
+    _sust(r, CLERIGO_N5, "nombre: \"Doran Piedrafría\"",
+          "nombre: \"Doran Piedrafría el Sereno\"")
+    return ("la ficha con sus 6 conjuros de dominio bien declarados: es "
+            "LEGAL y tiene que pasar")
+
+
+def n_categoria_con_mayuscula(r):
+    """CONTROL NEGATIVO, el otro falso positivo: la base guarda la
+    herramienta del trasfondo en minúscula y la categoría de la clase con
+    mayúscula. Escribirla con la mayúscula natural del castellano es legal;
+    la capitalización es ortografía, no dato."""
+    _sust(r, CLERIGO_N5, 'categoria: "suministros de calígrafo"',
+          'categoria: "Suministros de calígrafo"')
+    return ("la herramienta del trasfondo escrita con mayúscula inicial: "
+            "es la misma herramienta")
+
+
+def e_categoria_con_tilde_cambiada(r):
+    """Y la contraprueba de que normalizar mayúsculas no se llevó por delante
+    las TILDES, que en castellano sí son dato — este proyecto ya perdió
+    tiempo con la tilde de `Clérigo`."""
+    _sust(r, CLERIGO_N5, 'categoria: "suministros de calígrafo"',
+          'categoria: "suministros de caligrafo"')
+    return ("la herramienta sin la tilde de «calígrafo»: la tilde SÍ es dato")
+
+
 ESTRES = [e_dote_sin_prerrequisito, e_subclase_de_otra_clase,
-          e_competencia_como_ref, e_escudo_sin_entrenamiento]
+          e_competencia_como_ref, e_escudo_sin_entrenamiento,
+          e_conjuro_de_subclase_inventado, e_conjuro_de_subclase_a_destiempo,
+          e_conjuro_de_otra_subclase, e_categoria_con_tilde_cambiada]
 NO_DEBEN = [n_otro_reparto_legal, n_otro_conjuro, n_prosa_de_decisiones,
-            n_una_sola_clase_sigue_pasando]
+            n_una_sola_clase_sigue_pasando,
+            n_conjuros_de_subclase_bien_declarados, n_categoria_con_mayuscula]
 MULTICLASE = [m_dos_clases, m_dos_clases_nivel_alto]
 
 
@@ -246,7 +382,7 @@ def _falla(raiz, ficha):
 
 
 def _falla_cualquiera(raiz):
-    return _falla(raiz, MONJE) or _falla(raiz, MAGO) or _falla(raiz, CLERIGO)
+    return any(_falla(raiz, f) for f in (MONJE, MAGO, CLERIGO, CLERIGO_N5))
 
 
 def main():
