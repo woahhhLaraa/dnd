@@ -365,13 +365,100 @@ def e_categoria_con_tilde_cambiada(r):
     return ("la herramienta sin la tilde de «calígrafo»: la tilde SÍ es dato")
 
 
+# ── Hueco nº 2 de la ronda 2: `pg_por_nivel` sin contrastar ──────────────
+# Tres caras del mismo defecto, las tres declaradas por agentes distintos.
+# El valor se SUMABA sin mirar si podía salir del dado, y la autoridad ya
+# estaba leída desde la Fase 14b-1 en `calculo.valor_establecido_pg()`.
+
+def e_pg_tirada_fuera_del_dado(r):
+    _sust(r, CLERIGO_N5, "metodo: tirada, valor: 6", "metodo: tirada, valor: 9")
+    return "una tirada de 9 en un d8: el dado no puede darla"
+
+
+def e_pg_valor_establecido_de_otra_clase(r):
+    """El más fino de los tres: el método es correcto y el número existe —es
+    el del Bárbaro—, solo que en la tabla de otra clase."""
+    _sust(r, CLERIGO_N5, "- {nivel: 4, clase: Clérigo, metodo: valor_establecido, valor: 5,",
+          "- {nivel: 4, clase: Clérigo, metodo: valor_establecido, valor: 7,")
+    return ("un `valor_establecido` de 7 en un Clérigo, que es el del "
+            "Bárbaro: el número existe, en la tabla de otra clase")
+
+
+def e_pg_maximo_dado_fuera_del_nivel_1(r):
+    _sust(r, CLERIGO_N5, "- {nivel: 3, clase: Clérigo, metodo: valor_establecido, valor: 5,",
+          "- {nivel: 3, clase: Clérigo, metodo: maximo_dado, valor: 8,")
+    return ("`metodo: maximo_dado` en el nivel 3: es la regla del nivel 1, y "
+            "vive en otra página")
+
+
+def n_pg_tirada_al_minimo(r):
+    """CONTROL NEGATIVO: un 1 en el dado es legal, por deprimente que sea.
+    Un chequeo que exigiera «un valor razonable» sería un chequeo que opina."""
+    def edita(d):
+        for e in d["pg_por_nivel"]:
+            if e["nivel"] == 5:
+                e["valor"] = 1
+        d["calculado"]["pg_max"] = 39
+    _editar(r, CLERIGO_N5, edita)
+    return "una tirada de 1 en el d8: es el peor resultado posible, y es legal"
+
+
+# ── Huecos nº 1 y nº 4: qué hay DENTRO de la lista de conjuros ───────────
+# Los dos son el mismo descuido con dos caras: el chequeo contaba la longitud
+# de la lista y no miraba qué había dentro.
+
+def e_conjuro_de_otra_clase(r):
+    """Hueco nº 1. Lo predijo el agente A con «Tañido por los muertos» en un
+    Hechicero, y resultó ser REAL en una ficha de la base: el mismo día se
+    encontró «Descarga sobrenatural» —conjuro de Brujo— entre los trucos de
+    `draconido_hechicero_n4.yaml`. Los 391 conjuros traen `clases`."""
+    _sust(r, MAGO, "- ref: hechizos.json#Amistad",
+          "- ref: hechizos.json#Descarga sobrenatural")
+    return ("un truco de Brujo entre los de un Mago: los 391 conjuros dicen "
+            "de qué listas son y nadie lo miraba")
+
+
+def e_truco_entre_los_preparados(r):
+    """Hueco nº 4, el que estaba VIVO en la base: un conjuro de nivel 0 entre
+    los preparados infla el recuento de la tabla sin que nada lo note."""
+    _sust(r, CLERIGO_N5, '- {ref: "hechizos.json#Disipar magia", origen: {clase: Clérigo}}',
+          '- {ref: "hechizos.json#Reparar", origen: {clase: Clérigo}}')
+    return ("un truco (nivel 0) entre los preparados: cuenta contra la tabla "
+            "sin ser un conjuro preparado de verdad")
+
+
+def e_conjuro_repetido_en_las_dos_listas(r):
+    """La otra cara: el mismo conjuro en `trucos` y en `preparados`, que es
+    exactamente lo que llevaba `draconido_hechicero_n4.yaml`."""
+    _sust(r, CLERIGO_N5, '- {ref: "hechizos.json#Disipar magia", origen: {clase: Clérigo}}',
+          '- {ref: "hechizos.json#Guía", origen: {clase: Clérigo}}')
+    return ("el mismo conjuro en `trucos` y en `preparados`: contaba dos veces")
+
+
+def n_conjuro_de_dote_de_otra_lista(r):
+    """CONTROL NEGATIVO, y es la razón por la que el chequeo del hueco nº 1
+    solo mira los conjuros que CUENTAN contra la tabla: «Iniciado en la
+    magia» concede conjuros de una lista ELEGIDA —clérigo, druida o mago—,
+    que por diseño puede no ser la del personaje."""
+    _sust(r, CLERIGO_N5,
+          '- {ref: "hechizos.json#Detectar el bien y el mal", origen: {dote: "Iniciado en la magia"}}',
+          '- {ref: "hechizos.json#Grasa", origen: {dote: "Iniciado en la magia"}}')
+    return ("un conjuro de la lista de MAGO concedido por «Iniciado en la "
+            "magia» a un Clérigo: la dote lo permite y no cuenta contra la tabla")
+
+
 ESTRES = [e_dote_sin_prerrequisito, e_subclase_de_otra_clase,
           e_competencia_como_ref, e_escudo_sin_entrenamiento,
           e_conjuro_de_subclase_inventado, e_conjuro_de_subclase_a_destiempo,
-          e_conjuro_de_otra_subclase, e_categoria_con_tilde_cambiada]
+          e_conjuro_de_otra_subclase, e_categoria_con_tilde_cambiada,
+          e_pg_tirada_fuera_del_dado, e_pg_valor_establecido_de_otra_clase,
+          e_pg_maximo_dado_fuera_del_nivel_1,
+          e_conjuro_de_otra_clase, e_truco_entre_los_preparados,
+          e_conjuro_repetido_en_las_dos_listas]
 NO_DEBEN = [n_otro_reparto_legal, n_otro_conjuro, n_prosa_de_decisiones,
             n_una_sola_clase_sigue_pasando,
-            n_conjuros_de_subclase_bien_declarados, n_categoria_con_mayuscula]
+            n_conjuros_de_subclase_bien_declarados, n_categoria_con_mayuscula,
+            n_pg_tirada_al_minimo, n_conjuro_de_dote_de_otra_lista]
 MULTICLASE = [m_dos_clases, m_dos_clases_nivel_alto]
 
 

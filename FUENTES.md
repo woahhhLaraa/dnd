@@ -154,6 +154,28 @@ ausente, conector `y`/`o` cambiado) — las 8 detectadas.
 
 ## Correcciones registradas
 
+- **Dos conjuros mal puestos en una ficha de la base → ronda 2 de estrés
+  (2026-09-05)** — `personajes/draconido_hechicero_n4.yaml` llevaba dos
+  defectos que ningún chequeo miraba, porque los dos chequeos de conjuros
+  **contaban la longitud de la lista sin mirar qué había dentro**:
+
+  | Defecto | Qué pasaba |
+  |---|---|
+  | «Descarga sobrenatural» entre los trucos | Es conjuro de **Brujo**, en un Hechicero. Los 391 conjuros de `hechizos.json` traen `clases`, y nadie lo consultaba |
+  | «Rayo de escarcha» en `trucos` **y** en `preparados` | Es de nivel 0, así que de los 7 preparados que concede la tabla la ficha tenía **6 reales** |
+
+  El primero lo **predijo** el agente A de la ronda de estrés con un caso
+  inventado («Tañido por los muertos» en un Hechicero) y resultó estar vivo en
+  la base; el segundo lo encontró el agente C leyendo los ejemplos, que es
+  justo lo que el briefing de esa ronda pedía por primera vez.
+
+  Corregido: el truco de Brujo pasa a «Estallido mágico» y el preparado
+  duplicado a «Armadura de mago», los dos de la lista real del Hechicero.
+  Y los dos huecos quedan cerrados con chequeo y mutación, no solo el dato:
+  ahora se comprueba que cada conjuro que cuenta contra la tabla sea de la
+  lista de su clase, que ninguno esté en las dos listas, y que el nivel del
+  conjuro corresponda con la lista en la que vive.
+
 - **El verificador aprobaba la ficha mal y rechazaba la buena → C1/C3/C4 del
   Plan 17 (2026-08-31)** — el defecto más grave encontrado hasta la fecha, y
   no era un dato equivocado: era un dato **que nadie miraba**.

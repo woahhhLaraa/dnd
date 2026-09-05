@@ -54,7 +54,7 @@ conjuros:
     - {ref: "hechizos.json#Mano de mago"}
     - {ref: "hechizos.json#Prestidigitación"}
     - {ref: "hechizos.json#Luces danzantes"}
-    - {ref: "hechizos.json#Descarga sobrenatural"}
+    - {ref: "hechizos.json#Estallido mágico"}
   preparados:
     - {ref: "hechizos.json#Proyectil mágico"}
     - {ref: "hechizos.json#Escudo"}
@@ -62,7 +62,7 @@ conjuros:
     - {ref: "hechizos.json#Dormir"}
     - {ref: "hechizos.json#Rayo abrasador"}
     - {ref: "hechizos.json#Invisibilidad"}
-    - {ref: "hechizos.json#Rayo de escarcha"}
+    - {ref: "hechizos.json#Armadura de mago"}
 
 dotes:
   - {ref: "dotes/origen.yaml#Afortunado", origen: {trasfondo: Comerciante}}
@@ -109,7 +109,7 @@ decisiones:
       debajo. Nadie lo detectaba porque el +1 de una dote no tenía dónde entrar.
     cita: {archivo: "dotes/generales.yaml", registro: "Lanzador ritual", campo: "mejora_caracteristica"}
   - en: "nivel 4"
-    eleccion: "truco nuevo: Descarga sobrenatural; conjuro preparado nuevo: Rayo de escarcha"
+    eleccion: "truco nuevo: Estallido mágico; conjuro preparado nuevo: Armadura de mago"
     cita: {archivo: "clases/hechicero.yaml", campo: "progresion[n=4]"}
   - en: "nivel 2"
     eleccion: "PG: valor establecido (4) en vez de tirar el d6"

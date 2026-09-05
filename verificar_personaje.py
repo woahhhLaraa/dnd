@@ -47,6 +47,11 @@ class Informe:
     def __init__(self):
         self.errores = []
         self.avisos = []
+        # Cuántas afirmaciones se han contrastado de verdad. No es decoración:
+        # un chequeo que no suma aquí es un chequeo que no miró nada, y esa
+        # diferencia —entre «pasó» y «no se comprobó»— es la que este proyecto
+        # lleva persiguiendo desde el principio.
+        self.comprobados = 0
 
     def error(self, msg):
         self.errores.append(msg)
@@ -612,7 +617,7 @@ def _comprueba_conjuro_de_subclase(ficha, entrada, origen, clave, inf):
                   f"{declarado} y la tabla de {sub.get('nombre')!r} lo "
                   f"concede en el {exige}")
         return
-    inf.comprobados = getattr(inf, "comprobados", 0) + 1
+    inf.comprobados += 1
 
 
 def verificar_conjuros(ficha, inf):
@@ -626,6 +631,44 @@ def verificar_conjuros(ficha, inf):
     if fila is None:
         return
     conj = ficha.get("conjuros") or {}
+
+    # Hueco nº 4 de la ronda 2: un conjuro puede estar en las DOS listas, y
+    # entonces cuenta dos veces. No es hipotético — lo encontró el agente C en
+    # una ficha de la propia base: `draconido_hechicero_n4.yaml` llevaba «Rayo
+    # de escarcha» (nivel 0) en `trucos` y también en `preparados`, así que de
+    # los 7 preparados que concede la tabla tenía 6 reales. El chequeo contaba
+    # la LONGITUD de la lista sin mirar qué había dentro.
+    vistos = {}
+    for clave in ("trucos", "preparados"):
+        for entrada in (conj.get(clave) or []):
+            ref = str(entrada.get("ref") or "")
+            nombre_c = ref.split("#")[-1]
+            if not nombre_c:
+                continue
+            if nombre_c in vistos:
+                inf.error(f"conjuros: {nombre_c!r} aparece en "
+                          f"`{vistos[nombre_c]}` y otra vez en `{clave}`. Un "
+                          f"conjuro repetido cuenta dos veces contra la tabla")
+            else:
+                vistos[nombre_c] = clave
+    # Y el nivel tiene que corresponder con la lista en la que vive: los
+    # trucos son de nivel 0 y los preparados de nivel 1 o más.
+    for clave, nivel_esperado in (("trucos", 0), ("preparados", None)):
+        for entrada in (conj.get(clave) or []):
+            nombre_c = str(entrada.get("ref") or "").split("#")[-1]
+            if not nombre_c:
+                continue
+            reg = buscar.conjuro(nombre_c)
+            niv = reg.get("nivel")
+            if nivel_esperado == 0 and niv != 0:
+                inf.error(f"conjuros.trucos: {nombre_c!r} es de nivel {niv}, "
+                          f"no es un truco")
+            elif nivel_esperado is None and niv == 0:
+                inf.error(f"conjuros.preparados: {nombre_c!r} es un truco "
+                          f"(nivel 0) y está entre los preparados, donde "
+                          f"infla el recuento de la tabla")
+            else:
+                inf.comprobados += 1
 
     for clave, columna in (("trucos", "trucos"), ("preparados", "prep")):
         esperado = fila.get(columna)
@@ -652,6 +695,33 @@ def verificar_conjuros(ficha, inf):
         lista = conj.get(clave) or []
         de_clase = [s for s in lista if _de_clase(s)]
         extras = [s for s in lista if not _de_clase(s)]
+
+        # Hueco nº 1 de la ronda 2 de estrés: se CONTABAN los conjuros contra
+        # la tabla y no se miraba si eran de la clase. Un Hechicero con un
+        # truco de Brujo/Clérigo/Mago verificaba en verde. Los 391 conjuros
+        # traen `clases` en `hechizos.json`, así que la fuente estaba ahí
+        # desde siempre — es el mismo mecanismo que ya usan armas, armaduras
+        # y herramientas: reúne lo permitido, comprueba membresía.
+        #
+        # Solo se comprueban los que CUENTAN contra la tabla. Los extras no:
+        # «Iniciado en la magia» concede conjuros de una lista ELEGIDA
+        # (clérigo, druida o mago), que por diseño puede no ser la del
+        # personaje, y un rasgo de especie o de subclase igual.
+        for s_ in de_clase:
+            nombre_c = str(s_.get("ref") or "").split("#")[-1]
+            reg = buscar.conjuro(nombre_c) if nombre_c else None
+            if not reg:
+                # TOLERADO: una ref que no resuelve ya la caza `_recorrer_refs`,
+                # que recorre TODAS las del fichero y falla ruidosamente. Aquí
+                # solo se evita repetir el mismo error con otras palabras.
+                continue
+            suyas = reg.get("clases") or []
+            if suyas and c["clase"] not in suyas:
+                inf.error(f"conjuros.{clave}: {nombre_c!r} no es un conjuro de "
+                          f"{c['clase']} (sus listas son {suyas}). Si viene de "
+                          f"otra fuente, dilo con `origen:`")
+            else:
+                inf.comprobados += 1
         if len(de_clase) != esperado:
             inf.error(
                 f"conjuros.{clave}: la tabla de {c['clase']} nivel {c['nivel']} "
@@ -843,6 +913,100 @@ def calcular_bloque(ficha):
     return bloque, avisos
 
 
+# ── `pg_por_nivel`: que el valor CREÍBLE lo sea de verdad ────────────────
+# Hueco nº 2 de la ronda 2 de estrés (2026-09-05), y es patrón espiral puro:
+# `calculo.pg_max_de_ficha()` SUMABA el `valor` de cada nivel sin mirar si ese
+# número podía salir del dado de la clase. Tres agentes lo destaparon por
+# caminos distintos y ninguno hizo falta que fuera sutil:
+#
+#   · un d8 con una tirada de 9, y un d12 con una de 13;
+#   · un `valor_establecido` de 7 en un Guerrero, que es el del Bárbaro
+#     —el más fino de los tres: el método es correcto y el número existe,
+#     solo que en la tabla de OTRA clase—;
+#   · `metodo: maximo_dado` en el nivel 3, cuando es la regla del nivel 1.
+#
+# Lo que duele es que la autoridad ya estaba leída: `calculo.valor_establecido_pg()`
+# lee la tabla citada de la base desde la Fase 14b-1, y nadie la usaba para
+# verificar. Aquí no se cablea ni un número: los métodos legales salen de
+# `metodos` y el valor fijo de la tabla, los dos de la misma página citada.
+
+# Puente entre el `id` que usa la base y el `metodo` que usa el esquema de
+# ficha. Son dos vocabularios que nacieron por separado y hay que atarlos en
+# algún sitio; se hace aquí, explícito y de dos entradas, en vez de comparar
+# a ojo. `maximo_dado` no está: es la regla del nivel 1, que vive en otra
+# página (`puntos_golpe.nivel_1`) y no en la lista de métodos de subida.
+_METODO_DE_ID = {"tirar": "tirada", "valor_establecido": "valor_establecido"}
+
+
+def _caras(dado):
+    m = re.fullmatch(r"[dD](\d+)", str(dado or "").strip())
+    return int(m.group(1)) if m else None
+
+
+def verificar_pg_por_nivel(ficha, inf):
+    """Cada entrada de `pg_por_nivel` declara un método y un valor crudo. Se
+    comprueba que el método sea uno de los que la base admite para ese nivel,
+    y que el valor pueda salir de donde el método dice."""
+    if not una_sola_clase(ficha, inf):
+        return
+    historia = ficha.get("pg_por_nivel") or []
+    if not historia:
+        # TOLERADO: sin historia declarada, quien manda es `calculo`, que ya
+        # SALE CON ERROR si la ficha es de nivel 2 o más. Duplicar aquí ese
+        # rechazo daría dos mensajes para un solo defecto.
+        return
+    c = ficha["clases"][0]
+    clase_d = cargar(c["ref"].split("#")[0]) or {}
+    dado = (clase_d.get("atributos_basicos") or {}).get("dado_golpe")
+    caras = _caras(dado)
+    if caras is None:
+        inf.error(f"la clase {c['clase']!r} no declara un dado de golpe "
+                  f"legible ({dado!r}): no se puede comprobar `pg_por_nivel`")
+        return
+
+    g = cargar("reglas/generacion_personaje.yaml") or {}
+    sig = ((g.get("puntos_golpe") or {}).get("niveles_siguientes_al_1") or {})
+    metodos_subida = {_METODO_DE_ID[m["id"]]
+                      for m in (sig.get("metodos") or [])
+                      if m.get("id") in _METODO_DE_ID}
+    fijo = calculo.valor_establecido_pg(c["clase"])
+
+    for e in historia:
+        if not isinstance(e, dict):
+            # TOLERADO: una entrada que no es un mapa la caza `calculo`, que
+            # lee `e["nivel"]` de todas y revienta con la entrada delante.
+            continue
+        n, metodo, valor = e.get("nivel"), e.get("metodo"), e.get("valor")
+        if n == 1:
+            if metodo != "maximo_dado":
+                inf.error(f"pg_por_nivel nivel 1: el método es {metodo!r} y la "
+                          f"regla del nivel 1 es el máximo del dado "
+                          f"(`puntos_golpe.nivel_1`)")
+            elif valor != caras:
+                inf.error(f"pg_por_nivel nivel 1: el máximo de un {dado} es "
+                          f"{caras} y la ficha declara {valor!r}")
+            else:
+                inf.comprobados += 1
+            continue
+        if metodo not in metodos_subida:
+            inf.error(f"pg_por_nivel nivel {n}: método {metodo!r}. Para los "
+                      f"niveles 2+ la base solo admite "
+                      f"{sorted(metodos_subida)} "
+                      f"(`puntos_golpe.niveles_siguientes_al_1.metodos`)")
+            continue
+        if metodo == "valor_establecido":
+            if valor != fijo:
+                inf.error(f"pg_por_nivel nivel {n}: `valor_establecido` de "
+                          f"{c['clase']} es {fijo} y la ficha declara "
+                          f"{valor!r} (tabla «{(sig.get('tabla_valores_establecidos') or {}).get('titulo')}»)")
+                continue
+        elif not (isinstance(valor, int) and 1 <= valor <= caras):
+            inf.error(f"pg_por_nivel nivel {n}: una tirada de {dado} da entre "
+                      f"1 y {caras}, y la ficha declara {valor!r}")
+            continue
+        inf.comprobados += 1
+
+
 def main():
     if len(sys.argv) == 3 and sys.argv[1] == "--calcular":
         ficha = cargar(sys.argv[2])
@@ -869,6 +1033,7 @@ def main():
     verificar_habilidades(ficha, inf)
     verificar_categorias(ficha, inf)
     verificar_compra_puntos(ficha, inf)
+    verificar_pg_por_nivel(ficha, inf)
     verificar_mejoras(ficha, inf)
     verificar_conjuros(ficha, inf)
     verificar_dotes_y_subclase(ficha, inf)
