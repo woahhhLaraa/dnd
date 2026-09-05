@@ -86,7 +86,7 @@ class Fila:
     """Una clase de unidad, con su universo y quién lo alcanza."""
 
     def __init__(self, clave, titulo, universo, alcanzadas, quien,
-                 declaradas=None, deuda=None):
+                 declaradas=None, deuda=None, manifiesto=None):
         self.clave = clave
         self.titulo = titulo
         self.universo = universo          # {id: descripción}
@@ -95,12 +95,26 @@ class Fila:
         # Declaradas EN SU PROPIO MANIFIESTO (no en el del censo): p. ej. los
         # `excluidos` de `reglas/fuentes_de_efectos.yaml`, que ya llevan motivo
         # allí. Repetirlas aquí sería una segunda lista a mano.
-        self.declaradas = dict(declaradas or {})
+        # Se INTERSECAN con el universo, igual que `alcanzadas`. Hasta el
+        # 2026-09-05 no se hacía, y esa asimetría era un agujero de la misma
+        # familia que el censo persigue: `main()` imprime
+        # `len(alcanzadas) + len(declaradas)`, así que una declaración podrida
+        # en `fuentes_de_efectos.yaml` —un fichero renombrado, por ejemplo—
+        # SUBÍA el recuento sin corresponder a nada, y `muertas` no la veía
+        # porque solo recorría el manifiesto del censo. El manifiesto del
+        # censo no puede pudrirse; los de las filas, sí podían.
+        todas = dict(declaradas or {})
+        self.declaradas = {k: v for k, v in todas.items() if k in universo}
+        self.declaradas_muertas = {k: v for k, v in todas.items()
+                                   if k not in universo}
+        self.manifiesto = manifiesto
         # Deuda enumerada en un fichero propio de la fila (el patrón de
         # `chequeos_silenciosos.json`). Cuenta como declarada —no hace fallar—
         # pero se imprime como pendiente: una deuda que no se ve en el informe
         # es una deuda que nadie salda.
-        self.deuda = dict(deuda or {})
+        toda = dict(deuda or {})
+        self.deuda = {k: v for k, v in toda.items() if k in universo}
+        self.deuda_muerta = {k: v for k, v in toda.items() if k not in universo}
 
 
 # ══ Fila 1 · ficheros de regla ════════════════════════════════════════════
@@ -120,7 +134,8 @@ def fila_ficheros_de_regla():
     declaradas = {f"regla:{e['ruta']}": e["motivo"] + " [fuentes_de_efectos.yaml]"
                   for e in E.cargar_manifiesto()["excluidos"]}
     return Fila("regla", "ficheros de regla", universo, alcanzadas,
-                "efectos.origenes() y su manifiesto", declaradas)
+                "efectos.origenes() y su manifiesto", declaradas,
+                manifiesto="reglas/fuentes_de_efectos.yaml")
 
 
 # ══ Fila 2 · variables calculables ════════════════════════════════════════
@@ -466,7 +481,8 @@ def fila_rasgos():
     deuda = {f"rasgo:{uid}": "todavía no dice si toca alguna variable calculable"
              for uid in conocidos}
     return Fila("rasgo", "rasgos con texto", universo, alcanzadas,
-                "su propio `efectos:` o `no_automatizado:`", deuda=deuda)
+                "su propio `efectos:` o `no_automatizado:`", deuda=deuda,
+                manifiesto="_verificacion/rasgos_sin_declarar.json")
 
 
 FILAS = (fila_ficheros_de_regla, fila_variables, fila_columnas,
@@ -622,29 +638,38 @@ def main():
     # Una declaración que ya no corresponde a nada es peor que inútil: da por
     # cubierto lo que nadie mira. Así empezaron los ocho casos.
     muertas = [p for p in list(exentas) + list(pendientes) if p not in usados]
+    # Y las de los manifiestos PROPIOS de cada fila, que hasta el 2026-09-05
+    # no se miraban: `reglas/fuentes_de_efectos.yaml` y los ficheros de deuda
+    # enumerada. Se nombran con su manifiesto delante, porque el sitio donde
+    # hay que ir a borrarlas no es el mismo.
+    muertas_de_fila = []
+    for fila in filas:
+        for uid in sorted(fila.declaradas_muertas) + sorted(fila.deuda_muerta):
+            muertas_de_fila.append(f"{uid}  [{fila.manifiesto or fila.quien}]")
     if not breve:
         _promesas, _problemas, sin_contrastar = _promesas_de_las_suites()
         if sin_contrastar:
             print("\n  ℹ promesas de cobertura no contrastables por etiqueta:")
             for s in sin_contrastar:
                 print(f"      · {s}")
-        if muertas:
+        if muertas or muertas_de_fila:
             print("\n  🔴 declaraciones que ya no corresponden a ninguna unidad:")
-            for p in sorted(muertas):
+            for p in sorted(muertas) + muertas_de_fila:
                 print(f"      · {p}")
             print("      (o la unidad se cerró —bórralas— o el manifiesto se "
                   "quedó viejo, que es como empezaron los ocho)")
         print("\n" + "═" * 74)
 
     universo_total = sum(len(f.universo) for f in filas)
-    print(f"{'❌' if (total_huecos or muertas) else '✅'} "
+    muertas_total = len(muertas) + len(muertas_de_fila)
+    print(f"{'❌' if (total_huecos or muertas_total) else '✅'} "
           f"{universo_total} unidades censadas · "
           f"{total_huecos} SIN DECLARAR · {total_pend} pendientes declaradas"
-          + (f" · {len(muertas)} declaraciones muertas" if muertas else ""))
+          + (f" · {muertas_total} declaraciones muertas" if muertas_total else ""))
     if total_huecos:
         print("   Cada una: o la alcanza un chequeo, o se declara en "
               f"{MANIFIESTO.relative_to(B)} con su motivo.")
-    return 1 if (total_huecos or muertas) else 0
+    return 1 if (total_huecos or muertas_total) else 0
 
 
 if __name__ == "__main__":

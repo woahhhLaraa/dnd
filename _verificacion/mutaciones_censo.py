@@ -226,12 +226,45 @@ def u_rebanada_nueva(r):
             "que ver como unidad propia, no diluida en `classes24/feat`")
 
 
+def m_excluido_muerto(r):
+    """El manifiesto del CENSO no podía pudrirse; los de las FILAS sí.
+
+    `Fila.declaradas` no se intersecaba con el universo, y `main()` imprime
+    `len(alcanzadas) + len(declaradas)`: una declaración de
+    `reglas/fuentes_de_efectos.yaml` que ya no correspondiera a ningún
+    fichero **subía el recuento** sin cubrir nada, y `muertas` no la veía
+    porque solo recorría `censo_exenciones.yaml`. Es el defecto de la regla 6
+    dentro del script que la comprueba (auditoría del 2026-09-05).
+
+    Ojo: NO vale renombrar un excluido existente —eso deja un fichero sin
+    clasificar y `origenes()` ya falla en cerrado por ese otro camino—. El
+    caso que nadie cazaba es la declaración que apunta a lo que no existe."""
+    _sust(r, "reglas/fuentes_de_efectos.yaml", "excluidos:\n",
+          'excluidos:\n  - ruta: "clases/inexistente.yaml"\n'
+          '    motivo: "fichero que ya no existe"\n')
+    return ("un `excluidos:` que apunta a un fichero inexistente: da por "
+            "mirado lo que nadie mira, y encima sube el recuento")
+
+
+def m_deuda_muerta(r):
+    """Lo mismo con la deuda enumerada: un uid obsoleto en
+    `rasgos_sin_declarar.json` se ignoraba en silencio."""
+    import json
+    p = r / "_verificacion/rasgos_sin_declarar.json"
+    d = json.loads(p.read_text(encoding="utf-8"))
+    d["rasgos"].append("clases/rasgos/barbaro.yaml#Rasgo que no existe")
+    p.write_text(json.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
+    return ("un rasgo obsoleto en la deuda enumerada: la lista solo puede "
+            "bajar, y una entrada que no corresponde a nada la infla")
+
+
 DEBEN = [u_fichero_de_regla, u_variable_calculable, u_columna_de_clase,
          u_chequeo_nuevo, u_dato_externo, a_mapa_recortado,
          p_promesa_a_chequeo_inexistente, p_promesa_sin_etiqueta,
          m_declaracion_muerta, m_declaracion_borrada, m_comodin_en_exentas,
          m_exenta_y_pendiente, u_rasgo_nuevo,
-         u_rebanada_estrechada, u_rebanada_nueva]
+         u_rebanada_estrechada, u_rebanada_nueva,
+         m_excluido_muerto, m_deuda_muerta]
 NO_DEBEN = [n_rasgo_no_automatizado, n_fichero_fuera_de_regla,
             n_columna_ya_contrastada, n_suite_sin_chequeos, n_exencion_con_motivo]
 # Mutaciones que NO deben hacer fallar al censo pero SÍ subir su recuento.

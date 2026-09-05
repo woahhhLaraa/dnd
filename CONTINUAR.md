@@ -17,17 +17,20 @@
 > 2. **`PLAN_19_PRODUCTO_COMPLETO.md`** — el plan de trabajo vigente hacia el
 >    producto completo: qué falta, qué logra cada fase, resultados medidos
 >    de las fases 1-3 en sus §14-16;
-> 3. **`PLAN_ESTRES.md`** — la rutina de estrés con agentes y sus dos rondas
+> 3. **`PLAN_20_AUDITORIA.md`** — **la auditoría en curso**: el inventario
+>    medido de autoridad duplicada y las cinco fases que la cierran. Nace del
+>    encargo del 2026-09-03 y de lo que la ronda 2 de estrés destapó;
+> 4. **`PLAN_ESTRES.md`** — la rutina de estrés con agentes y sus dos rondas
 >    corridas, con los hallazgos de cada una;
-> 4. **`FODA.md`** — análisis vigente, si vas a decidir arquitectura;
-> 5. **`PLAN_18_REVISION_COMPLETA.md`** — registro de los bloques A-D del
+> 5. **`FODA.md`** — análisis vigente, si vas a decidir arquitectura;
+> 6. **`PLAN_18_REVISION_COMPLETA.md`** — registro de los bloques A-D del
 >    Plan 18 (censo, mutaciones, listas cerradas), ya absorbido por el 19
 >    pero con el detalle de cada uno;
-> 6. **`PLAN_17_SALIR_DEL_ESPIRAL.md`** — solo su §1 (investigación sobre
+> 7. **`PLAN_17_SALIR_DEL_ESPIRAL.md`** — solo su §1 (investigación sobre
 >    Foundry dnd5e y DiceCloud) y su §2 (el diagnóstico del espiral: qué es
 >    un "parche puntual" y por qué el proyecto lo prohíbe). Es la base de la
 >    auditoría pendiente, ver más abajo;
-> 7. **`FUENTES.md`** — procedencia y correcciones de transcripción, la más
+> 8. **`FUENTES.md`** — procedencia y correcciones de transcripción, la más
 >    reciente arriba (es largo; se lee por sección).
 
 ---
