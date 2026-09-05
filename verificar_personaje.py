@@ -443,7 +443,19 @@ def verificar_origen_del_calculado(ficha, inf):
 # La regla está entera en `dotes/generales.yaml#Mejora de característica`
 # (pdf 209 = libro 207): «Aumenta en 2 una puntuación de característica de tu
 # elección, o aumenta dos en 1 cada una. No puede superar 20», `repetible: true`.
-_CARS = ("fue", "des", "con", "int", "sab", "car")
+# El emparejamiento sale de `reglas/caracteristicas.yaml` (fase 3 del PLAN_20):
+# iba escrito a mano aquí y en otros cuatro sitios, sin autoridad en la base.
+@functools.lru_cache(maxsize=1)
+def _caracteristicas():
+    d = cargar("reglas/caracteristicas.yaml")
+    filas = (d or {}).get("caracteristicas")
+    if not filas:
+        sys.exit("✗ `reglas/caracteristicas.yaml` no declara `caracteristicas`: "
+                 "sin ese emparejamiento no se puede leer ninguna ficha")
+    return {c["nombre"]: c["abrev"] for c in filas}
+
+
+_CARS = tuple(_caracteristicas().values())
 
 
 def _niveles_de_mejora(ficha):
@@ -545,8 +557,7 @@ def _subidas_por_dote(ficha, inf):
     return total
 
 
-_ABREV = {"Fuerza": "fue", "Destreza": "des", "Constitución": "con",
-          "Inteligencia": "int", "Sabiduría": "sab", "Carisma": "car"}
+_ABREV = _caracteristicas()
 
 
 def verificar_mejoras(ficha, inf):

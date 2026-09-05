@@ -420,7 +420,7 @@ el mismo modo de fallo que ese script existe para cazar.
 > vocabulario de la base, y doce líneas que desplazan todos los literales del
 > módulo, porque la huella es el CONJUNTO y no la línea—.
 >
-> **Grupos cerrados hasta ahora: 39 → 30.**
+> **Grupos cerrados hasta ahora: 39 → 25.**
 > - listas de ficheros de `equipo/` y `dotes/` → `glob`. Y con ellas salió que
 >   `buscar.py` no tenía `municion.yaml` en su tupla **desde que ese fichero se
 >   creó**: un objeto suyo no se encontraba y el mensaje decía que no existía.
@@ -435,10 +435,32 @@ el mismo modo de fallo que ese script existe para cazar.
 >   fichero→cuenta esperada), y que cubran el directorio ya lo comprueba el
 >   propio chequeo.
 >
-> **Queda:** las 6 características y sus abreviaturas (el emparejamiento **no
-> está en la base**: hace falta `reglas/caracteristicas.yaml` con su página),
-> las 18 habilidades, la página cableada de `armaduras.yaml`, y el resto de la
-> deuda enumerada.
+> - **Las 6 características y sus abreviaturas → `reglas/caracteristicas.yaml`.**
+>   El plan tenía razón: el emparejamiento «Fuerza» ↔ `fue` **no estaba
+>   declarado en ninguna parte**, y Python lo copiaba a mano en CINCO módulos.
+>   Pero sí estaba repartido —los nombres en `prerrequisitos.yaml`, las
+>   abreviaturas en las columnas del conjunto estándar, el emparejamiento en la
+>   prosa de `variables.mod_*`—, así que el fichero **no relee el manual: lo
+>   reúne**, con el mismo método y las mismas palabras que `prerrequisitos.yaml`
+>   y `municion.yaml` («se estructura, no se relee»). Y no es una sexta copia
+>   porque `validar_caracteristicas` lo ata a sus tres orígenes en cada pasada:
+>   si se separa de ellos, rojo. Falta su página del capítulo 1, declarada como
+>   pendiente en el propio fichero.
+>
+> **Y el mecanismo funcionando en cadena, sin que nadie lo pidiera:**
+> - `origenes()` no dejó añadir el fichero nuevo hasta clasificarlo — C1 del
+>   Plan 17 haciendo su trabajo tres semanas después;
+> - la colección nueva hizo que cinco literales pasaran de `subconjunto` a
+>   `copia_exacta`, sus `deja_fuera` dejaran de cuadrar y el censo los sacara
+>   como SIN DECLARAR. Se derivaron los cinco;
+> - y salió un fallo latente en `generar_ficha._reparto`: repartía el conjunto
+>   estándar sobre una lista de seis escrita a mano, así que **una séptima
+>   característica se habría quedado sin puntuación en silencio**. Ahora la
+>   preferencia es del generador (3 cadenas, declaradas con motivo) y el resto
+>   lo completa la base.
+>
+> **Queda:** las 18 habilidades, la página cableada de `armaduras.yaml`, y las
+> 22 constantes que siguen en deuda enumerada.
 
 ### El diseño (como se escribió)
 
@@ -538,7 +560,7 @@ Fase 1  aritmética           ✅ 1.1 mutaciones_motor  ✅ 1.2 _origen  ✅ 1.3
                              ✅ 1.6 la huella del guardián del silencio
 Fase 2  equipo/              ✅ CERRADA (2.1 directorios · 2.2 derivadas ·
                              2.3 control · 2.4 municion · 2.5 ancla)
-Fase 3  fila 9              ✅ la fila (39 medidas) · grupos de cierre en marcha: 39 → 30
+Fase 3  fila 9              ✅ la fila (39 medidas) · grupos de cierre en marcha: 39 → 25
 Fase 4  vocabularios        necesita que la fila 9 haya declarado los `for clave in (...)`
 ```
 

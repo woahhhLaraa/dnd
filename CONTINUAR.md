@@ -42,7 +42,7 @@ python3 validar.py            # 0 errores
 python3 verificar_srd.py      # 646 valores · 0 discrepancias
 python3 verificar_foundry.py  # 3749 valores · 0 discrepancias
 python3 cobertura.py          # 0 preguntas sin responder
-python3 censo.py              # 942 unidades · 0 sin declarar · 619 pendientes
+python3 censo.py              # 939 unidades · 0 sin declarar · 613 pendientes
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 18/18
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240
 python3 verificar_documentos.py   # ¿CONTINUAR.md y FODA.md dicen la verdad?
@@ -142,14 +142,19 @@ solución a los "parches puntuales" en vez de seguir apilando verificadores.**
 >   cadenas, declarado), y es **la única fila que debe tender a cero**: solo
 >   se salda borrando el literal. Ya va por 30. De ahí salió que `buscar.py`
 >   no tenía `municion.yaml` en su tupla desde que ese fichero se creó — un
->   objeto suyo no se encontraba y el mensaje decía que no existía.
+>   objeto suyo no se encontraba y el mensaje decía que no existía. Va por 25.
+> - **`reglas/caracteristicas.yaml`** · el emparejamiento «Fuerza» ↔ `fue` no
+>   estaba declarado en ninguna parte y Python lo copiaba en CINCO módulos.
+>   El fichero no relee el manual: reúne lo que la base ya tenía repartido en
+>   tres sitios, y `validar_caracteristicas` lo ata a los tres para que no
+>   pueda separarse. De ahí salió un fallo latente: `generar_ficha` repartía
+>   el conjunto estándar sobre una lista de seis a mano, así que una séptima
+>   característica se habría quedado sin puntuación en silencio.
 >
-> **Lo siguiente:** seguir bajando la fila 9 (quedan las 6 características y
-> sus abreviaturas, que necesitan `reglas/caracteristicas.yaml` porque **el
-> emparejamiento no está en la base**; las 18 habilidades; y la página
-> cableada de `armaduras.yaml`), la **fase 4** (vocabularios cerrados sin
-> consumidor exhaustivo) y más tandas a ciegas del calculista para bajar la
-> fila 8 de 4/25.
+> **Lo siguiente:** seguir bajando la fila 9 (quedan las 18 habilidades, la
+> página cableada de `armaduras.yaml` y 22 constantes en deuda), la **fase 4**
+> (vocabularios cerrados sin consumidor exhaustivo) y más tandas a ciegas del
+> calculista para bajar la fila 8 de 4/25.
 > `subir_nivel.py` y `generar_ficha.py` siguen sin mirarse con esta lupa: el
 > punto 2 de aquí abajo sigue vigente para ellos.
 

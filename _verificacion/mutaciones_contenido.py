@@ -30,7 +30,8 @@ from _arnes import principal, sust                     # noqa: E402
 CHEQUEOS = ("validar_clase", "validar_especies", "validar_trasfondos",
             "validar_dotes", "validar_subclases", "validar_rasgos_clase",
             "validar_equipo", "validar_hechizos", "validar_hechizos_clases",
-            "validar_habilidades", "validar_idiomas")
+            "validar_habilidades", "validar_idiomas",
+            "validar_caracteristicas")
 
 ESPECIES = "especies/especies.yaml"
 TRASFONDOS = "trasfondos/trasfondos.yaml"
@@ -433,6 +434,55 @@ def id_origen_retocado(r):
     return "cambiar el pueblo de origen de un idioma: no es nombre ni tabla ni página"
 
 
+# ══ características · «características» ══════════════════════════════════
+# `reglas/caracteristicas.yaml` no trae ningún dato nuevo: reúne lo que la base
+# ya tenía en tres sitios y que Python copiaba a mano en cinco. Por eso lo que
+# hay que proteger no es su contenido, sino que no pueda SEPARARSE de sus
+# orígenes: si pudiera, sería una sexta copia en vez de la autoridad única.
+CAR = "reglas/caracteristicas.yaml"
+
+
+def ca_nombre_cambiado(r):
+    sust(r, CAR, '{nombre: "Sabiduría",    abrev: "sab"',
+         '{nombre: "Sapiencia",    abrev: "sab"')
+    return "un nombre que ya no coincide con `reglas/prerrequisitos.yaml`"
+
+
+def ca_abreviatura_cambiada(r):
+    sust(r, CAR, 'abrev: "sab", variable: "mod_sab"',
+         'abrev: "sap", variable: "mod_sab"')
+    return ("una abreviatura que ya no coincide con las columnas del conjunto "
+            "estándar, ni con su variable del motor")
+
+
+def ca_orden_alterado(r):
+    """El orden es dato: las tres fuentes lo traen y las fichas lo usan."""
+    sust(r, CAR,
+         '  - {nombre: "Fuerza",       abrev: "fue", variable: "mod_fue"}\n'
+         '  - {nombre: "Destreza",     abrev: "des", variable: "mod_des"}\n',
+         '  - {nombre: "Destreza",     abrev: "des", variable: "mod_des"}\n'
+         '  - {nombre: "Fuerza",       abrev: "fue", variable: "mod_fue"}\n')
+    return "el orden canónico alterado: Destreza antes que Fuerza"
+
+
+def ca_variable_inexistente(r):
+    sust(r, CAR, 'variable: "mod_car"', 'variable: "mod_carisma"')
+    return "una `variable:` que no existe en `reglas/efectos.yaml`"
+
+
+def ca_una_menos(r):
+    sust(r, CAR,
+         '  - {nombre: "Carisma",      abrev: "car", variable: "mod_car"}\n', "")
+    return "una característica de menos"
+
+
+def ca_comentario_reescrito(r):
+    """CONTROL NEGATIVO: la prosa de la cabecera es libre."""
+    sust(r, CAR, "# Las seis características y sus abreviaturas.",
+         "# Las 6 caracteristicas del juego y como se abrevian.")
+    return "la cabecera del fichero redactada de otra forma"
+
+
 BLOQUES = [
     ("CLASE · la tabla de 20 niveles (etiqueta dinámica: «Bárbaro»)", "Bárbaro",
      [cl_pb_movido, cl_nivel_fuera_de_secuencia, cl_edicion_no_sellada],
@@ -469,6 +519,10 @@ BLOQUES = [
     ("HABILIDADES", "habilidades",
      [hb_una_menos, hb_caracteristica_inventada, hb_duplicada, hb_desfase_de_pagina],
      [hb_desc_reescrita]),
+    ("CARACTERÍSTICAS", "características",
+     [ca_nombre_cambiado, ca_abreviatura_cambiada, ca_orden_alterado,
+      ca_variable_inexistente, ca_una_menos],
+     [ca_comentario_reescrito]),
     ("IDIOMAS", "idiomas",
      [id_sin_comun, id_duplicado, id_en_las_dos_tablas, id_desfase_de_pagina],
      [id_origen_retocado]),

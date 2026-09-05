@@ -793,9 +793,24 @@ def validar_equipo():
     return f"equipo ({total} entradas, {len(hallados)} ficheros)", err, warn
 
 
-CARACTERISTICAS = {"Fuerza", "Destreza", "Constitución", "Inteligencia", "Sabiduría", "Carisma"}
-ABREV = {"Fuerza": "fue", "Destreza": "des", "Constitución": "con",
-         "Inteligencia": "int", "Sabiduría": "sab", "Carisma": "car"}
+# Los nombres, las abreviaturas y su emparejamiento salen de
+# `reglas/caracteristicas.yaml` (fase 3 del PLAN_20). Iban escritos a mano aquí,
+# otra vez en `_CARACT_DE_ABREV`, otra en `verificar_personaje._ABREV` y otra
+# —los nombres— en `verificar_foundry._ABREV`: cuatro copias del mismo dato que
+# nadie comparaba, y sin autoridad en la base detrás de ninguna.
+@functools.lru_cache(maxsize=1)
+def _caracteristicas():
+    d = yaml.safe_load((B / "reglas/caracteristicas.yaml").read_text(encoding="utf-8"))
+    filas = (d or {}).get("caracteristicas")
+    if not filas:
+        sys.exit("✗ `reglas/caracteristicas.yaml` no declara `caracteristicas`: "
+                 "sin ese emparejamiento no se puede leer ninguna ficha")
+    return tuple((c["nombre"], c["abrev"]) for c in filas)
+
+
+CARACTERISTICAS = {n for n, _a in _caracteristicas()}
+ABREV = {n: a for n, a in _caracteristicas()}
+ABREVS = tuple(a for _n, a in _caracteristicas())
 
 def _principales(txt):
     """'Fuerza y Carisma' -> (['Fuerza','Carisma'], 'y'); 'Carisma' -> (['Carisma'], None)."""
@@ -973,7 +988,7 @@ def validar_generacion():
         vistas.add(nom)
         if nom not in clases:
             err.append(f"conjunto estándar: clase desconocida {nom!r}"); continue
-        vals = [fila.get(a) for a in ("fue", "des", "con", "int", "sab", "car")]
+        vals = [fila.get(a) for a in ABREVS]
         if None in vals:
             err.append(f"{nom}: fila del conjunto estándar incompleta"); continue
         if sorted(vals, reverse=True) != arr:
@@ -1670,10 +1685,9 @@ _TIRADAS_EXCEPCION = {"Contactar con otro plano": "TdS Int. propia"}
 # `TdS`). Ver la docstring de `validar_tirada()`.
 _UMBRAL_DISPARADOR = 1 / 3
 
-_CARACT_DE_ABREV = {
-    "Fue.": "Fuerza", "Des.": "Destreza", "Con.": "Constitución",
-    "Int.": "Inteligencia", "Sab.": "Sabiduría", "Car.": "Carisma",
-}
+# «Fue.» → «Fuerza»: la forma con punto y mayúscula que usan las tiradas de
+# salvación de la base. Se construye del mismo emparejamiento, no se repite.
+_CARACT_DE_ABREV = {a.capitalize() + ".": n for n, a in _caracteristicas()}
 _CARACTS = r"(Fuerza|Destreza|Constituci[óo]n|Inteligencia|Sabidur[íi]a|Carisma)"
 _RE_SALVACION = re.compile(
     r"(?:tirada|tiradas)\s+de\s+salvaci[óo]n\s+de\s+" + _CARACTS, re.I)
@@ -2451,6 +2465,62 @@ def validar_conjuros_cd():
     return f"CD de conjuros ({n})", err, []
 
 
+def validar_caracteristicas():
+    """El fichero de características, contrastado contra sus TRES orígenes.
+
+    `reglas/caracteristicas.yaml` no trae ningún dato nuevo: reúne lo que la
+    base ya tenía repartido. Por eso no basta con que exista — si pudiera
+    separarse de aquello de lo que salió, sería una quinta copia en vez de la
+    autoridad única, y habríamos cambiado cuatro literales de Python por un
+    YAML que miente. Este chequeo lo ata a los tres.
+    """
+    err = []
+    d = yaml.safe_load((B / "reglas/caracteristicas.yaml").read_text(encoding="utf-8"))
+    filas = (d or {}).get("caracteristicas") or []
+    if not filas:
+        return "características", [
+            "reglas/caracteristicas.yaml no declara `caracteristicas`: sin ella "
+            "el emparejamiento nombre↔abreviatura vuelve a vivir en Python"], []
+    if not (d.get("verificado") or {}).get("metodo"):
+        err.append("reglas/caracteristicas.yaml no dice cómo se verificó")
+
+    nombres = [c.get("nombre") for c in filas]
+    abrevs = [c.get("abrev") for c in filas]
+
+    # 1 · los nombres y su orden, contra `prerrequisitos.yaml`
+    pr = yaml.safe_load((B / "reglas/prerrequisitos.yaml").read_text(encoding="utf-8"))
+    if nombres != list(pr.get("caracteristicas") or []):
+        err.append(f"los nombres no coinciden con reglas/prerrequisitos.yaml → "
+                   f"caracteristicas: {nombres} vs {pr.get('caracteristicas')}")
+
+    # 2 · las abreviaturas y su orden, contra las columnas del conjunto estándar
+    g = yaml.safe_load((B / "reglas/generacion_personaje.yaml").read_text(encoding="utf-8"))
+    fila0 = ((g.get("conjunto_estandar_por_clase") or {}).get("filas") or [{}])[0]
+    columnas = [k for k in fila0 if k != "clase"]
+    if abrevs != columnas:
+        err.append(f"las abreviaturas no coinciden con las columnas de "
+                   f"`conjunto_estandar_por_clase.filas`: {abrevs} vs {columnas}")
+
+    # 3 · el EMPAREJAMIENTO, contra las variables del motor y su prosa
+    ef = yaml.safe_load((B / "reglas/efectos.yaml").read_text(encoding="utf-8"))
+    variables = ef.get("variables") or {}
+    for c in filas:
+        v = variables.get(c.get("variable"))
+        if v is None:
+            err.append(f"«{c.get('nombre')}» dice derivar de la variable "
+                       f"`{c.get('variable')}`, que no existe en reglas/efectos.yaml")
+            continue
+        if c.get("variable") != f"mod_{c.get('abrev')}":
+            err.append(f"«{c.get('nombre')}»: la variable `{c.get('variable')}` no "
+                       f"corresponde a la abreviatura `{c.get('abrev')}`")
+        if str(c.get("nombre")) not in str(v.get("desc") or ""):
+            err.append(f"«{c.get('nombre')}» no aparece en la descripción de "
+                       f"`{c.get('variable')}` ({v.get('desc')!r}): el "
+                       f"emparejamiento nombre↔abreviatura deja de estar "
+                       f"contrastado contra el motor")
+    return f"características ({len(filas)}, contra 3 orígenes)", err, []
+
+
 def validar_ca_base():
     """Que las DOS implementaciones de la CA base sin armadura lean la base.
 
@@ -3111,6 +3181,7 @@ def main():
     print("── CREACIÓN DE PERSONAJE " + "─"*37)
     for fn in (validar_atributos_basicos, validar_generacion, validar_puntos_golpe,
                validar_conjuros_cd, validar_ca_base,
+               validar_caracteristicas,
                validar_rasgos_clase,
                validar_competencias_clase, validar_habilidades, validar_idiomas):
         nom, err, warn = fn()

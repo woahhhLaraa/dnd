@@ -21,7 +21,7 @@ import argparse
 import json
 import sys
 
-from calculo import B, cargar, _archivo_clase  # noqa: reutiliza lo ya escrito
+from calculo import B, cargar, _archivo_clase, nombres_de_caracteristica  # noqa: reutiliza lo ya escrito
 
 
 def clase(nombre):
@@ -166,8 +166,7 @@ def trasfondo(nombre):
 
 # ── CLI ────────────────────────────────────────────────────────────────
 # ── Qué dotes puede tomar un personaje (Fase 15) ─────────────────────────
-_CAR_LARGA = {"fue": "Fuerza", "des": "Destreza", "con": "Constitución",
-              "int": "Inteligencia", "sab": "Sabiduría", "car": "Carisma"}
+_CAR_LARGA = nombres_de_caracteristica()   # reglas/caracteristicas.yaml
 
 
 def _perfil(ficha):

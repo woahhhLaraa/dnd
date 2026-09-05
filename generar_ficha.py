@@ -27,11 +27,15 @@ import sys
 
 import yaml
 
-from calculo import B, cargar, es_marcador_de, _archivo_clase
+from calculo import (B, cargar, es_marcador_de, _archivo_clase,
+                     abreviaturas, nombres_de_caracteristica)
 
-CARS = ("fue", "des", "con", "int", "sab", "car")
-_LARGO = {"fue": "Fuerza", "des": "Destreza", "con": "Constitución",
-          "int": "Inteligencia", "sab": "Sabiduría", "car": "Carisma"}
+CARS = abreviaturas()                      # reglas/caracteristicas.yaml
+# Heurística del generador, no regla del manual: tras la característica
+# principal, primero Constitución, luego Destreza y Sabiduría. NO es una copia
+# del vocabulario —lo que no nombra lo completa `CARS`, que sí se deriva—.
+_PREFERENCIA = ("con", "des", "sab")
+_LARGO = nombres_de_caracteristica()
 _CORTO = {v: k for k, v in _LARGO.items()}
 
 
@@ -62,7 +66,11 @@ def _reparto(clase_d):
     ppal = clase_d["atributos_basicos"].get("caracteristica_principal") or ""
     orden = [_CORTO[p.strip()] for p in ppal.replace(" y ", ",").split(",")
              if p.strip() in _CORTO]
-    orden += [c for c in ("con", "des", "sab", "fue", "int", "car") if c not in orden]
+    # La preferencia es del GENERADOR; el resto se completa con las que
+    # declare la base. Antes la lista iba entera a mano, así que una séptima
+    # característica se habría quedado sin puntuación en silencio.
+    orden += [c for c in _PREFERENCIA if c not in orden]
+    orden += [c for c in CARS if c not in orden]
     return dict(zip(orden, CONJUNTO))
 
 

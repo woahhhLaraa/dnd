@@ -147,6 +147,8 @@ excluidos:
     motivo: "ídem"
   - ruta: "clases/picaro.yaml"
     motivo: "ídem"
+  - ruta: "reglas/caracteristicas.yaml"
+    motivo: "las seis características y sus abreviaturas; es vocabulario, no concede rasgos. Lo ata a sus tres orígenes `validar_caracteristicas`"
   - ruta: "reglas/efectos.yaml"
     motivo: "es el vocabulario del propio motor, no una fuente de efectos"
   - ruta: "reglas/fuentes_de_efectos.yaml"

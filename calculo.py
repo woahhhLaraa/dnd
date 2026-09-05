@@ -507,6 +507,28 @@ def _tiene_ca_de_rasgo(clase):
                for e in efectos.efectos_declarados(rutas))
 
 
+@functools.lru_cache(maxsize=1)
+def abreviaturas():
+    """Las seis abreviaturas, en orden, desde `reglas/caracteristicas.yaml`.
+
+    Iban escritas a mano en cinco módulos (fase 3 del PLAN_20). El
+    emparejamiento con el nombre completo no existía en la base hasta que ese
+    fichero lo reunió; ahora hay una autoridad y estas son sus lectoras.
+    """
+    d = cargar("reglas/caracteristicas.yaml")
+    filas = (d or {}).get("caracteristicas")
+    if not filas:
+        sys.exit("✗ `reglas/caracteristicas.yaml` no declara `caracteristicas`")
+    return tuple(c["abrev"] for c in filas)
+
+
+@functools.lru_cache(maxsize=1)
+def nombres_de_caracteristica():
+    """`{"fue": "Fuerza", …}`, del mismo sitio."""
+    d = cargar("reglas/caracteristicas.yaml")
+    return {c["abrev"]: c["nombre"] for c in (d or {}).get("caracteristicas") or []}
+
+
 def _archivo_clase(nombre):
     """El emparejamiento nombre→fichero se DERIVA: cada `clases/*.yaml`
     declara su propio `clase:`. Iba escrito a mano aquí y otra vez en
@@ -589,8 +611,9 @@ def main():
     elif a.cmd == "espacios":
         print(espacios_de_conjuro(a.clase, a.nivel))
     elif a.cmd == "coste-compra":
-        scores = {"fue": a.fue, "des": a.des, "con": a.con,
-                  "int": a.int_, "sab": a.sab, "car": a.car}
+        # `int` es palabra reservada, así que argparse la guarda como `int_`.
+        scores = {ab: getattr(a, ab if ab != "int" else "int_")
+                  for ab in abreviaturas()}
         total = coste_compra_puntos(scores)
         presupuesto = puntos_totales()
         print(total, f"de {presupuesto}" + ("" if total != presupuesto else " ✓"))

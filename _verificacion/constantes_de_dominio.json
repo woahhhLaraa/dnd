@@ -8,24 +8,6 @@
  "_fecha": "2026-09-05",
  "constantes": [
   {
-   "huella": "buscar.py::car|con|des|fue|int|sab",
-   "coleccion": "claves:reglas/generacion_personaje.yaml:conjunto_estandar_por_clase.filas",
-   "clase": "subconjunto",
-   "motivo": "sin mirar todavía (fase 3, PLAN_20_AUDITORIA.md)",
-   "deja_fuera": [
-    "clase"
-   ]
-  },
-  {
-   "huella": "calculo.py::car|con|des|fue|int|sab",
-   "coleccion": "claves:reglas/generacion_personaje.yaml:conjunto_estandar_por_clase.filas",
-   "clase": "subconjunto",
-   "motivo": "sin mirar todavía (fase 3, PLAN_20_AUDITORIA.md)",
-   "deja_fuera": [
-    "clase"
-   ]
-  },
-  {
    "huella": "cobertura.py::Acrobacias|Atletismo|Conocimiento arcano|Engaño|Historia|Interpretación|Intimidación|Investigación|Juego de manos|Medicina|Naturaleza|Percepción|Perspicacia|Persuasión|Religión|Sigilo|Supervivencia|Trato con animales",
    "coleccion": "lista:clases/bardo.yaml:atributos_basicos.habilidades.de",
    "clase": "copia_exacta",
@@ -64,12 +46,14 @@
    ]
   },
   {
-   "huella": "generar_ficha.py::car|con|des|fue|int|sab",
-   "coleccion": "claves:reglas/generacion_personaje.yaml:conjunto_estandar_por_clase.filas",
+   "huella": "generar_ficha.py::con|des|sab",
+   "coleccion": "valores:abrev",
    "clase": "subconjunto",
-   "motivo": "sin mirar todavía (fase 3, PLAN_20_AUDITORIA.md)",
+   "motivo": "`_PREFERENCIA`: el orden en que el GENERADOR reparte el conjunto estándar tras la característica principal. No es vocabulario copiado para usarlo, es una heurística propia declarada como tal en `decisiones`, y lo que no nombra lo completa `CARS`, que sí se deriva de reglas/caracteristicas.yaml — así una característica nueva no se queda sin puntuación en silencio",
    "deja_fuera": [
-    "clase"
+    "car",
+    "fue",
+    "int"
    ]
   },
   {
@@ -238,15 +222,6 @@
     "nombre",
     "recipiente",
     "recipiente_objeto"
-   ]
-  },
-  {
-   "huella": "validar.py::car|con|des|fue|int|sab",
-   "coleccion": "claves:reglas/generacion_personaje.yaml:conjunto_estandar_por_clase.filas",
-   "clase": "subconjunto",
-   "motivo": "sin mirar todavía (fase 3, PLAN_20_AUDITORIA.md)",
-   "deja_fuera": [
-    "clase"
    ]
   },
   {
@@ -732,13 +707,6 @@
    ]
   },
   {
-   "huella": "verificar_personaje.py::Carisma|Constitución|Destreza|Fuerza|Inteligencia|Sabiduría",
-   "coleccion": "lista:reglas/prerrequisitos.yaml:caracteristicas",
-   "clase": "copia_exacta",
-   "motivo": "sin mirar todavía (fase 3, PLAN_20_AUDITORIA.md)",
-   "deja_fuera": []
-  },
-  {
    "huella": "verificar_personaje.py::armaduras|armas|herramientas",
    "coleccion": "tallos:equipo/",
    "clase": "subconjunto",
@@ -746,15 +714,6 @@
    "deja_fuera": [
     "aventureros",
     "municion"
-   ]
-  },
-  {
-   "huella": "verificar_personaje.py::car|con|des|fue|int|sab",
-   "coleccion": "claves:reglas/generacion_personaje.yaml:conjunto_estandar_por_clase.filas",
-   "clase": "subconjunto",
-   "motivo": "sin mirar todavía (fase 3, PLAN_20_AUDITORIA.md)",
-   "deja_fuera": [
-    "clase"
    ]
   },
   {
