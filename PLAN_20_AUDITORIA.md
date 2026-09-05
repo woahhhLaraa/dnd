@@ -178,7 +178,21 @@ cuenta que solo puede subir y dice cuál falta.
 
 Nace **25 unidades · 0 alcanzadas · 25 en deuda**: en verde y sin perdonar nada.
 
-**1.4 · Ronda 3 de estrés, mandato E · «el calculista».** Es **la segunda
+**1.4 · Ronda 3 de estrés, mandato E · «el calculista»** — escrito en
+`PLAN_ESTRES.md` el 2026-09-05, primera tanda en marcha.
+
+**Y una corrección al plan, medida al escribirlo:** de los 7 huecos de
+`motor_sin_carga.json`, **solo 3 los puede saldar el calculista**. La base
+declara ocho operaciones (`base, add, mul, min, max, set, conditional,
+modifica_tope`) y **solo usa cuatro**: no existe ni un efecto `mul`, `min`,
+`max` o `set` en toda la base. Esos cuatro bucles no los puede ejercitar
+ninguna ficha por mucho que se escriba — son caminos de código muertos
+respecto al dato de hoy, y eso es **vocabulario sin consumidor (fase 4)**, no
+cobertura aritmética. `motor_sin_carga.json` los separa en dos grupos con esa
+explicación, porque meterlos en el mismo saco le encargaría al calculista algo
+que no puede hacer.
+
+El diseño original: Es **la segunda
 transcripción**, y sin ella la fila 9 no sube de 0. Cuarto mandato nuevo en
 `PLAN_ESTRES.md`, con las cuatro reglas del método intactas:
 

@@ -259,3 +259,73 @@ verificar_chequeos     67 silenciosas · 20 declaradas `# TOLERADO:`
 pregunta de si el patrón de autoridad duplicada vive también en `calculo.py`,
 `efectos.py`, `subir_nivel.py` y `generar_ficha.py`, que ninguna ronda de
 estrés ha tocado todavía.
+
+
+---
+
+# Mandato E · el calculista (2026-09-05)
+
+Los cuatro mandatos A-D estresan lo que la base **dice**. Este estresa lo que
+el motor **calcula**, y nace de dos mediciones de la auditoría del `PLAN_20`:
+
+| Medido | |
+|---|---|
+| `mutaciones_motor.py` | **4 de 11**: siete trozos del motor se pueden corromper y las 18 fichas siguen verificando en verde |
+| Fila 8 del censo | **0 de 25** efectos sostenidos por una lectura independiente |
+
+La causa es la misma y es de forma, no de aritmética: **la ficha se escribe y
+se verifica con el mismo código.** `verificar_personaje.py --calcular` produce
+el bloque `calculado` con `calculo`/`efectos`, y `verificar_calculado()` lo
+recalcula con `calculo`/`efectos` y compara. Un error del motor produce una
+ficha coherente y equivocada.
+
+Lo que rompe el círculo **no** es un segundo calculador —dos implementaciones
+de la misma regla divergen y nadie las compara: es `_CA_SIN_ARMADURA` con más
+pasos—. Lo rompe una **segunda transcripción**, y la única que existe es el
+número calculado a mano desde la página citada. El precedente está en el repo:
+`valor_establecido_pg()` lee la tabla *«nunca calculado como (caras/2)+1: esa
+coincidencia es lo que `validar_puntos_golpe()` usa para CONTRASTAR las dos
+transcripciones»*.
+
+## El encargo
+
+> **E · el calculista.** Recibe los datos crudos de una ficha —especie,
+> clases y niveles, características finales, equipo, dotes, `pg_por_nivel`— y
+> **no** su bloque `calculado`. Calcula `pg_max`, `ca`, `velocidad`,
+> `cd_conjuros` y `bonif_ataque_conjuros` **a mano**, escribiendo cada paso y
+> citando la página de cada regla que aplica. Entrega el número y la
+> derivación completa.
+
+Las cuatro reglas del método siguen intactas, y a la 1 se le añade lo que este
+mandato necesita:
+
+1. **No lee el código.** Y aquí, además de los verificadores, quedan
+   prohibidos `calculo.py`, `efectos.py` y `reglas/efectos.yaml`: son la
+   implementación cuya independencia se está comprando. Sí lee la base —
+   `reglas/generacion_personaje.yaml`, `especies/`, `clases/`, `equipo/`,
+   `dotes/`— porque es de donde tiene que salir cada paso.
+2. **No ejecuta el verificador.** Puede ejecutar lo que quiera para leer datos.
+3. **La derivación se escribe antes de ver ningún número nuestro**, en
+   `_verificacion/_aritmetica/<ficha>-<agente>.md`.
+4. **Nada entra en `personajes/`** hasta que el contraste lo apruebe.
+
+## Qué se hace con el resultado
+
+| | |
+|---|---|
+| **Coincide** | la ficha pasa a `_origen: {metodo: agente-manual, informe: …}` y **pincha en la fila 8 todos los efectos que aplica** |
+| **Discrepa** | hallazgo. La derivación escrita dice de quién es el error: del informe o del motor. Si la cita no dice lo que el agente creía, se descarta **registrado como descartado** |
+
+## Cómo se dirige, y esto es lo que lo hace distinto de las otras rondas
+
+**No se elige a ojo qué fichas calcular.** El encargo de cada tanda sale de dos
+listas que el propio repo mantiene:
+
+- `_verificacion/motor_sin_carga.json` — los 7 trozos de motor que hoy no
+  protege nada. Son la prioridad: no es que estén poco cubiertos, es que no
+  los cubre nadie.
+- `_verificacion/efectos_sin_carga.json` — los 25 efectos sin lectura
+  independiente detrás.
+
+Una ficha se elige **porque ejercita algo de esas listas**, y al aprobarse lo
+tacha. Criterio de cierre: fila 8 a 25/25 y `motor_sin_carga.json` vacío.

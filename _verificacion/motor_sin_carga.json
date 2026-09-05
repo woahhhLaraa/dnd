@@ -1,11 +1,23 @@
 {
- "_nota": "Trozos del motor que NINGUNA ficha de `personajes/` protege: se pueden corromper y todas las fichas siguen verificando en verde. Es deuda enumerada, no permiso. Solo puede bajar, y se salda escribiendo fichas que ejerciten esa aritmética — el mandato «el calculista» de la ronda 3 de estrés, no tocando esta lista.",
+ "_nota": "Trozos del motor que NINGUNA ficha de `personajes/` protege: se pueden corromper y todas las fichas siguen verificando en verde. Es deuda enumerada, no permiso: solo puede bajar. PERO no todos se saldan igual, y confundirlo sería prometer lo que no se puede cumplir — ver `_por_que_dos_grupos`.",
  "_fecha": "2026-09-05",
  "huecos": [
   "el bucle `mul` divide en vez de multiplicar",
   "desaparece el bucle `min` de la agregación",
   "desaparece el bucle `max` de la agregación",
   "desaparece el bucle `set` de la agregación",
+  "se quita el `math.floor` final de la agregación",
+  "el mínimo de 1 de los PG por nivel pasa a 0",
+  "`aplica()` deja de mirar `requiere`: todo efecto se aplica siempre"
+ ],
+ "_por_que_dos_grupos": "Medido el 2026-09-05: `reglas/efectos.yaml` declara OCHO operaciones y la base solo usa CUATRO (base 4, add 11, conditional 9, modifica_tope 1). No existe ni un efecto `mul`, `min`, `max` o `set` en toda la base. Así que esos cuatro bucles no los puede ejercitar ninguna ficha por mucho que se escriba: son caminos de código muertos respecto al dato de hoy, y eso es un problema de VOCABULARIO SIN CONSUMIDOR (fase 4 del PLAN_20), no de cobertura aritmética. Meterlos en el mismo saco que los otros tres le encargaría al «calculista» algo que no puede hacer.",
+ "sin_dato_que_los_ejercite": [
+  "el bucle `mul` divide en vez de multiplicar",
+  "desaparece el bucle `min` de la agregación",
+  "desaparece el bucle `max` de la agregación",
+  "desaparece el bucle `set` de la agregación"
+ ],
+ "se_saldan_con_el_calculista": [
   "se quita el `math.floor` final de la agregación",
   "el mínimo de 1 de los PG por nivel pasa a 0",
   "`aplica()` deja de mirar `requiere`: todo efecto se aplica siempre"
