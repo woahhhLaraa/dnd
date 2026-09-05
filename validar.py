@@ -5,6 +5,8 @@ que no respete estas reglas hace fallar la validación.
 Uso: python3 validar.py
 """
 import functools, math, re, json, sys, pathlib
+
+import calculo
 try:
     import yaml
 except ImportError:
@@ -2280,6 +2282,58 @@ def validar_efectos():
 # Es la capa 3 del método (invariantes deducibles). No demuestra que la tabla
 # esté bien copiada: demuestra que las dos transcripciones **cuentan la misma
 # historia**, y si una se rompe, deja de cuadrar.
+def validar_conjuros_cd():
+    """La regla de la CD de conjuros, contrastada contra su propia prosa.
+
+    Entró en la base el 2026-09-05 viniendo de `calculo.py`, donde estaba
+    cableada con su cita en un comentario. Traerla a la base no basta: si el
+    número y la frase que lo describe pudieran divergir, habría dos copias
+    otra vez —dentro del mismo registro esta vez—. Así que se exige que el
+    `base:` esté DENTRO de su `formula:`, que es el mismo contraste que
+    `validar_mejoras_de_dote` hace con `mejora_caracteristica`.
+
+    Y se comprueba que `calculo` dé lo que la base dice, que es lo que impide
+    que el módulo vuelva a cablearlo.
+    """
+    err, n = [], 0
+    g = yaml.safe_load((B / "reglas/generacion_personaje.yaml").read_text(encoding="utf-8"))
+    c = (g or {}).get("conjuros")
+    if not c:
+        return "CD de conjuros", ["reglas/generacion_personaje.yaml no declara "
+                                  "`conjuros`"], []
+    if not (c.get("pagina") or {}).get("pdf"):
+        err.append("`conjuros` no cita página: sin cita, un dato no entra")
+    for clave, texto in (("cd_salvacion", "8 +"), ("bonificador_ataque", None)):
+        bloque = c.get(clave) or {}
+        base, formula = bloque.get("base"), str(bloque.get("formula") or "")
+        if base is None or not formula:
+            err.append(f"`conjuros.{clave}` necesita `base:` y `formula:`")
+            continue
+        n += 1
+        # El número tiene que aparecer en la frase que lo describe, salvo
+        # cuando es 0: «0 + mod…» no es como se escribe una fórmula.
+        if base and str(base) not in formula:
+            err.append(f"`conjuros.{clave}`: `base: {base}` no aparece en su "
+                       f"`formula` ({formula!r}). Dos copias del mismo número "
+                       f"que nadie compara es como empezaron los ocho")
+        elif not base and texto:
+            err.append(f"`conjuros.{clave}`: `base: {base}` y su fórmula "
+                       f"empieza por {texto!r}")
+    # Y que el módulo lea de aquí, no de una copia suya. Solo si la estructura
+    # está sana: si el bloque ya vino mal, el error YA está dicho arriba y
+    # `calculo` no tiene de dónde leer —llamarlo encima solo taparía el
+    # mensaje con el suyo—.
+    if not err:
+        for clave, fn in (("cd_salvacion", calculo.cd_conjuros),
+                          ("bonificador_ataque", calculo.bonif_ataque_conjuros)):
+            n += 1
+            esperado = (c.get(clave) or {}).get("base", 0) + 3 + 2
+            if fn(3, 2) != esperado:
+                err.append(f"`calculo.{fn.__name__}` no usa el `base` de la "
+                           f"base: da {fn(3, 2)} y la regla dice {esperado}")
+    return f"CD de conjuros ({n})", err, []
+
+
 def validar_puntos_golpe():
     err, warn = [], []
     g = yaml.safe_load((B / "reglas/generacion_personaje.yaml").read_text(encoding="utf-8"))
@@ -2886,6 +2940,7 @@ def main():
 
     print("── CREACIÓN DE PERSONAJE " + "─"*37)
     for fn in (validar_atributos_basicos, validar_generacion, validar_puntos_golpe,
+               validar_conjuros_cd,
                validar_rasgos_clase,
                validar_competencias_clase, validar_habilidades, validar_idiomas):
         nom, err, warn = fn()

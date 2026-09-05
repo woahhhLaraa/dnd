@@ -398,16 +398,49 @@ def ca(des_mod, con_mod=0, sab_mod=0, clase=None, armadura=None, escudo=False):
 
 
 # ── Conjuros: CD y bonificador de ataque ─────────────────────────────────
-# Manual_del_Jugador_2024.pdf pdf 240 = libro 238, "Tiradas de salvación" /
-# "Tiradas de ataque":
-#   CD de salvación de conjuros = 8 + mod. aptitud mágica + bonif. competencia
-#   Modificador de ataque de conjuros = mod. aptitud mágica + bonif. competencia
+# El `8` SE LEE de `reglas/generacion_personaje.yaml → conjuros`, citado en
+# pdf 240 = libro 238. Hasta el 2026-09-05 estaba cableado aquí con la cita en
+# este mismo comentario, que es exactamente donde una regla no puede vivir:
+# cableada no se puede citar, ni validar, ni corregir cuando la base cambia.
+#
+# Lo destapó el mandato «el calculista» de la ronda 3 de estrés: dos agentes
+# independientes, calculando a mano dos fichas distintas, pararon en el mismo
+# sitio porque la base no definía la fórmula. Es el mismo patrón que
+# `_TABLA_COSTE`, `COMPLETO`/`MEDIO` y el tope de 20 de las mejoras.
+@functools.lru_cache(maxsize=1)
+def _regla_de_conjuros():
+    c = cargar("reglas/generacion_personaje.yaml").get("conjuros")
+    if not c:
+        sys.exit("✗ `reglas/generacion_personaje.yaml` no declara `conjuros`: "
+                 "sin esa regla no se puede dar la CD de ningún lanzador")
+    return c
+
+
+def _base_de_conjuros(clave):
+    """El `base:` de un sub-bloque de `conjuros`, o un `sys.exit` que DICE qué
+    falta.
+
+    Un `[clave]["base"]` a pelo levantaba `KeyError` cuando la base venía sin
+    ese sub-bloque, y quien llamaba —`validar.py`— moría antes de imprimir la
+    etiqueta de su chequeo: la mutación que borraba el bloque contaba como no
+    detectada. Es la familia del hueco nº 10 de la ronda 2 de estrés, un
+    chequeo que explota en vez de hablar, y por eso el acceso pasa por aquí:
+    faltar un dato de la base es un mensaje, nunca una traza.
+    """
+    bloque = _regla_de_conjuros().get(clave)
+    if not isinstance(bloque, dict) or bloque.get("base") is None:
+        sys.exit(f"✗ `reglas/generacion_personaje.yaml → conjuros` no declara "
+                 f"`{clave}.base`: sin ese número no se puede dar la CD ni el "
+                 f"bonificador de ataque de ningún lanzador")
+    return bloque["base"]
+
+
 def cd_conjuros(aptitud_mod, pb):
-    return 8 + aptitud_mod + pb
+    return _base_de_conjuros("cd_salvacion") + aptitud_mod + pb
 
 
 def bonif_ataque_conjuros(aptitud_mod, pb):
-    return aptitud_mod + pb
+    return _base_de_conjuros("bonificador_ataque") + aptitud_mod + pb
 
 
 # ── Espacios de conjuro ───────────────────────────────────────────────────

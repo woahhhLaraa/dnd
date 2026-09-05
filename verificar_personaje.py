@@ -39,6 +39,8 @@ import pathlib
 import re
 import sys
 
+import yaml
+
 import calculo
 import efectos
 import buscar
@@ -1231,6 +1233,23 @@ def verificar_pg_por_nivel(ficha, inf):
 
 
 def main():
+    if len(sys.argv) == 3 and sys.argv[1] == "--datos-crudos":
+        # La ficha SIN su bloque `calculado`, para el mandato «el calculista»
+        # de `PLAN_ESTRES.md`.
+        #
+        # Existe porque la primera tanda (2026-09-05) lo pidió y no se pudo
+        # cumplir: los datos crudos y el bloque `calculado` viven en el MISMO
+        # fichero, así que leer la ficha es ver los números. Los dos agentes
+        # lo declararon solos —el sobre cerrado funcionando—, pero sus
+        # derivaciones dejaron de valer como segunda transcripción: una
+        # derivación anclada al número que ya se vio no es independiente, por
+        # honesta que sea. La ceguera no se pide, se REPARTE.
+        ficha = cargar(sys.argv[2])
+        if ficha is None:
+            sys.exit(f"✗ no se pudo leer {sys.argv[2]}")
+        ficha.pop("calculado", None)
+        print(yaml.safe_dump(ficha, allow_unicode=True, sort_keys=False))
+        return 0
     if len(sys.argv) == 3 and sys.argv[1] == "--calcular":
         ficha = cargar(sys.argv[2])
         if ficha is None:
@@ -1243,7 +1262,7 @@ def main():
             print(f"  {k}: {v}")
         return 0
     if len(sys.argv) != 2:
-        sys.exit("Uso: python3 verificar_personaje.py [--calcular] "
+        sys.exit("Uso: python3 verificar_personaje.py [--calcular | --datos-crudos] "
                  "personajes/<nombre>.yaml")
     ruta = sys.argv[1]
     ficha = cargar(ruta)

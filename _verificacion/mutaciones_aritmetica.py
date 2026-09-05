@@ -26,6 +26,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from _arnes import principal, sust                     # noqa: E402
 
 CHEQUEOS = ("validar_mejoras_de_dote", "validar_atributos_basicos",
+            "validar_conjuros_cd",
             "validar_generacion", "validar_competencias_clase",
             "validar_ataques")
 
@@ -285,6 +286,41 @@ def at_texto_sin_ataque(r):
             "solo mira los conjuros cuyo texto habla de atacar")
 
 
+# ── CD de conjuros (auditoría 2026-09-05) ────────────────────────────────
+# La fórmula entró en la base viniendo de `calculo.py`, donde estaba cableada
+# con su cita en un comentario. Lo destapó el mandato «el calculista»: dos
+# agentes independientes pararon en el mismo sitio porque la base no la
+# definía. Traerla no basta — hay que impedir que las dos copias que ahora
+# conviven DENTRO del registro (`base:` y su `formula:`) puedan divergir.
+
+def cd_base_cambiada(r):
+    sust(r, GEN, "    base: 8\n", "    base: 10\n")
+    return ("el `base` de la CD de conjuros pasa a 10 y su `formula` sigue "
+            "diciendo «8 +»: dos copias del mismo número sin comparar")
+
+
+def cd_sin_pagina(r):
+    sust(r, GEN, "  pagina: {pdf: 240, libro: 238}\n", "")
+    return "la regla de la CD pierde su cita de página"
+
+
+def cd_bloque_borrado(r):
+    """Si la base deja de declararla, `calculo` tiene que NEGARSE, no volver
+    a un valor por defecto: ese es todo el punto de haberla traído."""
+    sust(r, GEN, "  cd_salvacion:\n", "  cd_salvacion_renombrada:\n")
+    return "desaparece `conjuros.cd_salvacion` de la base"
+
+
+def n_formula_reescrita(r):
+    """CONTROL NEGATIVO: la prosa puede redactarse de otro modo mientras siga
+    conteniendo el número. Lo que se exige es que las dos copias coincidan,
+    no una redacción concreta."""
+    sust(r, GEN,
+         'formula: "8 + modificador de aptitud mágica + bonificador por competencia"',
+         'formula: "8 + mod. de aptitud mágica + bonif. por competencia"')
+    return "la fórmula redactada de otra forma, con el mismo 8: es legal"
+
+
 BLOQUES = [
     ("MEJORAS DE DOTE · la deuda del 2026-08-31", "mejoras de dote",
      [md_prosa_sin_estructura, md_estructura_sin_prosa, md_ida_y_vuelta_rota,
@@ -306,6 +342,9 @@ BLOQUES = [
      [cc_dado_golpe_inventado, cc_dado_incoherente_con_la_multiclase, cc_campo_ausente,
       cc_habilidad_inventada],
      [cc_herramientas_vacias]),
+    ("CD DE CONJUROS", "CD de conjuros",
+     [cd_base_cambiada, cd_sin_pagina, cd_bloque_borrado],
+     [n_formula_reescrita]),
     ("ATAQUES DE CONJURO", "ataques de conjuro",
      [at_cuerpo_a_cuerpo_mal_etiquetado, at_directo_sin_tiradas,
       at_ataque_a_distancia_movido],
