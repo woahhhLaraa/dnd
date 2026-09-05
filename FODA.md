@@ -204,7 +204,7 @@ Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
    El bloque B del Plan 18 añadió tres suites: `mutaciones_aritmetica` 40/40 (7
    chequeos, empezando por `mejoras_de_dote`, que era deuda del mismo día; las
    cuatro últimas las trajo la CD de conjuros, fase 1 de `PLAN_20_AUDITORIA.md`),
-   `mutaciones_contenido` 49/49 (11) y `mutaciones_referencias` 10/10 (3). La
+   `mutaciones_contenido` 55/55 (11) y `mutaciones_referencias` 10/10 (3). La
    cifra **ya no se cuenta a mano**: la cuenta `censo.py`, que descubre los
    chequeos del AST de `validar.py` y las suites por patrón.
 

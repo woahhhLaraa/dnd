@@ -85,9 +85,7 @@ derivadas:
 # Deuda ENUMERADA, no permiso: `origenes()` no revienta por ellos, pero el
 # censo los cuenta uno a uno con su motivo. **Solo puede vaciarse**, y un
 # `.yaml` nuevo sin clasificar sigue poniendo el censo en rojo.
-pendientes:
-  - ruta: "equipo/municion.yaml"
-    motivo: "no lo valida nadie: `validar_equipo` lleva sus cuatro ficheros escritos a mano y este se quedó fuera (fase 2.4 de PLAN_20_AUDITORIA.md)"
+pendientes: []
 
 fuentes:
   - patron: "especies/especies.yaml"
@@ -121,6 +119,8 @@ excluidos:
     motivo: "catálogo de armas: daño, propiedades y maestrías. No modifica ninguna variable calculable del personaje (pg_max, ca, velocidad); el daño de un ataque no es una de ellas"
   - ruta: "equipo/aventureros.yaml"
     motivo: "equipo de aventurero y paquetes: peso y precio. No concede nada calculable"
+  - ruta: "equipo/municion.yaml"
+    motivo: "tabla de munición: cantidad, peso, precio y a qué armas alimenta. No modifica ninguna variable calculable. Lo valida `validar_equipo` desde la fase 2.4, con sus referencias cruzadas a `armas.yaml` y `aventureros.yaml`"
   - ruta: "equipo/herramientas.yaml"
     motivo: "herramientas de artesano y sus usos. Las competencias que conceden se contrastan en `validar_competencias_clase`, no son efectos"
   - ruta: "clases/barbaro.yaml"

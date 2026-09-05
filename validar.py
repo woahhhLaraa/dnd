@@ -610,10 +610,147 @@ def validar_dotes():
 
     return f"dotes ({total})", err, warn
 
+# ── Los validadores de `equipo/`, uno por fichero ────────────────────────
+# Hasta el 2026-09-05 esto era un bloque con la tupla
+# `("armas.yaml", "armaduras.yaml", "herramientas.yaml", "aventureros.yaml")`
+# escrita a mano, y `municion.yaml` —que existe desde el 2026-08-19— **no lo
+# validaba nadie**. Es el patrón del espiral otra vez: una lista a mano que se
+# queda corta y nadie se entera.
+#
+# Ahora los ficheros se DESCUBREN del directorio y este mapa tiene que
+# cubrirlos: uno sin validador es un error, y un validador que apunte a un
+# fichero que ya no existe, también. La lista no puede quedarse corta porque
+# no es la lista: es la comprobación.
+
+def _eq_armas(data, err, warn):
+    props = set(data.get("propiedades", {}))                      # noqa: F841
+    maestrias = {k.capitalize() for k in data.get("propiedades_de_maestria", {})}
+    n = 0
+    for grupo in ("armas_cuerpo_a_cuerpo_sencillas", "armas_a_distancia_sencillas",
+                  "armas_cuerpo_a_cuerpo_marciales", "armas_a_distancia_marciales"):
+        armas = data.get(grupo, [])
+        n += len(armas)
+        for a in armas:
+            if not a.get("precio"):
+                err.append(f"armas.yaml / {a.get('nombre')}: sin precio")
+            if not a.get("maestria"):
+                err.append(f"armas.yaml / {a.get('nombre')}: sin maestría")
+            elif a["maestria"] not in maestrias:
+                err.append(f"armas.yaml / {a.get('nombre')}: maestría "
+                           f"'{a['maestria']}' no definida en propiedades_de_maestria")
+    return n
+
+
+def _eq_armaduras(data, err, warn):
+    n = 0
+    for grupo in ("armaduras_ligeras", "armaduras_medias", "armaduras_pesadas", "escudos"):
+        filas = data.get(grupo, {}).get("tabla", [])
+        n += len(filas)
+        for a in filas:
+            if not a.get("ca"):
+                err.append(f"armaduras.yaml / {a.get('nombre')}: sin CA")
+            if not a.get("precio"):
+                err.append(f"armaduras.yaml / {a.get('nombre')}: sin precio")
+    return n
+
+
+def _eq_herramientas(data, err, warn):
+    n = 0
+    for grupo in ("herramientas_de_artesano", "otras_herramientas"):
+        filas = data.get(grupo, [])
+        n += len(filas)
+        for h in filas:
+            if not h.get("utilizar"):
+                err.append(f"herramientas.yaml / {h.get('nombre')}: sin "
+                           f"descripción de 'utilizar'")
+    return n
+
+
+def _eq_aventureros(data, err, warn):
+    tabla = data.get("tabla_peso_precio", [])
+    desc = data.get("descripciones", {})
+    nombres_tabla = {re.sub(r"\s*\(.*?\)\s*$", "", o["nombre"]).strip() for o in tabla}
+    # objetos con reglas propias que deberían tener descripción (variable de
+    # precio => probablemente mecánico)
+    sin_desc = sorted(n for n in nombres_tabla
+                      if n not in desc and n not in
+                      {"Canalizador arcano", "Canalizador druídico", "Munición",
+                       "Símbolo sagrado"})
+    if len(sin_desc) > 5:
+        warn.append(f"aventureros.yaml: {len(sin_desc)} objetos de la tabla sin "
+                    f"descripción propia (posibles genéricos, revisar si hace falta)")
+    return len(tabla)
+
+
+def _eq_municion(data, err, warn):
+    """Fase 2.4 de `PLAN_20_AUDITORIA.md`. No lo validaba NADIE.
+
+    Sus cinco registros son casi todos referencias cruzadas —a un recipiente de
+    `aventureros.yaml` y a las armas de `armas.yaml` que gastan esa munición—,
+    que es justo el dato que se pudre en silencio cuando alguien renombra al
+    otro lado. Y la propiedad «munición» del arma es lo que hace que la fila
+    tenga sentido: sin ella, la referencia apunta a un arma que no consume nada.
+    """
+    filas = data.get("municion") or []
+    if not filas:
+        err.append("municion.yaml no declara `municion:` o está vacío")
+        return 0
+    if not (data.get("fuente") or {}).get("paginas_pdf"):
+        err.append("municion.yaml no cita página: sin cita, un dato no entra")
+    if not data.get("regla"):
+        err.append("municion.yaml no trae la `regla:` de la tabla «Munición»")
+
+    av = yaml.safe_load((B / "equipo/aventureros.yaml").read_text(encoding="utf-8"))
+    recipientes = {re.sub(r"\s*\(.*?\)\s*$", "", o["nombre"]).strip()
+                   for o in (av.get("tabla_peso_precio") or [])}
+    ar = yaml.safe_load((B / "equipo/armas.yaml").read_text(encoding="utf-8"))
+    armas = {}
+    for grupo in ("armas_cuerpo_a_cuerpo_sencillas", "armas_a_distancia_sencillas",
+                  "armas_cuerpo_a_cuerpo_marciales", "armas_a_distancia_marciales"):
+        for a in ar.get(grupo, []):
+            armas[a["nombre"]] = a
+
+    for f in filas:
+        nom = f.get("nombre")
+        for campo in ("cantidad", "peso_kg", "precio"):
+            if f.get(campo) is None:
+                err.append(f"municion.yaml / {nom}: sin `{campo}`")
+        rec = f.get("recipiente_objeto")
+        if not rec:
+            err.append(f"municion.yaml / {nom}: sin `recipiente_objeto`")
+        elif rec not in recipientes:
+            err.append(f"municion.yaml / {nom}: su recipiente {rec!r} no está "
+                       f"en la tabla de equipo/aventureros.yaml")
+        if not f.get("armas"):
+            err.append(f"municion.yaml / {nom}: no dice qué armas la gastan")
+        for a in (f.get("armas") or []):
+            if a not in armas:
+                err.append(f"municion.yaml / {nom}: el arma {a!r} no está en "
+                           f"equipo/armas.yaml")
+            elif "munici" not in str(armas[a].get("propiedades") or "").lower():
+                err.append(f"municion.yaml / {nom}: {a!r} no tiene la propiedad "
+                           f"«munición» en equipo/armas.yaml, así que no gasta "
+                           f"munición")
+    return len(filas)
+
+
+_VALIDADORES_DE_EQUIPO = {
+    "armas.yaml": _eq_armas,
+    "armaduras.yaml": _eq_armaduras,
+    "herramientas.yaml": _eq_herramientas,
+    "aventureros.yaml": _eq_aventureros,
+    "municion.yaml": _eq_municion,
+}
+
+
 def validar_equipo():
     """Comprueba los YAML de equipo/: que carguen, que cada arma/armadura/
-    herramienta/objeto tenga precio y (donde aplique) página o descripción,
-    y que las tablas de armas citen solo propiedades y maestrías definidas."""
+    herramienta/objeto/munición tenga sus campos, y que las referencias
+    cruzadas entre ficheros resuelvan.
+
+    La lista de ficheros se DERIVA del directorio: uno sin validador es un
+    error, no un salto silencioso.
+    """
     err, warn = [], []
     d = B / "equipo"
     if not d.exists():
@@ -621,67 +758,28 @@ def validar_equipo():
     if yaml is None:
         return "equipo", ["PyYAML no disponible: no se pudo validar equipo/"], []
 
-    esperados = ("armas.yaml", "armaduras.yaml", "herramientas.yaml", "aventureros.yaml")
+    hallados = sorted(p.name for p in d.glob("*.yaml"))
+    for n in hallados:
+        if n not in _VALIDADORES_DE_EQUIPO:
+            err.append(f"equipo/{n} no lo valida nadie: añade su validador a "
+                       f"`_VALIDADORES_DE_EQUIPO`. Así vivió `municion.yaml` "
+                       f"desde el 2026-08-19, porque la lista iba a mano")
+    for n in _VALIDADORES_DE_EQUIPO:
+        if n not in hallados:
+            err.append(f"hay un validador para equipo/{n} y ese fichero no "
+                       f"existe: declaración muerta")
+
     total = 0
-    for fn in esperados:
-        f = d / fn
-        if not f.exists():
-            err.append(f"falta equipo/{fn}")
+    for n in hallados:
+        fn = _VALIDADORES_DE_EQUIPO.get(n)
+        if not fn:
+            # El error ya está en `err` unas líneas arriba, con su nombre y su
+            # explicación; repetirlo aquí sería decirlo dos veces.
+            continue  # TOLERADO: lo avisa el bucle de ficheros sin validador
+        total += fn(yaml.safe_load((d / n).read_text(encoding="utf-8")), err, warn)
 
-    armas_f = d / "armas.yaml"
-    if armas_f.exists():
-        data = yaml.safe_load(armas_f.read_text(encoding="utf-8"))
-        props = set(data.get("propiedades", {}))
-        maestrias = {k.capitalize() for k in data.get("propiedades_de_maestria", {})}
-        for grupo in ("armas_cuerpo_a_cuerpo_sencillas", "armas_a_distancia_sencillas",
-                      "armas_cuerpo_a_cuerpo_marciales", "armas_a_distancia_marciales"):
-            armas = data.get(grupo, [])
-            total += len(armas)
-            for a in armas:
-                if not a.get("precio"):
-                    err.append(f"armas.yaml / {a.get('nombre')}: sin precio")
-                if not a.get("maestria"):
-                    err.append(f"armas.yaml / {a.get('nombre')}: sin maestría")
-                elif a["maestria"] not in maestrias:
-                    err.append(f"armas.yaml / {a.get('nombre')}: maestría '{a['maestria']}' no definida en propiedades_de_maestria")
+    return f"equipo ({total} entradas, {len(hallados)} ficheros)", err, warn
 
-    armaduras_f = d / "armaduras.yaml"
-    if armaduras_f.exists():
-        data = yaml.safe_load(armaduras_f.read_text(encoding="utf-8"))
-        for grupo in ("armaduras_ligeras", "armaduras_medias", "armaduras_pesadas", "escudos"):
-            filas = data.get(grupo, {}).get("tabla", [])
-            total += len(filas)
-            for a in filas:
-                if not a.get("ca"):
-                    err.append(f"armaduras.yaml / {a.get('nombre')}: sin CA")
-                if not a.get("precio"):
-                    err.append(f"armaduras.yaml / {a.get('nombre')}: sin precio")
-
-    herr_f = d / "herramientas.yaml"
-    if herr_f.exists():
-        data = yaml.safe_load(herr_f.read_text(encoding="utf-8"))
-        for grupo in ("herramientas_de_artesano", "otras_herramientas"):
-            filas = data.get(grupo, [])
-            total += len(filas)
-            for h in filas:
-                if not h.get("utilizar"):
-                    err.append(f"herramientas.yaml / {h.get('nombre')}: sin descripción de 'utilizar'")
-
-    avent_f = d / "aventureros.yaml"
-    if avent_f.exists():
-        data = yaml.safe_load(avent_f.read_text(encoding="utf-8"))
-        tabla = data.get("tabla_peso_precio", [])
-        desc = data.get("descripciones", {})
-        total += len(tabla)
-        nombres_tabla = {re.sub(r"\s*\(.*?\)\s*$", "", o["nombre"]).strip() for o in tabla}
-        # objetos con reglas propias que deberían tener descripción (variable de precio => probablemente mecánico)
-        sin_desc = sorted(n for n in nombres_tabla
-                           if n not in desc and n not in
-                           {"Canalizador arcano", "Canalizador druídico", "Munición", "Símbolo sagrado"})
-        if len(sin_desc) > 5:
-            warn.append(f"aventureros.yaml: {len(sin_desc)} objetos de la tabla sin descripción propia (posibles genéricos, revisar si hace falta)")
-
-    return f"equipo ({total} entradas)", err, warn
 
 CARACTERISTICAS = {"Fuerza", "Destreza", "Constitución", "Inteligencia", "Sabiduría", "Carisma"}
 ABREV = {"Fuerza": "fue", "Destreza": "des", "Constitución": "con",

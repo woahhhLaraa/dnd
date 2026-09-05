@@ -303,10 +303,33 @@ guardián sin guardián: ninguna suite mutaba `verificar_chequeos.py`.
 
 ## Fase 2 · El punto ciego de `equipo/`, sin rojo a medias
 
-> **Estado (2026-09-05): ✅ 2.1, ✅ 2.2, ✅ 2.3 · pendientes 2.4 y 2.5.**
+> **✅ FASE 2 CERRADA (2026-09-05): 2.1, 2.2, 2.3, 2.4 y 2.5.**
 > Cifras REMEDIDAS, no las predichas: fila 1 de 49 a **54**, fila 7 de 519 a
-> **532**, total de 893 a **912**. `mutaciones_censo` de 23/23 a **26/26**.
-> `equipo/municion.yaml` queda como el único `pendiente`, que es 2.4.
+> **532**, total de 893 a **912**. `mutaciones_censo` 23/23 → **26/26**,
+> `mutaciones_contenido` 49/49 → **55/55**, `mutaciones_aritmetica` 36/36 →
+> **40/40**. `pendientes` queda vacía: ya no hay ningún fichero de regla sin
+> clasificar.
+>
+> **2.4 · `municion.yaml`.** Existía desde el 2026-08-19 y no lo validaba
+> nadie: `validar_equipo` llevaba sus cuatro ficheros en una tupla escrita a
+> mano. Ahora se DESCUBREN del directorio y un `.yaml` sin validador es error
+> —con su mutación, que es la que habría cazado el defecto original—. Sus
+> cinco registros son casi todos referencias cruzadas (a un recipiente de
+> `aventureros.yaml`, a las armas de `armas.yaml` que gastan esa munición), y
+> el chequeo exige además que esas armas tengan de verdad la propiedad
+> «munición»: una referencia que resuelve contra un arma que no gasta nada
+> sigue siendo una fila sin sentido.
+>
+> **2.5 · el ancla.** La cifra del censo la prometían `CONTINUAR.md` y
+> `FODA.md` y **no la contrastaba nadie**, siendo la que más se mueve del
+> repositorio: en una sola sesión pasó de 867 a 892, 893, 898, 911 y 912, y
+> cada vez había que acordarse de tocar dos documentos. Acordarse no es un
+> mecanismo. `verificar_documentos.py` la ancla ahora, con las pendientes.
+>
+> **Y el mecanismo de esta mañana cazó una rama mía:** el bucle nuevo de
+> `validar_equipo` traía un `continue` mudo, y `verificar_chequeos.py` lo sacó
+> como rama silenciosa NUEVA a las pocas horas de que la huella dejara de
+> colapsar gemelas. Declarado con quién lo cubre.
 >
 > **Y un hallazgo que no estaba en el plan, encontrado al escribir 2.2:**
 > `calculo.ca()` cableaba el `10` de la CA sin armadura mientras
@@ -464,8 +487,8 @@ Fase 1  aritmética           ✅ 1.1 mutaciones_motor  ✅ 1.2 _origen  ✅ 1.3
                                 🔴 tanda A CIEGAS por relanzar
                              ✅ 1.5 el KeyError propio
                              ✅ 1.6 la huella del guardián del silencio
-Fase 2  equipo/              ✅ 2.1 directorios  ✅ 2.2 derivadas  ✅ 2.3 control
-                             🔴 2.4 municion → 🔴 2.5 ancla
+Fase 2  equipo/              ✅ CERRADA (2.1 directorios · 2.2 derivadas ·
+                             2.3 control · 2.4 municion · 2.5 ancla)
 Fase 3  fila 9              primero la fila con las 34; luego cada grupo, viéndola bajar
 Fase 4  vocabularios        necesita que la fila 9 haya declarado los `for clave in (...)`
 ```
@@ -474,10 +497,10 @@ Fase 4  vocabularios        necesita que la fila 9 haya declarado los `for clave
 plan la llamaba 9 suponiendo que la de constantes llegaría antes; llega
 después). La fase 3 creará la **fila 9**.
 
-**Lo siguiente, por orden:** cerrar la **fase 2** con 2.4 (`municion.yaml`, que
-no lo valida nadie) y 2.5 (anclar la cifra del censo en
-`verificar_documentos.py`); luego la **fase 3**. Y seguir bajando la fila 8 de
-4/25 con más tandas a ciegas del calculista, que ya funcionan.
+**Lo siguiente, por orden:** la **fase 3** (la fila de constantes de dominio en
+Python, con las 34 medidas), y seguir bajando la fila 8 de 4/25 con más tandas
+a ciegas del calculista, que ya funcionan. La fase 4 va después de la 3, porque
+necesita que la fila de constantes declare los `for clave in (...)`.
 
 Las fases **1 y 2 son independientes** y pueden ir en paralelo (ficheros
 disjuntos), salvo 1.3, que quiere los efectos derivados de 2.2: si van en

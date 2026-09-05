@@ -288,6 +288,53 @@ def eq_arma_sin_precio(r):
     return "un arma sin precio"
 
 
+# ── `municion.yaml`: el fichero que no validaba nadie (fase 2.4) ─────────
+# Existía desde el 2026-08-19 y `validar_equipo` llevaba sus cuatro ficheros
+# escritos a mano, así que sus cinco registros —casi todos referencias
+# cruzadas a `armas.yaml` y `aventureros.yaml`— no los miraba nada.
+
+def eq_municion_arma_inexistente(r):
+    sust(r, "equipo/municion.yaml", 'armas: ["Arco corto", "Arco largo"]',
+         'armas: ["Arco cortísimo", "Arco largo"]')
+    return "una munición que dice gastarla un arma que no está en `armas.yaml`"
+
+
+def eq_municion_arma_sin_propiedad(r):
+    """Peor que la anterior porque el arma SÍ existe: la referencia resuelve y
+    aun así la fila no tiene sentido, porque esa arma no gasta munición."""
+    sust(r, "equipo/municion.yaml", 'armas: ["Arco corto", "Arco largo"]',
+         'armas: ["Espada larga", "Arco largo"]')
+    return ("una munición asignada a un arma real que NO tiene la propiedad "
+            "«munición»")
+
+
+def eq_municion_recipiente_inexistente(r):
+    sust(r, "equipo/municion.yaml", 'recipiente_objeto: "Aljaba"',
+         'recipiente_objeto: "Carcaj"')
+    return "un recipiente que no está en la tabla de `aventureros.yaml`"
+
+
+def eq_municion_sin_cita(r):
+    sust(r, "equipo/municion.yaml", '  paginas_pdf: "222-235"',
+         '  paginas_pdf_renombrado: "222-235"')
+    return "`municion.yaml` sin cita de página"
+
+
+def eq_fichero_sin_validador(r):
+    """**La mutación que habría cazado el defecto original.** Un `.yaml` nuevo
+    en `equipo/` que ningún validador mira: así vivió `municion.yaml`."""
+    (r / "equipo" / "monturas.yaml").write_text("monturas: []\n", encoding="utf-8")
+    return "un fichero nuevo en `equipo/` que no valida ningún validador"
+
+
+def n_eq_municion_nota_reescrita(r):
+    """CONTROL NEGATIVO: la prosa de la nota es libre."""
+    sust(r, "equipo/municion.yaml",
+         'nota: "El dardo también existe como arma arrojadiza propia',
+         'nota: "Ojo: el dardo también existe como arma arrojadiza propia')
+    return "la nota de los dardos redactada de otra forma"
+
+
 def eq_peso_retocado(r):
     sust(r, "equipo/armaduras.yaml",
          '- {nombre: "Armadura acolchada", ca: "11 + mod. Des", fuerza: null, sigilo: Desventaja, peso_kg: 4',
@@ -410,8 +457,11 @@ BLOQUES = [
      [rc_nivel_discrepante, rc_rasgo_sobrante, rc_marcador_transcrito,
       rc_clase_discrepante], [rc_desc_reescrita]),
     ("EQUIPO", "equipo",
-     [eq_maestria_inventada, eq_armadura_sin_ca, eq_arma_sin_precio],
-     [eq_peso_retocado]),
+     [eq_maestria_inventada, eq_armadura_sin_ca, eq_arma_sin_precio,
+      eq_municion_arma_inexistente, eq_municion_arma_sin_propiedad,
+      eq_municion_recipiente_inexistente, eq_municion_sin_cita,
+      eq_fichero_sin_validador],
+     [eq_peso_retocado, n_eq_municion_nota_reescrita]),
     ("HECHIZOS", "hechizos",
      [he_nivel_invalido, he_sin_escuela], [he_descripcion_retocada]),
     ("HECHIZOS ⊆ CLASES", "hechizos ⊆ clases",

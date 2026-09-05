@@ -113,7 +113,8 @@ solución a los "parches puntuales" en vez de seguir apilando verificadores.**
 >   `calculo.py` con su cita en un comentario de Python.
 > - **Fase 1.5** · el `KeyError` que ese mismo cierre introdujo — un chequeo
 >   que explota en vez de hablar, la familia del hueco nº 10 de la ronda 2,
->   reaparecida el mismo día. `mutaciones_aritmetica` a 36/36.
+>   reaparecida el mismo día. Cerrado, y la suite de aritmética volvió a
+>   verde (`mutaciones_aritmetica` 40/40 hoy, con la CA base ya dentro).
 > - **Fase 1.6** · `verificar_chequeos.py` decía «ninguna rama silenciosa
 >   nueva» con 67 silenciosas y una línea base de 64: su huella ignoraba la
 >   condición y 67 ramas colapsaban en 41. El guardián del silencio dejaba
@@ -126,15 +127,19 @@ solución a los "parches puntuales" en vez de seguir apilando verificadores.**
 >   `calculo.ca()` cableaba el `10` de la CA sin armadura mientras la base la
 >   declaraba y `efectos.py` la leía — dos implementaciones sin nadie
 >   comparándolas.
-> - **Fases 2.1, 2.2 y 2.3** · `equipo/` deja de ser invisible. Los
->   DIRECTORIOS de regla también se descubren ahora, `armaduras.yaml` entra
->   como fuente `derivada` (sus 13 registros al censo) y el control negativo
->   que exigía que el censo NO se enterara **se invierte, no se borra**.
+> - **Fase 2 CERRADA** · `equipo/` deja de ser invisible. Los DIRECTORIOS de
+>   regla también se descubren ahora; `armaduras.yaml` entra como fuente
+>   `derivada` (sus 13 registros al censo); el control negativo que exigía que
+>   el censo NO se enterara **se invierte, no se borra**; `municion.yaml`
+>   —sin validar desde el 2026-08-19 porque `validar_equipo` llevaba sus
+>   ficheros a mano— ya se valida, con sus referencias cruzadas; y la cifra
+>   del censo queda anclada, que es la que más se mueve y la que nadie
+>   contrastaba.
 >
-> **Lo siguiente:** cerrar la fase 2 con `municion.yaml` (no lo valida nadie)
-> y el ancla de la cifra del censo; luego la fase 3. `subir_nivel.py` y
-> `generar_ficha.py` siguen sin mirarse con esta lupa: el punto 2 de aquí
-> abajo sigue vigente para ellos.
+> **Lo siguiente:** la fase 3 (la fila de constantes de dominio en Python) y
+> más tandas a ciegas del calculista para bajar la fila 8 de 4/25.
+> `subir_nivel.py` y `generar_ficha.py` siguen sin mirarse con esta lupa: el
+> punto 2 de aquí abajo sigue vigente para ellos.
 
 ### Por qué esto va primero
 

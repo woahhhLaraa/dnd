@@ -56,9 +56,18 @@ def main():
     val = _salida("validar.py")
     srd = _salida("verificar_srd.py")
     fnd = _salida("verificar_foundry.py")
+    cen = _salida("censo.py")
 
     real = {}
     real["srd"], _ = _n(r"(\d+) valores contrastados contra el SRD", srd, "SRD")
+    # ── El censo, anclado (fase 2.5 del PLAN_20 — 2026-09-05) ────────────
+    # `CONTINUAR.md` y `FODA.md` prometían una cifra de censo que **nadie
+    # contrastaba**: el mismo modo de fallo que este script existe para cazar,
+    # en la cifra que más se mueve de todo el repositorio. En una sola sesión
+    # pasó de 867 a 892, 893, 898, 911 y 912, y cada vez había que acordarse
+    # de tocar dos documentos a mano. Acordarse no es un mecanismo.
+    real["censo"], _ = _n(r"(\d+) unidades censadas", cen, "unidades censadas")
+    real["pendientes"], _ = _n(r"(\d+) pendientes declaradas", cen, "pendientes")
     real["foundry"], _ = _n(r"(\d+) valores contrastados · ", fnd, "Foundry")
     for clave, patron in (("dados", r"dados \((\d+) tiradas\)"),
                           # La etiqueta cambió el 2026-09-02 al borrar las
@@ -127,6 +136,25 @@ def main():
             fallos += not ok
             print(f" {'✅' if ok else '❌'} CONTINUAR.md dice {dice:>4} en "
                   f"«{clave}» · la realidad da {es}")
+
+    # 2 bis. El censo, en los dos documentos que lo prometen.
+    for nombre, txt, patron in (
+            ("CONTINUAR.md", cont,
+             r"censo\.py\s+#\s*(\d+) unidades · 0 sin declarar · (\d+) pendientes"),
+            ("FODA.md", foda,
+             r"\*\*(\d+) unidades censadas, 0 sin\s+declarar, (\d+) pendientes")):
+        mc = re.search(patron, txt)
+        if not mc:
+            print(f" ❌ {nombre} ya no promete la cifra del censo · la realidad "
+                  f"da {real['censo']} unidades y nadie la contrasta")
+            fallos += 1
+            continue
+        for i, clave in enumerate(("censo", "pendientes")):
+            dice, es = int(mc.group(i + 1)), real[clave]
+            ok = dice == es
+            fallos += not ok
+            print(f" {'✅' if ok else '❌'} {nombre} dice {dice} en «{clave}» · "
+                  f"la realidad da {es}")
 
     m2 = re.search(r"\*{0,2}(\d+) mejoras de dote", cont)
     if not m2:

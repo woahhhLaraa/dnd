@@ -193,12 +193,18 @@ def u_directorio_nuevo_sin_declarar(r):
             "`fuentes_de_efectos.yaml → directorios`")
 
 
-def m_pendiente_muerto(r):
-    """Una declaración de deuda que apunta a un fichero borrado: sube la cuenta
-    de «saldada» sin saldar nada. Fase 0 aplicada a los directorios."""
+def m_clasificacion_de_equipo_muerta(r):
+    """Una declaración que apunta a un fichero borrado: da por mirado lo que
+    ya no existe y sube el recuento. Fase 0 aplicada a `equipo/`.
+
+    Nació el 2026-09-05 apuntando a `directorios.pendientes.ficheros`, la lista
+    con la que `equipo/` entró como deuda declarada. La fase 2.4 vació esa
+    lista —`municion.yaml` ya lo valida `validar_equipo`— y el fichero pasó a
+    `excluidos` con su motivo. La mutación sigue siendo la misma y sigue
+    cazando: lo que cambió es qué declaración se queda muerta."""
     (r / "equipo" / "municion.yaml").unlink()
-    return ("un fichero declarado en `directorios.pendientes.ficheros` que ya "
-            "no existe: declaración muerta")
+    return ("un fichero de `equipo/` clasificado en el manifiesto que ya no "
+            "existe: declaración muerta")
 
 
 def n_rasgo_no_automatizado(r):
@@ -327,7 +333,7 @@ DEBEN = [u_fichero_de_regla, u_variable_calculable, u_columna_de_clase,
          m_excluido_muerto, m_deuda_muerta,
          u_efecto_nuevo_sin_carga,
          u_fichero_de_equipo_sin_clasificar, u_directorio_nuevo_sin_declarar,
-         m_pendiente_muerto]
+         m_clasificacion_de_equipo_muerta]
 NO_DEBEN = [n_rasgo_no_automatizado, n_yaml_en_directorio_no_de_regla,
             n_columna_ya_contrastada, n_suite_sin_chequeos, n_exencion_con_motivo]
 # Mutaciones que NO deben hacer fallar al censo pero SÍ subir su recuento.
