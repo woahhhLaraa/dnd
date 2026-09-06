@@ -418,26 +418,60 @@ def clases_por_nombre():
 # ── Estado: qué condiciones cumple el personaje ──────────────────────────
 
 
+# `armaduras` no es una clave de `equipo/armaduras.yaml`: es el pseudogrupo
+# «cualquier grupo de armadura», que `grupos_de_armadura()` ya sabe formar.
+_PSEUDOGRUPO_TODAS_LAS_ARMADURAS = "armaduras"
+
+
+def condiciones_decidibles():
+    """`{condicion: (grupo_resuelto, negada)}` — y falla si alguna no se puede
+    decidir.
+
+    Fase 4 del PLAN_20. `estado_de_equipo()` devolvía las seis condiciones
+    ESCRITAS A MANO, así que una séptima en el vocabulario no la habría
+    devuelto nadie: `aplica()` la habría leído como falsa y **el efecto que la
+    pidiera nunca se habría aplicado, sin ruido**. Medido antes de cambiarlo:
+    añadir una condición nueva dejaba `validar.py` en «0 errores».
+    """
+    vocab = cargar_vocabulario()
+    grupos_arm, _esc = grupos_de_armadura()
+    tablas = set(grupos_arm) | set(_esc)
+    salida = {}
+    for nombre, d in (vocab["condiciones"] or {}).items():
+        if not isinstance(d, dict) or "grupo" not in d or "negada" not in d:
+            raise ErrorDeEfectos(
+                f"la condición «{nombre}» de `reglas/efectos.yaml` no declara "
+                f"`grupo` y `negada`, así que nadie sabe decidirla: un efecto "
+                f"que la pidiera no se aplicaría nunca, y en silencio")
+        g = d["grupo"]
+        if g == _PSEUDOGRUPO_TODAS_LAS_ARMADURAS:
+            resuelto = tuple(grupos_arm)
+        elif g in tablas:
+            resuelto = (g,)
+        else:
+            raise ErrorDeEfectos(
+                f"la condición «{nombre}» se decide por el grupo {g!r}, que no "
+                f"es ninguna tabla de `equipo/armaduras.yaml` "
+                f"({sorted(tablas)}) ni el pseudogrupo "
+                f"«{_PSEUDOGRUPO_TODAS_LAS_ARMADURAS}»")
+        salida[nombre] = (resuelto, bool(d["negada"]))
+    return salida
+
+
 def estado_de_equipo(refs):
-    """Deduce las condiciones del equipo de la ficha. Lo deduce el código a
-    partir de `equipo/armaduras.yaml`, no el LLB a ojo."""
-    d = yaml.safe_load((B / "equipo/armaduras.yaml").read_text(encoding="utf-8"))
-    nombres = {a["nombre"].lower() for g in grupos_de_armadura()[0] for a in d[g]["tabla"]}
-    # `sin_armadura_pesada` (bloque A2, 2026-09-02): el Bárbaro y el Explorador
-    # conservan su +3 m con armadura ligera o media y solo lo pierden con la
-    # pesada. Qué armaduras son pesadas se LEE del grupo correspondiente, que
-    # es el mismo sitio del que salen las otras condiciones.
-    pesadas = {a["nombre"].lower() for a in d["armaduras_pesadas"]["tabla"]}
-    medias = {a["nombre"].lower() for a in d["armaduras_medias"]["tabla"]}
-    escudos = {e["nombre"].lower() for e in d["escudos"]["tabla"]}
+    """Deduce las condiciones del equipo de la ficha, recorriendo el
+    vocabulario. Lo deduce el código a partir de `equipo/armaduras.yaml`, no el
+    LLM a ojo, y **las recorre todas**: una condición nueva bien declarada
+    funciona sola, sin tocar esta función."""
+    d = _leer("equipo/armaduras.yaml")
     llevados = {r.split("#")[-1].lower() for r in refs}
-    con_arm = bool(llevados & nombres)
-    con_esc = bool(llevados & escudos)
-    con_pesada = bool(llevados & pesadas)
-    return {"con_armadura": con_arm, "sin_armadura": not con_arm,
-            "con_escudo": con_esc, "sin_escudo": not con_esc,
-            "sin_armadura_pesada": not con_pesada,
-            "con_armadura_media": bool(llevados & medias)}
+
+    def lleva(grupos):
+        return any(a["nombre"].lower() in llevados
+                   for g in grupos for a in d[g]["tabla"])
+
+    return {nombre: (not lleva(grupos)) if negada else lleva(grupos)
+            for nombre, (grupos, negada) in condiciones_decidibles().items()}
 
 
 def aplica(ef, estado, vocab):
@@ -470,21 +504,125 @@ def valor_de_columna(clase_stem, columna, nivel_clase):
     raise ErrorDeEfectos(f"{d.get('clase')} no tiene nivel {nivel_clase}")
 
 
-def _num(ef, entorno):
-    """El valor de un efecto: el de su `columna` si ya vino resuelto, o el de su
-    fórmula si no.
+# ── De dónde sale el número de un efecto (fase 4 del PLAN_20) ────────────
+# `reglas/efectos.yaml → fuentes_de_valor` declara las dos formas que puede
+# tener el valor de un efecto, y hasta el 2026-09-06 **no lo leía nadie**:
+# `_num()` cableaba los dos caminos. Se podía añadir una tercera fuente al
+# vocabulario y ningún chequeo lo notaba — el término entraba en la base y no
+# lo consumía nada.
+#
+# Ahora cada fuente declarada tiene que tener su lector aquí, y cada lector
+# tiene que estar declarada su fuente. Las dos direcciones, porque el censo
+# comprueba base → código y a esto le faltaba la vuelta.
+_LECTORES_DE_VALOR = {
+    # Una `columna` trae el número tal cual lo imprime la tabla, y ahí SÍ hay
+    # decimales: «Movimiento sin armadura» del Monje vale 4,5 m en el nivel 6.
+    # Ya viene resuelto en `_valor` por `efectos_de_ficha`.
+    "columna": lambda ef, entorno: ef["_valor"],
+    # Una `formula` es aritmética ENTERA escrita a mano, y `evaluar()` rechaza
+    # decimales a propósito. Pasar la columna por el evaluador reventaba el
+    # cálculo de cualquier monje de nivel 6, 14 o 17, y no se vio hasta generar
+    # fichas de todos los niveles: la única ficha que sostenía ese efecto era
+    # de nivel 2, donde la columna vale 3.
+    "formula": lambda ef, entorno: evaluar(ef["formula"], entorno),
+}
 
-    Existe porque los dos caminos son distintos: una `formula` es aritmética
-    **entera** escrita a mano y `evaluar()` rechaza decimales a propósito; una
-    `columna` trae el número tal cual lo imprime la tabla, y ahí **sí** los hay
-    — «Movimiento sin armadura» del Monje vale 4,5 m en el nivel 6. Pasar la
-    columna por el evaluador reventaba el cálculo de cualquier monje de nivel
-    6, 14 o 17, y no se vio hasta generar fichas de todos los niveles: la única
-    ficha que sostenía el efecto era de nivel 2, donde la columna vale 3.
+
+def fuentes_de_valor():
+    """Las fuentes declaradas, contrastadas contra sus lectores. Falla si
+    alguna no tiene lector o si algún lector no está declarado."""
+    declaradas = list(cargar_vocabulario().get("fuentes_de_valor") or [])
+    sin_lector = [f for f in declaradas if f not in _LECTORES_DE_VALOR]
+    sin_declarar = [f for f in _LECTORES_DE_VALOR if f not in declaradas]
+    if sin_lector:
+        raise ErrorDeEfectos(
+            f"`reglas/efectos.yaml → fuentes_de_valor` declara "
+            f"{sin_lector} y `efectos._LECTORES_DE_VALOR` no sabe leerlas: un "
+            f"efecto que la usara se quedaría sin valor en silencio")
+    if sin_declarar:
+        raise ErrorDeEfectos(
+            f"`efectos._LECTORES_DE_VALOR` sabe leer {sin_declarar}, que "
+            f"`reglas/efectos.yaml → fuentes_de_valor` no declara: el código "
+            f"acepta más de lo que la base dice que existe")
+    return tuple(declaradas)
+
+
+def _num(ef, entorno):
+    """El valor de un efecto, leído por la fuente que EL EFECTO declara.
+
+    No por la primera que dé algo: el orden de `fuentes_de_valor` es un
+    listado, no una prioridad, y tratarlo como prioridad hacía que un efecto
+    de `columna` se leyera por la fórmula. Cada efecto declara exactamente una
+    —tener dos o ninguna es un error, no un desempate—.
     """
-    if ef.get("_valor") is not None:
-        return ef["_valor"]
-    return evaluar(ef["formula"], entorno)
+    declaradas = [f for f in fuentes_de_valor() if ef.get(f) is not None]
+    if len(declaradas) != 1:
+        raise ErrorDeEfectos(
+            f"«{ef.get('_rasgo')}» ({ef.get('_archivo')}) declara "
+            f"{len(declaradas)} fuentes de valor {declaradas or ''}, y tiene "
+            f"que declarar exactamente una de "
+            f"{list(fuentes_de_valor())}")
+    return _LECTORES_DE_VALOR[declaradas[0]](ef, entorno)
+
+
+# ── Cómo agrega cada operación (fase 4 del PLAN_20) ──────────────────────
+# El orden lo declara la base; lo que hace cada una, esto. Una operación
+# declarada en `orden_de_agregacion` sin entrada aquí es un error, y una
+# entrada de aquí que la base no declare, también: las dos direcciones.
+_AGREGADORES = {
+    "add": lambda valor, n: valor + n,
+    "mul": lambda valor, n: valor * n,
+    # `min` acota por ABAJO (gana el mayor) y `max` por ARRIBA (gana el menor).
+    # Los nombres vienen de DiceCloud y son los del vocabulario, no se cambian.
+    "min": lambda valor, n: max(valor, n),
+    "max": lambda valor, n: min(valor, n),
+    "set": lambda _valor, n: n,
+}
+
+
+@functools.lru_cache(maxsize=1)
+def operaciones_agregadas():
+    """`(orden_sin_la_semilla, operaciones_que_no_agregan)`, contrastado.
+
+    Fase 4 del PLAN_20. `orden_de_agregacion` era prosa que `agregar()` citaba
+    en su docstring y no leía —el orden vivía en el orden de los bucles—, y el
+    filtro de las que no agregan estaba cableado. Se podía añadir una
+    operación al vocabulario y nadie la consumía: sus efectos habrían pasado
+    por `agregar()` sin sumar nada, en silencio.
+    """
+    vocab = cargar_vocabulario()
+    declaradas = list(vocab["operaciones"])
+    orden = [d["op"] for d in (vocab.get("orden_de_agregacion") or [])]
+    semillas = [d["op"] for d in (vocab.get("orden_de_agregacion") or [])
+                if d.get("papel") == "semilla"]
+    no_agregan = [d["op"] for d in (vocab.get("no_se_agregan") or [])]
+
+    faltan = [o for o in declaradas if o not in orden and o not in no_agregan]
+    if faltan:
+        raise ErrorDeEfectos(
+            f"`reglas/efectos.yaml` declara las operaciones {faltan} y no dicen "
+            f"ni en qué orden se agregan (`orden_de_agregacion`) ni por qué no "
+            f"se agregan (`no_se_agregan`). Un efecto que las usara pasaría por "
+            f"`agregar()` sin hacer nada, y en silencio")
+    sobran = [o for o in orden + no_agregan if o not in declaradas]
+    if sobran:
+        raise ErrorDeEfectos(
+            f"`orden_de_agregacion`/`no_se_agregan` nombran {sobran}, que no "
+            f"están en `operaciones`: declaración muerta")
+
+    aplicables = [o for o in orden if o not in semillas]
+    sin_implementar = [o for o in aplicables if o not in _AGREGADORES]
+    if sin_implementar:
+        raise ErrorDeEfectos(
+            f"`orden_de_agregacion` incluye {sin_implementar} y "
+            f"`efectos._AGREGADORES` no sabe agregarlas")
+    sin_declarar = [o for o in _AGREGADORES if o not in aplicables]
+    if sin_declarar:
+        raise ErrorDeEfectos(
+            f"`efectos._AGREGADORES` sabe agregar {sin_declarar}, que la base "
+            f"no pone en `orden_de_agregacion`: el código haría algo que la "
+            f"regla escrita no dice")
+    return tuple(aplicables), tuple(no_agregan)
 
 
 def agregar(variable, efectos, base, entorno, eleccion=None, decimal=False):
@@ -494,11 +632,12 @@ def agregar(variable, efectos, base, entorno, eleccion=None, decimal=False):
     toma el máximo, aquí se EXIGE la elección, porque eso es lo que dice
     `reglas/generacion_personaje.yaml → multiclase.clase_de_armadura`.
     """
+    orden, no_agregan = operaciones_agregadas()
     # C4: los `conditional` se citan pero NO se agregan. Se filtran aquí, en
     # el único sitio por el que pasa la aritmética, para que añadir una
-    # operación no calculable nunca pueda colarse en un número.
-    efectos = [e for e in efectos
-               if e.get("op") not in ("conditional", "modifica_tope")]
+    # operación no calculable nunca pueda colarse en un número. Qué
+    # operaciones son se LEE del vocabulario (fase 4): iba cableado.
+    efectos = [e for e in efectos if e.get("op") not in no_agregan]
 
     por_op = {}
     for ef in efectos:
@@ -530,16 +669,11 @@ def agregar(variable, efectos, base, entorno, eleccion=None, decimal=False):
             f"«{variable}» no tiene valor base ni ningún efecto `base` que lo "
             f"fije, y algo lo está pidiendo")
 
-    for ef in por_op.get("add", []):
-        valor += _num(ef, entorno)
-    for ef in por_op.get("mul", []):
-        valor *= _num(ef, entorno)
-    for ef in por_op.get("min", []):
-        valor = max(valor, _num(ef, entorno))
-    for ef in por_op.get("max", []):
-        valor = min(valor, _num(ef, entorno))
-    for ef in por_op.get("set", []):
-        valor = _num(ef, entorno)
+    # El ORDEN sale de la base, no del orden de los bucles de Python: cambiar
+    # `orden_de_agregacion` cambia el orden real (fase 4).
+    for op in orden:
+        for ef in por_op.get(op, []):
+            valor = _AGREGADORES[op](valor, _num(ef, entorno))
     # DiceCloud redondea hacia abajo «salvo stats decimales». La velocidad es
     # una de ellas: 4,5 m es media casilla de verdad, no un redondeo.
     return valor if decimal else math.floor(valor)
@@ -679,7 +813,14 @@ def efectos_de_equipo(refs, entrenamientos=None, fuerza=None):
     """
     import re
     d = yaml.safe_load((B / "equipo/armaduras.yaml").read_text(encoding="utf-8"))
-    pag = {"pdf": 218, "libro": 216}
+    # La página SE LEE del propio fichero: iba cableada aquí (fase 3).
+    fte = d.get("fuente") or {}
+    if not fte.get("pagina_pdf") or not fte.get("libro"):
+        raise ErrorDeEfectos(
+            "`equipo/armaduras.yaml` no declara `fuente.pagina_pdf` y "
+            "`fuente.libro`: los efectos que se fabrican de esa tabla se "
+            "quedarían sin cita, y un dato sin cita no entra")
+    pag = {"pdf": fte["pagina_pdf"], "libro": fte["libro"]}
     idx = {}
     for g in grupos_de_armadura()[0]:
         for a in d[g]["tabla"]:

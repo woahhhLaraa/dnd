@@ -233,11 +233,23 @@ def u_constante_dentro_de_funcion(r):
 def u_declaracion_de_constante_desfasada(r):
     """El diente del `subconjunto`: si la colección crece, el `deja_fuera` de
     la declaración deja de cuadrar y alguien tiene que decidir si lo nuevo
-    entra también en el literal. Hoy nada hace esa pregunta."""
-    _sust(r, "reglas/efectos.yaml", "condiciones:\n",
-          "condiciones:\n  con_montura:\n    desc: \"prueba\"\n", 1)
-    return ("una condición NUEVA en el vocabulario: el literal de "
-            "`estado_de_equipo()` la deja fuera y su declaración ya no cuadra")
+    entra también en el literal. Hoy nada más hace esa pregunta.
+
+    **Cambió de vehículo el 2026-09-06, no de chequeo.** Apuntaba a la
+    condición nueva contra el literal de las seis condiciones que
+    `estado_de_equipo()` llevaba escrito; la fase 4 derivó ese literal, así que
+    la mutación se quedó sin nada que mover — que es el final bueno para una
+    constante, y el malo para su prueba. Se traslada al literal de claves que
+    `cargar_vocabulario()` EXIGE, que sigue vivo y sigue siendo un subconjunto
+    declarado: si `reglas/efectos.yaml` gana una clave de primer nivel, alguien
+    tiene que decidir si también se exige.
+    """
+    p = r / "reglas/efectos.yaml"
+    t = p.read_text(encoding="utf-8")
+    p.write_text(t + '\nbloque_nuevo:\n  algo: "prueba"\n', encoding="utf-8")
+    return ("una clave de primer nivel NUEVA en `reglas/efectos.yaml`: el "
+            "literal que `cargar_vocabulario()` exige la deja fuera y su "
+            "declaración ya no cuadra")
 
 
 def n_literal_que_no_es_de_la_base(r):

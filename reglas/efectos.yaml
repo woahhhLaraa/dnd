@@ -166,13 +166,39 @@ operaciones: [base, add, mul, min, max, set, conditional, modifica_tope]
 # `nivel_clase` del personaje). Nunca las dos: serían dos fuentes del mismo dato.
 fuentes_de_valor: [formula, columna]
 
+# ── El orden de agregación (fase 4 del PLAN_20, 2026-09-06) ─────────────
+# Era una lista de PROSA («1. base → sustituye el valor base…») que `agregar()`
+# citaba en su docstring y **no leía**: el orden vivía en el orden de los
+# bucles de Python. Dos copias de la misma regla, y la de la base era la que
+# no mandaba. Medido antes de cambiarlo: se podía añadir una operación nueva
+# al vocabulario y `validar.py` seguía diciendo «0 errores».
+#
+# Ahora `agregar()` ITERA esta lista. Cambiar el orden aquí cambia el orden
+# real, una operación declarada sin implementación es un error, y una
+# implementación no declarada también.
 orden_de_agregacion:
-  - "1. base   → sustituye el valor base de la variable (ver `base_multiple`)"
-  - "2. add    → se suman todos"
-  - "3. mul    → se multiplican todos, sobre (base + Σ add)"
-  - "4. min/max→ se acota el resultado entre el mayor `min` y el menor `max`"
-  - "5. set    → si hay alguno, gana sobre todo lo anterior"
-  - "6. floor  → se redondea hacia abajo"
+  - {op: base, papel: semilla,
+     hace: "sustituye el valor base de la variable (ver `base_multiple`)"}
+  - {op: add, hace: "se suman todos"}
+  - {op: mul, hace: "se multiplican todos, sobre (base + Σ add)"}
+  - {op: min, hace: "acota por abajo: gana el mayor `min`"}
+  - {op: max, hace: "acota por arriba: gana el menor `max`"}
+  - {op: set, hace: "si hay alguno, gana sobre todo lo anterior"}
+
+# Y las que NO agregan, con su motivo. Estaban cableadas en `agregar()` como
+# `("conditional", "modifica_tope")`. Toda operación del vocabulario tiene que
+# estar o aquí o arriba: no hay tercera opción, y esa es la comprobación.
+no_se_agregan:
+  - {op: conditional,
+     motivo: "no aporta valor: se cita para decir que el efecto es situacional, y quien decide es `requiere`"}
+  - {op: modifica_tope,
+     motivo: "no agrega sobre el resultado: cambia el «(máx. N)» dentro de la fórmula que aporta la armadura, antes de que haya nada que agregar"}
+
+# El redondeo final no es una operación del vocabulario: es lo que hace el
+# motor con el resultado. DiceCloud redondea hacia abajo salvo en las
+# variables decimales, y `velocidad` es una de ellas —4,5 m es media casilla
+# de verdad, no un redondeo—.
+redondeo: "hacia abajo, salvo en las variables con `decimal: true`"
 
 # ── LA divergencia con DiceCloud, y es deliberada ────────────────────────
 base_multiple:
@@ -191,18 +217,48 @@ base_multiple:
 # ── Condiciones ──────────────────────────────────────────────────────────
 # Vocabulario cerrado. Un efecto solo aplica si se cumplen TODAS las suyas.
 # El estado lo deduce `efectos.py` del equipo de la ficha, nunca el LLM.
+# ── Cada condición dice CÓMO SE DECIDE (fase 4 del PLAN_20, 2026-09-06) ──
+# Antes eran `nombre: "descripción en prosa"`, y `efectos.estado_de_equipo()`
+# devolvía las seis a mano. Medido antes de cambiarlo: se podía añadir una
+# séptima condición y `validar.py` seguía diciendo «0 errores» — su efecto
+# **nunca se habría aplicado, sin ruido**, porque `estado_de_equipo` no la
+# devolvía y `aplica()` la habría leído como falsa.
+#
+# Ahora cada una declara su `grupo` —una clave de tabla de
+# `equipo/armaduras.yaml`, o el pseudogrupo `armaduras` (todos los de
+# armadura)— y si va `negada`. `estado_de_equipo()` se construye recorriendo
+# ESTE bloque, así que una condición sin `grupo` es un error y una condición
+# nueva bien declarada funciona sola.
 condiciones:
-  sin_armadura: "no lleva puesta ninguna armadura (el escudo no es armadura)"
-  con_armadura: "lleva puesta una armadura"
+  sin_armadura:
+    desc: "no lleva puesta ninguna armadura (el escudo no es armadura)"
+    grupo: armaduras
+    negada: true
+  con_armadura:
+    desc: "lleva puesta una armadura"
+    grupo: armaduras
+    negada: false
   # Añadida el 2026-09-02 (bloque A2). No es «sin armadura» con otro nombre:
   # el Bárbaro conserva su +3 m con armadura ligera o media y lo pierde solo
   # con la pesada, mientras que el Monje lo pierde con cualquiera. Sin esta
   # condición los dos rasgos tendrían que mentir eligiendo la que no es.
   # La lista de armaduras pesadas la deduce `efectos.py` de
   # `equipo/armaduras.yaml`, nunca el LLM.
-  sin_armadura_pesada: "no lleva puesta una armadura pesada (ligera o media sí)"
+  sin_armadura_pesada:
+    desc: "no lleva puesta una armadura pesada (ligera o media sí)"
+    grupo: armaduras_pesadas
+    negada: true
   # Añadida el 2026-09-02 (bloque C) para «Maestro en armaduras medias», que
   # es el único rasgo del manual que distingue la media de las otras dos.
-  con_armadura_media: "lleva puesta una armadura media"
-  sin_escudo: "no embraza escudo"
-  con_escudo: "embraza escudo"
+  con_armadura_media:
+    desc: "lleva puesta una armadura media"
+    grupo: armaduras_medias
+    negada: false
+  sin_escudo:
+    desc: "no embraza escudo"
+    grupo: escudos
+    negada: true
+  con_escudo:
+    desc: "embraza escudo"
+    grupo: escudos
+    negada: false

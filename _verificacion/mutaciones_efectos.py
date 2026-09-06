@@ -44,7 +44,7 @@ BASE = pathlib.Path(__file__).resolve().parent.parent
 # del Plan 18) para contar qué chequeos tienen red y cuáles no; la promesa no
 # es gratis: el censo exige que la suite mencione la ETIQUETA que ese chequeo
 # imprime, así que no se puede declarar cobertura que no se ejerce.
-CHEQUEOS = ("validar_efectos",)
+CHEQUEOS = ("validar_efectos", "validar_vocabulario_consumido")
 MONJE = "clases/rasgos/monje.yaml"
 EFECTO_MONJE = ('- {objetivo: ca, op: base, formula: "10 + mod_des + mod_sab", '
                 'requiere: [sin_armadura, sin_escudo], pagina: {pdf: 151, libro: 149}}')
@@ -378,6 +378,67 @@ def n_rasgo_nuevo_con_efecto(r):
     return "el mismo rasgo nuevo, pero declarando un efecto bien formado"
 
 
+# ══ Fase 4 · vocabularios cerrados sin consumidor exhaustivo ══════════════
+# El censo comprueba **base → código**: que ninguna unidad de la base se quede
+# sin chequeo. A esto le faltaba la vuelta, **código → base**: que ningún
+# término de un vocabulario cerrado se quede sin nadie que lo consuma.
+#
+# Medido el 2026-09-06, ANTES de escribir los consumidores: las cinco
+# mutaciones de aquí abajo pasaban en verde. Se podía añadir una condición,
+# una operación o una fuente de valor a `reglas/efectos.yaml` y `validar.py`
+# seguía diciendo «0 errores» — y el efecto que la usara no se habría aplicado,
+# en silencio.
+
+def v_condicion_sin_decidir(r):
+    p = r / "reglas/efectos.yaml"
+    t = p.read_text(encoding="utf-8")
+    i = t.index("\ncondiciones:")
+    j = t.index("\n", i + 1) + 1
+    p.write_text(t[:j] + '  con_montura:\n    desc: "va montado"\n' + t[j:],
+                 encoding="utf-8")
+    return ("una condición NUEVA que no dice cómo se decide: "
+            "`estado_de_equipo()` no la devolvería y su efecto no aplicaría nunca")
+
+
+def v_condicion_de_grupo_inexistente(r):
+    _sust(r, "reglas/efectos.yaml", "    grupo: armaduras_pesadas",
+          "    grupo: armaduras_exoticas")
+    return "una condición que se decide por un grupo que no existe en `armaduras.yaml`"
+
+
+def v_operacion_sin_agregar(r):
+    _sust(r, "reglas/efectos.yaml",
+          "operaciones: [base, add, mul, min, max, set, conditional, modifica_tope]",
+          "operaciones: [base, add, mul, min, max, set, conditional, modifica_tope, divide]")
+    return ("una operación NUEVA que no está ni en `orden_de_agregacion` ni en "
+            "`no_se_agregan`")
+
+
+def v_operacion_fuera_del_orden(r):
+    _sust(r, "reglas/efectos.yaml",
+          '  - {op: set, hace: "si hay alguno, gana sobre todo lo anterior"}\n', "")
+    return "una operación declarada que desaparece de `orden_de_agregacion`"
+
+
+def v_fuente_de_valor_sin_lector(r):
+    _sust(r, "reglas/efectos.yaml", "fuentes_de_valor: [formula, columna]",
+          "fuentes_de_valor: [formula, columna, tabla_externa]")
+    return "una fuente de valor NUEVA que ningún lector sabe leer"
+
+
+def n_v_orden_reordenado(r):
+    """CONTROL NEGATIVO: mover `mul` detrás de `min` es una decisión de regla
+    legítima —cambia el resultado, y por eso el orden vive en la base—. Lo que
+    no puede pasar es que un término se quede sin consumidor."""
+    _sust(r, "reglas/efectos.yaml",
+          '  - {op: mul, hace: "se multiplican todos, sobre (base + Σ add)"}\n', "")
+    _sust(r, "reglas/efectos.yaml",
+          '  - {op: set, hace: "si hay alguno, gana sobre todo lo anterior"}',
+          '  - {op: mul, hace: "se multiplican todos, sobre (base + Σ add)"}\n'
+          '  - {op: set, hace: "si hay alguno, gana sobre todo lo anterior"}')
+    return "el orden de agregación reordenado, con todas las operaciones dentro"
+
+
 def _falla_por(raiz, etiqueta="efectos"):
     res = subprocess.run([sys.executable, "validar.py"], cwd=raiz,
                          capture_output=True, text=True)
@@ -502,6 +563,12 @@ def main():
               d_rasgo_sacado_de_la_lista],
              [n_rasgo_nuevo_declarado, n_rasgo_nuevo_con_efecto],
              lambda r: _falla_por(r)[0]),
+            ("VOCABULARIO · ¿lo consume alguien? (fase 4)",
+             [v_condicion_sin_decidir, v_condicion_de_grupo_inexistente,
+              v_operacion_sin_agregar, v_operacion_fuera_del_orden,
+              v_fuente_de_valor_sin_lector],
+             [n_v_orden_reordenado],
+             lambda r: _falla_por(r, "vocabulario consumido")[0]),
             ("CARGA · ¿los efectos sostienen las fichas?",
              [c_formula_movida, c_pg_enano_movido, c_columna_movida],
              [c_condicion_relajada, n_columna_de_otro_nivel],

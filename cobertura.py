@@ -21,7 +21,7 @@ import yaml
 # `reglas/subida_de_nivel.yaml`. Aquí estaban las tres cadenas escritas a mano
 # (auditoría del 2026-09-03). `calculo` no importa nada del proyecto, así que
 # no hay ciclo.
-from calculo import es_marcador_de
+from calculo import cargar, es_marcador_de
 
 B = pathlib.Path(__file__).parent
 VERBOSE = "-v" in sys.argv
@@ -29,12 +29,8 @@ VERBOSE = "-v" in sys.argv
 # Las 18 habilidades del juego. Es la única lista que este script da por
 # sabida, y solo para comprobar que lo que la base cita son habilidades
 # reales: no se usa para rellenar ningún dato de la ficha.
-HABILIDADES = {
-    "Acrobacias", "Atletismo", "Conocimiento arcano", "Engaño", "Historia",
-    "Interpretación", "Intimidación", "Investigación", "Juego de manos",
-    "Medicina", "Naturaleza", "Percepción", "Perspicacia", "Persuasión",
-    "Religión", "Sigilo", "Supervivencia", "Trato con animales",
-}
+HABILIDADES = {h if isinstance(h, str) else h.get("nombre")
+               for h in (cargar("reglas/habilidades.yaml") or {}).get("habilidades", [])}
 
 
 class Informe:

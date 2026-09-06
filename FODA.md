@@ -228,7 +228,7 @@ Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
    *(era 🔴 desde el 2026-08-31, el mismo día en que se escribió)*
 
    `censo.py` la convierte en una cuenta: **939 unidades censadas, 0 sin
-   declarar, 613 pendientes con su bloque y su motivo**. Nueve clases de unidad
+   declarar, 610 pendientes con su bloque y su motivo**. Nueve clases de unidad
    —la séptima, los módulos de herramienta, la añadió el bloque A2; la octava,
    los efectos con carga, la fase 1.3 de `PLAN_20_AUDITORIA.md`; la novena, las
    constantes de dominio en Python, su fase 3—, nueve

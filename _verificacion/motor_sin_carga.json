@@ -1,25 +1,26 @@
 {
- "_nota": "Trozos del motor que NINGUNA ficha de `personajes/` protege: se pueden corromper y todas las fichas siguen verificando en verde. Es deuda enumerada, no permiso: solo puede bajar. PERO no todos se saldan igual, y confundirlo sería prometer lo que no se puede cumplir — ver `_por_que_dos_grupos`.",
- "_fecha": "2026-09-05",
- "huecos": [
-  "el bucle `mul` divide en vez de multiplicar",
-  "desaparece el bucle `min` de la agregación",
-  "desaparece el bucle `max` de la agregación",
-  "desaparece el bucle `set` de la agregación",
-  "se quita el `math.floor` final de la agregación",
-  "el mínimo de 1 de los PG por nivel pasa a 0",
-  "`aplica()` deja de mirar `requiere`: todo efecto se aplica siempre"
+ "_nota": "Trozos del motor que NINGUNA ficha de `personajes/` protege: se pueden corromper y todas las fichas siguen verificando en verde. Es deuda enumerada, no permiso. Solo puede bajar por cobertura perdida, y se salda escribiendo fichas que ejerciten esa aritmética —el mandato «el calculista»— o dándole al vocabulario un consumidor exhaustivo, que es como se cerraron `min`, `max` y `set` en la fase 4. La clave de cada entrada es el NOMBRE de la mutación, no su texto: reescribir una descripción no puede parecer una regresión.",
+ "_fecha": "2026-09-06",
+ "_elenco": "todas las mutaciones que esta suite corre hoy. Sin esta lista no se distingue una mutación NUEVA de una que se cazaba y ha dejado de cazarse.",
+ "mutaciones": [
+  "m_add_invertido",
+  "m_condiciones_ignoradas",
+  "m_estado_de_equipo_invertido",
+  "m_max_borrado",
+  "m_min_borrado",
+  "m_minimo_de_pg",
+  "m_mul_invertido",
+  "m_negada_ignorada",
+  "m_orden_ignorado",
+  "m_pg_nivel_1_sin_constitucion",
+  "m_set_borrado",
+  "m_sin_redondeo"
  ],
- "_por_que_dos_grupos": "Medido el 2026-09-05: `reglas/efectos.yaml` declara OCHO operaciones y la base solo usa CUATRO (base 4, add 11, conditional 9, modifica_tope 1). No existe ni un efecto `mul`, `min`, `max` o `set` en toda la base. Así que esos cuatro bucles no los puede ejercitar ninguna ficha por mucho que se escriba: son caminos de código muertos respecto al dato de hoy, y eso es un problema de VOCABULARIO SIN CONSUMIDOR (fase 4 del PLAN_20), no de cobertura aritmética. Meterlos en el mismo saco que los otros tres le encargaría al «calculista» algo que no puede hacer.",
- "sin_dato_que_los_ejercite": [
-  "el bucle `mul` divide en vez de multiplicar",
-  "desaparece el bucle `min` de la agregación",
-  "desaparece el bucle `max` de la agregación",
-  "desaparece el bucle `set` de la agregación"
- ],
- "se_saldan_con_el_calculista": [
-  "se quita el `math.floor` final de la agregación",
-  "el mínimo de 1 de los PG por nivel pasa a 0",
-  "`aplica()` deja de mirar `requiere`: todo efecto se aplica siempre"
- ]
+ "huecos_por_id": {
+  "m_mul_invertido": "el agregador `mul` divide en vez de multiplicar",
+  "m_sin_redondeo": "se quita el `math.floor` final de la agregación",
+  "m_orden_ignorado": "`agregar()` deja de leer `orden_de_agregacion` y usa un orden propio",
+  "m_minimo_de_pg": "el mínimo de 1 de los PG por nivel pasa a 0",
+  "m_condiciones_ignoradas": "`aplica()` deja de mirar `requiere`: todo efecto se aplica siempre"
+ }
 }

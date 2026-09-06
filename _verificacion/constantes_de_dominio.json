@@ -8,11 +8,15 @@
  "_fecha": "2026-09-05",
  "constantes": [
   {
-   "huella": "cobertura.py::Acrobacias|Atletismo|Conocimiento arcano|Engaño|Historia|Interpretación|Intimidación|Investigación|Juego de manos|Medicina|Naturaleza|Percepción|Perspicacia|Persuasión|Religión|Sigilo|Supervivencia|Trato con animales",
-   "coleccion": "lista:clases/bardo.yaml:atributos_basicos.habilidades.de",
-   "clase": "copia_exacta",
-   "motivo": "sin mirar todavía (fase 3, PLAN_20_AUDITORIA.md)",
-   "deja_fuera": []
+   "huella": "efectos.py::add|max|min|mul|set",
+   "coleccion": "lista:reglas/efectos.yaml:operaciones",
+   "clase": "subconjunto",
+   "motivo": "las claves de `_AGREGADORES`: no son una copia del vocabulario, son las IMPLEMENTACIONES de cada operación. Y no pueden desviarse: `operaciones_agregadas()` exige la biyección contra `orden_de_agregacion` en las DOS direcciones —una operación declarada sin implementación es error, y una implementación que la base no declare, también—. Deja fuera `base` (es la semilla, no se agrega) y las dos de `no_se_agregan`",
+   "deja_fuera": [
+    "base",
+    "conditional",
+    "modifica_tope"
+   ]
   },
   {
    "huella": "efectos.py::base_multiple|condiciones|operaciones|variables",
@@ -29,11 +33,20 @@
    ]
   },
   {
-   "huella": "efectos.py::con_armadura|con_armadura_media|con_escudo|sin_armadura|sin_armadura_pesada|sin_escudo",
-   "coleccion": "claves:reglas/efectos.yaml:condiciones",
-   "clase": "copia_exacta",
-   "motivo": "sin mirar todavía (fase 3, PLAN_20_AUDITORIA.md)",
-   "deja_fuera": []
+   "huella": "efectos.py::base_multiple|condiciones|operaciones|variables",
+   "coleccion": "claves:reglas/efectos.yaml:",
+   "clase": "subconjunto",
+   "motivo": "las claves que `cargar_vocabulario()` EXIGE que declare `reglas/efectos.yaml`. No copian el vocabulario para usarlo: son el requisito que el fichero debe cumplir, y derivarlas de él haría que el chequeo dijera «declara lo que declara». Si el fichero gana una clave nueva, `deja_fuera` deja de cuadrar y alguien tiene que decidir si también se exige",
+   "deja_fuera": [
+    "edicion",
+    "fidelidad",
+    "fuente",
+    "fuentes_de_valor",
+    "no_se_agregan",
+    "orden_de_agregacion",
+    "redondeo",
+    "verificado"
+   ]
   },
   {
    "huella": "efectos.py::derivadas|directorios|excluidos|fuentes|pendientes",

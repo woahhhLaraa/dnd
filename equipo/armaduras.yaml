@@ -1,5 +1,13 @@
 edicion: "2024 (5.5e)"
-fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "218-219"}
+# `pagina_pdf` y `libro` se añadieron el 2026-09-05 (fase 3 de
+# PLAN_20_AUDITORIA.md): `efectos.py` llevaba `{"pdf": 218, "libro": 216}`
+# CABLEADO para citar los efectos que fabrica de esta tabla, porque aquí no
+# había ni página del libro ni una primera página suelta que leer. Los
+# números son los mismos —218 es la primera del rango, y 216 sale del
+# desfase pdf = libro + 2 que rige todo el manual—; lo que cambia es que
+# ahora se leen de aquí en vez de estar escritos en Python.
+fuente: {archivo: "Manual_del_Jugador_2024.pdf", paginas_pdf: "218-219",
+         pagina_pdf: 218, libro: 216}
 verificado: {metodo: "vision-directa", fecha: "2026-08-19"}
 fidelidad: "estructurado"   # tabla de datos: CA, fuerza mínima, sigilo, peso, precio
 

@@ -42,7 +42,7 @@ python3 validar.py            # 0 errores
 python3 verificar_srd.py      # 646 valores · 0 discrepancias
 python3 verificar_foundry.py  # 3749 valores · 0 discrepancias
 python3 cobertura.py          # 0 preguntas sin responder
-python3 censo.py              # 939 unidades · 0 sin declarar · 613 pendientes
+python3 censo.py              # 939 unidades · 0 sin declarar · 610 pendientes
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 18/18
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240
 python3 verificar_documentos.py   # ¿CONTINUAR.md y FODA.md dicen la verdad?
@@ -151,10 +151,21 @@ solución a los "parches puntuales" en vez de seguir apilando verificadores.**
 >   el conjunto estándar sobre una lista de seis a mano, así que una séptima
 >   característica se habría quedado sin puntuación en silencio.
 >
-> **Lo siguiente:** seguir bajando la fila 9 (quedan las 18 habilidades, la
-> página cableada de `armaduras.yaml` y 22 constantes en deuda), la **fase 4**
-> (vocabularios cerrados sin consumidor exhaustivo) y más tandas a ciegas del
-> calculista para bajar la fila 8 de 4/25.
+> - **Fase 4 CERRADA · los vocabularios cerrados ya tienen quien los consuma.**
+>   El censo comprobaba **base → código**; faltaba la vuelta. Se podía añadir
+>   una condición, una operación o una fuente de valor a `reglas/efectos.yaml`
+>   y `validar.py` seguía diciendo «0 errores»: el efecto que la usara no se
+>   habría aplicado, en silencio. Ahora cada condición dice cómo se decide,
+>   `agregar()` ITERA el orden que declara la base —era prosa que citaba y no
+>   leía— y cada fuente de valor necesita su lector.
+>   **De rebote, `mutaciones_motor` pasa de 4/11 a 7/12**: borrar el agregador
+>   `min`, `max` o `set` ya no es invisible, porque el vocabulario tiene
+>   consumidor exhaustivo.
+>
+> **Lo siguiente:** bajar la fila 9 de 24 (quedan 19 constantes en deuda
+> enumerada, sin mirar), y más tandas a ciegas del calculista para bajar la
+> fila 8 de 4/25 — que es la que mide si la aritmética tiene fuente
+> independiente.
 > `subir_nivel.py` y `generar_ficha.py` siguen sin mirarse con esta lupa: el
 > punto 2 de aquí abajo sigue vigente para ellos.
 

@@ -509,7 +509,56 @@ cableada de `armaduras.yaml` (1) → leer su `fuente`, **que hoy discrepa**.
 
 ---
 
-## Fase 4 · Vocabularios cerrados sin consumidor exhaustivo
+## Fase 4 · Vocabularios cerrados sin consumidor exhaustivo — ✅ HECHA (2026-09-06)
+
+> **Medido ANTES de escribir nada**, como manda el método: las tres mutaciones
+> que el plan predecía pasaban en verde. Se podía añadir una condición, una
+> operación o una fuente de valor a `reglas/efectos.yaml` y `validar.py` seguía
+> diciendo «0 errores» — el término entraba en la base y su efecto no se habría
+> aplicado, en silencio.
+>
+> - **`condiciones`** · cada una declara ahora `grupo` y `negada`, y
+>   `estado_de_equipo()` se construye RECORRIÉNDOLAS. Antes devolvía las seis a
+>   mano, así que una séptima no la habría devuelto nadie y `aplica()` la habría
+>   leído como falsa.
+> - **`orden_de_agregacion`** · era prosa que `agregar()` citaba en su docstring
+>   y **no leía**: el orden vivía en el orden de los bucles de Python. Ahora es
+>   una lista de operaciones que `agregar()` itera, más `no_se_agregan` con su
+>   motivo —estaba cableado como `("conditional", "modifica_tope")`—.
+> - **`fuentes_de_valor`** · nadie lo leía; `_num()` cableaba los dos caminos.
+>   Ahora cada fuente declarada necesita su lector y cada lector su declaración.
+>   Y de paso salió un defecto propio: escribí `_num()` iterando las fuentes en
+>   el orden del vocabulario, y ese orden es un LISTADO, no una prioridad — un
+>   efecto de `columna` se leía por la fórmula. Cada efecto declara exactamente
+>   una fuente, y tener dos o ninguna es error, no un desempate.
+>
+> **Cinco mutaciones nuevas + un control negativo** en `mutaciones_efectos`
+> (36/36 → **42/42**). El control negativo importa: reordenar
+> `orden_de_agregacion` es una decisión de regla legítima y NO debe saltar; lo
+> que no puede pasar es que un término se quede sin consumidor.
+>
+> **Y la fase 4 mejoró la fase 1.1 sin que estuviera previsto.**
+> `mutaciones_motor` pasa de **4/11 cazadas a 7/12**: borrar el agregador
+> `min`, `max` o `set` ya no es invisible aunque ninguna ficha use esas
+> operaciones, porque `operaciones_agregadas()` exige que toda operación
+> declarada tenga implementación. Tres huecos cerrados **por una razón distinta
+> a la prevista**: no porque una ficha los ejercite, sino porque el vocabulario
+> pasó a tener consumidor exhaustivo.
+>
+> **Tres defectos propios que salieron por el camino, y los tres de la misma
+> familia que el plan persigue:**
+> 1. `operaciones_agregadas()` levantaba su error desde dentro de otro chequeo
+>    y **mataba `validar.py`** sin imprimir nada. Tercera vez en dos días. Se
+>    cerró para TODOS los chequeos a la vez con `_correr()`, no para este.
+> 2. `motor_sin_carga.json` guardaba las FRASES de cada mutación, así que
+>    reescribir una descripción hacía que el mismo hueco saliera como nuevo y
+>    la suite dijera «cobertura perdida», que era falso. La identidad pasa a
+>    ser el nombre de la mutación — la misma lección que `verificar_chequeos.py`
+>    aprendió con las gemelas, en otro fichero.
+> 3. Y no distinguía «una mutación NUEVA mide un trozo que nunca estuvo
+>    cubierto» de «una que se cazaba ha dejado de cazarse». La línea base guarda
+>    ahora el elenco de mutaciones, y solo lo segundo pone rojo.
+
 
 Cierra los tres casos que **no son constantes** y por eso escapan de la fila 8.
 El censo comprueba hoy *base → código*; falta *código → base*.
@@ -561,7 +610,7 @@ Fase 1  aritmética           ✅ 1.1 mutaciones_motor  ✅ 1.2 _origen  ✅ 1.3
 Fase 2  equipo/              ✅ CERRADA (2.1 directorios · 2.2 derivadas ·
                              2.3 control · 2.4 municion · 2.5 ancla)
 Fase 3  fila 9              ✅ la fila (39 medidas) · grupos de cierre en marcha: 39 → 25
-Fase 4  vocabularios        necesita que la fila 9 haya declarado los `for clave in (...)`
+Fase 4  vocabularios        ✅ HECHA · condiciones, orden_de_agregacion y fuentes_de_valor
 ```
 
 **Nota de numeración:** la fila de efectos con carga entró como **fila 8** (el

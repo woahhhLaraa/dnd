@@ -2465,6 +2465,33 @@ def validar_conjuros_cd():
     return f"CD de conjuros ({n})", err, []
 
 
+def validar_vocabulario_consumido():
+    """Los vocabularios cerrados de `reglas/efectos.yaml`, ¿los consume alguien?
+
+    Fase 4 de `PLAN_20_AUDITORIA.md`. El censo comprueba **base → código**: que
+    ninguna unidad de la base se quede sin chequeo. A esto le faltaba la vuelta,
+    **código → base**: que ningún término declarado en un vocabulario cerrado
+    se quede sin nadie que lo consuma.
+
+    Medido el 2026-09-06, antes de escribir esto: se podía añadir una condición
+    nueva, una operación nueva o una fuente de valor nueva a
+    `reglas/efectos.yaml` y `validar.py` seguía diciendo «0 errores». El
+    término entraba en la base y no lo consumía nada — un efecto que lo usara
+    se habría quedado sin aplicar, en silencio.
+    """
+    err, n = [], 0
+    import efectos as E
+    for etiqueta, fn in (("fuentes_de_valor", E.fuentes_de_valor),
+                         ("condiciones", E.condiciones_decidibles),
+                         ("operaciones", E.operaciones_agregadas)):
+        n += 1
+        try:
+            fn()
+        except E.ErrorDeEfectos as e:                    # noqa: PERF203
+            err.append(f"{etiqueta}: {e}")
+    return f"vocabulario consumido ({n} vocabularios)", err, []
+
+
 def validar_caracteristicas():
     """El fichero de características, contrastado contra sus TRES orígenes.
 
@@ -3143,11 +3170,34 @@ def validar_subida():
     return f"saltos de nivel ({saltos})", err, warn
 
 
+def _correr(fn, *args):
+    """Un chequeo que revienta HABLA, no mata a `validar.py`.
+
+    Escrito el 2026-09-06, y es la tercera vez en dos días que aparece la misma
+    familia de defecto —un chequeo que explota en vez de informar—: el hueco
+    nº 10 de la ronda 2 de estrés, el `KeyError` de `validar_conjuros_cd`
+    (fase 1.5) y ahora `operaciones_agregadas()`, que al detectar una operación
+    sin consumidor levantaba `ErrorDeEfectos` desde dentro de otro chequeo y
+    se llevaba por delante el informe entero. Arreglar instancias no bastaba;
+    esto lo cierra para TODOS los chequeos de este módulo a la vez.
+
+    Un fallo así no se traga: sale como error del chequeo que lo provocó, con
+    su tipo y su mensaje, y cuenta para el total.
+    """
+    try:
+        return fn(*args)
+    except SystemExit:
+        raise
+    except Exception as e:                                   # noqa: BLE001
+        return (getattr(fn, "__name__", "chequeo"),
+                [f"reventó en vez de informar: {type(e).__name__}: {e}"], [])
+
+
 def main():
     total_err = 0
     print("── CLASES " + "─"*52)
     for p in sorted((B/"clases").glob("*.yaml")):
-        nom, err, warn = validar_clase(p)
+        nom, err, warn = _correr(validar_clase, p)
         total_err += len(err)
         estado = "✅" if not err else "❌"
         print(f" {estado} {nom:<12} {'0 errores' if not err else str(len(err))+' ERRORES'}")
@@ -3156,23 +3206,23 @@ def main():
 
     print("── ORÍGENES " + "─"*50)
     for fn in (validar_trasfondos, validar_especies):
-        nom, err, warn = fn()
+        nom, err, warn = _correr(fn)
         total_err += len(err)
         print(f" {'✅' if not err else '❌'} {nom:<18} {'0 errores' if not err else str(len(err))+' ERRORES'}")
         for e in err[:12]: print(f"      ✗ {e}")
 
-    nom, err, warn = validar_subclases()
+    nom, err, warn = _correr(validar_subclases)
     total_err += len(err)
     print(f" {'✅' if not err else '❌'} {nom:<18} {'0 errores' if not err else str(len(err))+' ERRORES'}")
     for e in err[:12]:  print(f"      ✗ {e}")
     for w in warn[:4]:  print(f"      ⚠ {w}")
 
-    nom, err, warn = validar_dotes()
+    nom, err, warn = _correr(validar_dotes)
     total_err += len(err)
     print(f" {'✅' if not err else '❌'} {nom:<18} {'0 errores' if not err else str(len(err))+' ERRORES'}")
     for e in err[:20]: print(f"      ✗ {e}")
 
-    nom, err, warn = validar_equipo()
+    nom, err, warn = _correr(validar_equipo)
     total_err += len(err)
     print(f" {'✅' if not err else '❌'} {nom:<18} {'0 errores' if not err else str(len(err))+' ERRORES'}")
     for e in err[:20]: print(f"      ✗ {e}")
@@ -3181,35 +3231,35 @@ def main():
     print("── CREACIÓN DE PERSONAJE " + "─"*37)
     for fn in (validar_atributos_basicos, validar_generacion, validar_puntos_golpe,
                validar_conjuros_cd, validar_ca_base,
-               validar_caracteristicas,
+               validar_caracteristicas, validar_vocabulario_consumido,
                validar_rasgos_clase,
                validar_competencias_clase, validar_habilidades, validar_idiomas):
-        nom, err, warn = fn()
+        nom, err, warn = _correr(fn)
         total_err += len(err)
         print(f" {'✅' if not err else '❌'} {nom:<24} {'0 errores' if not err else str(len(err))+' ERRORES'}")
         for e in err[:20]: print(f"      ✗ {e}")
         for w in warn[:5]: print(f"      ⚠ {w}")
 
     print("── HECHIZOS " + "─"*50)
-    nom, err, warn = validar_hechizos()
+    nom, err, warn = _correr(validar_hechizos)
     total_err += len(err)
     print(f" {'✅' if not err else '❌'} {nom:<12} {'0 errores' if not err else str(len(err))+' ERRORES'}")
     for e in err[:10]: print(f"      ✗ {e}")
     for w in warn[:5]: print(f"      ⚠ {w}")
 
-    nom, err, warn = validar_hechizos_clases()
+    nom, err, warn = _correr(validar_hechizos_clases)
     total_err += len(err)
     print(f" {'✅' if not err else '❌'} {nom:<12} {'0 errores' if not err else str(len(err))+' ERRORES'}")
     for e in err[:12]: print(f"      ✗ {e}")
     for w in warn[:8]: print(f"      ⚠ {w}")
 
     print("── INTEGRIDAD " + "─"*48)
-    nom, err, warn = validar_dados()
+    nom, err, warn = _correr(validar_dados)
     total_err += len(err)
     print(f" {'✅' if not err else '❌'} {nom:<24} {'0 errores' if not err else str(len(err))+' ERRORES'}")
     for e in err[:20]: print(f"      ✗ {e}")
 
-    nom, err, warn = validar_conversiones()
+    nom, err, warn = _correr(validar_conversiones)
     total_err += len(err)
     print(f" {'✅' if not err else '❌'} {nom:<24} {'0 errores' if not err else str(len(err))+' ERRORES'}")
     for e in err[:20]: print(f"      ✗ {e}")
@@ -3219,13 +3269,13 @@ def main():
                validar_materiales, validar_tiradas, validar_ataques,
                validar_prerrequisitos, validar_subida,
                validar_mejoras_de_dote):
-        nom, err, warn = fn()
+        nom, err, warn = _correr(fn)
         total_err += len(err)
         print(f" {'✅' if not err else '❌'} {nom:<24} {'0 errores' if not err else str(len(err))+' ERRORES'}")
         for e in err[:20]: print(f"      ✗ {e}")
         for w in warn[:6]: print(f"      ⚠ {w}")
 
-    nom, err, warn = validar_referencias()
+    nom, err, warn = _correr(validar_referencias)
     total_err += len(err)
     # El marcador tiene que decir la verdad: ❌ si hay errores, ⚠ si solo hay
     # avisos, ✅ si no hay nada. Hasta el 2026-09-02 esta línea imprimía ⚠
