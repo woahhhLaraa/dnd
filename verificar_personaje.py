@@ -530,6 +530,73 @@ def _valida_reparto(quien, mej, sube, final, inf):
                       f"«máx. {tope}»")
 
 
+def _subidas_por_rasgo(ficha, inf=None):
+    """{caracteristica: total} que aportan los RASGOS DE CLASE de la ficha.
+
+    Existe desde el 2026-09-06 y lo destapó la tanda a ciegas del calculista:
+    dos agentes distintos, en dos clases distintas, dieron un número mayor que
+    el motor —40 PG en el Bárbaro de nivel 20, 4 de CA en el Monje— porque
+    «Campeón primordial» y «Cuerpo y mente» dicen, sin condición ni duración,
+    que dos puntuaciones suben 4. La regla estaba transcrita y citada, **pero
+    solo en la prosa**: ni el motor la aplicaba ni la ficha podía expresarla,
+    así que un personaje de nivel 20 salía con dos características y varios
+    números de menos, y en verde.
+
+    No hace falta que la ficha declare nada: el rasgo lo concede la tabla de la
+    clase al alcanzar el nivel, no es una elección. Por eso esto se DERIVA de
+    la progresión en vez de leerse de la ficha — si dependiera de que alguien
+    lo escribiera, volveríamos al mismo silencio.
+    """
+    total, por_nivel = {}, {}
+    for c in ficha.get("clases", []) or []:
+        stem = _stem_de_clase(c.get("clase"))
+        if not stem:
+            continue
+        rasgos = cargar(f"clases/rasgos/{stem}.yaml") or {}
+        for r in rasgos.get("rasgos", []) or []:
+            mej = r.get("mejora_caracteristica")
+            if not mej or (r.get("nivel") or 0) > (c.get("nivel") or 0):
+                continue
+            entre = mej.get("entre") or []
+            if not mej.get("todas"):
+                if inf: inf.error(f"el rasgo «{r.get('nombre')}» declara "
+                          f"`mejora_caracteristica` sin `todas: true`, y la "
+                          f"ficha no tiene dónde decir cuál eligió: hoy solo "
+                          f"se saben derivar los que suben TODAS las que "
+                          f"nombran")
+                continue
+            for nombre_car in entre:
+                k = _ABREV.get(nombre_car)
+                if not k:
+                    if inf: inf.error(f"el rasgo «{r.get('nombre')}» nombra la "
+                              f"característica {nombre_car!r}, que no existe")
+                    continue
+                total[k] = total.get(k, 0) + mej.get("cantidad", 0)
+                por_nivel.setdefault(r.get("nivel") or 0, {})
+                por_nivel[r["nivel"]][k] = (por_nivel[r["nivel"]].get(k, 0)
+                                            + mej.get("cantidad", 0))
+    return total, por_nivel
+
+
+def _stem_de_clase(nombre):
+    import efectos as _E
+    return _E.clases_por_nombre().get(nombre)
+
+
+def _final_sin_rasgos_posteriores(ficha, inf, nivel, final):
+    """`final` menos lo que aportan los rasgos de niveles posteriores a
+    `nivel`. Ver el comentario de `_final_en` en `verificar_mejoras`."""
+    # Sin `inf`: los errores del rasgo los reporta `verificar_mejoras` una sola
+    # vez; repetirlos aquí, una por dote, sería ruido.
+    _t, por_nivel = _subidas_por_rasgo(ficha)
+    ajustado = dict(final)
+    for n_rasgo, subidas in por_nivel.items():
+        if n_rasgo > nivel:
+            for k, v in subidas.items():
+                ajustado[k] = ajustado.get(k, 0) - v
+    return ajustado
+
+
 def _subidas_por_dote(ficha, inf):
     """{caracteristica: total} que aportan las dotes de la ficha. Valida de
     paso que lo elegido sea una de las opciones que la dote permite."""
@@ -551,7 +618,11 @@ def _subidas_por_dote(ficha, inf):
                       f"{mej.get('entre')})")
             continue
         final = (ficha.get("caracteristicas") or {}).get("final") or {}
-        _valida_reparto(f"«{nombre}»", mej, sube, final, inf)
+        # Igual que las mejoras: el tope se mide cuando se tomó la dote.
+        nivel_dote = (dt.get("origen") or {}).get("nivel") or 0
+        _valida_reparto(f"«{nombre}»", mej, sube,
+                        _final_sin_rasgos_posteriores(ficha, inf, nivel_dote, final),
+                        inf)
         for k, v in sube.items():
             total[k] = total.get(k, 0) + v
     return total
@@ -568,18 +639,36 @@ def verificar_mejoras(ficha, inf):
     final = car.get("final") or {}
     mejoras = ficha.get("mejoras") or []
     por_dote = _subidas_por_dote(ficha, inf)
+    por_rasgo, rasgos_por_nivel = _subidas_por_rasgo(ficha, inf)
 
-    # 1. La suma tiene que cuadrar, característica a característica.
+    # El tope de una mejora («máx. 20») se mide EN SU MOMENTO, no al final. Un
+    # rasgo de nivel 20 que sube 4 puntos con tope 25 deja la puntuación en 24,
+    # y comparar la mejora del nivel 16 contra ese 24 la haría ilegal sin que
+    # lo fuera: cuando se gastó, la puntuación estaba en 20. Se descuenta lo
+    # que aportan los rasgos de niveles POSTERIORES a cada mejora.
+    def _final_en(nivel):
+        ajustado = dict(final)
+        for n_rasgo, subidas in rasgos_por_nivel.items():
+            if n_rasgo > nivel:
+                for k, v in subidas.items():
+                    ajustado[k] = ajustado.get(k, 0) - v
+        return ajustado
+
+    # 1. La suma tiene que cuadrar, característica a característica. Son
+    #    CUATRO fuentes, no tres: los rasgos de clase que suben puntuaciones
+    #    entraron el 2026-09-06 (ver `_subidas_por_rasgo`).
     for k in _CARS:
         de_mejoras = sum((m.get("sube") or {}).get(k, 0) for m in mejoras)
         de_dotes = por_dote.get(k, 0)
-        esperado = base.get(k, 0) + ajuste.get(k, 0) + de_mejoras + de_dotes
+        de_rasgos = por_rasgo.get(k, 0)
+        esperado = (base.get(k, 0) + ajuste.get(k, 0) + de_mejoras + de_dotes
+                    + de_rasgos)
         if final.get(k) != esperado:
             inf.error(f"caracteristicas.final.{k} = {final.get(k)!r}, pero "
                       f"base {base.get(k)} + trasfondo {ajuste.get(k, 0)} + "
-                      f"mejoras {de_mejoras} + dotes {de_dotes} "
-                      f"= {esperado}. Una puntuación sin justificar es una "
-                      f"puntuación inventada")
+                      f"mejoras {de_mejoras} + dotes {de_dotes} + rasgos "
+                      f"{de_rasgos} = {esperado}. Una puntuación sin "
+                      f"justificar es una puntuación inventada")
 
     # 2. Cada mejora reparte lo que dice LA DOTE QUE LA CONCEDE, leída de la
     #    base por el `ref:` de la propia entrada. Aquí vivía el defecto que
@@ -601,7 +690,7 @@ def verificar_mejoras(ficha, inf):
                       f"—y cablearlos aquí fue el defecto que la ronda 2 de "
                       f"estrés destapó")
             continue
-        _valida_reparto(quien, mej, sube, final, inf)
+        _valida_reparto(quien, mej, sube, _final_en(m.get("nivel") or 0), inf)
 
     # 3. Cada nivel con «Mejora de característica» tiene que estar gastado:
     #    o en una mejora, o en una dote tomada en ese nivel. Ni de más ni de

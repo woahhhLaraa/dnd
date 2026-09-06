@@ -100,6 +100,16 @@ rasgos:
     desc: "Obtienes una dote de don épico (capítulo 5) u otra dote de tu elección para la que cumplas las condiciones. El manual recomienda Don del ataque imparable."
 
   - nombre: "Campeón primordial"
+    # Estructurado el 2026-09-06. Lo destapó la tanda a ciegas del calculista:
+    # dos agentes distintos, en dos clases distintas, dieron un número mayor
+    # que el motor —40 PG en el Bárbaro, 4 de CA en el Monje— porque este
+    # rasgo dice, sin condición ni duración, que dos puntuaciones suben 4. La
+    # regla estaba transcrita y citada, pero SOLO EN LA PROSA: ni el motor la
+    # aplicaba ni la ficha podía expresarla, así que un personaje de nivel 20
+    # salía con dos características y varios números de menos, en verde.
+    # El vocabulario es el que ya usan las dotes (`mejora_caracteristica`),
+    # no uno nuevo: el tope es 25 y no 20, y eso lo dice la propia página.
+    mejora_caracteristica: {cantidad: 4, maximo: 25, entre: ["Fuerza", "Constitución"], todas: true}
     nivel: 20
     pagina: {pdf: 55, libro: 53}
     desc: "Encarnas un poder primigenio. Tus puntuaciones de Fuerza y Constitución aumentan en 4, hasta un máximo de 25."

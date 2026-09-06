@@ -83,8 +83,24 @@ def f_cifra_srd(r):
 
 
 def f_cifra_integridad(r):
-    _sust(r, "CONTINUAR.md", "INTEGRIDAD: 683 dados", "INTEGRIDAD: 684 dados")
-    return "CONTINUAR.md dice 684 dados dentro de la línea de INTEGRIDAD"
+    """La cifra se DERIVA del documento, no se escribe aquí.
+
+    Iba cableada como «INTEGRIDAD: 683 dados» y se rompió el 2026-09-06, cuando
+    el barrido de dados pasó a 684 —el `d6` de la cabecera de una ficha nueva
+    entra en la cuenta, porque recorre todos los `.yaml`—. Una mutación que
+    copia un número del documento que vigila se desincroniza exactamente igual
+    que el documento: la misma lección, un nivel más arriba.
+    """
+    import re as _re
+    p = r / "CONTINUAR.md"
+    t = p.read_text(encoding="utf-8")
+    m = _re.search(r"INTEGRIDAD: (\d+) dados", t)
+    assert m, "CONTINUAR.md ya no enumera los dados en su línea de INTEGRIDAD"
+    n = int(m.group(1))
+    p.write_text(t.replace(m.group(0), f"INTEGRIDAD: {n + 1} dados", 1),
+                 encoding="utf-8")
+    return (f"CONTINUAR.md dice {n + 1} dados dentro de la línea de INTEGRIDAD, "
+            f"y la realidad da {n}")
 
 
 def f_cifra_mejoras(r):

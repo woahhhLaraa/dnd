@@ -379,14 +379,26 @@ def u_efecto_nuevo_sin_carga(r):
     """Fila 8 (auditoría, fase 1.3). Un efecto nuevo en la base entra en el
     universo, y como ninguna ficha con lectura independiente lo sostiene ni
     está en `efectos_sin_carga.json`, sale SIN DECLARAR. Es la puerta que la
-    fila cierra: la deuda enumerada solo puede bajar."""
-    p2 = r / "clases/rasgos/barbaro.yaml"
+    fila cierra: la deuda enumerada solo puede bajar.
+
+    **Cambió de vehículo el 2026-09-06, no de chequeo.** Colgaba de «Furia»,
+    del Bárbaro, y el día que la fila 8 llegó a 25/25 hubo un Bárbaro con
+    lectura independiente que la sostenía: el efecto nuevo pasaba a estar
+    alcanzado y la mutación dejaba de demostrar nada. Cuelga ahora de un rasgo
+    de **Brujo**, que es una de las cuatro clases sin ficha promovida —Brujo,
+    Guerrero, Mago y Pícaro—. Si algún día se promueve un Brujo, esta mutación
+    volverá a callarse y habrá que mudarla otra vez: queda dicho aquí para que
+    la próxima no parezca un fallo del censo.
+    """
+    p2 = r / "clases/rasgos/brujo.yaml"
     t = p2.read_text(encoding="utf-8")
-    t = t.replace('  - nombre: "Furia"\n',
-                  '  - nombre: "Furia"\n'
-                  '    efectos:\n'
-                  '      - {objetivo: velocidad, op: add, formula: "1",\n'
-                  '         pagina: {pdf: 53, libro: 51}}\n', 1)
+    viejo = '  - nombre: "Magia del pacto"\n'
+    assert viejo in t, "el rasgo del que cuelga esta mutación ya no existe"
+    t = t.replace(viejo,
+                  viejo
+                  + '    efectos:\n'
+                    '      - {objetivo: velocidad, op: add, formula: "1",\n'
+                    '         pagina: {pdf: 74, libro: 72}}\n', 1)
     p2.write_text(t, encoding="utf-8")
     return ("un efecto NUEVO en la base que ninguna ficha sostiene y que no "
             "está en la deuda enumerada")

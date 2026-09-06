@@ -20,6 +20,5 @@
   "m_mul_invertido": "el agregador `mul` divide en vez de multiplicar",
   "m_sin_redondeo": "se quita el `math.floor` final de la agregación",
   "m_orden_ignorado": "`agregar()` deja de leer `orden_de_agregacion` y usa un orden propio"
- },
- "_por_que_estos_tres": "Medido el 2026-09-06, tras escribir ocho fichas dirigidas por esta lista: los tres que quedan NO los puede cerrar ninguna ficha, porque necesitan datos que la base no tiene. `mul`: no existe ni un efecto con esa operación en toda la base. `math.floor`: solo actúa sobre una variable NO decimal que reciba un valor fraccionario, y hoy lo único fraccionario es `velocidad`, que está declarada `decimal: true` y por eso no se redondea. `orden_de_agregacion`: hace falta que dos operaciones distintas caigan sobre la MISMA variable y que el orden entre ellas cambie el resultado; con los 25 efectos de hoy no ocurre. No son deuda de cobertura de fichas: son vocabulario del motor por delante del dato, y se cierran el día que la base traiga un rasgo que los use — o no se cierran nunca, y entonces lo honesto es decir eso y no buscar una ficha imposible."
+ }
 }

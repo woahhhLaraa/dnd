@@ -133,7 +133,11 @@ calculado:
   velocidad: 9
   cd_conjuros: 12
   bonif_ataque_conjuros: 4
+  # Segunda transcripción: un agente ciego —recibió la ficha SIN este
+  # bloque, vía `verificar_personaje.py --datos-crudos`— derivó a mano
+  # los cinco (pg_max, ca, velocidad, cd_conjuros, bonif_ataque_conjuros)
+  # citando fichero y página en cada paso, y COINCIDE con el motor.
   _origen:
-    metodo: motor
-    informe: None
+    metodo: agente-manual
+    informe: _verificacion/_aritmetica/bardo_danza_n3-calculista-ciego.md
     fecha: '2026-09-06'

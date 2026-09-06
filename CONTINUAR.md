@@ -42,7 +42,7 @@ python3 validar.py            # 0 errores
 python3 verificar_srd.py      # 646 valores · 0 discrepancias
 python3 verificar_foundry.py  # 3749 valores · 0 discrepancias
 python3 cobertura.py          # 0 preguntas sin responder
-python3 censo.py              # 937 unidades · 0 sin declarar · 579 pendientes
+python3 censo.py              # 937 unidades · 0 sin declarar · 570 pendientes
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 26/26
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240
 python3 verificar_documentos.py   # ¿CONTINUAR.md y FODA.md dicen la verdad?
@@ -158,7 +158,7 @@ solución a los "parches puntuales" en vez de seguir apilando verificadores.**
 >   habría aplicado, en silencio. Ahora cada condición dice cómo se decide,
 >   `agregar()` ITERA el orden que declara la base —era prosa que citaba y no
 >   leía— y cada fuente de valor necesita su lector.
->   **De rebote, `mutaciones_motor` pasa de 4/11 a 7/12**: borrar el agregador
+>   **De rebote, `mutaciones_motor` mejoró**: borrar el agregador
 >   `min`, `max` o `set` ya no es invisible, porque el vocabulario tiene
 >   consumidor exhaustivo.
 >
@@ -173,100 +173,62 @@ solución a los "parches puntuales" en vez de seguir apilando verificadores.**
 >   faltan no los aplica ninguna ficha, así que solo se cierran **escribiendo
 >   fichas nuevas** que los ejerciten. Eso es trabajo previo al calculista.
 >
-> - **Ocho fichas nuevas, elegidas por las listas y no por una idea de
+> - **Nueve fichas nuevas, elegidas por las listas y no por una idea de
 >   personaje.** Siete las dirigió la fila 8 y cubren los 18 efectos que no
 >   ejercitaba nadie; la octava la dirigió `motor_sin_carga.json` y ejercita el
 >   mínimo de 1 PG por nivel (Constitución 8, dado d6 y una tirada de 1: sin
 >   esas tres cosas a la vez el mínimo no se activa).
-> - **Fila 8 de 4/25 a 16/25** · **`mutaciones_motor` de 4/11 a 9/12 cazadas.**
 >
-> ## 🔴 LO PRIMERO AL REANUDAR
+> ## ✅ EL PLAN 20 ESTÁ CERRADO (2026-09-06)
 >
-> **Relanzar la tanda a ciegas para cinco fichas.** Los cuatro agentes de la
-> última tanda murieron por límite de sesión; dos habían escrito su informe
-> antes de morir (paladín y explorador: 10 de 10 valores coinciden, ya
-> promovidas) y dos no. Faltan:
+> Las cinco fases hechas y el criterio de cierre cumplido, remedido:
 >
-> ```
-> barbaro_berserker_n20   monje_elementos_n20   bardo_danza_n3
-> bardo_valor_n3          druida_luna_n3
-> ```
+> | Criterio | Prometía | Real |
+> |---|---|---|
+> | filas del censo | 7 → 9 | **9** |
+> | unidades, 0 sin declarar | 867 → ~919 | **937** |
+> | fila 9 (constantes) tiende a cero | 34 | **22, y las 22 con motivo real** |
+> | fila 8 (efectos con carga) | 25/25 | **25/25** |
+> | `mutaciones_motor` | N/N | **12/12 · 9 cazadas, 3 declarados** |
 >
-> El procedimiento está probado: `verificar_personaje.py --datos-crudos <ficha>`
-> para el fichero crudo, y el encargo del mandato E de `PLAN_ESTRES.md` con los
-> dos avisos que evitan hallazgos ya conocidos (la CA sin armadura y la CD de
-> conjuros). Al coincidir, `_origen: agente-manual` con su informe → **la fila 8
-> llega a 25/25 y se cierra el criterio del `PLAN_20`**.
+> Los tres huecos de motor que quedan **no se cierran con fichas**, y el motivo
+> está dentro de `motor_sin_carga.json`: `mul` no lo usa ningún efecto de la
+> base, `math.floor` solo actúa sobre una variable no decimal que reciba un
+> fraccionario (y lo único fraccionario es `velocidad`, declarada decimal), y
+> el orden de agregación necesita dos operaciones sobre la misma variable. Son
+> vocabulario del motor por delante del dato. **No busques una ficha
+> imposible.**
 >
-> **Los tres huecos de motor que quedan NO se cierran con fichas**, y el motivo
-> está escrito en `_verificacion/motor_sin_carga.json`: `mul` no lo usa ningún
-> efecto de la base, `math.floor` solo actúa sobre una variable no decimal que
-> reciba un fraccionario (y lo único fraccionario es `velocidad`, declarada
-> decimal), y el orden de agregación necesita dos operaciones sobre la misma
-> variable. Son vocabulario del motor por delante del dato. No busques una ficha
-> imposible.
+> ### El hallazgo con el que se cerró, y es el mayor de la ronda
 >
-> Después: el encargo abierto de rearquitecturación, más abajo.
-> `subir_nivel.py` y `generar_ficha.py` siguen sin mirarse con esta lupa: el
-> punto 2 de aquí abajo sigue vigente para ellos.
-
-### Por qué esto va primero
-
-Es la misma lección que ya cerró el espiral una vez (`PLAN_17`, §2): el
-proyecto repitió **cinco veces** una lista escrita a mano que se quedaba
-corta, y cada vez la respuesta fue "otro verificador" en vez de "por qué
-sigue apareciendo esto". `censo.py` lo cerró **estructuralmente** — la
-cobertura se descubre, no se enumera — y desde entonces la regla inviolable
-6 lo dice con todas las letras.
-
-La ronda 2 de estrés (2026-09-03, ver `PLAN_ESTRES.md`) encontró **10
-hallazgos nuevos** en `verificar_personaje.py`, y al clasificarlos salió
-esto: **no son 10 bugs sueltos**.
-
-| Categoría | Cuántos | El patrón |
-|---|---|---|
-| Autoridad duplicada en Python (el patrón del espiral) | 2 | El tope de 20 en mejoras está cableado con `> 20`, cuando 42 de 43 dotes ya traen `mejora_caracteristica` estructurado. `pg_por_nivel` no se contrasta contra el dado aunque `calculo.valor_establecido_pg()` ya existe y lee la base |
-| Falta un validador de forma genérico | 1 | Claves desconocidas del YAML (`raza:`, `decisiones.nota`) no se rechazan una por una — hace falta UN recorrido que valide contra el esquema entero, no parches por clave |
-| Falta extender un mecanismo que ya existe | 2 | Idiomas y conjuros de clase no pasan por el mismo contraste "reúne lo permitido, comprueba membresía" que ya usan armas/armaduras/herramientas |
-| Bugs puntuales de verdad | 5 | El resto: duplicado truco/preparado, dos falsos positivos, dos de robustez |
-
-**Solo 5 de 10 eran parches puntuales genuinos.** Los otros 5 son la misma
-familia de defecto, dos o tres veces, con nombres distintos. Arreglarlos uno
-por uno habría sido exactamente el error que `PLAN_17` diagnosticó.
-
-### Lo que hay que hacer, en este orden
-
-1. **No arrancar arreglando los 10 hallazgos de la ronda 2 tal cual.**
-   Primero, diseñar los 2-3 mecanismos generales (lectura de
-   `mejora_caracteristica`, un validador de forma que recorra el esquema, la
-   extensión del contraste "permitidas" a idiomas y conjuros) y ver cuántos
-   de los 10 cierran solos.
-2. **Extender la pregunta a todo el código, no solo a
-   `verificar_personaje.py`.** La ronda de estrés solo estresó la
-   verificación de fichas. `calculo.py`, `efectos.py`, `subir_nivel.py`,
-   `generar_ficha.py` no se han mirado con esta lupa todavía. Buscar el
-   mismo patrón que `_ORIGENES`/`_TABLA_COSTE`/`COMPLETO`-`MEDIO` ya
-   enseñaron: un literal en Python (un número, un tope, una tabla) que
-   también vive en un `.yaml` de la base, sin que nada los compare.
-3. **Si el patrón vuelve a aparecer en otro sitio, no es una regla nueva por
-   caso: es la regla inviolable 6 aplicada más ancho**, o el indicio de que
-   hace falta una regla inviolable 7 — eso se decide con lo que la auditoría
-   encuentre, no antes.
-4. Solo entonces, cerrar lo que quede como parche puntual genuino, cada uno
-   con su chequeo y su mutación como manda el método.
-
-### Lo que queda después de eso
-
-- **Fase 6 del `PLAN_19` — multiclase.** Reglas ya transcritas y citadas en
-  `reglas/generacion_personaje.yaml → multiclase`; falta ejecutarlas.
-- **Fase 5 del `PLAN_19` — el residuo de ~11 % en prosa de conjuros.**
-  Necesita el manual (no está en este contenedor) y la decisión de cuánto
-  importa es de la usuaria: para uso propio, tolerable; no bloquea nada de
-  lo anterior.
-- El resto de `PLAN_19` §16 (equipo, metamagias, tablas sin contrastar): baja
-  prioridad, medido y declarado, no bloquea el producto.
-
----
+> Al derivar a ciegas las dos fichas de nivel 20, dos agentes distintos, en dos
+> clases distintas, **dieron números mayores que el motor**: 40 puntos de golpe
+> en el Bárbaro y 4 de CA en el Monje. Tenían razón los dos.
+>
+> «Campeón primordial» y «Cuerpo y mente» dicen, sin condición ni duración, que
+> dos puntuaciones suben 4 (tope 25, no 20). La regla estaba transcrita y
+> citada **pero solo en la prosa**: ni el motor la aplicaba, ni la ficha podía
+> expresarla, ni el generador la ponía. **Todo personaje de nivel 20 de Bárbaro
+> o Monje salía con dos características y varios números de menos, en verde** —
+> incluida `draconido_monje_n20`, que llevaba semanas en la base.
+>
+> Cerrado con el vocabulario que ya existía (`mejora_caracteristica`, el de las
+> dotes), una cuarta fuente de puntuación en `verificar_mejoras` —base +
+> trasfondo + mejoras + dotes + **rasgos**— y el mismo cálculo en el generador.
+> Y con un matiz que el propio verificador destapó: **el tope de una mejora se
+> mide en su momento**, no al final; comparar la del nivel 16 («máx. 20»)
+> contra un `final` que el rasgo del 20 dejó en 24 la haría ilegal sin serlo.
+>
+> **Dos mutaciones cambiaron de vehículo, no de chequeo**, y las dos por la
+> misma razón: su premisa dejó de ser cierta. `u_efecto_nuevo_sin_carga`
+> colgaba de «Furia» del Bárbaro, y ahora hay un Bárbaro con lectura
+> independiente que la sostiene: cuelga de un rasgo de Brujo, una de las cuatro
+> clases sin ficha promovida. Y `n_otro_reparto_legal` llevaba dos puntuaciones
+> escritas a mano que el rasgo nuevo desfasó: ahora las DERIVA del reparto que
+> sustituye.
+>
+> **Lo siguiente:** el encargo abierto de rearquitecturación, aquí abajo. No
+> queda plan escrito por delante.
 
 ## 🏗 ENCARGO ABIERTO — rearquitecturar, no seguir parcheando verificadores
 

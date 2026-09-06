@@ -189,9 +189,21 @@ def c_extra_sin_fuente(r):
 
 def n_otro_reparto_legal(r):
     def f(d):
-        d["mejoras"][0]["sube"] = {"des": 1, "con": 1}
-        d["caracteristicas"]["final"]["des"] = 18
-        d["caracteristicas"]["final"]["con"] = 15
+        # El reparto nuevo se DERIVA del que había, en vez de escribir los dos
+        # números a mano. Iban cableados («des: 18, con: 15») y se quedaron
+        # obsoletos el 2026-09-06, cuando «Cuerpo y mente» —el rasgo de nivel
+        # 20 del Monje— pasó a sumar +4 a Destreza y Sabiduría: este control
+        # negativo empezó a saltar sin que el chequeo tuviera nada malo. Es la
+        # lección de siempre, en una mutación: un número copiado se desincroniza
+        # en silencio.
+        viejo = dict(d["mejoras"][0]["sube"])
+        nuevo = {"des": 1, "con": 1}
+        d["mejoras"][0]["sube"] = nuevo
+        fin = d["caracteristicas"]["final"]
+        for k, v in viejo.items():
+            fin[k] = fin.get(k, 0) - v
+        for k, v in nuevo.items():
+            fin[k] = fin.get(k, 0) + v
     _editar(r, MONJE, f)
     return ("repartir +1 y +1 en vez de +2, con `final` actualizado: la dote lo "
             "permite y las cuentas cuadran")

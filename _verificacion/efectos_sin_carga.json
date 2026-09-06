@@ -2,29 +2,13 @@
  "_nota": "Efectos declarados que NINGUNA ficha con `_origen: agente-manual` sostiene. Es deuda enumerada, no permiso: solo puede bajar, y se salda con el mandato «el calculista» de PLAN_ESTRES.md, no editando esta lista.",
  "_fecha": "2026-09-05",
  "_como_se_salda": "una ficha cuyo `calculado` haya calculado a mano un agente desde la página, y que aplique ese efecto, lo pincha aquí",
- "efectos": [
-  "efecto:clases/rasgos/barbaro.yaml#Movimiento rápido·velocidad·add",
-  "efecto:clases/subclases/bardo.yaml#Inspiración en combate·ca·conditional",
-  "efecto:clases/subclases/bardo.yaml#Juego de pies deslumbrante·ca·base",
-  "efecto:clases/subclases/druida.yaml#Formas del círculo·ca·conditional",
-  "efecto:clases/subclases/monje.yaml#Paradigma elemental·velocidad·conditional",
-  "efecto:dotes/don_epico.yaml#Don de la fortaleza·pg_max·add",
-  "efecto:dotes/don_epico.yaml#Don de la velocidad·velocidad·add",
-  "efecto:dotes/generales.yaml#Veloz·velocidad·add",
-  "efecto:dotes/origen.yaml#Duro·pg_max·add"
- ],
+ "efectos": [],
  "_ultima_poda": {
   "fecha": "2026-09-05",
   "saldados": [
-   "Errante → velocidad (add)",
-   "Emboscador pavoroso → velocidad (conditional)",
-   "Aura de celeridad → velocidad (add)",
-   "Aura de celeridad → velocidad (conditional)",
-   "Defensa gloriosa → ca (conditional)",
-   "Defensa → ca (add)",
-   "Atacante a la carga → velocidad (conditional)",
-   "Duelista defensivo → ca (conditional)",
-   "Maestro en armaduras medias → ca (modifica_tope)"
+   "Inspiración en combate → ca (conditional)",
+   "Juego de pies deslumbrante → ca (base)",
+   "Formas del círculo → ca (conditional)"
   ]
  }
 }

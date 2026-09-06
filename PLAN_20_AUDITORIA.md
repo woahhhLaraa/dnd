@@ -1,5 +1,69 @@
 # Plan de auditoría — la autoridad que no se puede citar ni contrastar
 
+> # ✅ CERRADO el 2026-09-06
+>
+> Las cinco fases hechas y el criterio de cierre cumplido, **remedido, no
+> predicho**:
+>
+> | Criterio | Prometía | Real |
+> |---|---|---|
+> | filas del censo | 7 → 9 | **9** |
+> | unidades, 0 sin declarar | 867 → ~919 | **937** |
+> | fila 9 · constantes de dominio, tiende a cero | 34 medidas | **39 medidas → 22, y las 22 con motivo real** |
+> | fila 8 · efectos con carga | 25/25 | **25/25** |
+> | `mutaciones_motor` en N/N | N/N | **12/12 · 9 cazadas por una ficha, 3 declarados** |
+>
+> **Los tres huecos de motor que quedan no se cierran con fichas**, y el motivo
+> vive dentro de `motor_sin_carga.json`: `mul` no lo usa ningún efecto de la
+> base; `math.floor` solo actúa sobre una variable no decimal que reciba un
+> fraccionario, y lo único fraccionario es `velocidad`, declarada `decimal`; y
+> el orden de agregación necesita dos operaciones sobre la misma variable. Son
+> **vocabulario del motor por delante del dato**. Decirlo es más honesto que
+> perseguir una ficha imposible.
+>
+> ## Lo que costó, en defectos encontrados
+>
+> El plan nació de una pregunta —«¿cuánto del código son parches puntuales?»— y
+> la respuesta, medida, es que **cada guardián del repositorio mentía en algo, y
+> ninguno se había cazado a sí mismo**:
+>
+> | Guardián | Decía | Pasaba |
+> |---|---|---|
+> | `verificar_chequeos` | «ninguna rama silenciosa nueva» | 67 ramas, línea base 64: su huella colapsaba las gemelas |
+> | `censo` | «0 sin declarar» | `equipo/` fuera del universo, **y una mutación lo blindaba** |
+> | `validar` | «0 errores» | tres vocabularios cerrados sin ningún consumidor |
+> | `validar` | «0 errores» | dos chequeos que reventaban sin imprimir su etiqueta |
+> | `mutaciones_motor` | «cobertura perdida» | falso: era una descripción reescrita |
+> | `calculo.ca()` | — | cableaba el `10` que la base declaraba y `efectos.py` leía |
+>
+> Y el mayor, el que cerró el plan: **«Campeón primordial» y «Cuerpo y mente»**
+> —los rasgos de nivel 20 del Bárbaro y el Monje— dicen sin condición ni
+> duración que dos puntuaciones suben 4. La regla estaba transcrita y citada
+> **pero solo en la prosa**: ni el motor la aplicaba, ni la ficha podía
+> expresarla, ni el generador la ponía. **Todo personaje de nivel 20 de esas dos
+> clases salía con dos características y varios números de menos, en verde** —
+> incluida una ficha que llevaba semanas en la base. Lo destaparon dos
+> calculistas a ciegas, en dos clases distintas, dando cada uno un número mayor
+> que el motor. Tenían razón los dos.
+>
+> ## Lo que el plan deja en pie, y no es poco
+>
+> - **Nueve fichas nuevas elegidas por una lista, no por una idea de personaje.**
+>   Siete las dirigió la fila 8; una, `motor_sin_carga.json`; y la novena es la
+>   del mínimo de PG, que necesita Constitución 8, dado d6 y una tirada de 1
+>   para activarse.
+> - **Cinco mutaciones cambiaron de vehículo, ninguna de chequeo.** Cada vez que
+>   una premisa dejó de ser cierta —el literal se derivó, la ficha se promovió,
+>   el número cambió— se mudó la mutación y se escribió por qué. Ninguna se
+>   borró para que la cuenta saliera.
+> - **La regla 6 gana su corolario:** ningún literal del dominio sin derivar o
+>   sin declarar con motivo, y ningún número de ficha sin una segunda
+>   transcripción.
+>
+> **Lo que sigue no es este plan:** es el encargo de rearquitecturación abierto
+> en `CONTINUAR.md`, que sale de la misma medición — cinco guardianes con el
+> mismo defecto de forma no se arreglan uno a uno.
+
 ## Contexto
 
 **De dónde sale.** La ronda 2 de estrés (2026-09-05) encontró 10 defectos en

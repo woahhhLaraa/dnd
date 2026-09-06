@@ -29,7 +29,7 @@ reproducen con los cinco comandos del final.
    biyección); `cobertura.py` pregunta si la base sabe responder.
 4. **Cada chequeo nuevo se prueba por mutación, en las dos direcciones.**
    `mutaciones_dados.py` (12/12), `mutaciones_conversiones.py` (16/16),
-   `mutaciones_integridad.py` (24/24), `mutaciones_efectos.py` (36/36),
+   `mutaciones_integridad.py` (24/24), `mutaciones_efectos.py` (42/42),
    `mutaciones_pg.py` (13/13), `mutaciones_materiales.py` (10/10),
    `mutaciones_tiradas.py` (19/19), `mutaciones_prerrequisitos.py` (10/10), `mutaciones_subida.py` (7/7), `mutaciones_nivel20.py` (52/52) y
    `mutaciones_foundry.py` (47/47). La mitad
@@ -228,7 +228,7 @@ Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
    *(era 🔴 desde el 2026-08-31, el mismo día en que se escribió)*
 
    `censo.py` la convierte en una cuenta: **937 unidades censadas, 0 sin
-   declarar, 579 pendientes con su bloque y su motivo**. Nueve clases de unidad
+   declarar, 570 pendientes con su bloque y su motivo**. Nueve clases de unidad
    —la séptima, los módulos de herramienta, la añadió el bloque A2; la octava,
    los efectos con carga, la fase 1.3 de `PLAN_20_AUDITORIA.md`; la novena, las
    constantes de dominio en Python, su fase 3—, nueve
@@ -358,7 +358,7 @@ python3 verificar_srd.py      # 646 valores contra el SRD
 python3 verificar_foundry.py  # 3749 valores contra el SRD estructurado
 python3 cobertura.py          # ¿puede responder?
 python3 _verificacion/mutaciones_integridad.py   # 24/24
-python3 _verificacion/mutaciones_efectos.py      # 36/36
+python3 _verificacion/mutaciones_efectos.py      # 42/42
 python3 _verificacion/mutaciones_pg.py           # 13/13
 python3 _verificacion/mutaciones_materiales.py   # 10/10
 python3 _verificacion/mutaciones_tiradas.py      # 19/19

@@ -40,10 +40,10 @@ caracteristicas:
     sab: 1
   final:
     fue: 12
-    des: 20
+    des: 24
     con: 13
     int: 12
-    sab: 19
+    sab: 23
     car: 8
 competencias:
   salvaciones:
@@ -248,12 +248,18 @@ decisiones:
     campo: atributos_basicos.equipo_inicial
 calculado:
   pg_max: 123
-  ca: 19
+  ca: 23
   bonif_competencia: 6
   velocidad: 27
+  # Segunda transcripción: un agente ciego —recibió la ficha SIN este
+  # bloque, vía `verificar_personaje.py --datos-crudos`— derivó a mano
+  # los tres que tiene (pg_max, ca, velocidad); no lanza conjuros
+  # citando fichero y página en cada paso.
+  # Y su derivación DISCREPÓ del motor en 4 puntos de CA: tenía razón el
+  # calculista. Ver el hallazgo de «Cuerpo y mente».
   _origen:
-    metodo: motor
-    informe: null
+    metodo: agente-manual
+    informe: _verificacion/_aritmetica/monje_elementos_n20-calculista-ciego.md
     fecha: '2026-09-06'
 dotes:
 - ref: dotes/don_epico.yaml#Don de la velocidad

@@ -131,6 +131,28 @@ def generar(clase, nivel, especie=None, trasfondo=None, subclase=None):
         mejoras.append({"nivel": n, "sube": sube,
                         "ref": "dotes/generales.yaml#Mejora de característica"})
 
+    # ── y los RASGOS de clase que suben puntuaciones (fase de cierre del
+    #    PLAN_20, 2026-09-06). «Campeón primordial» y «Cuerpo y mente» suben
+    #    dos puntuaciones 4 puntos, sin condición ni duración, al llegar al
+    #    nivel 20. No son una elección: los concede la tabla, así que el
+    #    generador los aplica igual que el verificador los exige.
+    #
+    #    Lo destapó la tanda a ciegas del calculista: dos agentes distintos
+    #    dieron números mayores que el motor en dos clases distintas, y tenían
+    #    razón. Mientras esto no estuvo, TODA ficha generada de nivel 20 de
+    #    Bárbaro o Monje salía con dos características de menos, en verde.
+    import efectos as _E
+    _stem = _E.clases_por_nombre().get(clase)
+    for r in ((cargar(f"clases/rasgos/{_stem}.yaml") or {}).get("rasgos") or []):
+        mej_r = r.get("mejora_caracteristica")
+        if not mej_r or (r.get("nivel") or 0) > nivel or not mej_r.get("todas"):
+            continue
+        for nombre_car in (mej_r.get("entre") or []):
+            k = _CORTO.get(nombre_car)
+            if k:
+                final[k] = min(final.get(k, 0) + mej_r.get("cantidad", 0),
+                               mej_r.get("maximo", 20))
+
     # ── competencias
     hab_bloque = ab.get("habilidades") or {}
     del_trasfondo = list(tr.get("habilidades") or [])
