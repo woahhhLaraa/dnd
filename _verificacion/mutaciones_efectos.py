@@ -356,7 +356,11 @@ def d_rasgo_sacado_de_la_lista(r):
     p = r / "_verificacion/rasgos_sin_declarar.json"
     import json as _j
     d = _j.loads(p.read_text(encoding="utf-8"))
-    d["rasgos"] = [x for x in d["rasgos"] if "Ataque temerario" not in x]
+    # `entradas`, un diccionario `id → frase`, desde la fase 1 del PLAN_21:
+    # antes era `rasgos`, una lista de ids. La forma la fija ahora `deuda.py`
+    # para los cinco ficheros, en vez de una por fichero.
+    d["entradas"] = {k: v for k, v in d["entradas"].items()
+                     if "Ataque temerario" not in k}
     p.write_text(_j.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
     return ("se borra «Ataque temerario» de la lista sin declararle nada: la "
             "deuda no se salda tachándola, se salda declarándola")

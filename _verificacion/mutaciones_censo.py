@@ -363,16 +363,28 @@ def m_excluido_muerto(r):
             "mirado lo que nadie mira, y encima sube el recuento")
 
 
-def m_deuda_muerta(r):
-    """Lo mismo con la deuda enumerada: un uid obsoleto en
-    `rasgos_sin_declarar.json` se ignoraba en silencio."""
-    import json
-    p = r / "_verificacion/rasgos_sin_declarar.json"
-    d = json.loads(p.read_text(encoding="utf-8"))
-    d["rasgos"].append("clases/rasgos/barbaro.yaml#Rasgo que no existe")
-    p.write_text(json.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
-    return ("un rasgo obsoleto en la deuda enumerada: la lista solo puede "
-            "bajar, y una entrada que no corresponde a nada la infla")
+def m_deuda_rehecha(r):
+    """**Esta mutación CAMBIÓ DE VEHÍCULO el 2026-09-06, no de chequeo.**
+
+    Era `m_deuda_muerta`: añadía a mano un uid obsoleto a
+    `rasgos_sin_declarar.json` y exigía que el censo lo cazara, porque hasta la
+    fase 1 del PLAN_21 esa fila NO PODABA y una entrada inventada se quedaba
+    ahí inflando la lista en silencio. Con `deuda.Deuda` la fila poda: la
+    entrada muerta sale sola en la pasada siguiente, se anuncia como saldada, y
+    el recuento no se mueve. Medido: el censo sigue en 938 · 0 sin declarar.
+    O sea, **la premisa dejó de ser cierta porque el defecto se cerró**, y
+    borrar la mutación para que cuadre la cuenta es exactamente lo que este
+    proyecto tiene prohibido. La propiedad «una entrada muerta no se queda»
+    la prueba ahora el escenario `poda` de `mutaciones_deuda.py`, donde vive.
+
+    Lo que el censo SÍ sigue teniendo que impedir es la otra dirección, que es
+    peor y no la miraba nadie: **rehacer la línea base desde cero**. Si el
+    fichero no está, `Deuda` lo escribe con lo medido HOY, y los 480 rasgos sin
+    declarar pasarían a ser deuda «declarada» de golpe, en verde. Por eso
+    `fila_rasgos` exige que exista antes de contrastar nada."""
+    (r / "_verificacion/rasgos_sin_declarar.json").unlink()
+    return ("se borra el fichero de deuda: sin él la línea base se rehace con "
+            "lo medido hoy y 480 rasgos sin declarar quedan «declarados»")
 
 
 def u_efecto_nuevo_sin_carga(r):
@@ -410,7 +422,7 @@ DEBEN = [u_fichero_de_regla, u_variable_calculable, u_columna_de_clase,
          m_declaracion_muerta, m_declaracion_borrada, m_comodin_en_exentas,
          m_exenta_y_pendiente, u_rasgo_nuevo,
          u_rebanada_estrechada, u_rebanada_nueva,
-         m_excluido_muerto, m_deuda_muerta,
+         m_excluido_muerto, m_deuda_rehecha,
          u_efecto_nuevo_sin_carga,
          u_fichero_de_equipo_sin_clasificar, u_directorio_nuevo_sin_declarar,
          m_clasificacion_de_equipo_muerta,

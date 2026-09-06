@@ -173,28 +173,12 @@ def m_condiciones_ignoradas(r):
 # Tabla de migración de la línea base del 2026-09-05, que guardaba FRASES, a
 # la de hoy, que guarda ids. Se escribe una vez y se queda como registro de
 # qué era cada cosa; en cuanto el fichero está en el formato nuevo no se usa.
-# Y el ELENCO de mutaciones que existía el 2026-09-05, que aquel fichero no
-# guardaba. Sin él no se puede distinguir «una mutación nueva mide un trozo que
-# nunca estuvo cubierto» de «una mutación que se cazaba ha dejado de cazarse»,
-# y la suite llamaba regresión a lo primero.
-_ELENCO_2026_09_05 = (
-    "m_add_invertido", "m_mul_invertido", "m_min_borrado", "m_max_borrado",
-    "m_set_borrado", "m_sin_redondeo", "m_minimo_de_pg",
-    "m_pg_nivel_1_sin_constitucion", "m_estado_de_equipo_invertido",
-    "m_escudo_invertido", "m_condiciones_ignoradas",
-)
-
-_ID_DE_FRASE = {
-    "el bucle `mul` divide en vez de multiplicar": "m_mul_invertido",
-    "desaparece el bucle `min` de la agregación": "m_min_borrado",
-    "desaparece el bucle `max` de la agregación": "m_max_borrado",
-    "desaparece el bucle `set` de la agregación": "m_set_borrado",
-    "se quita el `math.floor` final de la agregación": "m_sin_redondeo",
-    "el mínimo de 1 de los PG por nivel pasa a 0": "m_minimo_de_pg",
-    "`aplica()` deja de mirar `requiere`: todo efecto se aplica siempre":
-        "m_condiciones_ignoradas",
-}
-
+# La tabla de migración de la línea base del 2026-09-05 —que guardaba FRASES— y
+# el elenco de aquel día vivieron aquí hasta el 2026-09-06. Ya no hacen falta:
+# el fichero está en el formato de `deuda.Deuda`, con sus ids y su elenco
+# dentro, y su historia quedó escrita en el propio JSON (`_migracion_plan21`).
+# Borrarlas es parte del punto: la migración se hace una vez, no se conserva
+# como código muerto que alguien tenga que volver a entender.
 
 MUTACIONES = [
     m_add_invertido, m_mul_invertido, m_min_borrado, m_max_borrado,
@@ -232,7 +216,7 @@ def main():
         return 1
     print(f" ✅ control · las {len(_fichas(BASE))} fichas pasan con el motor intacto\n")
 
-    cazadas, huecos = 0, []
+    cazadas, huecos = 0, {}
     for mut in MUTACIONES:
         with tempfile.TemporaryDirectory() as tmp:
             raiz = pathlib.Path(tmp) / "base"
@@ -246,103 +230,52 @@ def main():
                 print(f"      la cazan {len(culpables)}: {', '.join(culpables[:3])}"
                       + (" …" if len(culpables) > 3 else ""))
             else:
-                huecos.append((mut.__name__, desc))
+                huecos[mut.__name__] = desc
                 print(f" ❌ {desc}")
                 print("      ↑ NINGUNA ficha la caza: es un hueco de cobertura "
                       "aritmética, no un fallo de esta suite")
 
     print("─" * 74)
 
-    # La deuda va ENUMERADA y solo puede bajar — el patrón de
-    # `chequeos_silenciosos.json` y `rasgos_sin_declarar.json`.
-    #
-    # ── La identidad es el NOMBRE de la mutación, no su descripción ──────
-    # Hasta el 2026-09-06 la línea base guardaba las frases, y eso hacía que
-    # el fichero mintiera en las dos direcciones: al reescribir la descripción
-    # de `m_mul_invertido` («el bucle `mul`» → «el agregador `mul`») el mismo
-    # hueco salió como HUECO NUEVO y la suite dijo «un trozo que antes
-    # protegía alguna ficha y ya no», que era falso. Es la misma lección que
-    # `verificar_chequeos.py` aprendió esta misma semana con las gemelas: la
-    # huella tiene que ser lo que identifica, no lo que se lee.
-    #
-    # Y con el id estable se puede distinguir lo que de verdad importa:
-    #   · un hueco bajo un id que ANTES SE CAZABA  → cobertura perdida, ROJO;
-    #   · un hueco bajo un id NUEVO                → una mutación nueva que
-    #     mide un trozo que nunca estuvo cubierto. Eso no es una regresión,
-    #     es medir mejor, y se anota.
-    import json
-    base_f = pathlib.Path(__file__).parent / "motor_sin_carga.json"
-    _NOTA = ("Trozos del motor que NINGUNA ficha de `personajes/` protege: se "
-             "pueden corromper y todas las fichas siguen verificando en verde. "
-             "Es deuda enumerada, no permiso. Solo puede bajar por cobertura "
-             "perdida, y se salda escribiendo fichas que ejerciten esa "
-             "aritmética —el mandato «el calculista»— o dándole al vocabulario "
-             "un consumidor exhaustivo, que es como se cerraron `min`, `max` y "
-             "`set` en la fase 4. La clave de cada entrada es el NOMBRE de la "
-             "mutación, no su texto: reescribir una descripción no puede "
-             "parecer una regresión.")
-    declarados, elenco_previo = {}, set(_ELENCO_2026_09_05)
-    if base_f.exists():
-        d = json.loads(base_f.read_text(encoding="utf-8"))
-        declarados = d.get("huecos_por_id") or {}
-        if d.get("mutaciones"):
-            elenco_previo = set(d["mutaciones"])
-        if not declarados and d.get("huecos"):
-            # Migración única desde la línea base por FRASES (2026-09-06). Se
-            # emparejan por el texto que cada mutación devuelve hoy; la que no
-            # case es una descripción reescrita, y entra por su id igual.
-            declarados = {}
-            for h in d["huecos"]:
-                declarados[_ID_DE_FRASE.get(h, h)] = h
+    # La deuda va ENUMERADA y solo puede bajar. La contabilidad la lleva
+    # `deuda.Deuda` desde la fase 1 del PLAN_21: este fichero era el ÚNICO de
+    # los cinco que sabía podar, distinguir lo nuevo de lo perdido y guardar el
+    # elenco —lo aprendió el último día y a golpes—, y por eso es el modelo del
+    # que salió la abstracción. Aquí se queda solo lo que es suyo: qué es un
+    # hueco y cómo se salda.
+    import sys as _sys
+    _sys.path.insert(0, str(BASE))
+    import deuda as D
 
-    ids_hoy = {n for n, _d in huecos}
-    nombres = {m.__name__ for m in MUTACIONES}
-    # Cerrado: estaba declarado como hueco y hoy lo caza algo.
-    cerrados = [n for n in declarados if n in nombres and n not in ids_hoy]
-    # Cobertura PERDIDA: la mutación existía y NO estaba declarada como hueco
-    # —o sea, alguna ficha la cazaba— y hoy no la caza nadie. Eso es lo único
-    # que este chequeo puede prometer, y lo único que pone rojo.
-    # Solo cuenta como perdida una mutación que YA EXISTÍA y que entonces no
-    # era hueco. Una mutación nueva no puede haber perdido nada.
-    cazadas_antes = elenco_previo - set(declarados)
-    perdidos = [n for n in ids_hoy if n in cazadas_antes]
-    nuevos_medidos = [(n, d) for n, d in huecos if n not in declarados]
-
-    if huecos:
-        print("Trozos de motor que hoy no protege ninguna ficha —se saldan "
-              "escribiendo fichas que los ejerciten o dando consumidor al "
-              "vocabulario, no tocando esta lista:")
-        for _n, d in huecos:
-            print(f"   · {d}")
-    if cerrados:
-        print(f"\n ✅ {len(cerrados)} hueco(s) que ya protege algo:")
-        for n in cerrados:
-            print(f"      · {declarados[n]}")
-    for n, d in nuevos_medidos:
-        print(f" ℹ hueco medido por una mutación NUEVA (no es cobertura "
-              f"perdida):\n      {d}")
-    for n in perdidos:
-        print(f" 🔴 COBERTURA PERDIDA: alguna ficha cazaba «{n}» y ya no")
-
-    base_f.write_text(json.dumps(
-        {"_nota": _NOTA, "_fecha": "2026-09-06",
-         "_elenco": "todas las mutaciones que esta suite corre hoy. Sin esta "
-                    "lista no se distingue una mutación NUEVA de una que se "
-                    "cazaba y ha dejado de cazarse.",
-         "mutaciones": sorted(nombres),
-         "huecos_por_id": {n: d for n, d in huecos}},
-        ensure_ascii=False, indent=1), encoding="utf-8")
+    dd = D.Deuda(
+        "_verificacion/motor_sin_carga.json",
+        nota=("Trozos del motor que NINGUNA ficha de `personajes/` protege: se "
+              "pueden corromper y todas las fichas siguen verificando en "
+              "verde. Es deuda enumerada, no permiso."),
+        como_se_salda=("escribiendo fichas que ejerciten esa aritmética —el "
+                       "mandato «el calculista»— o dándole al vocabulario un "
+                       "consumidor exhaustivo, que es como se cerraron `min`, "
+                       "`max` y `set` en la fase 4 del PLAN_20"),
+        identidad="nombre-de-mutacion",
+        identidad_explicada=("el NOMBRE de la función de mutación. Nunca su "
+                             "descripción: reescribir una frase hacía que el "
+                             "mismo hueco saliera como nuevo y esta suite "
+                             "gritara «cobertura perdida», que era falso"))
+    inf = dd.contrastar(dict(huecos), elenco_hoy={m.__name__ for m in MUTACIONES})
+    inf.imprimir("Trozos de motor que hoy no protege ninguna ficha —se saldan "
+                 "escribiendo fichas que los ejerciten o dando consumidor al "
+                 "vocabulario, no tocando esta lista:")
 
     total = len(MUTACIONES)
     print(f"   {cazadas} cazadas por alguna ficha · {len(huecos)} declaradas "
-          f"como deuda en `motor_sin_carga.json` · línea base: {len(declarados)}")
-    if perdidos:
-        print(f"❌ {len(perdidos)} trozo(s) de motor que antes protegía alguna "
-              f"ficha y ya no")
+          f"como deuda en `motor_sin_carga.json` · línea base: {inf.linea_base}")
+    if inf.perdidos:
+        print(f"❌ {len(inf.perdidos)} trozo(s) de motor que antes protegía "
+              f"alguna ficha y ya no")
     else:
         print("✅ ninguna cobertura de motor perdida")
     print(f"{cazadas + len(huecos)}/{total}")
-    return 1 if perdidos else 0
+    return 1 if inf.hay_regresion else 0
 
 
 if __name__ == "__main__":

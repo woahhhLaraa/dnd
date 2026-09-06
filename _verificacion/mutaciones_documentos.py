@@ -75,6 +75,15 @@ def d_mejoras_borrada(r):
     return ("CONTINUAR.md deja de decir cuántas mejoras de dote hay")
 
 
+def d_cuenta_de_suites_borrada(r):
+    """Ancla nueva de la fase 1 del PLAN_21. La frase decía «las 17 suites»
+    con 18 en el disco, y lo decía justo donde presume de que se descubren
+    por patrón: la única cuenta de esa frase que había que recordar a mano."""
+    _borra_linea(r, "CONTINUAR.md", "suites de `_verificacion/mutaciones_*.py`")
+    return ("CONTINUAR.md deja de decir cuántas suites de mutación hay: la "
+            "cuenta vuelve a poder quedarse atrás en silencio")
+
+
 # ══ FALSEAR una cifra: el fallo que sí cazaba ════════════════════════════
 
 def f_cifra_srd(r):
@@ -111,6 +120,20 @@ def f_cifra_mejoras(r):
     return "CONTINUAR.md dice 56 mejoras de dote y las dotes traen 55"
 
 
+def f_cuenta_de_suites(r):
+    """Falsear la cuenta es el otro modo: el que ya pasó, con 17 escrito y 18
+    en el disco. Se pone una de menos, que es la dirección en que se desfasa
+    sola —nace una suite y nadie toca el documento—."""
+    import re as _re
+    p = r / "CONTINUAR.md"
+    t = p.read_text(encoding="utf-8")
+    m = _re.search(r"[Ll]as (\d+) suites de `_verificacion/mutaciones_\*\.py`", t)
+    assert m, "no encuentro la cuenta de suites en CONTINUAR.md"
+    p.write_text(t[:m.start(1)] + str(int(m.group(1)) - 1) + t[m.end(1):],
+                 encoding="utf-8")
+    return ("CONTINUAR.md dice una suite de menos de las que hay en el disco")
+
+
 def f_total_externo_foda(r):
     _sust(r, "FODA.md", "**4.395 valores**", "**4.396 valores**")
     return "FODA.md suma mal el contraste externo: 4396 en vez de 646 + 3749"
@@ -135,8 +158,9 @@ def n_prosa_reescrita(r):
 
 DEBEN = [d_ancla_srd_borrada, d_ancla_foundry_borrada,
          d_linea_integridad_borrada, d_mejoras_borrada,
+         d_cuenta_de_suites_borrada,
          f_cifra_srd, f_cifra_integridad, f_cifra_mejoras,
-         f_total_externo_foda]
+         f_cuenta_de_suites, f_total_externo_foda]
 NO_DEBEN = [n_intacta, n_prosa_reescrita]
 
 

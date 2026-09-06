@@ -1,14 +1,15 @@
 {
  "_nota": "Literales de Python cuyas cadenas están TODAS en el vocabulario de una colección de la base: autoridad duplicada. Deuda enumerada, no permiso — solo puede bajar, y se salda DERIVANDO el literal en tiempo de ejecución, no editando esta lista.",
- "_umbral": 3,
  "_como_se_salda": {
   "copia_exacta": "se deriva: el literal desaparece",
   "subconjunto": "se deriva, o se declara aquí con `motivo` y `deja_fuera` enumerado. Si la colección crece, `deja_fuera` deja de cuadrar y el censo se pone rojo: alguien tiene que decidir si lo nuevo también entra"
  },
- "_fecha": "2026-09-05",
- "constantes": [
-  {
-   "huella": "efectos.py::add|max|min|mul|set",
+ "_identidad": "huella-del-conjunto",
+ "_identidad_explicada": "módulo::cadenas del literal, ordenadas. La huella del CONJUNTO, no la línea",
+ "_fecha": "2026-09-06",
+ "_umbral": 3,
+ "entradas": {
+  "efectos.py::add|max|min|mul|set": {
    "coleccion": "lista:reglas/efectos.yaml:operaciones",
    "clase": "subconjunto",
    "motivo": "las claves de `_AGREGADORES`: no son una copia del vocabulario, son las IMPLEMENTACIONES de cada operación. Y no pueden desviarse: `operaciones_agregadas()` exige la biyección contra `orden_de_agregacion` en las DOS direcciones —una operación declarada sin implementación es error, y una implementación que la base no declare, también—. Deja fuera `base` (es la semilla, no se agrega) y las dos de `no_se_agregan`",
@@ -18,22 +19,7 @@
     "modifica_tope"
    ]
   },
-  {
-   "huella": "efectos.py::base_multiple|condiciones|operaciones|variables",
-   "coleccion": "claves:reglas/efectos.yaml:",
-   "clase": "subconjunto",
-   "motivo": "sin mirar todavía (fase 3, PLAN_20_AUDITORIA.md)",
-   "deja_fuera": [
-    "edicion",
-    "fidelidad",
-    "fuente",
-    "fuentes_de_valor",
-    "orden_de_agregacion",
-    "verificado"
-   ]
-  },
-  {
-   "huella": "efectos.py::base_multiple|condiciones|operaciones|variables",
+  "efectos.py::base_multiple|condiciones|operaciones|variables": {
    "coleccion": "claves:reglas/efectos.yaml:",
    "clase": "subconjunto",
    "motivo": "las claves que `cargar_vocabulario()` EXIGE que declare `reglas/efectos.yaml`. No copian el vocabulario para usarlo: son el requisito que el fichero debe cumplir, y derivarlas de él haría que el chequeo dijera «declara lo que declara». Si el fichero gana una clave nueva, `deja_fuera` deja de cuadrar y alguien tiene que decidir si también se exige",
@@ -48,8 +34,7 @@
     "verificado"
    ]
   },
-  {
-   "huella": "efectos.py::derivadas|directorios|excluidos|fuentes|pendientes",
+  "efectos.py::derivadas|directorios|excluidos|fuentes|pendientes": {
    "coleccion": "claves:reglas/fuentes_de_efectos.yaml:",
    "clase": "subconjunto",
    "motivo": "las claves que `cargar_manifiesto()` EXIGE a `reglas/fuentes_de_efectos.yaml`. Es el requisito que el manifiesto debe cumplir, no una copia para usarla: derivarlas de él haría que el chequeo dijera «declara lo que declara»",
@@ -58,8 +43,7 @@
     "verificado"
    ]
   },
-  {
-   "huella": "generar_ficha.py::con|des|sab",
+  "generar_ficha.py::con|des|sab": {
    "coleccion": "valores:abrev",
    "clase": "subconjunto",
    "motivo": "`_PREFERENCIA`: el orden en que el GENERADOR reparte el conjunto estándar tras la característica principal. No es vocabulario copiado para usarlo, es una heurística propia declarada como tal en `decisiones`, y lo que no nombra lo completa `CARS`, que sí se deriva de reglas/caracteristicas.yaml — así una característica nueva no se queda sin puntuación en silencio",
@@ -69,8 +53,7 @@
     "int"
    ]
   },
-  {
-   "huella": "subir_nivel.py::n|pb|rasgos",
+  "subir_nivel.py::n|pb|rasgos": {
    "coleccion": "claves:clases/picaro.yaml:progresion",
    "clase": "subconjunto",
    "motivo": "las columnas de la progresión que NO son escalados numéricos: `n` es el nivel, `pb` el bonificador por competencia y `rasgos` la lista. Se saltan para quedarse con las columnas de escalado; es navegación de la forma del fichero, no vocabulario del juego",
@@ -78,8 +61,7 @@
     "ataque_furtivo"
    ]
   },
-  {
-   "huella": "validar.py::Canalizador arcano|Canalizador druídico|Munición|Símbolo sagrado",
+  "validar.py::Canalizador arcano|Canalizador druídico|Munición|Símbolo sagrado": {
    "coleccion": "claves:equipo/aventureros.yaml:descripciones",
    "clase": "subconjunto",
    "motivo": "los cuatro objetos de `aventureros.yaml` que son GENÉRICOS —una categoría, no un objeto— y por eso no se les exige descripción propia. Es una lista de excepciones con nombre, no una copia del catálogo",
@@ -163,8 +145,7 @@
     "Útiles de sanador"
    ]
   },
-  {
-   "huella": "validar.py::aptitud_magica|clase|edicion|lanzador",
+  "validar.py::aptitud_magica|clase|edicion|lanzador": {
    "coleccion": "claves:clases/bardo.yaml:",
    "clase": "subconjunto",
    "motivo": "las claves que `validar_clase` EXIGE a cada `clases/*.yaml`. No copian el vocabulario para usarlo: son el requisito que el fichero debe cumplir, y derivarlas de él haría que el chequeo dijera «declara lo que declara»",
@@ -175,15 +156,13 @@
     "verificado"
    ]
   },
-  {
-   "huella": "validar.py::armaduras.yaml|armas.yaml|aventureros.yaml|herramientas.yaml|municion.yaml",
+  "validar.py::armaduras.yaml|armas.yaml|aventureros.yaml|herramientas.yaml|municion.yaml": {
    "coleccion": "ficheros:equipo/",
    "clase": "copia_exacta",
    "motivo": "son las claves de `_VALIDADORES_DE_EQUIPO`, un mapa fichero→validador: la mitad izquierda de una correspondencia, no una lista que se pueda derivar. Que cubran el directorio entero lo comprueba `validar_equipo`, que descubre los ficheros y exige un validador para cada uno",
    "deja_fuera": []
   },
-  {
-   "huella": "validar.py::armaduras|armas|dado_golpe|habilidades|herramientas|salvaciones",
+  "validar.py::armaduras|armas|dado_golpe|habilidades|herramientas|salvaciones": {
    "coleccion": "claves:clases/barbaro.yaml:atributos_basicos",
    "clase": "subconjunto",
    "motivo": "`CAMPOS_FASE11`: los campos que se exigen a `atributos_basicos` de cada clase. Mismo caso — es el requisito, no una copia",
@@ -194,8 +173,7 @@
     "verificado"
    ]
   },
-  {
-   "huella": "validar.py::ataque_adicional|bonificador_por_competencia|clase_de_armadura|competencias_al_multiclasear|lanzamiento_de_conjuros_multiclase|puntos_experiencia|puntos_golpe_y_dados_golpe",
+  "validar.py::ataque_adicional|bonificador_por_competencia|clase_de_armadura|competencias_al_multiclasear|lanzamiento_de_conjuros_multiclase|puntos_experiencia|puntos_golpe_y_dados_golpe": {
    "coleccion": "claves:reglas/generacion_personaje.yaml:multiclase",
    "clase": "subconjunto",
    "motivo": "las siete reglas de multiclase que `validar_generacion` exige que `reglas/generacion_personaje.yaml` declare. Requisito, no copia",
@@ -204,8 +182,7 @@
     "requisitos_por_clase"
    ]
   },
-  {
-   "huella": "validar.py::cantidad|peso_kg|precio",
+  "validar.py::cantidad|peso_kg|precio": {
    "coleccion": "claves:equipo/municion.yaml:municion",
    "clase": "subconjunto",
    "motivo": "los campos que `validar_equipo` exige a cada fila de `municion.yaml`. Requisito, no copia",
@@ -216,22 +193,19 @@
     "recipiente_objeto"
    ]
   },
-  {
-   "huella": "validar.py::d10|d12|d6|d8",
+  "validar.py::d10|d12|d6|d8": {
    "coleccion": "valores:artes_marciales",
    "clase": "copia_exacta",
    "motivo": "`DADOS_GOLPE`: los dados que una clase puede declarar como `dado_golpe`. Derivarlo de los valores que las clases declaran haría el chequeo vacuo —aceptaría cualquier dado que alguien escribiera—. Es el vocabulario cerrado que se les exige",
    "deja_fuera": []
   },
-  {
-   "huella": "validar.py::don_epico.yaml|estilo_de_combate.yaml|generales.yaml|origen.yaml",
+  "validar.py::don_epico.yaml|estilo_de_combate.yaml|generales.yaml|origen.yaml": {
    "coleccion": "ficheros:dotes/",
    "clase": "copia_exacta",
    "motivo": "son las claves de `esperadas`, un mapa fichero→número de dotes: la cuenta es una guardia contra perder una dote en silencio y no se puede derivar del propio fichero, que diría «tiene las que tiene». Que cubran el directorio lo comprueba `validar_dotes`",
    "deja_fuera": []
   },
-  {
-   "huella": "validar.py::n|rasgos|slots",
+  "validar.py::n|rasgos|slots": {
    "coleccion": "claves:clases/explorador.yaml:progresion",
    "clase": "subconjunto",
    "motivo": "ídem, en el recorrido de la progresión de una clase lanzadora",
@@ -241,8 +215,7 @@
     "prep"
    ]
   },
-  {
-   "huella": "verificar_foundry.py::Clon|Cofre oculto de Leomund|Conocer las leyendas|Crear muerto viviente|Proyección astral|Vínculo protector",
+  "verificar_foundry.py::Clon|Cofre oculto de Leomund|Conocer las leyendas|Crear muerto viviente|Proyección astral|Vínculo protector": {
    "coleccion": "nombres:hechizos.json",
    "clase": "subconjunto",
    "motivo": "conjuros cuyo emparejamiento con el pack de Foundry se resolvió a mano tras comprobarlo uno a uno. Lista de excepciones auditada, no vocabulario copiado",
@@ -634,8 +607,7 @@
     "Zona de la verdad"
    ]
   },
-  {
-   "huella": "verificar_foundry.py::Clérigo|Mago|Pícaro",
+  "verificar_foundry.py::Clérigo|Mago|Pícaro": {
    "coleccion": "claves:reglas/generacion_personaje.yaml:multiclase.requisitos_por_clase.tabla",
    "clase": "subconjunto",
    "motivo": "las tres clases cuyas cuatro subclases comparten perfil de niveles, así que el contraste comprueba nuestros datos pero no audita la línea del glosario. Va nombrada en el informe como límite declarado",
@@ -651,15 +623,13 @@
     "Paladín"
    ]
   },
-  {
-   "huella": "verificar_foundry.py::Estilo de combate|Maestría con armas|Tomar aliento",
+  "verificar_foundry.py::Estilo de combate|Maestría con armas|Tomar aliento": {
    "coleccion": "lista:clases/guerrero.yaml:progresion.rasgos",
    "clase": "copia_exacta",
    "motivo": "los tres rasgos del Guerrero de nivel 1 que el pack concede en otro orden. Excepción auditada, no copia del vocabulario",
    "deja_fuera": []
   },
-  {
-   "huella": "verificar_foundry.py::Instrumento musical|Juego|Útiles de herborista",
+  "verificar_foundry.py::Instrumento musical|Juego|Útiles de herborista": {
    "coleccion": "nombres:equipo/herramientas.yaml:otras_herramientas",
    "clase": "subconjunto",
    "motivo": "las tres herramientas que el pack de Foundry no publica como registro único. Lista de excepciones auditada",
@@ -671,8 +641,7 @@
     "Útiles para falsificar"
    ]
   },
-  {
-   "huella": "verificar_foundry.py::armaduras_ligeras|armaduras_medias|armaduras_pesadas|escudos",
+  "verificar_foundry.py::armaduras_ligeras|armaduras_medias|armaduras_pesadas|escudos": {
    "coleccion": "claves:equipo/armaduras.yaml:",
    "clase": "subconjunto",
    "motivo": "claves de `_TIPO_DE_ARMADURA`, el mismo glosario para las armaduras. Igual: no se deriva, y `_glosarios_completos()` exige que cubra los grupos reales. Un grupo nuevo sin traducir no daría error, daría MENOS contraste — y eso es peor, porque el número final seguiría en verde",
@@ -684,8 +653,7 @@
     "verificado"
    ]
   },
-  {
-   "huella": "verificar_foundry.py::armas_a_distancia_marciales|armas_a_distancia_sencillas|armas_cuerpo_a_cuerpo_marciales|armas_cuerpo_a_cuerpo_sencillas",
+  "verificar_foundry.py::armas_a_distancia_marciales|armas_a_distancia_sencillas|armas_cuerpo_a_cuerpo_marciales|armas_cuerpo_a_cuerpo_sencillas": {
    "coleccion": "claves:equipo/armas.yaml:",
    "clase": "subconjunto",
    "motivo": "claves de `_CATEGORIA`, el glosario nuestra-clave → clave del pack de Foundry. NO se deriva: es la regla del contraste externo —nunca se traduce, se empareja por clave y los nombres propios llevan glosario auditable—. Lo que sí se exige, desde la fase 3, es que CUBRA los grupos que la base declara: `_glosarios_completos()` lo comprueba en cada pasada",
@@ -698,8 +666,7 @@
     "verificado"
    ]
   },
-  {
-   "huella": "verificar_personaje.py::armaduras|armas|herramientas",
+  "verificar_personaje.py::armaduras|armas|herramientas": {
    "coleccion": "tallos:equipo/",
    "clase": "subconjunto",
    "motivo": "los tres tipos de competencia que se conceden POR CATEGORÍA (a diferencia de habilidades, salvaciones e idiomas, que van por nombre). Coincide con tres tallos de `equipo/` por lo que nombran, no por lo que son",
@@ -708,12 +675,35 @@
     "municion"
    ]
   },
-  {
-   "huella": "verificar_srd.py::barbaro|bardo|brujo|clerigo|druida|explorador|guerrero|hechicero|mago|monje|paladin|picaro",
+  "verificar_srd.py::barbaro|bardo|brujo|clerigo|druida|explorador|guerrero|hechicero|mago|monje|paladin|picaro": {
    "coleccion": "tallos:clases/",
    "clase": "copia_exacta",
    "motivo": "claves de `MAPA`, el glosario nuestra-clase → (nombre en inglés del SRD, columnas). NO se deriva: es la regla del contraste externo —nunca se traduce, se empareja por clave, y los nombres propios llevan glosario auditable—. Lo que sí se exige desde la fase 3 es que CUBRA las clases que la base declara: una clase nueva sin traducir no daría error, daría menos contraste, y la cuenta final seguiría en verde",
    "deja_fuera": []
   }
+ },
+ "elenco": [
+  "efectos.py::add|max|min|mul|set",
+  "efectos.py::base_multiple|condiciones|operaciones|variables",
+  "efectos.py::derivadas|directorios|excluidos|fuentes|pendientes",
+  "generar_ficha.py::con|des|sab",
+  "subir_nivel.py::n|pb|rasgos",
+  "validar.py::Canalizador arcano|Canalizador druídico|Munición|Símbolo sagrado",
+  "validar.py::aptitud_magica|clase|edicion|lanzador",
+  "validar.py::armaduras.yaml|armas.yaml|aventureros.yaml|herramientas.yaml|municion.yaml",
+  "validar.py::armaduras|armas|dado_golpe|habilidades|herramientas|salvaciones",
+  "validar.py::ataque_adicional|bonificador_por_competencia|clase_de_armadura|competencias_al_multiclasear|lanzamiento_de_conjuros_multiclase|puntos_experiencia|puntos_golpe_y_dados_golpe",
+  "validar.py::cantidad|peso_kg|precio",
+  "validar.py::d10|d12|d6|d8",
+  "validar.py::don_epico.yaml|estilo_de_combate.yaml|generales.yaml|origen.yaml",
+  "validar.py::n|rasgos|slots",
+  "verificar_foundry.py::Clon|Cofre oculto de Leomund|Conocer las leyendas|Crear muerto viviente|Proyección astral|Vínculo protector",
+  "verificar_foundry.py::Clérigo|Mago|Pícaro",
+  "verificar_foundry.py::Estilo de combate|Maestría con armas|Tomar aliento",
+  "verificar_foundry.py::Instrumento musical|Juego|Útiles de herborista",
+  "verificar_foundry.py::armaduras_ligeras|armaduras_medias|armaduras_pesadas|escudos",
+  "verificar_foundry.py::armas_a_distancia_marciales|armas_a_distancia_sencillas|armas_cuerpo_a_cuerpo_marciales|armas_cuerpo_a_cuerpo_sencillas",
+  "verificar_personaje.py::armaduras|armas|herramientas",
+  "verificar_srd.py::barbaro|bardo|brujo|clerigo|druida|explorador|guerrero|hechicero|mago|monje|paladin|picaro"
  ]
 }

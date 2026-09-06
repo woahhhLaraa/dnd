@@ -163,33 +163,65 @@ def main():
     # que de verdad se puede prometer. Cada rama que se anote con `# TOLERADO:`
     # o que empiece a avisar sale de la lista, así que converge a cero y no
     # puede crecer sin que alguien lo vea.
-    import json
-    base_f = B / "_verificacion/chequeos_silenciosos.json"
-    # Las gemelas que quedan —la misma guarda escrita dos veces en la misma
-    # función— llevan un ordinal por línea, para que un tercer clon tampoco
-    # pueda entrar callado. El ordinal va por orden de línea y no por número
-    # de línea: editar por encima no invalida el fichero.
+    #
+    # ── La identidad es la CONDICIÓN, no solo el cuerpo ──────────────────
+    # Hasta el 2026-09-06 la línea base guardaba `fichero::funcion::cuerpo`, y
+    # el cuerpo de casi todas es la palabra `continue`: 67 ramas colapsaban en
+    # 41 huellas y una rama nueva gemela de otra ya declarada entraba sin ruido.
+    # Con la condición dentro son 65 distintas, y las gemelas que quedan llevan
+    # un ordinal POR ORDEN DE LÍNEA, no por número de línea: editar por encima
+    # no puede invalidar el fichero.
+    #
+    # La contabilidad —podar, distinguir lo nuevo de lo perdido, guardar el
+    # elenco— la lleva `deuda.Deuda` desde la fase 1 del PLAN_21. Aquí vivía
+    # escrita a mano, como en otros cuatro sitios.
     import collections
+    import deuda as D
     _n = collections.Counter()
-    huella = []
-    for r, fn, _ln, src, test in sorted(silencios, key=lambda e: (e[0], e[1], e[2])):
+    huella = {}
+    for r, fn, ln, src, test in sorted(silencios, key=lambda e: (e[0], e[1], e[2])):
         clave = f"{r}::{fn}::{src}::si {test}"
         _n[clave] += 1
-        huella.append(clave if _n[clave] == 1 else f"{clave}#{_n[clave]}")
-    huella = sorted(huella)
-    if base_f.exists():
-        declaradas = json.loads(base_f.read_text(encoding="utf-8"))["ramas"]
-        nuevas = [h for h in huella if h not in declaradas]
-        cerradas = [h for h in declaradas if h not in huella]
-    else:
-        declaradas, nuevas, cerradas = huella, [], []
-        base_f.write_text(json.dumps(
-            {"_nota": "Ramas de chequeo que abandonan un registro sin decir "
-                      "nada. Es DEUDA DECLARADA, no permiso: ninguna nueva "
-                      "puede aparecer, y cada una que se anote con "
-                      "`# TOLERADO:` o empiece a avisar sale de aquí.",
-             "_fecha": "2026-08-30", "ramas": huella},
-            ensure_ascii=False, indent=1), encoding="utf-8")
+        uid = clave if _n[clave] == 1 else f"{clave}#{_n[clave]}"
+        huella[uid] = f"{r}:{ln} en {fn}() → si {test}: {src}"
+
+    # El ELENCO son todas las ramas que se miraron, avisen o no: sin él no se
+    # puede distinguir «una rama nueva que nunca se midió» de «una que avisaba
+    # y ha dejado de avisar».
+    elenco = set(huella)
+    _m = collections.Counter()
+    for r, fn, ln, src, test in sorted(tolerados, key=lambda e: (e[0], e[1], e[2])):
+        clave = f"{r}::{fn}::{src}::si {test}"
+        _m[clave] += 1
+        elenco.add(clave if _m[clave] == 1 else f"{clave}#{_m[clave]}")
+
+    dd = D.Deuda(
+        "_verificacion/chequeos_silenciosos.json",
+        nota=("Ramas de chequeo que abandonan un registro sin decir nada. Es "
+              "DEUDA DECLARADA, no permiso: ninguna nueva puede aparecer, y "
+              "cada una que se anote con `# TOLERADO:` o empiece a avisar sale "
+              "de aquí."),
+        como_se_salda=("se anota con `# TOLERADO: <quién lo cubre>` o se hace "
+                       "que la rama avise antes de abandonar el registro"),
+        identidad="rama-con-condicion",
+        identidad_explicada=("fichero::función::cuerpo::si <condición>, más un "
+                             "ordinal para las gemelas. NUNCA el número de "
+                             "línea: editar por encima no puede invalidar el "
+                             "fichero"),
+        # CERRADA: aquí no vale la distinción que sí vale en `motor_sin_carga`.
+        # Una rama silenciosa en código nuevo —que nunca estuvo en el elenco—
+        # es igual de roja que una que avisaba y ha dejado de avisar: la lista
+        # dice «ninguna nueva puede aparecer», y no hace excepción con el
+        # código recién escrito, que es justo por donde entran.
+        #
+        # Se aprendió aquí, en la primera pasada de esta migración: `nuevas`
+        # pasó a leer solo `inf.perdidos`, las tres mutaciones de
+        # `mutaciones_silencios` dejaron de salir —3/6— y el fichero seguía
+        # diciendo «ninguna rama silenciosa nueva». El elenco sigue haciendo
+        # falta: no para decidir si es roja, sino para decir cuál de las dos es.
+        cerrada=True)
+    inf = dd.contrastar(huella, elenco)
+    declaradas, nuevas, cerradas = inf.vigentes, inf.rojos, inf.saldados
 
     print("¿Hay chequeos que abandonen un registro en silencio?")
     print("─" * 74)
@@ -200,17 +232,10 @@ def main():
         print(f"      esa rama abandona un registro sin decir nada. O avisa, o "
               f"se declara con `# TOLERADO: <quién lo cubre>`")
     print("─" * 74)
-    for h in nuevas:
-        print(f" 🔴 NUEVA rama silenciosa, no estaba en la línea base:\n      {h}")
-    if cerradas:
-        print(f" ✅ {len(cerradas)} ramas de la línea base ya no están en silencio:")
-        for h in cerradas[:6]:
-            print(f"      · {h}")
-        base_f.write_text(json.dumps(
-            {"_nota": json.loads(base_f.read_text(encoding='utf-8'))["_nota"],
-             "_fecha": "2026-08-30", "ramas": huella},
-            ensure_ascii=False, indent=1), encoding="utf-8")
-        print("      (línea base actualizada: la deuda solo puede bajar)")
+    # La poda, el reparto entre «nueva» y «regresión» y el aviso de lo medido
+    # por primera vez los imprime `deuda.Informe`: era la misma prosa en cinco
+    # sitios, con cuatro versiones incompletas.
+    inf.imprimir(texto=lambda uid, val: val, vigentes=False)
     print(f"   {len(silencios)} silenciosas · {len(tolerados)} declaradas "
           f"`# TOLERADO:` · línea base: {len(declaradas)}")
     if nuevas:

@@ -208,6 +208,28 @@ def main():
         "mutaciones_foundry.py": "tarda más de diez minutos",
     }
     todas = sorted(f.name for f in (B / "_verificacion").glob("mutaciones_*.py"))
+
+    # ── Cuántas suites hay, anclado (fase 1 del PLAN_21 — 2026-09-06) ────
+    # `CONTINUAR.md` decía «las 17 suites» cuando en el disco ya eran 18, y lo
+    # decía **en la misma frase que presume de que las suites se descubren por
+    # patrón y no hace falta acordarse de sus nombres**. La cuenta sí había que
+    # recordarla, nadie la contrastaba, y se quedó atrás en silencio: es el
+    # modo de fallo que este módulo existe para cazar, dentro de este módulo,
+    # por tercera vez. Se ancla contra `todas` —lo descubierto, las lentas
+    # incluidas—, no contra las que se ejecutan aquí.
+    ms = re.search(r"[Ll]as (\d+) suites de `_verificacion/mutaciones_\*\.py`",
+                   cont)
+    if not ms:
+        print(f" ❌ CONTINUAR.md ya no dice cuántas suites de mutación hay · "
+              f"la realidad da {len(todas)} y nadie la contrasta")
+        fallos += 1
+    else:
+        dice, es = int(ms.group(1)), len(todas)
+        ok = dice == es
+        fallos += not ok
+        print(f" {'✅' if ok else '❌'} CONTINUAR.md dice {dice} suites de "
+              f"mutación · la realidad da {es}")
+
     suites = () if "--rapido" in sys.argv else tuple(
         s for s in todas if s not in LENTAS)
     if not suites:

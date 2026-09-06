@@ -17,20 +17,23 @@
 > 2. **`PLAN_19_PRODUCTO_COMPLETO.md`** — el plan de trabajo vigente hacia el
 >    producto completo: qué falta, qué logra cada fase, resultados medidos
 >    de las fases 1-3 en sus §14-16;
-> 3. **`PLAN_20_AUDITORIA.md`** — **la auditoría en curso**: el inventario
->    medido de autoridad duplicada y las cinco fases que la cierran. Nace del
+> 3. **`PLAN_21_REARQUITECTURA.md`** — **el plan vigente**: los cuatro
+>    frentes que hicieron posible que cada guardián se cazara a sí mismo, y las
+>    tres fases que los cierran. Nace del encargo del 2026-09-06;
+> 4. **`PLAN_20_AUDITORIA.md`** — **la auditoría, ya cerrada**: el inventario
+>    medido de autoridad duplicada y las cinco fases que la cerraron. Nace del
 >    encargo del 2026-09-03 y de lo que la ronda 2 de estrés destapó;
-> 4. **`PLAN_ESTRES.md`** — la rutina de estrés con agentes y sus dos rondas
+> 5. **`PLAN_ESTRES.md`** — la rutina de estrés con agentes y sus dos rondas
 >    corridas, con los hallazgos de cada una;
-> 5. **`FODA.md`** — análisis vigente, si vas a decidir arquitectura;
-> 6. **`PLAN_18_REVISION_COMPLETA.md`** — registro de los bloques A-D del
+> 6. **`FODA.md`** — análisis vigente, si vas a decidir arquitectura;
+> 7. **`PLAN_18_REVISION_COMPLETA.md`** — registro de los bloques A-D del
 >    Plan 18 (censo, mutaciones, listas cerradas), ya absorbido por el 19
 >    pero con el detalle de cada uno;
-> 7. **`PLAN_17_SALIR_DEL_ESPIRAL.md`** — solo su §1 (investigación sobre
+> 8. **`PLAN_17_SALIR_DEL_ESPIRAL.md`** — solo su §1 (investigación sobre
 >    Foundry dnd5e y DiceCloud) y su §2 (el diagnóstico del espiral: qué es
 >    un "parche puntual" y por qué el proyecto lo prohíbe). Es la base de la
 >    auditoría pendiente, ver más abajo;
-> 8. **`FUENTES.md`** — procedencia y correcciones de transcripción, la más
+> 9. **`FUENTES.md`** — procedencia y correcciones de transcripción, la más
 >    reciente arriba (es largo; se lee por sección).
 
 ---
@@ -42,14 +45,14 @@ python3 validar.py            # 0 errores
 python3 verificar_srd.py      # 646 valores · 0 discrepancias
 python3 verificar_foundry.py  # 3749 valores · 0 discrepancias
 python3 cobertura.py          # 0 preguntas sin responder
-python3 censo.py              # 937 unidades · 0 sin declarar · 570 pendientes
+python3 censo.py              # 938 unidades · 0 sin declarar · 570 pendientes
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 26/26
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240
 python3 verificar_documentos.py   # ¿CONTINUAR.md y FODA.md dicen la verdad?
 python3 verificar_chequeos.py     # ¿algún chequeo abandona un registro en silencio?
 ```
 
-Las 17 suites de `_verificacion/mutaciones_*.py` están todas en verde;
+Las 19 suites de `_verificacion/mutaciones_*.py` están todas en verde;
 `verificar_documentos.py` las descubre por patrón y no hace falta acordarse
 de sus nombres ni de sus cifras — las contrasta contra lo que este fichero y
 `FODA.md` dicen.
@@ -277,6 +280,92 @@ casos de la tabla. Eso es exactamente el espiral. Lo que se arregla es el
 patrón: una sola abstracción de deuda enumerada, un muro de errores común, una
 regla única de identidad, y la promesa de que **todo verificador tiene su
 prueba por mutación** convertida en cuenta del censo, no en costumbre.
+
+### El encargo ya tiene plan: `PLAN_21_REARQUITECTURA.md`
+
+Cuatro frentes en tres fases, y **ninguna cifra del plan vale sin remedirla**.
+
+> **Fase 1 CERRADA (2026-09-06) · una sola abstracción de deuda enumerada.**
+>
+> `deuda.py` en la raíz —entra como unidad del censo, que es lo correcto— con
+> las cuatro propiedades que solo tenía el último de los cinco ficheros, y que
+> los otros cuatro no tenían porque se escribieron antes:
+>
+> | fichero | entradas | podaba | nuevo ≠ perdido | guardaba elenco |
+> |---|--:|:--:|:--:|:--:|
+> | `chequeos_silenciosos.json` | 65 | sí | **no** | **no** |
+> | `rasgos_sin_declarar.json` | 480 | **no** | **no** | **no** |
+> | `efectos_sin_carga.json` | 0 | sí | **no** | **no** |
+> | `motor_sin_carga.json` | 3 | sí | sí | sí |
+> | `constantes_de_dominio.json` | 22 | sí | **no** | **no** |
+>
+> Los cinco llamadores migrados (`verificar_chequeos.main`, las tres filas del
+> censo, `mutaciones_motor.main`), y `validar.py` deja de abrir a mano el JSON
+> de rasgos: lo lee por `Deuda(...).vigentes`. **Ninguna identidad cambió al
+> migrar** — cambiarla invalida la línea base, que es justo la mentira que el
+> plan persigue —, pero la identidad pasa a ser una CLAVE CORTA guardada dentro
+> del fichero, con la prosa aparte en `_identidad_explicada`. La primera
+> versión comparaba la frase entera y **saltó contra su propio autor a los diez
+> minutos**, por siete palabras de más.
+>
+> **La guarda `_verificacion/mutaciones_deuda.py` (10/10)**, y el camino hasta
+> ahí es la lección de la fase, repetida por tercera vez en dos días:
+>
+> - La primera versión corría los cinco llamadores contra la base intacta y
+>   sacó **2/7** de las siete de entonces. Con los cinco ficheros en reposo —nada que podar, nada nuevo,
+>   nada perdido— romper «¿poda?» no cambia ni un byte: **una mutación que solo
+>   cambia el comportamiento en una situación que no ocurre, no cambia nada**.
+>   Ahora el arnés FABRICA cada situación con un fichero desechable.
+> - Al fabricarlas, el control negativo destapó un defecto REAL de `deuda.py`
+>   antes de mutar nada: el elenco no llegaba al disco cuando la deuda no se
+>   movía, así que una prueba que empieza a medir más no se distinguía de una
+>   regresión a la pasada siguiente.
+> - Y la comprobación de identidad salió **6/7** por su propio arnés:
+>   preguntaba `"LANZO" in salida` contra las respuestas «LANZO»/«NO_LANZO», y
+>   «NO_LANZO» contiene «LANZO». La propiedad daba por buena justo la respuesta
+>   que tenía que delatar.
+>
+> Y la propia migración rompió un guardián, que lo dijo: al pasar
+> `verificar_chequeos` a `deuda.py`, «rama nueva» quedó leído como
+> `perdidos`, así que **una rama silenciosa en código NUEVO —que nunca estuvo
+> en el elenco— salía en verde**. Antes de migrar era roja. `mutaciones_silencios`
+> lo cazó en la primera pasada, **3 de 6**, con sus tres mutaciones a la vez.
+> El arreglo no fue en el llamador: distinguir lo nuevo de lo perdido es una
+> MEDICIÓN y la hacen los cinco, pero **si lo nuevo es aceptable es una
+> POLÍTICA del fichero**, y ahora se declara en el `Deuda` junto a la
+> identidad. `motor_sin_carga` acepta mediciones nuevas; `chequeos_silenciosos`
+> es `cerrada=True` y no acepta ninguna. Vuelve a 6/6, y la política tiene su
+> propia mutación.
+>
+> **Y una mutación cambió de vehículo, no de chequeo.** `m_deuda_muerta`
+> metía a mano un rasgo obsoleto en `rasgos_sin_declarar.json` y exigía que el
+> censo lo cazara, porque esa fila NO PODABA. Ahora poda: la entrada muerta
+> sale sola y el recuento no se mueve (medido: 938 · 0 sin declarar). La
+> premisa dejó de ser cierta **porque el defecto se cerró**, así que la
+> mutación se movió a la otra dirección, que es peor y no la miraba nadie:
+> `m_deuda_rehecha` borra el fichero y exige que el censo pare, porque sin él
+> la línea base se rehace con lo medido hoy y los 480 rasgos sin declarar
+> quedarían «declarados» de golpe, en verde.
+>
+> **Y el propio guion que migró los cinco escribió su prosa en blanco.** Como
+> `_escribir` prefería siempre lo del disco —para que la prosa se pueda editar
+> a mano—, `_como_se_salda` se quedó VACÍO en tres de los cinco: el campo que
+> dice cómo se paga una deuda, sin forma de repararlo desde el llamador, que sí
+> lo tenía escrito. Y la migración se llevó por delante el `_ultima_poda` de
+> `efectos_sin_carga.json`, que nombraba los tres efectos saldados el día
+> antes; restaurado de git. Ahora una prosa vacía no le gana a la del código,
+> y **la condición de «cuándo hay que escribir» dejó de estar enumerada**: se
+> escribe si el texto que saldría es distinto del que hay. Esa lista escrita a
+> mano ya se había quedado corta dos veces en un día.
+>
+> De rebote, `CONTINUAR.md` decía «las 17 suites» con 18 en el disco, **en la
+> misma frase que presume de que se descubren por patrón**. Esa cuenta ya la
+> ancla `verificar_documentos.py` contra el disco.
+
+**Lo siguiente, por orden:** fase 2 (el muro de errores común, `muro()`, y los
+seis scripts que hoy no lo tienen) y fase 3 (la décima fila del censo: los
+scripts de la raíz sin ninguna suite que mute su código, descubierto por AST y
+nunca a mano).
 
 ---
 

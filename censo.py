@@ -489,13 +489,31 @@ def fila_rasgos():
     # mutación solo podía exigir que subiera el recuento. Enumerarlos convierte
     # «se ve crecer» en «no puede crecer», que es lo que el bloque D quería
     # decir con «cerrar la puerta».
-    f = B / "_verificacion" / "rasgos_sin_declarar.json"
-    if not f.exists():
+    # La contabilidad la lleva `deuda.Deuda` desde la fase 1 del PLAN_21. Aquí
+    # se leía el JSON a mano y **no se podaba**: era el único de los cinco
+    # ficheros de deuda que no podía bajar en disco. Un rasgo que hoy declara
+    # `efectos:` y mañana deja de hacerlo volvía a contar como «declarado» sin
+    # que nadie lo dijera.
+    import deuda as D
+    dd = D.Deuda(
+        "_verificacion/rasgos_sin_declarar.json",
+        nota=("Rasgos con texto que todavía no dicen si tocan alguna variable "
+              "calculable. Deuda enumerada, no permiso: solo puede bajar, y "
+              "uno nuevo hace fallar al censo."),
+        como_se_salda=("el rasgo declara su `efectos:` o su `no_automatizado:` "
+                       "con motivo"),
+        identidad="fichero-almohadilla-nombre",
+        identidad_explicada="fichero#nombre del rasgo")
+    if not dd.ruta.exists():
         raise ErrorDeCenso(
-            f"falta {f.relative_to(B)}: sin él no se distingue un rasgo nuevo "
-            f"sin declarar de la deuda conocida")
-    import json
-    conocidos = json.loads(f.read_text(encoding="utf-8"))["rasgos"]
+            f"falta {dd.ruta.relative_to(B)}: sin él no se distingue un rasgo "
+            f"nuevo sin declarar de la deuda conocida")
+    sin_declarar = {uid.replace("rasgo:", "", 1): universo[uid]
+                    for uid in universo if uid not in alcanzadas}
+    inf = dd.contrastar(sin_declarar, elenco_hoy={u.replace("rasgo:", "", 1)
+                                                  for u in universo})
+    inf.imprimir(vigentes=False)
+    conocidos = inf.vigentes
     deuda = {f"rasgo:{uid}": f"{len(conocidos)} rasgos que todavía no dicen "
                              f"si tocan alguna variable calculable"
              for uid in conocidos}
@@ -556,44 +574,27 @@ def fila_efectos_con_carga():
 
     # Deuda ENUMERADA, como los rasgos del bloque D: se salda escribiendo
     # fichas con lectura independiente (el mandato «el calculista»), no
-    # tocando esta lista.
-    f = B / "_verificacion" / "efectos_sin_carga.json"
-    if f.exists():
-        doc = json.loads(f.read_text(encoding="utf-8"))
-        listados = doc["efectos"]
-        # PODA: lo que ya sostiene una lectura independiente sale de la lista.
-        # Sin esto la deuda no bajaría nunca en disco, y un efecto que hoy
-        # tiene carga y mañana la pierda —porque su ficha se despromueva—
-        # volvería a estar «declarado» sin que nadie lo dijera. Es el mismo
-        # mecanismo de `chequeos_silenciosos.json` y `motor_sin_carga.json`:
-        # la deuda solo puede bajar, y baja SOLA cuando se paga.
-        saldados = [x for x in listados if x in alcanzadas]
-        if saldados:
-            listados = [x for x in listados if x not in alcanzadas]
-            doc["efectos"] = listados
-            doc["_ultima_poda"] = {
-                "fecha": "2026-09-05",
-                "saldados": [universo.get(x, x) for x in saldados]}
-            f.write_text(json.dumps(doc, ensure_ascii=False, indent=1),
-                         encoding="utf-8")
-            print(f" ✅ {len(saldados)} efecto(s) que ya sostiene una lectura "
-                  f"independiente salen de la deuda:")
-            for x in saldados:
-                print(f"      · {universo.get(x, x)}")
-    else:
-        listados = sorted(set(universo) - alcanzadas)
-        f.write_text(json.dumps(
-            {"_nota": "Efectos declarados que NINGUNA ficha con `_origen: "
-                      "agente-manual` sostiene. Es deuda enumerada, no "
-                      "permiso: solo puede bajar, y se salda con el mandato "
-                      "«el calculista» de PLAN_ESTRES.md, no editando esta "
-                      "lista.",
-             "_fecha": "2026-09-05",
-             "_como_se_salda": "una ficha cuyo `calculado` haya calculado a "
-                               "mano un agente desde la página, y que aplique "
-                               "ese efecto, lo pincha aquí",
-             "efectos": listados},
-            ensure_ascii=False, indent=1), encoding="utf-8")
+    # tocando esta lista. La contabilidad —podar, distinguir lo nuevo de lo
+    # perdido, guardar el elenco— la lleva `deuda.Deuda` desde la fase 1 del
+    # PLAN_21; aquí estaba escrita a mano, y sin elenco: un efecto nuevo en la
+    # base y un efecto que PERDIÓ su carga se contaban igual.
+    import deuda as D
+    dd = D.Deuda(
+        "_verificacion/efectos_sin_carga.json",
+        nota=("Efectos declarados que NINGUNA ficha con `_origen: "
+              "agente-manual` sostiene. Es deuda enumerada, no permiso: solo "
+              "puede bajar, y se salda con el mandato «el calculista» de "
+              "PLAN_ESTRES.md, no editando esta lista."),
+        como_se_salda=("una ficha cuyo `calculado` haya calculado a mano un "
+                       "agente desde la página, y que aplique ese efecto, lo "
+                       "pincha aquí"),
+        identidad="efecto-archivo-rasgo-objetivo-op",
+        identidad_explicada="efecto:archivo#rasgo·objetivo·operación")
+    inf = dd.contrastar({uid: universo[uid] for uid in universo
+                         if uid not in alcanzadas},
+                        elenco_hoy=set(universo))
+    inf.imprimir(vigentes=False)
+    listados = inf.vigentes
     deuda = {uid: f"{len(listados)} efectos que ninguna ficha con lectura "
                   f"independiente sostiene: se pueden corromper y las fichas "
                   f"siguen en verde"
@@ -752,41 +753,51 @@ def fila_constantes_de_dominio():
                 for h, rel, cad, cual, clase, _fuera in halladas}
     porhuella = {h: (cual, clase, fuera) for h, _r, _c, cual, clase, fuera in halladas}
 
-    f = B / "_verificacion" / "constantes_de_dominio.json"
-    if not f.exists():
-        f.write_text(json.dumps(
-            {"_nota": "Literales de Python cuyas cadenas están TODAS en el "
-                      "vocabulario de una colección de la base: autoridad "
-                      "duplicada. Deuda enumerada, no permiso — solo puede "
-                      "bajar, y se salda DERIVANDO el literal en tiempo de "
-                      "ejecución, no editando esta lista.",
-             "_umbral": _UMBRAL_CONSTANTES,
-             "_como_se_salda": {
-                 "copia_exacta": "se deriva: el literal desaparece",
-                 "subconjunto": "se deriva, o se declara aquí con `motivo` y "
-                                "`deja_fuera` enumerado. Si la colección "
-                                "crece, `deja_fuera` deja de cuadrar y el "
-                                "censo se pone rojo: alguien tiene que "
-                                "decidir si lo nuevo también entra"},
-             "_fecha": "2026-09-05",
-             "constantes": [
-                 {"huella": h, "coleccion": cual, "clase": clase,
-                  "motivo": _SIN_MIRAR + " (fase 3, PLAN_20_AUDITORIA.md)",
-                  "deja_fuera": list(fuera)}
-                 for h, _r, _c, cual, clase, fuera in halladas]},
-            ensure_ascii=False, indent=1), encoding="utf-8")
+    # La contabilidad la lleva `deuda.Deuda` (fase 1 del PLAN_21). Este
+    # fichero es el único de los cinco que además de deuda es un MANIFIESTO:
+    # cada entrada trae `coleccion`, `clase`, `motivo` y `deja_fuera`, y el
+    # censo los usa. Por eso `Deuda` no interpreta el valor de una entrada.
+    #
+    # Y la migración cazó un defecto del formato viejo: la lista admitía la
+    # misma huella dos veces —estaba, con motivos contradictorios— y nadie lo
+    # comprobaba. Un diccionario no puede.
+    import deuda as D
+    dd = D.Deuda(
+        "_verificacion/constantes_de_dominio.json",
+        nota=("Literales de Python cuyas cadenas están TODAS en el vocabulario "
+              "de una colección de la base: autoridad duplicada. Deuda "
+              "enumerada, no permiso — solo puede bajar, y se salda DERIVANDO "
+              "el literal en tiempo de ejecución, no editando esta lista."),
+        como_se_salda={
+            "copia_exacta": "se deriva: el literal desaparece",
+            "subconjunto": ("se deriva, o se declara aquí con `motivo` y "
+                            "`deja_fuera` enumerado. Si la colección crece, "
+                            "`deja_fuera` deja de cuadrar y el censo se pone "
+                            "rojo: alguien tiene que decidir si lo nuevo "
+                            "también entra")},
+        identidad="huella-del-conjunto",
+        identidad_explicada=("módulo::cadenas del literal, ordenadas. La "
+                             "huella del CONJUNTO, no la línea"))
+    if not dd.ruta.exists():
+        dd.contrastar({h: {"coleccion": cual, "clase": clase,
+                           "motivo": _SIN_MIRAR + " (fase 3, PLAN_20_AUDITORIA.md)",
+                           "deja_fuera": list(fuera)}
+                       for h, _r, _c, cual, clase, fuera in halladas},
+                      elenco_hoy=set(porhuella))
 
-    doc = json.loads(f.read_text(encoding="utf-8"))
+    inf = dd.contrastar({h: v for h, v in dd.vigentes.items() if h in porhuella},
+                        elenco_hoy=set(porhuella))
+    inf.imprimir(vigentes=False,
+                 texto=lambda h, v: f"{h.split('::')[0]} — {h.split('::')[1][:60]}…")
+
     declaradas, deuda, muertas_de_dentro = {}, {}, []
-    vivas = []
-    for e in doc["constantes"]:
-        if e["huella"] not in porhuella:
-            continue        # ya no existe: se poda más abajo
-        vivas.append(e)
-        cual, clase, fuera = porhuella[e["huella"]]
+    for huella, e in dd.vigentes.items():
+        if huella not in porhuella:
+            continue
+        cual, clase, fuera = porhuella[huella]
         if list(e.get("deja_fuera") or []) != list(fuera):
             muertas_de_dentro.append(
-                f"{e['huella'].split('::')[0]}: su `deja_fuera` ya no cuadra "
+                f"{huella.split('::')[0]}: su `deja_fuera` ya no cuadra "
                 f"—la colección «{cual}» ha cambiado—. Decide si lo nuevo "
                 f"entra en el literal o actualiza la declaración")
             continue
@@ -795,19 +806,10 @@ def fila_constantes_de_dominio():
         # va como DEUDA enumerada —contada, visible, y solo puede bajar—, y
         # pasa a `declaradas` el día que alguien escriba por qué se queda.
         if str(e.get("motivo", "")).startswith(_SIN_MIRAR):
-            deuda[e["huella"]] = (f"constante de dominio que nadie ha mirado "
-                                  f"todavía ({clase}, de «{cual}»)")
+            deuda[huella] = (f"constante de dominio que nadie ha mirado "
+                             f"todavía ({clase}, de «{cual}»)")
         else:
-            declaradas[e["huella"]] = f"{e['motivo']} [constantes_de_dominio.json]"
-
-    # PODA: lo derivado sale de la lista. La deuda solo puede bajar.
-    if len(vivas) != len(doc["constantes"]):
-        idas = [e["huella"] for e in doc["constantes"] if e["huella"] not in porhuella]
-        doc["constantes"] = vivas
-        f.write_text(json.dumps(doc, ensure_ascii=False, indent=1), encoding="utf-8")
-        print(f" ✅ {len(idas)} constante(s) de dominio derivadas y fuera de la deuda:")
-        for h in idas:
-            print(f"      · {h.split('::')[0]} — {h.split('::')[1][:60]}…")
+            declaradas[huella] = f"{e['motivo']} [constantes_de_dominio.json]"
 
     for m in muertas_de_dentro:
         print(f" ❌ declaración desfasada · {m}")

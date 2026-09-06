@@ -2291,14 +2291,24 @@ def validar_efectos():
     # Enumerarlos —y no taparlos con un comodín, que es lo que hacía el censo
     # hasta hoy— es la diferencia entre «se ve crecer» y «no puede crecer»: un
     # rasgo que se añada mañana sin declarar nada hace fallar esto.
-    import json as _json
-    base_f = B / "_verificacion" / "rasgos_sin_declarar.json"
-    if not base_f.exists():
+    # La línea base se lee por `deuda.Deuda`, no abriendo el JSON a mano
+    # (fase 1 del PLAN_21). Aquí y en `censo.fila_rasgos` se leía el mismo
+    # fichero con dos trozos de código distintos: el día que uno cambiara de
+    # forma, el otro se enteraría reventando.
+    # La prosa (`nota`, `como_se_salda`) va vacía a propósito: quien ESCRIBE
+    # este fichero es `censo.fila_rasgos`, y `Deuda._escribir` conserva
+    # siempre la del disco. Aquí solo se lee, y la identidad es la única que
+    # tiene que coincidir —si no coincidiera, `Deuda` lanza en vez de comparar
+    # dos cosas que ya no significan lo mismo—.
+    import deuda as _D
+    _dd = _D.Deuda("_verificacion/rasgos_sin_declarar.json", nota="",
+                   como_se_salda="", identidad="fichero-almohadilla-nombre")
+    if not _dd.ruta.exists():
         err.append("falta _verificacion/rasgos_sin_declarar.json: sin él no se "
                    "puede distinguir un rasgo nuevo sin declarar de la deuda "
                    "conocida")
     else:
-        conocidos = set(_json.loads(base_f.read_text(encoding="utf-8"))["rasgos"])
+        conocidos = set(_dd.vigentes)
         vistos, nuevos, resueltos_hoy = set(), [], []
         for rel, camino in E.origenes():
             doc = yaml.safe_load((B / rel).read_text(encoding="utf-8"))
