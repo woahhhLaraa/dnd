@@ -76,6 +76,21 @@ def main():
     total_ok = total_err = 0
     print("Contraste contra SRD 5.2 (2024) · CC-BY-4.0 · vía Open5e")
     print("─"*66)
+    # `MAPA` es un GLOSARIO —nuestra clave → nombre en inglés y columnas—, así
+    # que se escribe a mano a propósito: nunca se traduce, se empareja. Pero
+    # nadie exigía que cubriera las clases que la base declara de verdad, y una
+    # clase nueva se habría quedado fuera del contraste externo **sin dar
+    # error**: habría dado MENOS contraste, que es peor, porque la cuenta final
+    # seguiría en verde (fase 3 del PLAN_20).
+    reales = {q.stem for q in sorted((B / "clases").glob("*.yaml"))}
+    for falta in sorted(reales - set(MAPA)):
+        print(f" ❌ `MAPA` no traduce clases/{falta}.yaml: esa clase se queda "
+              f"fuera del contraste contra el SRD sin que nada lo diga")
+        total_err += 1
+    for sobra in sorted(set(MAPA) - reales):
+        print(f" ❌ `MAPA` traduce clases/{sobra}.yaml, que ya no existe: "
+              f"entrada muerta")
+        total_err += 1
     for arch, (nom_en, cols) in sorted(MAPA.items()):
         p = B / "clases" / f"{arch}.yaml"
         if not p.exists(): print(f" ⚠ {arch}: falta el yaml"); continue

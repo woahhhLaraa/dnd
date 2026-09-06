@@ -3,7 +3,6 @@
  "_fecha": "2026-09-05",
  "_como_se_salda": "una ficha cuyo `calculado` haya calculado a mano un agente desde la página, y que aplique ese efecto, lo pincha aquí",
  "efectos": [
-  "efecto:clases/rasgos/barbaro.yaml#Defensa sin armadura·ca·base",
   "efecto:clases/rasgos/barbaro.yaml#Movimiento rápido·velocidad·add",
   "efecto:clases/rasgos/explorador.yaml#Errante·velocidad·add",
   "efecto:clases/subclases/bardo.yaml#Inspiración en combate·ca·conditional",
@@ -21,17 +20,14 @@
   "efecto:dotes/generales.yaml#Duelista defensivo·ca·conditional",
   "efecto:dotes/generales.yaml#Maestro en armaduras medias·ca·modifica_tope",
   "efecto:dotes/generales.yaml#Veloz·velocidad·add",
-  "efecto:dotes/origen.yaml#Duro·pg_max·add",
-  "efecto:especies/especies.yaml#Aguante enano·pg_max·add",
-  "efecto:especies/especies.yaml#Forma grande·velocidad·conditional"
+  "efecto:dotes/origen.yaml#Duro·pg_max·add"
  ],
  "_ultima_poda": {
   "fecha": "2026-09-05",
   "saldados": [
    "Defensa sin armadura → ca (base)",
-   "Movimiento sin armadura → velocidad (add)",
-   "Resistencia dracónica → ca (base)",
-   "Resistencia dracónica → pg_max (add)"
+   "Aguante enano → pg_max (add)",
+   "Forma grande → velocidad (conditional)"
   ]
  }
 }

@@ -42,7 +42,7 @@ python3 validar.py            # 0 errores
 python3 verificar_srd.py      # 646 valores · 0 discrepancias
 python3 verificar_foundry.py  # 3749 valores · 0 discrepancias
 python3 cobertura.py          # 0 preguntas sin responder
-python3 censo.py              # 939 unidades · 0 sin declarar · 610 pendientes
+python3 censo.py              # 937 unidades · 0 sin declarar · 588 pendientes
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 18/18
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240
 python3 verificar_documentos.py   # ¿CONTINUAR.md y FODA.md dicen la verdad?
@@ -162,10 +162,20 @@ solución a los "parches puntuales" en vez de seguir apilando verificadores.**
 >   `min`, `max` o `set` ya no es invisible, porque el vocabulario tiene
 >   consumidor exhaustivo.
 >
-> **Lo siguiente:** bajar la fila 9 de 24 (quedan 19 constantes en deuda
-> enumerada, sin mirar), y más tandas a ciegas del calculista para bajar la
-> fila 8 de 4/25 — que es la que mide si la aritmética tiene fuente
-> independiente.
+> - **Fila 9 CERRADA en lo que se podía cerrar: de 39 a 22, y las 22 con
+>   motivo real.** Cero deuda «sin mirar». Las que quedan no se derivan a
+>   propósito y cada una dice por qué: glosarios de vocabulario externo
+>   (ahora con chequeo de cobertura, que no tenían), requisitos de esquema
+>   —derivarlos haría el chequeo vacuo—, navegación estructural y listas de
+>   excepción auditadas.
+> - **Fila 8 de 4/25 a 7/25** con una tercera tanda a ciegas (13 de 13
+>   valores). Es el TECHO con las 18 fichas actuales: los 18 efectos que
+>   faltan no los aplica ninguna ficha, así que solo se cierran **escribiendo
+>   fichas nuevas** que los ejerciten. Eso es trabajo previo al calculista.
+>
+> **Lo siguiente:** escribir fichas que ejerciten los 18 efectos sin carga
+> —la lista está en `_verificacion/efectos_sin_carga.json`— y pasarlas por un
+> calculista a ciegas. Y el encargo abierto de rearquitecturación, más abajo.
 > `subir_nivel.py` y `generar_ficha.py` siguen sin mirarse con esta lupa: el
 > punto 2 de aquí abajo sigue vigente para ellos.
 
@@ -224,6 +234,56 @@ por uno habría sido exactamente el error que `PLAN_17` diagnosticó.
   lo anterior.
 - El resto de `PLAN_19` §16 (equipo, metamagias, tablas sin contrastar): baja
   prioridad, medido y declarado, no bloquea el producto.
+
+---
+
+## 🏗 ENCARGO ABIERTO — rearquitecturar, no seguir parcheando verificadores
+
+**De la usuaria, el 2026-09-06, textual:**
+
+> *«queda claro que los validadores, debemos dar por hecho que SIEMPRE MIENTEN,
+> creo que en futuro se debería hacer una rearquitecturación de código»*
+
+No es una impresión: es lo que midió la auditoría del `PLAN_20` en un solo día.
+**Cada guardián de este repositorio se cazó a sí mismo, y ninguno se había
+cazado antes:**
+
+| Guardián | Lo que decía | Lo que pasaba |
+|---|---|---|
+| `verificar_chequeos.py` | «ninguna rama silenciosa nueva» | 67 ramas con línea base de 64: su huella colapsaba las gemelas |
+| `censo.py` | «0 sin declarar» | `equipo/` fuera del universo, y una mutación lo blindaba |
+| `validar.py` | «0 errores» | `validar_conjuros_cd` reventaba sin imprimir su etiqueta |
+| `validar.py` | «0 errores» | tres vocabularios cerrados sin ningún consumidor |
+| `mutaciones_motor` | «cobertura perdida» | falso: era una descripción reescrita |
+
+Y el patrón que lo explica: **un verificador que se comprueba a sí mismo no
+comprueba nada.** Los cinco se destaparon desde fuera —una mutación, un agente
+a ciegas, otro verificador—, nunca solos.
+
+**Lo que la rearquitecturación tendría que atacar, medido, no supuesto:**
+
+1. **Ningún verificador tiene guardián propio por defecto.** `mutaciones_silencios.py`
+   nació el 2026-09-05 porque `verificar_chequeos.py` no lo mutaba nadie; el
+   mismo hueco sigue abierto para `censo.py` en parte, `cobertura.py`,
+   `verificar_documentos.py` y `verificar_srd.py`. Debería ser estructural, no
+   una suite por descubrimiento.
+2. **Cada deuda enumerada reinventó su fichero.** Hay ya seis JSON con el mismo
+   patrón —línea base, solo puede bajar, poda al saldar— y cada uno lo
+   implementa a mano, con sus propios bugs: uno guardaba frases en vez de ids,
+   otro no podaba, otro no distinguía «nuevo» de «perdido». Es UNA abstracción,
+   escrita seis veces.
+3. **El error de un chequeo mataba al informe.** Tres veces en dos días. Se
+   cerró con `validar._correr()`, pero `verificar_srd.py`, `verificar_foundry.py`
+   y `cobertura.py` siguen sin ese muro.
+4. **La identidad de una unidad se inventa en cada sitio.** Huella por conjunto,
+   por id, por frase, por línea… y las tres veces que se eligió mal, el
+   verificador mintió.
+
+**Lo que NO hay que hacer:** empezar la rearquitecturación arreglando los cinco
+casos de la tabla. Eso es exactamente el espiral. Lo que se arregla es el
+patrón: una sola abstracción de deuda enumerada, un muro de errores común, una
+regla única de identidad, y la promesa de que **todo verificador tiene su
+prueba por mutación** convertida en cuenta del censo, no en costumbre.
 
 ---
 

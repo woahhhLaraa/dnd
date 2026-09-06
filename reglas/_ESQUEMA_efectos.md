@@ -94,9 +94,16 @@ Se declara, en vez de fingir que está cubierto:
 - **Escalado por nivel.** «Movimiento sin armadura» del Monje da +3 m en nivel 2,
   +4,5 en el 6, +6 en el 10… Es una **tabla dispersa con decimales**, que es el
   `ScaleValue` de Foundry (`ANALISIS_REPOS.md` §2) y pide su propia decisión de
-  modelo. Por eso `velocidad` no está en el vocabulario.
-- **La CA base de quien no lleva nada** (`10 + mod_des`) **no tiene página
-  citada en esta base.** Venía como literal sin cita en `calculo.py`. Se declara
+  modelo. **Esa decisión se tomó el 2026-08-30 y `velocidad` SÍ está en el
+  vocabulario desde entonces**, resuelta sin inventar escalado: el efecto
+  LEE la columna `mov_sin_armadura_m` de la progresión del Monje con
+  `columna:` en vez de copiarla. (Este párrafo decía lo contrario hasta el
+  2026-09-06; lo destapó un calculista a ciegas, no ningún chequeo: la
+  prosa de los `_ESQUEMA` no la contrasta nadie.)
+- **La CA base de quien no lleva nada** (`10 + mod_des`) **ya tiene página
+  citada**: pdf 43 = libro 41, desde el 2026-08-30, tras dos lecturas
+  independientes que coincidieron palabra por palabra. Venía como literal sin
+  cita en `calculo.py`. Se declara
   con `_falta_cita: true` en `reglas/efectos.yaml` y `validar_efectos()` avisa
   mientras siga abierta. Cerrarla es **una** lectura de página.
 - **Ventaja/desventaja, resistencias y competencias** no son variables

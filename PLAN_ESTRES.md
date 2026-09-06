@@ -384,3 +384,45 @@ mutaciones nuevas.
 también dice `10` no cambia ni un número — por eso el defecto vivió tanto. La
 mutación tiene que cambiar las dos cosas a la vez para que las copias se
 separen, y así está escrita, con su motivo.
+
+### Tercera tanda a ciegas (2026-09-06) — 13 de 13
+
+`orco_barbaro`, `goliat_druida` y `enano_clerigo_n5`, elegidas otra vez **por
+la fila 8**: eran las tres únicas fichas de hoy que aún cerraban deuda. Los
+trece valores coinciden con el motor. **Fila 8 de 4/25 a 7/25**, que es el
+techo con las 18 fichas actuales: los 18 efectos restantes no los aplica
+ninguna ficha, así que solo se cierran **escribiendo fichas nuevas** que los
+ejerciten. Eso ya no es trabajo del calculista, es trabajo previo al
+calculista.
+
+**Y el aviso de la CD de conjuros funcionó.** A los tres se les dijo por
+adelantado que el «hueco» de la CA sin armadura era un efecto secundario del
+método y no un hallazgo. Ninguno lo recontó, y los tres confirmaron por su
+cuenta que la fórmula de la CD **ya está en la base**. Un mandato ciego puede
+llevar avisos sin dejar de ser ciego.
+
+### Cuatro hallazgos de esta tanda, y de dónde salió cada uno
+
+**1 · Un número mío, del mismo día.** `reglas/fuentes_de_efectos.yaml` decía
+«las 13 armaduras y el escudo». Son 12 armaduras + 1 escudo = 13 registros: el
+13 ya incluía el escudo y luego lo volvía a sumar. Lo escribí yo en la fase
+2.2, unas horas antes, y lo recontó un agente que no podía ver el código.
+
+**2 · Dos afirmaciones caducadas en `reglas/_ESQUEMA_efectos.md`.** Decía que
+«`velocidad` no está en el vocabulario» —entró el 2026-08-30— y que la CA base
+sin armadura «no tiene página citada» —la tiene desde ese mismo día—. **La
+prosa de los `_ESQUEMA` no la contrasta nadie**, que es la misma familia que
+`verificar_documentos.py` cierra para `CONTINUAR.md` y `FODA.md`, sin extender.
+
+**3 · La ficha no puede decir qué lleva PUESTO.** `estado_de_equipo()` trata
+como puesto todo lo que aparece en `equipo:`, así que un escudo de repuesto en
+la mochila daría su +2 de CA. Para el clérigo son 15 contra 10 de CA, resueltos
+hoy por convención implícita. Agravante: `armaduras.yaml → reglas.solo_un_tipo`
+presupone la noción de «puesta», que la ficha no tiene forma de expresar.
+**Hallazgo de diseño, no de dato: no se arregla con un chequeo.**
+
+**4 · Dos elecciones obligatorias que la ficha no registra**: la rama de
+«Orden divina» del Clérigo de nivel 1 (Protector / Taumaturgo) y la aptitud
+mágica de «Iniciado en la magia». En esta ficha son inocuas —sus conjuros no
+piden salvación ni ataque—, pero en otra combinación darían un número
+equivocado **y en verde**.

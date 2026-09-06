@@ -61,7 +61,7 @@ directorios:
 # La taxonomía binaria de este fichero —`fuentes` o `excluidos`— no podía
 # decir la verdad sobre `equipo/armaduras.yaml`:
 #
-#   · `excluidos` sería MENTIRA: el motor fabrica de ahí la CA de las 13
+#   · `excluidos` sería MENTIRA: el motor fabrica de ahí la CA de las 12
 #     armaduras, el +2 del escudo y el −3 m por Fuerza. Es la fuente de más
 #     efectos de toda la base después de los rasgos.
 #   · `fuentes` no encaja: ningún registro lleva `efectos:`. Los efectos se
@@ -79,7 +79,7 @@ derivadas:
     campos:
       - {campo: ca,     objetivo: ca,        op: "base|add"}
       - {campo: fuerza, objetivo: velocidad, op: add}
-    que_es: "las 13 armaduras y el escudo; sus efectos salen de `ca` y `fuerza`"
+    que_es: "sus 13 registros —12 armaduras y el escudo—; los efectos salen de `ca` y `fuerza`"
 
 # ── Ficheros de regla PENDIENTES de clasificar ───────────────────────────
 # Deuda ENUMERADA, no permiso: `origenes()` no revienta por ellos, pero el

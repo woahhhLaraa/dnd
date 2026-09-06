@@ -170,7 +170,7 @@ def u_fichero_de_equipo_sin_clasificar(r):
     comentario: *«un YAML en `equipo/`, que no es directorio de regla: no entra
     en el universo de la fila 1»*. Era falso, y el test fijaba el error como
     correcto: `equipo/armaduras.yaml` **sí** es fuente de efectos —de ahí salen
-    la CA de las 13 armaduras, el escudo y el −3 m por Fuerza—, y `equipo`
+    la CA de las 12 armaduras, el escudo y el −3 m por Fuerza—, y `equipo`
     faltaba de `_DIRECTORIOS_DE_REGLA`, de donde el censo tomaba su universo.
     El guardián de «la cobertura se descubre» tenía el defecto que persigue,
     con una mutación que lo blindaba.

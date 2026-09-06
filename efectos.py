@@ -396,6 +396,17 @@ def grupos_de_armadura():
             (_CLAVE_DE_ESCUDOS,))
 
 
+@functools.lru_cache(maxsize=1)
+def grupos_de_armas():
+    """Los cuatro grupos de `equipo/armas.yaml`, descubiertos: las claves cuyo
+    valor es una LISTA de registros. Iban escritos a mano en `validar.py` (dos
+    veces) y en `verificar_foundry.py` (fase 3 del PLAN_20)."""
+    d = _leer("equipo/armas.yaml")
+    return tuple(k for k, v in d.items()
+                 if isinstance(v, list) and v and isinstance(v[0], dict)
+                 and "nombre" in v[0])
+
+
 # ── Los nombres de las 12 clases, derivados ──────────────────────────────
 # El emparejamiento «Bárbaro» → `barbaro` estaba escrito dos veces, aquí y en
 # `calculo._archivo_clase`. Sale de la base: cada `clases/*.yaml` declara su

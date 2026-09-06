@@ -371,12 +371,47 @@ def _precio_a_pc(txt):
 _DENOM_A_PC = {"cp": 1, "sp": 10, "ep": 50, "gp": 100, "pp": 1000}
 
 
+# ── Glosarios de vocabulario externo ─────────────────────────────────────
+# Estos dos mapas son GLOSARIOS: nuestra clave → la clave que usa el pack de
+# Foundry. Se escriben a mano a propósito —«nunca se traduce, se empareja por
+# clave independiente del idioma, y los nombres propios llevan glosario
+# auditable»— y por eso NO se derivan.
+#
+# Lo que sí se puede exigir, y hasta la fase 3 del PLAN_20 no lo exigía nadie,
+# es que **cubran los grupos que la base declara de verdad**: un grupo nuevo en
+# `equipo/armas.yaml` o en `equipo/armaduras.yaml` se quedaría fuera del
+# contraste externo sin que nada lo dijera. `_glosarios_completos()` lo
+# comprueba, y por eso estos literales están DECLARADOS en
+# `_verificacion/constantes_de_dominio.json` con quién los cubre.
 _CATEGORIA = {
     "armas_cuerpo_a_cuerpo_sencillas": "simpleM",
     "armas_a_distancia_sencillas": "simpleR",
     "armas_cuerpo_a_cuerpo_marciales": "martialM",
     "armas_a_distancia_marciales": "martialR",
 }
+_TIPO_DE_ARMADURA = {
+    "armaduras_ligeras": "light", "armaduras_medias": "medium",
+    "armaduras_pesadas": "heavy", "escudos": "shield",
+}
+
+
+def _glosarios_completos(inf=None):
+    """¿Cubren los glosarios los grupos que la base declara hoy?"""
+    import efectos as _E
+    fallos = []
+    for nombre, glosario, reales in (
+            ("_CATEGORIA", _CATEGORIA, _E.grupos_de_armas()),
+            ("_TIPO_DE_ARMADURA", _TIPO_DE_ARMADURA,
+             sum(_E.grupos_de_armadura(), ()))):
+        faltan = [g for g in reales if g not in glosario]
+        sobran = [g for g in glosario if g not in reales]
+        if faltan:
+            fallos.append(f"{nombre} no traduce {faltan}: esos grupos se "
+                          f"quedarían fuera del contraste externo sin ruido")
+        if sobran:
+            fallos.append(f"{nombre} traduce {sobran}, que la base ya no "
+                          f"declara: entrada muerta")
+    return fallos
 
 
 def verificar_armas():
@@ -581,8 +616,7 @@ def verificar_armaduras():
             pc = _precio_a_pc(a.get("precio"))
             cand = srd.get(pc, [])
             # afinar por tipo cuando el precio se repite
-            esperado_tipo = {"armaduras_ligeras": "light", "armaduras_medias": "medium",
-                             "armaduras_pesadas": "heavy", "escudos": "shield"}[grupo]
+            esperado_tipo = _TIPO_DE_ARMADURA[grupo]
             cand = [c for c in cand if c["tipo"] == esperado_tipo]
             if len(cand) != 1:
                 ambiguas += 1
@@ -1890,6 +1924,12 @@ def main():
     print("Contraste contra SRD 5.2 estructurado (CC-BY-4.0 · packs dnd5e de Foundry)")
     print("─" * 74)
     total_ok = total_err = 0
+    # Antes de contrastar nada: que los glosarios cubran lo que la base declara
+    # hoy. Un grupo nuevo sin traducir no daría error, daría MENOS contraste —
+    # y eso es peor, porque el número final seguiría en verde.
+    for f in _glosarios_completos():
+        print(f" ❌ glosario incompleto · {f}")
+        total_err += 1
     for p in pedidos:
         inf = MODULOS[p]()
         inf.imprime()

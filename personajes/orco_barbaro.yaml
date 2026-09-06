@@ -120,7 +120,14 @@ dotes:
 calculado:
   # Lo escribió el motor, no una lectura independiente de la
   # página. Ver `PLAN_20_AUDITORIA.md` §1.2.
-  _origen: {metodo: motor, informe: null, fecha: "2026-09-05"}
+  # Segunda transcripción: un agente ciego —recibió la ficha SIN este
+  # bloque, vía `verificar_personaje.py --datos-crudos`— derivó a mano
+  # los tres que tiene (pg_max, ca, velocidad); no lanza conjuros
+  # citando fichero y página en cada paso, y COINCIDE con el motor.
+  # Esa es la única independencia que existe aquí: la ficha se escribe
+  # y se verifica con el mismo código, así que un error del motor
+  # produce una ficha coherente y equivocada, y sale en verde.
+  _origen: {metodo: agente-manual, informe: "_verificacion/_aritmetica/orco_barbaro-calculista-ciego.md", fecha: "2026-09-06"}
   pg_max: 14
   ca: 13
   bonif_competencia: 2

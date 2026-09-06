@@ -637,8 +637,8 @@ def _eq_armas(data, err, warn):
     props = set(data.get("propiedades", {}))                      # noqa: F841
     maestrias = {k.capitalize() for k in data.get("propiedades_de_maestria", {})}
     n = 0
-    for grupo in ("armas_cuerpo_a_cuerpo_sencillas", "armas_a_distancia_sencillas",
-                  "armas_cuerpo_a_cuerpo_marciales", "armas_a_distancia_marciales"):
+    import efectos as _E
+    for grupo in _E.grupos_de_armas():
         armas = data.get(grupo, [])
         n += len(armas)
         for a in armas:
@@ -717,8 +717,8 @@ def _eq_municion(data, err, warn):
                    for o in (av.get("tabla_peso_precio") or [])}
     ar = yaml.safe_load((B / "equipo/armas.yaml").read_text(encoding="utf-8"))
     armas = {}
-    for grupo in ("armas_cuerpo_a_cuerpo_sencillas", "armas_a_distancia_sencillas",
-                  "armas_cuerpo_a_cuerpo_marciales", "armas_a_distancia_marciales"):
+    import efectos as _E
+    for grupo in _E.grupos_de_armas():
         for a in ar.get(grupo, []):
             armas[a["nombre"]] = a
 
@@ -2928,8 +2928,12 @@ def validar_tiradas():
 _MEJORA_FRAG = re.compile(
     r'^\s*Mejora de característica:\s*'
     r'(.+?\(máx\.\s*\d+\)(?: a una característica [^.]+)?)\.')
-_CARACTS = ("Fuerza", "Destreza", "Constitución", "Inteligencia",
-            "Sabiduría", "Carisma")
+# Los seis nombres salen de `reglas/caracteristicas.yaml` (fase 3 del PLAN_20).
+# Y va con otro nombre a propósito: `_CARACTS` ya existía en este módulo como
+# el fragmento de expresión regular de las salvaciones (línea ~1691), y tener
+# dos cosas distintas con el mismo nombre en el mismo fichero es un accidente
+# esperando a pasar.
+_NOMBRES_CARACT = tuple(n for n, _a in _caracteristicas())
 
 # La dote genérica «Mejora de característica» (pdf 209 = libro 207) redacta lo
 # mismo de otra forma, porque no es una sub-mejora dentro de una dote mayor:
@@ -3043,7 +3047,7 @@ def validar_mejoras_de_dote():
             e = est.get("entre")
             if isinstance(e, list):
                 for c in e:
-                    if c not in _CARACTS:
+                    if c not in _NOMBRES_CARACT:
                         err.append(f"«{nom}» ({rel}): {c!r} no es una "
                                    f"característica")
             elif e != "cualquiera":

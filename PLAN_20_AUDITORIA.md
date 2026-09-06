@@ -44,7 +44,7 @@ lo detecta nada**. Y la ficha se escribe con `calculo.py` y se verifica con
 `efectos._DIRECTORIOS_DE_REGLA` enumera 5 directorios y le falta `equipo`; y
 `censo.py:111` hace `for d in E._DIRECTORIOS_DE_REGLA:` — **el censo toma su
 universo de esa tupla**. `equipo/armaduras.yaml` **es fuente de efectos**
-(`efectos.py:495` fabrica la CA de 13 armaduras, el −3 m por Fuerza y el
+(`efectos.py:495` fabrica la CA de 12 armaduras, el −3 m por Fuerza y el
 escudo) y no la censa nadie. Y `mutaciones_censo.py:177` tiene un **control
 negativo que exige que el censo NO se entere** de un `.yaml` nuevo en `equipo/`.
 El guardián de «la cobertura se descubre» tiene el defecto que persigue, con un
