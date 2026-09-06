@@ -32,7 +32,8 @@ reproducen con los cinco comandos del final.
    `mutaciones_integridad.py` (24/24), `mutaciones_efectos.py` (42/42),
    `mutaciones_pg.py` (13/13), `mutaciones_materiales.py` (10/10),
    `mutaciones_tiradas.py` (19/19), `mutaciones_prerrequisitos.py` (10/10), `mutaciones_subida.py` (7/7), `mutaciones_nivel20.py` (52/52),
-   `mutaciones_deuda.py` (10/10) y `mutaciones_foundry.py` (47/47). La mitad
+   `mutaciones_deuda.py` (10/10), `mutaciones_muro.py` (10/10) y
+   `mutaciones_foundry.py` (47/47). La mitad
    de cada suite son **controles negativos**: datos raros pero legítimos que no
    deben hacer saltar nada. No es simetría estética — la primera versión del
    chequeo de dados se disparaba con su propia documentación.
@@ -227,7 +228,7 @@ Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
 10. **✅ CERRADA (2026-09-02) — la regla inviolable 6 ya no es prosa.**
    *(era 🔴 desde el 2026-08-31, el mismo día en que se escribió)*
 
-   `censo.py` la convierte en una cuenta: **938 unidades censadas, 0 sin
+   `censo.py` la convierte en una cuenta: **939 unidades censadas, 0 sin
    declarar, 570 pendientes con su bloque y su motivo**. Nueve clases de unidad
    —la séptima, los módulos de herramienta, la añadió el bloque A2; la octava,
    los efectos con carga, la fase 1.3 de `PLAN_20_AUDITORIA.md`; la novena, las
@@ -366,6 +367,7 @@ python3 _verificacion/mutaciones_prerrequisitos.py # 10/10
 python3 _verificacion/mutaciones_subida.py       # 7/7
 python3 _verificacion/mutaciones_nivel20.py      # 52/52
 python3 _verificacion/mutaciones_deuda.py        # 10/10
+python3 _verificacion/mutaciones_muro.py         # 10/10
 python3 _verificacion/intervalo.py 48 305 306    # la tasa del 15,7 % (antes de corregir)
 python3 _verificacion/intervalo.py 4 36 306      # el residuo del 11,1 % (después)
 ```

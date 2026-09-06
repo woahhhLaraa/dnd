@@ -882,13 +882,34 @@ def main():
     breve = "--breve" in sys.argv
     try:
         exentas, pendientes = cargar_manifiesto()
-        filas = [f() for f in FILAS]
-    except (ErrorDeCenso, Exception) as e:
-        if isinstance(e, ErrorDeCenso):
-            print(f"✗ {e}")
-            return 1
-        raise
+    except ErrorDeCenso as e:
+        print(f"✗ {e}")
+        return 1
 
+    # ── El muro, fila a fila (fase 2 del PLAN_21) ───────────────────────
+    # Era `filas = [f() for f in FILAS]` dentro de un `try` que reventaba
+    # entero: **una fila mala se llevaba las NUEVE**, y con ellas el recuento
+    # que `verificar_documentos.py` ancla contra los documentos. Es la familia
+    # «un chequeo explota en vez de informar», la cuarta vez que aparece.
+    #
+    # Una fila que revienta no anula el censo: sale en rojo con su nombre, y
+    # las otras ocho siguen contando. Lo que sí hace es impedir que el censo
+    # diga «0 sin declarar»: una fila que no se ha medido no puede prometer
+    # nada sobre lo que cuenta.
+    import informar as _I
+    filas, rotas = [], []
+    for f in FILAS:
+        fila, fallo = _I.muro(f)
+        if fallo is None:
+            filas.append(fila)
+        elif isinstance(fallo.excepcion, ErrorDeCenso):
+            # `ErrorDeCenso` no es que reviente: es el censo diciendo lo suyo.
+            rotas.append(f"{fallo.etiqueta}: {fallo.mensaje}")
+        else:
+            rotas.append(str(fallo))
+
+    for r in rotas:
+        print(f"✗ {r}")
     if any(p.endswith("*") for p in exentas):
         print("✗ los comodines solo valen en `pendientes`: una unidad que NO "
               "debe alcanzarse se declara una a una, con su motivo")
@@ -1006,14 +1027,20 @@ def main():
 
     universo_total = sum(len(f.universo) for f in filas)
     muertas_total = len(muertas) + len(muertas_de_fila)
-    print(f"{'❌' if (total_huecos or muertas_total) else '✅'} "
+    # Una fila rota cuenta como fallo y se DICE en la línea final: un censo al
+    # que le falta una fila sigue imprimiendo su recuento —para eso está el
+    # muro—, pero ese recuento ya no es el del censo entero, y decir «0 sin
+    # declarar» sin más sería prometer sobre lo que no se ha medido.
+    print(f"{'❌' if (total_huecos or muertas_total or rotas) else '✅'} "
           f"{universo_total} unidades censadas · "
           f"{total_huecos} SIN DECLARAR · {total_pend} pendientes declaradas"
-          + (f" · {muertas_total} declaraciones muertas" if muertas_total else ""))
+          + (f" · {muertas_total} declaraciones muertas" if muertas_total else "")
+          + (f" · ❌ {len(rotas)} de las {len(FILAS)} filas NO se han medido: "
+             f"lo contado no es el censo entero" if rotas else ""))
     if total_huecos:
         print("   Cada una: o la alcanza un chequeo, o se declara en "
               f"{MANIFIESTO.relative_to(B)} con su motivo.")
-    return 1 if (total_huecos or muertas_total) else 0
+    return 1 if (total_huecos or muertas_total or rotas) else 0
 
 
 if __name__ == "__main__":

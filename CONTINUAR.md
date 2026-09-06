@@ -45,14 +45,14 @@ python3 validar.py            # 0 errores
 python3 verificar_srd.py      # 646 valores · 0 discrepancias
 python3 verificar_foundry.py  # 3749 valores · 0 discrepancias
 python3 cobertura.py          # 0 preguntas sin responder
-python3 censo.py              # 938 unidades · 0 sin declarar · 570 pendientes
+python3 censo.py              # 939 unidades · 0 sin declarar · 570 pendientes
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 26/26
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240
 python3 verificar_documentos.py   # ¿CONTINUAR.md y FODA.md dicen la verdad?
 python3 verificar_chequeos.py     # ¿algún chequeo abandona un registro en silencio?
 ```
 
-Las 19 suites de `_verificacion/mutaciones_*.py` están todas en verde;
+Las 20 suites de `_verificacion/mutaciones_*.py` están todas en verde;
 `verificar_documentos.py` las descubre por patrón y no hace falta acordarse
 de sus nombres ni de sus cifras — las contrasta contra lo que este fichero y
 `FODA.md` dicen.
@@ -270,7 +270,8 @@ a ciegas, otro verificador—, nunca solos.
    escrita seis veces.
 3. **El error de un chequeo mataba al informe.** Tres veces en dos días. Se
    cerró con `validar._correr()`, pero `verificar_srd.py`, `verificar_foundry.py`
-   y `cobertura.py` siguen sin ese muro.
+   y `cobertura.py` siguieron sin ese muro hasta la fase 2 del `PLAN_21`
+   (2026-09-06), que lo puso en los siete con `informar.muro`.
 4. **La identidad de una unidad se inventa en cada sitio.** Huella por conjunto,
    por id, por frase, por línea… y las tres veces que se eligió mal, el
    verificador mintió.
@@ -362,10 +363,51 @@ Cuatro frentes en tres fases, y **ninguna cifra del plan vale sin remedirla**.
 > misma frase que presume de que se descubren por patrón**. Esa cuenta ya la
 > ancla `verificar_documentos.py` contra el disco.
 
-**Lo siguiente, por orden:** fase 2 (el muro de errores común, `muro()`, y los
-seis scripts que hoy no lo tienen) y fase 3 (la décima fila del censo: los
-scripts de la raíz sin ninguna suite que mute su código, descubierto por AST y
-nunca a mano).
+> **Fase 2 CERRADA (2026-09-06) · un muro de errores común.**
+>
+> `informar.py` en la raíz, con `muro(fn, ...) -> (valor, Fallo|None)`. Puesto
+> en los siete: `validar._correr` pasa a ser tres líneas encima —sus trece usos
+> no cambian—, `verificar_personaje` sustituye su `try` parcial, y `censo`
+> (9 filas), `verificar_chequeos` (17 fuentes), `verificar_srd` (12 clases),
+> `verificar_foundry` (módulos), `verificar_documentos` (18 suites) y
+> `cobertura` (5 bloques) envuelven su bucle. Lo que se perdía no era solo el
+> informe: en `verificar_srd` y `verificar_foundry` se perdía **la cifra que
+> `verificar_documentos.py` ancla contra estos documentos**, y una cifra que no
+> sale no se contrasta con nada.
+>
+> **El muro no se traga un `sys.exit`.** Un dato que falta en la base tiene que
+> seguir parando. Hay UN sitio donde se declara lo contrario, con su motivo:
+> `verificar_personaje`, porque allí lo que se examina es la ficha, no la base,
+> y la salida es un veredicto sobre la entrada bajo examen. El control negativo
+> va en las dos direcciones.
+>
+> **Y el muro trae un peligro que no estaba en el plan.** Varios de estos
+> scripts alimentan una línea base de `deuda.py`, y la poda da por saldado lo
+> que hoy no se mide. Un fichero que reventara y cuyo chequeo simplemente
+> «siguiera» haría **bajar la deuda sola, en verde**. Lo decide quien mide, no
+> el muro: `verificar_chequeos` contrasta con `podar=False` en cuanto una
+> fuente falla, y hay un control negativo que lo exige.
+>
+> ### El hallazgo de la fase, y lo destapó mi propio refactor
+>
+> Al sacar el cuerpo de un bucle a un ayudante `_ramas_de()` para poder ponerle
+> el muro, **cuatro ramas silenciosas desaparecieron de la línea base, en
+> verde**, y la poda las dio por saldadas. El motivo: `verificar_chequeos` solo
+> miraba funciones llamadas `validar_*`, `verificar_*` o `main`. O sea que
+> **bastaba mover una rama de función para dejar de vigilarla**, y una
+> convención de nombres es una lista escrita a mano disfrazada — justo lo que
+> la regla inviolable 6 prohíbe, dentro del módulo que existe para cazarlo.
+>
+> Medido: 61 ramas en funciones con prefijo, **59 más en las demás**. Casi la
+> mitad de lo que este verificador vigila vivía fuera de su alcance. Ahora se
+> miran TODAS las funciones y la línea base pasa de 61 a **120**, con las 59
+> como deuda declarada —no permiso: la lista solo puede bajar—. `_auditable` se
+> queda para la otra pregunta, la que hace `censo.fila_modulos`: ¿tiene este
+> módulo alguna entrada de chequeo, o es una biblioteca? Eran dos preguntas
+> compartiendo un predicado.
+
+**Lo siguiente:** fase 3 (la décima fila del censo: los scripts de la raíz sin
+ninguna suite que mute su código, descubierto por AST y nunca a mano).
 
 ---
 

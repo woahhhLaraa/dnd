@@ -63,6 +63,26 @@ def u_condicion_nueva(r):
     return "una rama silenciosa nueva con una condición que no existía"
 
 
+def u_rama_escondida_en_un_ayudante(r):
+    """El agujero que abrió el muro de la fase 2, y que lo cazó a los cinco
+    minutos: hasta el 2026-09-06 solo se miraban las ramas de `validar_*`,
+    `verificar_*` y `main`, así que **mover una rama silenciosa a un ayudante
+    con otro nombre la hacía desaparecer de la línea base, en verde**, con la
+    poda dándola por saldada. Pasó de verdad, cuatro veces, sacando el cuerpo
+    de un bucle a `_ramas_de()`.
+
+    La mutación es esa: la rama nueva no va en un `validar_*`, va en un
+    ayudante de guion bajo que el chequeo llama. Si el verificador vuelve a
+    mirar solo por prefijo, no la ve y esto sale en verde.
+    """
+    _sust(r, "validar.py",
+          "def validar_dados():\n",
+          "def _ayudante_de_dados(declarados):\n" + GEMELA + "\n\n"
+          "def validar_dados():\n")
+    return ("una rama silenciosa nueva metida en un AYUDANTE `_con_guion_bajo`, "
+            "no en un `validar_*`: moverla de función no puede esconderla")
+
+
 def u_gemela_en_otra_funcion(r):
     """La huella lleva la función: la misma guarda en otra función es otra
     rama, no la misma. Si no lo fuera, mover código de sitio la escondería."""
@@ -103,7 +123,8 @@ def n_rama_movida_de_linea(r):
     return "doce líneas de comentario que desplazan todas las ramas del fichero"
 
 
-DEBEN = [u_gemela_de_una_declarada, u_condicion_nueva, u_gemela_en_otra_funcion]
+DEBEN = [u_gemela_de_una_declarada, u_condicion_nueva,
+         u_gemela_en_otra_funcion, u_rama_escondida_en_un_ayudante]
 NO_DEBEN = [n_rama_que_avisa, n_rama_declarada, n_rama_movida_de_linea]
 
 

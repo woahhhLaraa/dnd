@@ -30,6 +30,8 @@ import re
 import subprocess
 import sys
 
+import informar as _I
+
 B = pathlib.Path(__file__).parent
 
 
@@ -247,16 +249,40 @@ def main():
     # media hora. El límite es el número de núcleos.
     import concurrent.futures
     import os
-    salidas = {}
+    salidas, sin_lanzar = {}, {}
     if suites:
         obreros = min(len(suites), os.cpu_count() or 4)
         with concurrent.futures.ThreadPoolExecutor(max_workers=obreros) as ex:
             futuros = {ex.submit(_salida, f"_verificacion/{s}"): s for s in suites}
             for fut in concurrent.futures.as_completed(futuros):
-                salidas[futuros[fut]] = fut.result()
+                # `fut.result()` relanza lo que pasara dentro del obrero, y
+                # eso mataba al ejecutor entero: una suite que no se puede
+                # ni lanzar dejaba sin medir a las otras diecisiete.
+                salida, fallo = _I.muro(fut.result, etiqueta=futuros[fut])
+                # El motivo se guarda y se imprime abajo, con el resto de la
+                # suite: perderlo dejaría un «no termina en verde» sin decir
+                # que en realidad ni llegó a arrancar, que son cosas distintas.
+                salidas[futuros[fut]] = salida if fallo is None else ""
+                if fallo:
+                    sin_lanzar[futuros[fut]] = fallo
+    # ── El muro, suite a suite (fase 2 del PLAN_21) ─────────────────────
+    # `salida.strip().splitlines()[-1]` revienta con `IndexError` si una suite
+    # no imprime NADA —que es justo lo que hace una suite que muere al
+    # arrancar—, y se llevaba por delante las dieciocho y todos los bloques
+    # de cifras que vienen después. Un script cuyo trabajo es cazar
+    # documentos desfasados no puede callarse entero porque una de las suites
+    # que corre se haya roto: eso es la peor combinación de las dos cosas.
     for script in suites:
-        salida = salidas[script]
-        m = re.search(r"(\d+)\s*/\s*(\d+)", salida.strip().splitlines()[-1])
+        ultima, fallo = _I.muro(
+            lambda s: (salidas[s].strip().splitlines() or [""])[-1],
+            script, etiqueta=script)
+        fallo = sin_lanzar.get(script) or fallo
+        if fallo:
+            fallos += 1
+            print(f" ❌ {script}: no se ha podido leer su resultado · "
+                  f"{fallo.motivo}")
+            continue
+        m = re.search(r"(\d+)\s*/\s*(\d+)", ultima)
         if not m or m.group(1) != m.group(2):
             fallos += 1
             print(f" ❌ {script} no termina en verde")

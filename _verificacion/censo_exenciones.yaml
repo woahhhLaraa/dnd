@@ -88,6 +88,8 @@ exentas:
     motivo: "biblioteca de descomposición de costes de material; la usa validar_materiales(), que sí se audita, y lanza ante lo que no entiende"
   - unidad: "modulo:prerrequisitos.py"
     motivo: "biblioteca de la gramática de prerrequisitos (Fase 15); lanza `ErrorDePrerrequisito` ante lo que no sabe evaluar, y quien la audita es validar_prerrequisitos()"
+  - unidad: "modulo:informar.py"
+    motivo: "el muro de errores (fase 2 del PLAN_21); no tiene chequeos propios que puedan callarse —lo suyo es que los de los demás no se pierdan— y su única rama, la que deja pasar un `sys.exit`, existe para NO callar. Quien la audita es `_verificacion/mutaciones_muro.py`, que inyecta un `raise` en un chequeo de cada script y exige que el informe siga saliendo"
   - unidad: "modulo:deuda.py"
     motivo: "biblioteca de la deuda enumerada (fase 1 del PLAN_21); no tiene chequeos propios que puedan callarse —lleva la contabilidad de las líneas base de otros cinco— y lanza `ValueError` si la identidad de un fichero cambia sin decirlo. Quien la audita es `_verificacion/mutaciones_deuda.py`, que rompe una de sus propiedades cada vez —poda, nuevo ≠ perdido, elenco, identidad, prosa que dura, deuda cerrada— contra escenarios fabricados que crean esa situación, más dos controles negativos"
 

@@ -3197,14 +3197,18 @@ def _correr(fn, *args):
 
     Un fallo así no se traga: sale como error del chequeo que lo provocó, con
     su tipo y su mensaje, y cuenta para el total.
+
+    Desde la fase 2 del `PLAN_21` esto son tres líneas sobre `informar.muro`:
+    el mecanismo vive fuera porque los otros seis verificadores lo necesitan
+    igual, y aquí se queda solo la ADAPTACIÓN a la terna `(nombre, errores,
+    avisos)` que espera `main()`. Sus trece usos no cambian.
     """
-    try:
-        return fn(*args)
-    except SystemExit:
-        raise
-    except Exception as e:                                   # noqa: BLE001
-        return (getattr(fn, "__name__", "chequeo"),
-                [f"reventó en vez de informar: {type(e).__name__}: {e}"], [])
+    import informar as _I
+    valor, fallo = _I.muro(fn, *args)
+    if fallo is None:
+        return valor
+    # La etiqueta va aparte: `main()` ya la imprime en su columna.
+    return (fallo.etiqueta, [fallo.motivo], [])
 
 
 def main():

@@ -44,6 +44,7 @@ import yaml
 import calculo
 import efectos
 import buscar
+import informar as _I
 from calculo import cargar
 
 
@@ -1394,6 +1395,19 @@ def main():
     # error con su nombre delante y los demás siguen. No se traga nada — un
     # fallo sigue siendo un fallo—, solo se deja de perder el resto del
     # informe por culpa del primero.
+    #
+    # La red la pone `informar.muro` desde la fase 2 del `PLAN_21`. Hasta
+    # entonces era un `try` que solo cazaba `KeyError` y `SystemExit`: **una
+    # ficha que hiciera reventar un chequeo de cualquier otra forma —un
+    # `TypeError` con un nivel escrito como texto, pongamos— seguía llevándose
+    # el proceso entero**, que es exactamente el defecto que este bloque
+    # existe para cerrar, con el bloque puesto.
+    #
+    # `salida_es_veredicto=True` y el motivo, porque es el ÚNICO sitio del
+    # repositorio donde se declara: aquí lo que se examina es la ficha, no la
+    # base. Cuando `calculo` hace `sys.exit` sobre un `pg_por_nivel` roto, esa
+    # salida es un veredicto sobre la entrada bajo examen, no un dato que
+    # falte en la base. En cualquier otro verificador tiene que seguir parando.
     for chequeo in (verificar_claves, verificar_habilidades,
                     verificar_categorias, verificar_compra_puntos,
                     verificar_pg_por_nivel, verificar_idiomas,
@@ -1401,14 +1415,23 @@ def main():
                     verificar_mejoras, verificar_conjuros,
                     verificar_dotes_y_subclase, verificar_forma_competencias,
                     verificar_calculado, verificar_sin_copias):
-        try:
-            chequeo(ficha, inf)
-        except KeyError as e:
-            inf.error(f"{chequeo.__name__}: la ficha no trae {e}, y este "
-                      f"chequeo lo necesita. Falta un bloque obligatorio "
+        _v, fallo = _I.muro(chequeo, ficha, inf, salida_es_veredicto=True)
+        # La redacción de `KeyError` se conserva porque DICE MÁS que el muro:
+        # nombra el bloque que falta y manda al esquema. El muro cierra el
+        # resto de casos, que antes no cerraba nadie.
+        #
+        # Escrito como `if fallo:` y no como `if fallo is None: continue`
+        # porque lo segundo es una rama que abandona un registro en silencio, y
+        # `verificar_chequeos.py` la cazó a los diez minutos de escribirla. No
+        # se declara con `# TOLERADO:`: se le da la vuelta, que es más corto.
+        if fallo and fallo.tipo == "KeyError":
+            inf.error(f"{fallo.etiqueta}: la ficha no trae {fallo.mensaje}, y "
+                      f"este chequeo lo necesita. Falta un bloque obligatorio "
                       f"(ver `personajes/_ESQUEMA.md`)")
-        except SystemExit as e:
-            inf.error(f"{chequeo.__name__}: {e}")
+        elif fallo and fallo.es_salida:
+            inf.error(f"{fallo.etiqueta}: {fallo.mensaje}")
+        elif fallo:
+            inf.error(str(fallo))
 
     print(f"{contador[0]} referencias comprobadas.")
     for a in inf.avisos:

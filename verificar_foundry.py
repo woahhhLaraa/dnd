@@ -32,6 +32,7 @@ Uso:
 import collections
 import glob
 import json
+import informar as _I
 import pathlib
 import re
 import sys
@@ -1930,8 +1931,19 @@ def main():
     for f in _glosarios_completos():
         print(f" ❌ glosario incompleto · {f}")
         total_err += 1
+    # ── El muro, módulo a módulo (fase 2 del PLAN_21) ───────────────────
+    # Igual que en `verificar_srd.py` y por la misma razón: lo que se lee aquí
+    # son packs de Foundry, un JSON EXTERNO cuyas claves no controla este
+    # repositorio. Un módulo que reventara se llevaba todos los demás y con
+    # ellos la cifra de 3749 valores contrastados que `verificar_documentos.py`
+    # ancla contra `CONTINUAR.md` — y una cifra que no sale no se puede
+    # contrastar con nada.
     for p in pedidos:
-        inf = MODULOS[p]()
+        inf, fallo = _I.muro(MODULOS[p], etiqueta=p)
+        if fallo:
+            print(f" ❌ {p}: no se ha podido contrastar · {fallo.motivo}")
+            total_err += 1
+            continue
         inf.imprime()
         total_ok += inf.comprobados
         total_err += len(inf.errores)

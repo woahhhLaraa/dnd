@@ -15,6 +15,7 @@ respuestas: solo dice si la base tiene con qué responder.
 Uso: python3 cobertura.py [-v]
 """
 import json, sys, re, pathlib
+import informar as _I
 import yaml
 
 # Los marcadores de la tabla se preguntan a `calculo`, que los lee de
@@ -551,19 +552,34 @@ def main():
     print("═" * 70)
     print("COBERTURA — ¿puede la base responder a lo que la skill preguntará?")
     print("═" * 70)
-    cobertura_clases(inf, inv)
-    cobertura_especies(inf)
-    cobertura_trasfondos(inf, inv)
-    cobertura_reglas_generales(inf)
-    cobertura_subir_nivel(inf)
+    # ── El muro, bloque a bloque (fase 2 del PLAN_21) ───────────────────
+    # Los cinco bloques son independientes: que las especies no se puedan
+    # medir no dice nada sobre si las clases sí. Antes, el primero que
+    # reventara se llevaba los otros cuatro y el informe entero — y este
+    # script existe precisamente para enumerar huecos, así que perder cuatro
+    # quintas partes de la enumeración es perderlo casi todo.
+    rotos = []
+    for bloque, args in ((cobertura_clases, (inf, inv)),
+                         (cobertura_especies, (inf,)),
+                         (cobertura_trasfondos, (inf, inv)),
+                         (cobertura_reglas_generales, (inf,)),
+                         (cobertura_subir_nivel, (inf,))):
+        _v, fallo = _I.muro(bloque, *args)
+        if fallo:
+            rotos.append(str(fallo))
     total = inf.imprimir()
     print("\n" + "─" * 70)
+    for r in rotos:
+        print(f"❌ bloque sin medir · {r}")
+    if rotos:
+        print(f"   {len(rotos)} de 5 bloques no se han podido preguntar: lo "
+              f"verde de arriba no cubre lo que no se ha mirado.")
     if total:
         print(f"❌ {total} preguntas que la base NO puede responder.")
         print("   Cada una es un hueco que el LLM rellenaría con reglas de 2014.")
-    else:
+    elif not rotos:
         print("✅ La base responde a todas las preguntas simuladas.")
-    return 1 if total else 0
+    return 1 if (total or rotos) else 0
 
 
 if __name__ == "__main__":

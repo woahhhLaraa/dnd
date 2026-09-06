@@ -224,6 +224,69 @@ en rojo y los demás intactos. Control negativo: un `sys.exit` legítimo —un d
 que falta en la base— tiene que seguir parando, no convertirse en una línea de
 error entre otras.
 
+### ✅ FASE 2 CERRADA (2026-09-06) — lo que salió, remedido
+
+`informar.py` en la raíz, con `muro(fn, ...) -> (valor, Fallo|None)` y `Fallo`
+llevando la etiqueta separada del motivo (`validar.py` ya imprime el nombre en
+su columna; `verificar_personaje` lo necesita dentro de la frase). Puesto en los
+siete, con la unidad de chequeo que cada uno tiene:
+
+| script | unidad | qué se perdía |
+|---|---|---|
+| `validar.py` | un `validar_*` | nada: tenía muro desde el día antes |
+| `verificar_personaje.py` | un `verificar_*` | todo salvo `KeyError` y `SystemExit` |
+| `censo.py` | una fila (9) | las NUEVE y el recuento que anclan los documentos |
+| `verificar_chequeos.py` | una fuente (17) | todo, **y podía podar en falso** |
+| `verificar_srd.py` | una clase (12) | las doce y la cifra de 646 |
+| `verificar_foundry.py` | un módulo | todos y la cifra de 3749 |
+| `verificar_documentos.py` | una suite (18) | todo, por un `IndexError` de lista vacía |
+| `cobertura.py` | un bloque (5) | los cinco |
+
+**`validar._correr` son ahora tres líneas encima del muro** y sus trece usos no
+cambian; lo que se queda ahí es la adaptación a la terna `(nombre, errores,
+avisos)`, no el mecanismo.
+
+**El `sys.exit` sigue parando**, con una excepción declarada y una sola:
+`verificar_personaje`, porque allí lo examinado es la FICHA y la salida de
+`calculo` es un veredicto sobre la entrada bajo examen, no un dato que falte en
+la base. El parámetro se llama `salida_es_veredicto` y no `capturar_salidas`
+a propósito: el nombre tiene que decir por qué, no qué. El control negativo va
+en las dos direcciones.
+
+**El peligro que el muro trae consigo, y no estaba en el plan.** Lo destapó
+medir `verificar_chequeos` antes de tocarlo: varios de estos scripts alimentan
+una línea base de `deuda.py`, y `Deuda.contrastar` PODA lo que hoy no se mide.
+Un fichero que reventara y cuyo chequeo simplemente «siguiera» dejaría de
+aportar sus ramas, la poda las daría por saldadas y **la deuda bajaría sola, en
+verde** — la mentira contra la que existe la línea base, entrando por la puerta
+que se abrió para no perder informes. El muro no puede decidirlo (no sabe qué
+alimenta cada chequeo): lo decide quien mide, con `podar=False`, y hay un
+control negativo que lo exige.
+
+### El hallazgo de la fase: lo destapó el refactor de la propia fase
+
+Al sacar el cuerpo de un bucle a un ayudante `_ramas_de()` para poder ponerle el
+muro, **cuatro ramas silenciosas desaparecieron de la línea base, en verde**, y
+la poda las dio por saldadas. `verificar_chequeos` solo miraba funciones
+llamadas `validar_*`, `verificar_*` o `main`: **bastaba mover una rama de
+función para dejar de vigilarla**. Una convención de nombres es una lista
+escrita a mano disfrazada, que es lo que la regla inviolable 6 prohíbe — dentro
+del módulo que existe para cazarlo.
+
+Medido: **61 ramas en funciones con prefijo, 59 más en las demás**. Casi la
+mitad de lo que este verificador vigila vivía fuera de su alcance. Ahora se
+miran TODAS las funciones y la línea base pasa de 61 a **120**, con las 59 como
+deuda declarada —no permiso: sigue pudiendo solo bajar— y su `_migracion` dentro
+del fichero. `_auditable` se queda para la otra pregunta, la que hace
+`censo.fila_modulos`: ¿tiene este módulo alguna entrada de chequeo, o es una
+biblioteca? Eran dos preguntas compartiendo un predicado, y por eso una podía
+mentirle a la otra. Su mutación nueva está en `mutaciones_silencios.py` (7/7):
+una rama silenciosa metida en un ayudante `_con_guion_bajo`.
+
+**Cifras remedidas al cerrar:** censo **939** unidades · 0 sin declarar · 570
+pendientes · ramas silenciosas **120**, línea base 120 · `mutaciones_muro` 10/10
+(nueva) · `mutaciones_silencios` 7/7 · el resto sin cambio.
+
 ---
 
 ## Fase 3 · La fila del censo que cuenta los guardianes sin guardián
