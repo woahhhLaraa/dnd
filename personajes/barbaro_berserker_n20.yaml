@@ -1,0 +1,287 @@
+# Esta ficha entró en la base el 2026-09-06 y de dónde sale importa: **la
+# eligió la FILA 8 del censo, no una idea de personaje**. Esa fila cuenta los
+# efectos declarados que ninguna ficha con lectura independiente sostiene —se
+# pueden corromper y todo sigue verificando en verde—, y de las 18 que
+# quedaban esta cierra 4:
+#
+#   · «Movimiento rápido» del Bárbaro de nivel 5
+#   · «Duro», dote de origen del trasfondo Campesino
+#   · «Veloz», dote general del nivel 4
+#   · «Don de la fortaleza», el don épico del nivel 19
+#
+# Las siete fichas de esta tanda se diseñaron juntas para cubrir las 18 sin
+# solaparse: esta es la única de nivel 20 con don épico de PG
+#
+# El `calculado` lo escribió el motor. Para que cuente en la fila 8 hace falta
+# que un calculista a ciegas lo derive a mano y coincida — si no, sería el
+# motor dándose la razón a sí mismo.
+
+nombre: Vurga Piedra-Tozuda
+jugador: null
+nivel_total: 20
+especie:
+  ref: especies/especies.yaml#Aasimar
+trasfondo:
+  ref: trasfondos/trasfondos.yaml#Campesino
+clases:
+- clase: Bárbaro
+  ref: clases/barbaro.yaml
+  nivel: 20
+  subclase: clases/subclases/barbaro.yaml#Senda del Berserker
+caracteristicas:
+  metodo: conjunto_estandar
+  base:
+    fue: 15
+    con: 14
+    des: 13
+    sab: 12
+    int: 10
+    car: 8
+  ajuste_trasfondo:
+    fue: 2
+    con: 1
+  final:
+    fue: 19
+    con: 20
+    des: 14
+    sab: 12
+    int: 10
+    car: 8
+competencias:
+  salvaciones:
+  - Fuerza
+  - Constitución
+  habilidades:
+  - nombre: Atletismo
+    origen:
+      clase: Bárbaro
+  - nombre: Intimidación
+    origen:
+      clase: Bárbaro
+  - nombre: Naturaleza
+    origen:
+      trasfondo: Campesino
+  - nombre: Trato con animales
+    origen:
+      trasfondo: Campesino
+  armas:
+  - categoria: Armas sencillas
+    origen:
+      clase: Bárbaro
+  - categoria: Armas marciales
+    origen:
+      clase: Bárbaro
+  armaduras:
+  - categoria: Armaduras ligeras
+    origen:
+      clase: Bárbaro
+  - categoria: Armaduras medias
+    origen:
+      clase: Bárbaro
+  - categoria: Escudos
+    origen:
+      clase: Bárbaro
+  herramientas:
+  - categoria: herramientas de carpintero
+    origen:
+      trasfondo: Campesino
+  idiomas:
+  - nombre: Común
+equipo:
+- ref: equipo/armaduras.yaml#Media armadura
+  origen:
+    clase: Bárbaro
+    nota: generado
+mejoras:
+- nivel: 8
+  sube:
+    fue: 2
+  ref: dotes/generales.yaml#Mejora de característica
+- nivel: 12
+  sube:
+    con: 2
+  ref: dotes/generales.yaml#Mejora de característica
+- nivel: 16
+  sube:
+    con: 2
+  ref: dotes/generales.yaml#Mejora de característica
+pg_por_nivel:
+- nivel: 1
+  clase: Bárbaro
+  metodo: maximo_dado
+  valor: 12
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.nivel_1
+- nivel: 2
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 3
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 4
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 5
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 6
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 7
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 8
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 9
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 10
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 11
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 12
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 13
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 14
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 15
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 16
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 17
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 18
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 19
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 20
+  clase: Bárbaro
+  metodo: valor_establecido
+  valor: 7
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+decisiones:
+- en: generación automática
+  eleccion: conjunto estándar repartido por característica principal; PG siempre por
+    valor establecido; mejoras a la principal. Es una heurística del generador, no
+    una regla del manual.
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: metodos_generacion_caracteristicas.conjunto_estandar
+- en: generación automática
+  eleccion: el equipo inicial vive como prosa en la base, así que esta ficha solo
+    lleva armadura; el inventario queda vacío a propósito.
+  cita:
+    archivo: clases/barbaro.yaml
+    campo: atributos_basicos.equipo_inicial
+calculado:
+  pg_max: 325
+  ca: 17
+  bonif_competencia: 6
+  velocidad: 15
+  _origen:
+    metodo: motor
+    informe: null
+    fecha: '2026-09-06'
+dotes:
+- ref: dotes/origen.yaml#Duro
+  origen:
+    trasfondo: Campesino
+- ref: dotes/generales.yaml#Veloz
+  origen:
+    clase: Bárbaro
+    nivel: 4
+  sube:
+    des: 1
+- ref: dotes/don_epico.yaml#Don de la fortaleza
+  origen:
+    clase: Bárbaro
+    rasgo: Don épico
+  sube:
+    con: 1

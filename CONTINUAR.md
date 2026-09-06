@@ -43,7 +43,7 @@ python3 verificar_srd.py      # 646 valores · 0 discrepancias
 python3 verificar_foundry.py  # 3749 valores · 0 discrepancias
 python3 cobertura.py          # 0 preguntas sin responder
 python3 censo.py              # 937 unidades · 0 sin declarar · 588 pendientes
-for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 18/18
+for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 25/25
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240
 python3 verificar_documentos.py   # ¿CONTINUAR.md y FODA.md dicen la verdad?
 python3 verificar_chequeos.py     # ¿algún chequeo abandona un registro en silencio?

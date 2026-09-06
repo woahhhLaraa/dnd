@@ -1,0 +1,139 @@
+# Esta ficha entró en la base el 2026-09-06 y de dónde sale importa: **la
+# eligió la FILA 8 del censo, no una idea de personaje**. Esa fila cuenta los
+# efectos declarados que ninguna ficha con lectura independiente sostiene —se
+# pueden corromper y todo sigue verificando en verde—, y de las 18 que
+# quedaban esta cierra 1:
+#
+#   · «Inspiración en combate» del Colegio del Valor
+#
+# Las siete fichas de esta tanda se diseñaron juntas para cubrir las 18 sin
+# solaparse: hace falta un Bardo por cada colegio: los dos efectos de CA están en subclases distintas
+#
+# El `calculado` lo escribió el motor. Para que cuente en la fila 8 hace falta
+# que un calculista a ciegas lo derive a mano y coincida — si no, sería el
+# motor dándose la razón a sí mismo.
+
+nombre: Prueba Bardo 3
+jugador: null
+nivel_total: 3
+especie:
+  ref: especies/especies.yaml#Aasimar
+trasfondo:
+  ref: trasfondos/trasfondos.yaml#Acólito
+clases:
+- clase: Bardo
+  ref: clases/bardo.yaml
+  nivel: 3
+  subclase: clases/subclases/bardo.yaml#Colegio del Valor
+caracteristicas:
+  metodo: conjunto_estandar
+  base:
+    car: 15
+    con: 14
+    des: 13
+    sab: 12
+    fue: 10
+    int: 8
+  ajuste_trasfondo:
+    int: 2
+    sab: 1
+  final:
+    fue: 10
+    des: 13
+    con: 14
+    int: 10
+    sab: 13
+    car: 15
+competencias:
+  salvaciones:
+  - Destreza
+  - Carisma
+  habilidades:
+  - nombre: Acrobacias
+    origen:
+      clase: Bardo
+  - nombre: Atletismo
+    origen:
+      clase: Bardo
+  - nombre: Conocimiento arcano
+    origen:
+      clase: Bardo
+  - nombre: Perspicacia
+    origen:
+      trasfondo: Acólito
+  - nombre: Religión
+    origen:
+      trasfondo: Acólito
+  armas:
+  - categoria: Armas sencillas
+    origen:
+      clase: Bardo
+  armaduras:
+  - categoria: Armaduras ligeras
+    origen:
+      clase: Bardo
+  herramientas: []
+  idiomas:
+  - nombre: Común
+equipo:
+- ref: equipo/armaduras.yaml#Armadura de cuero tachonado
+  origen:
+    clase: Bardo
+    nota: generado
+pg_por_nivel:
+- nivel: 1
+  clase: Bardo
+  metodo: maximo_dado
+  valor: 8
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.nivel_1
+- nivel: 2
+  clase: Bardo
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 3
+  clase: Bardo
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+conjuros:
+  trucos:
+  - ref: hechizos.json#Amistad
+  - ref: hechizos.json#Burla dañina
+  preparados:
+  - ref: hechizos.json#Caída de pluma
+  - ref: hechizos.json#Curar heridas
+  - ref: hechizos.json#Detectar magia
+  - ref: hechizos.json#Disfrazarse
+  - ref: hechizos.json#Dormir
+  - ref: hechizos.json#Encantar animal
+decisiones:
+- en: generación automática
+  eleccion: conjunto estándar repartido por característica principal; PG siempre por valor establecido;
+    mejoras a la principal. Es una heurística del generador, no una regla del manual.
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: metodos_generacion_caracteristicas.conjunto_estandar
+- en: generación automática
+  eleccion: el equipo inicial vive como prosa en la base, así que esta ficha solo lleva armadura; el inventario
+    queda vacío a propósito.
+  cita:
+    archivo: clases/bardo.yaml
+    campo: atributos_basicos.equipo_inicial
+calculado:
+  pg_max: 24
+  ca: 13
+  bonif_competencia: 2
+  velocidad: 9
+  cd_conjuros: 12
+  bonif_ataque_conjuros: 4
+  _origen:
+    metodo: motor
+    informe: None
+    fecha: '2026-09-06'

@@ -20,7 +20,6 @@
   "m_mul_invertido": "el agregador `mul` divide en vez de multiplicar",
   "m_sin_redondeo": "se quita el `math.floor` final de la agregación",
   "m_orden_ignorado": "`agregar()` deja de leer `orden_de_agregacion` y usa un orden propio",
-  "m_minimo_de_pg": "el mínimo de 1 de los PG por nivel pasa a 0",
-  "m_condiciones_ignoradas": "`aplica()` deja de mirar `requiere`: todo efecto se aplica siempre"
+  "m_minimo_de_pg": "el mínimo de 1 de los PG por nivel pasa a 0"
  }
 }

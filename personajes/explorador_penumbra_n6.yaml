@@ -1,0 +1,179 @@
+# Esta ficha entró en la base el 2026-09-06 y de dónde sale importa: **la
+# eligió la FILA 8 del censo, no una idea de personaje**. Esa fila cuenta los
+# efectos declarados que ninguna ficha con lectura independiente sostiene —se
+# pueden corromper y todo sigue verificando en verde—, y de las 18 que
+# quedaban esta cierra 3:
+#
+#   · «Errante» del Explorador de nivel 6
+#   · «Emboscador pavoroso» del Acechador en la Penumbra
+#   · «Defensa», el estilo de combate que suma +1 a la CA con armadura
+#
+# Las siete fichas de esta tanda se diseñaron juntas para cubrir las 18 sin
+# solaparse: es la única con estilo de combate defensivo
+#
+# El `calculado` lo escribió el motor. Para que cuente en la fila 8 hace falta
+# que un calculista a ciegas lo derive a mano y coincida — si no, sería el
+# motor dándose la razón a sí mismo.
+
+nombre: Kaelin Paso-en-Sombra
+jugador: null
+nivel_total: 6
+especie:
+  ref: especies/especies.yaml#Aasimar
+trasfondo:
+  ref: trasfondos/trasfondos.yaml#Acólito
+clases:
+- clase: Explorador
+  ref: clases/explorador.yaml
+  nivel: 6
+  subclase: clases/subclases/explorador.yaml#Acechador en la Penumbra
+caracteristicas:
+  metodo: conjunto_estandar
+  base:
+    des: 15
+    sab: 14
+    con: 13
+    fue: 12
+    int: 10
+    car: 8
+  ajuste_trasfondo:
+    int: 2
+    sab: 1
+  final:
+    fue: 12
+    des: 17
+    con: 13
+    int: 12
+    sab: 15
+    car: 8
+competencias:
+  salvaciones:
+  - Fuerza
+  - Destreza
+  habilidades:
+  - nombre: Atletismo
+    origen:
+      clase: Explorador
+  - nombre: Investigación
+    origen:
+      clase: Explorador
+  - nombre: Naturaleza
+    origen:
+      clase: Explorador
+  - nombre: Perspicacia
+    origen:
+      trasfondo: Acólito
+  - nombre: Religión
+    origen:
+      trasfondo: Acólito
+  armas:
+  - categoria: Armas sencillas
+    origen:
+      clase: Explorador
+  - categoria: Armas marciales
+    origen:
+      clase: Explorador
+  armaduras:
+  - categoria: Armaduras ligeras
+    origen:
+      clase: Explorador
+  - categoria: Armaduras medias
+    origen:
+      clase: Explorador
+  - categoria: Escudos
+    origen:
+      clase: Explorador
+  herramientas: []
+  idiomas:
+  - nombre: Común
+equipo:
+- ref: equipo/armaduras.yaml#Media armadura
+  origen:
+    clase: Explorador
+    nota: generado
+mejoras:
+- nivel: 4
+  sube:
+    des: 2
+  ref: dotes/generales.yaml#Mejora de característica
+pg_por_nivel:
+- nivel: 1
+  clase: Explorador
+  metodo: maximo_dado
+  valor: 10
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.nivel_1
+- nivel: 2
+  clase: Explorador
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 3
+  clase: Explorador
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 4
+  clase: Explorador
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 5
+  clase: Explorador
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 6
+  clase: Explorador
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+conjuros:
+  preparados:
+  - ref: hechizos.json#Alarma
+  - ref: hechizos.json#Buenas bayas
+  - ref: hechizos.json#Curar heridas
+  - ref: hechizos.json#Detectar magia
+  - ref: hechizos.json#Detectar venenos y enfermedades
+  - ref: hechizos.json#Encantar animal
+decisiones:
+- en: generación automática
+  eleccion: conjunto estándar repartido por característica principal; PG siempre por
+    valor establecido; mejoras a la principal. Es una heurística del generador, no
+    una regla del manual.
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: metodos_generacion_caracteristicas.conjunto_estandar
+- en: generación automática
+  eleccion: el equipo inicial vive como prosa en la base, así que esta ficha solo
+    lleva armadura; el inventario queda vacío a propósito.
+  cita:
+    archivo: clases/explorador.yaml
+    campo: atributos_basicos.equipo_inicial
+calculado:
+  pg_max: 46
+  ca: 18
+  bonif_competencia: 3
+  velocidad: 12
+  cd_conjuros: 13
+  bonif_ataque_conjuros: 5
+  _origen:
+    metodo: motor
+    informe: null
+    fecha: '2026-09-06'
+dotes:
+- ref: dotes/estilo_de_combate.yaml#Defensa
+  origen:
+    clase: Explorador
+    rasgo: Estilo de combate
