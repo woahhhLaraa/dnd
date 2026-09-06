@@ -42,8 +42,8 @@ python3 validar.py            # 0 errores
 python3 verificar_srd.py      # 646 valores · 0 discrepancias
 python3 verificar_foundry.py  # 3749 valores · 0 discrepancias
 python3 cobertura.py          # 0 preguntas sin responder
-python3 censo.py              # 937 unidades · 0 sin declarar · 588 pendientes
-for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 25/25
+python3 censo.py              # 937 unidades · 0 sin declarar · 579 pendientes
+for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 26/26
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240
 python3 verificar_documentos.py   # ¿CONTINUAR.md y FODA.md dicen la verdad?
 python3 verificar_chequeos.py     # ¿algún chequeo abandona un registro en silencio?
@@ -69,7 +69,7 @@ van en prosa y no dentro del bloque de comandos de arriba.
 
 - `verificar_srd.py` -> 646 valores contrastados · 0 discrepancias
 - `verificar_foundry.py` -> 3749 valores contrastados · 0 discrepancias
-- INTEGRIDAD: 683 dados · 436 conversiones · 391 conjuros en `tirada` · 677
+- INTEGRIDAD: 684 dados · 436 conversiones · 391 conjuros en `tirada` · 677
   pares de vecindad · 782 campos de ortografía · 391 citas de conjuro · 52
   costes sin fuente externa · 25 efectos
 - 55 mejoras de dote estructuradas, leídas de `dotes/*.yaml`
@@ -173,9 +173,40 @@ solución a los "parches puntuales" en vez de seguir apilando verificadores.**
 >   faltan no los aplica ninguna ficha, así que solo se cierran **escribiendo
 >   fichas nuevas** que los ejerciten. Eso es trabajo previo al calculista.
 >
-> **Lo siguiente:** escribir fichas que ejerciten los 18 efectos sin carga
-> —la lista está en `_verificacion/efectos_sin_carga.json`— y pasarlas por un
-> calculista a ciegas. Y el encargo abierto de rearquitecturación, más abajo.
+> - **Ocho fichas nuevas, elegidas por las listas y no por una idea de
+>   personaje.** Siete las dirigió la fila 8 y cubren los 18 efectos que no
+>   ejercitaba nadie; la octava la dirigió `motor_sin_carga.json` y ejercita el
+>   mínimo de 1 PG por nivel (Constitución 8, dado d6 y una tirada de 1: sin
+>   esas tres cosas a la vez el mínimo no se activa).
+> - **Fila 8 de 4/25 a 16/25** · **`mutaciones_motor` de 4/11 a 9/12 cazadas.**
+>
+> ## 🔴 LO PRIMERO AL REANUDAR
+>
+> **Relanzar la tanda a ciegas para cinco fichas.** Los cuatro agentes de la
+> última tanda murieron por límite de sesión; dos habían escrito su informe
+> antes de morir (paladín y explorador: 10 de 10 valores coinciden, ya
+> promovidas) y dos no. Faltan:
+>
+> ```
+> barbaro_berserker_n20   monje_elementos_n20   bardo_danza_n3
+> bardo_valor_n3          druida_luna_n3
+> ```
+>
+> El procedimiento está probado: `verificar_personaje.py --datos-crudos <ficha>`
+> para el fichero crudo, y el encargo del mandato E de `PLAN_ESTRES.md` con los
+> dos avisos que evitan hallazgos ya conocidos (la CA sin armadura y la CD de
+> conjuros). Al coincidir, `_origen: agente-manual` con su informe → **la fila 8
+> llega a 25/25 y se cierra el criterio del `PLAN_20`**.
+>
+> **Los tres huecos de motor que quedan NO se cierran con fichas**, y el motivo
+> está escrito en `_verificacion/motor_sin_carga.json`: `mul` no lo usa ningún
+> efecto de la base, `math.floor` solo actúa sobre una variable no decimal que
+> reciba un fraccionario (y lo único fraccionario es `velocidad`, declarada
+> decimal), y el orden de agregación necesita dos operaciones sobre la misma
+> variable. Son vocabulario del motor por delante del dato. No busques una ficha
+> imposible.
+>
+> Después: el encargo abierto de rearquitecturación, más abajo.
 > `subir_nivel.py` y `generar_ficha.py` siguen sin mirarse con esta lupa: el
 > punto 2 de aquí abajo sigue vigente para ellos.
 

@@ -4,30 +4,27 @@
  "_como_se_salda": "una ficha cuyo `calculado` haya calculado a mano un agente desde la página, y que aplique ese efecto, lo pincha aquí",
  "efectos": [
   "efecto:clases/rasgos/barbaro.yaml#Movimiento rápido·velocidad·add",
-  "efecto:clases/rasgos/explorador.yaml#Errante·velocidad·add",
   "efecto:clases/subclases/bardo.yaml#Inspiración en combate·ca·conditional",
   "efecto:clases/subclases/bardo.yaml#Juego de pies deslumbrante·ca·base",
   "efecto:clases/subclases/druida.yaml#Formas del círculo·ca·conditional",
-  "efecto:clases/subclases/explorador.yaml#Emboscador pavoroso·velocidad·conditional",
   "efecto:clases/subclases/monje.yaml#Paradigma elemental·velocidad·conditional",
-  "efecto:clases/subclases/paladin.yaml#Aura de celeridad·velocidad·add",
-  "efecto:clases/subclases/paladin.yaml#Aura de celeridad·velocidad·conditional",
-  "efecto:clases/subclases/paladin.yaml#Defensa gloriosa·ca·conditional",
   "efecto:dotes/don_epico.yaml#Don de la fortaleza·pg_max·add",
   "efecto:dotes/don_epico.yaml#Don de la velocidad·velocidad·add",
-  "efecto:dotes/estilo_de_combate.yaml#Defensa·ca·add",
-  "efecto:dotes/generales.yaml#Atacante a la carga·velocidad·conditional",
-  "efecto:dotes/generales.yaml#Duelista defensivo·ca·conditional",
-  "efecto:dotes/generales.yaml#Maestro en armaduras medias·ca·modifica_tope",
   "efecto:dotes/generales.yaml#Veloz·velocidad·add",
   "efecto:dotes/origen.yaml#Duro·pg_max·add"
  ],
  "_ultima_poda": {
   "fecha": "2026-09-05",
   "saldados": [
-   "Defensa sin armadura → ca (base)",
-   "Aguante enano → pg_max (add)",
-   "Forma grande → velocidad (conditional)"
+   "Errante → velocidad (add)",
+   "Emboscador pavoroso → velocidad (conditional)",
+   "Aura de celeridad → velocidad (add)",
+   "Aura de celeridad → velocidad (conditional)",
+   "Defensa gloriosa → ca (conditional)",
+   "Defensa → ca (add)",
+   "Atacante a la carga → velocidad (conditional)",
+   "Duelista defensivo → ca (conditional)",
+   "Maestro en armaduras medias → ca (modifica_tope)"
   ]
  }
 }

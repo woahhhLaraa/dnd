@@ -230,9 +230,15 @@ decisiones:
     archivo: clases/paladin.yaml
     campo: atributos_basicos.equipo_inicial
 calculado:
+  # Segunda transcripción: un agente ciego —recibió la ficha SIN este
+  # bloque, vía `verificar_personaje.py --datos-crudos`— derivó a mano
+  # los cinco (pg_max, ca, velocidad, cd_conjuros, bonif_ataque_conjuros)
+  # citando fichero y página en cada paso, y COINCIDE con el motor.
+  # Sin eso, esta ficha no cuenta en la fila 8: el motor no puede
+  # darse la razón a sí mismo.
   _origen:
-    metodo: motor
-    informe: null
+    metodo: agente-manual
+    informe: _verificacion/_aritmetica/paladin_gloria_n15-calculista-ciego.md
     fecha: '2026-09-06'
   pg_max: 109
   ca: 18
