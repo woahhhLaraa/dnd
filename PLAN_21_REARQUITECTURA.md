@@ -317,6 +317,61 @@ guardián de código.
 
 **Cifra prevista:** la fila nace con ~16 unidades y 4 en deuda. **A remedir.**
 
+### ✅ FASE 3 CERRADA (2026-09-06) — y la cifra prevista estaba mal
+
+**18 unidades · 11 con guardián · 1 declarada · 6 en deuda.** La predicción
+—«~16 y 4»— se equivocaba en las dos direcciones, que es exactamente para lo
+que la regla «no dar por buena ninguna cifra de este documento sin remedirla»
+existe:
+
+- `cobertura.py`, que el plan daba por deuda, lo cubrió la fase 2 al ponerle el
+  muro (y `mutaciones_muro` le muta el código);
+- aparecieron tres que la lista escrita a mano no tenía: `buscar.py`,
+  `verificar_documentos.py` y **`informar.py`, el módulo que la fase 2 acababa
+  de escribir**;
+- `materiales.py` NO es declarable, contra lo que el plan suponía: esa
+  suposición venía de `fila_modulos` («biblioteca sin funciones auditables»),
+  que responde a otra pregunta. `mutaciones_materiales` muta la base, así que
+  un fallo en la descomposición de costes pasaría. Queda en deuda.
+
+El único declarable es `_convertir_hechizos.py`, y con un motivo que no es «no
+hace falta» sino **«mutarlo no probaría nada»**: es un conversor de un solo uso
+cuyo resultado ya está en la base y lo validan `validar_hechizos` y las 391
+citas de conjuro. Corromperlo hoy no cambiaría ningún dato, así que no habría
+nada que exigir que se notara.
+
+**`informar.py` se cerró en el sitio.** `mutaciones_muro` mutaba los siete
+scripts y ni una línea del muro: el módulo que existe para que un fallo no se
+pierda podía perder fallos él mismo, en verde — el guardián sin guardián que
+esta fila cuenta, dentro de la fase que la escribió. Se le rompen ahora sus
+tres promesas (deja de capturar, se traga el `sys.exit`, `Fallo` pierde la
+etiqueta) y la suite va a **13/13**.
+
+### El detector mintió dos veces, y las dos lo dijo su propia mutación
+
+- **Buscaba los nombres `sust`/`_sust`/`write_text` a mano.** `sust` vive en
+  `_arnes.py` y se IMPORTA, así que mirar solo el fichero de la suite decía que
+  `mutaciones_aritmetica` no muta `calculo.py`, y sí lo hace. Además, tomar
+  cualquier cadena de la llamada por destino contaba el TEXTO sustituido como
+  si fuera un fichero. Ahora las funciones mutadoras se descubren —y también en
+  qué posición reciben el camino: es el operando derecho del `/`—.
+- **Contaba CREAR un fichero como mutarlo.** La mutación que añade un script
+  nuevo a la raíz para exigir que el censo lo cace **se blindaba sola**: la
+  suite que acababa de crearlo aparecía escribiéndolo, así que el censo lo daba
+  por guardado. Un guardián no fabrica el código que vigila: se lo encuentra y
+  se lo estropea. Ahora una función solo cuenta si LEE el fichero antes de
+  escribirlo.
+
+Y una tercera, esta en la suite y no en el detector: quitarle a `validar.py`
+uno de sus DOS guardianes no lo deja sin guardián, así que la mutación no se
+detectaba. Ahora le quita a `deuda.py` el único que tiene. `mutaciones_censo`
+**34/34**, con las dos que deben salir y el control negativo —una suite que
+muta solo la base no convierte en guardado ningún script—.
+
+**Cifras remedidas al cerrar:** censo **957** unidades · 0 sin declarar · 576
+pendientes · `mutaciones_muro` 13/13 · `mutaciones_censo` 34/34 · el resto sin
+cambio.
+
 ---
 
 ## Lo que NO hay que hacer
@@ -354,6 +409,25 @@ Estado al empezar, para contrastar: censo **937** unidades · 0 sin declarar ·
 26 fichas · barrido 240/240 · 646 valores contra el SRD y 3749 contra Foundry ·
 censo 31/31 · contenido 61/61 · efectos 42/42 · motor 12/12 · aritmética 40/40 ·
 silencios 6/6 · documentos 10/10 · nivel20 52/52.
+
+## ✅ EL PLAN 21 ESTÁ CERRADO (2026-09-06)
+
+Las tres fases hechas, y el criterio de cierre remedido:
+
+| Frente | Prometía | Real |
+|---|---|---|
+| 1 · una sola abstracción de deuda | 5 ficheros migrados | **5, sin cambiar ninguna identidad** |
+| 2 · un muro de errores común | 6 scripts sin muro | **7 con muro, `validar` incluido** |
+| 3 · la fila de los guardianes | ~16 unidades, 4 en deuda | **18 · 11 · 1 declarada · 6 en deuda** |
+| 4 · una regla única de identidad | declarada en `deuda.py` | **declarada, y comprobada: cambiarla lanza** |
+
+**Lo que más dice de este plan no es ninguna de las tres fases: es que las tres
+rompieron algo y las tres lo dijo un guardián, no yo.** La fase 1 rompió
+`verificar_chequeos` (3 de 6) y dejó la prosa de tres ficheros en blanco; la
+fase 2 escondió cuatro ramas silenciosas moviéndolas a un ayudante, y destapó
+que casi la mitad de las ramas vivían fuera del alcance del verificador; la
+fase 3 nació con un detector que se blindaba solo. Ninguno de esos seis
+hallazgos salió de leer el código.
 
 Y la regla que no cambia: **todo hueco que se cierre lleva su chequeo y su
 prueba por mutación**; todo falso positivo se corrige afinando, no relajando, y

@@ -45,7 +45,7 @@ python3 validar.py            # 0 errores
 python3 verificar_srd.py      # 646 valores · 0 discrepancias
 python3 verificar_foundry.py  # 3749 valores · 0 discrepancias
 python3 cobertura.py          # 0 preguntas sin responder
-python3 censo.py              # 939 unidades · 0 sin declarar · 570 pendientes
+python3 censo.py              # 957 unidades · 0 sin declarar · 576 pendientes
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 26/26
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240
 python3 verificar_documentos.py   # ¿CONTINUAR.md y FODA.md dicen la verdad?
@@ -406,8 +406,48 @@ Cuatro frentes en tres fases, y **ninguna cifra del plan vale sin remedirla**.
 > módulo alguna entrada de chequeo, o es una biblioteca? Eran dos preguntas
 > compartiendo un predicado.
 
-**Lo siguiente:** fase 3 (la décima fila del censo: los scripts de la raíz sin
-ninguna suite que mute su código, descubierto por AST y nunca a mano).
+> **Fase 3 CERRADA (2026-09-06) · la décima fila: guardianes con guardián.**
+>
+> Convierte «todo verificador tiene su prueba por mutación» de COSTUMBRE en
+> CUENTA. `alcanzada` no es «tiene una suite con su nombre»: es **alguna suite
+> escribe su fichero `.py`**. La diferencia es toda la fila —
+> `mutaciones_materiales`, `mutaciones_prerrequisitos`, `mutaciones_subida` y
+> `mutaciones_documentos` existen, están en verde y **no tocan una línea del
+> código que dicen guardar**: mutan la base o los documentos, que prueba que el
+> chequeo caza datos malos, no que el chequeo no mienta.
+>
+> **18 unidades · 11 con guardián · 1 declarada · 6 en deuda.** La predicción
+> del plan era «~16 y 4 en deuda», y se equivocaba en las dos direcciones:
+> `cobertura.py` ya lo cubrió la fase 2, y aparecieron tres que la lista a mano
+> no tenía —`buscar.py`, `verificar_documentos.py` y **`informar.py`, el módulo
+> que la fase 2 acababa de escribir**—. Por eso la fila se mide y no se lista.
+>
+> `informar.py` se cerró en el sitio: `mutaciones_muro` mutaba los siete
+> scripts y ni una línea del muro, así que **el módulo que existe para que un
+> fallo no se pierda podía perder fallos él mismo, en verde**. Ahora se le
+> rompen sus tres promesas y va a 13/13.
+>
+> ### Dos falsos positivos, corregidos afinando
+>
+> El detector se descubre por AST y las dos veces que mintió lo dijo su propia
+> mutación, no yo:
+>
+> - **Buscaba los nombres `sust`/`_sust` a mano**, y `sust` vive en `_arnes.py`
+>   y se importa: decía que `mutaciones_aritmetica` no muta `calculo.py`,
+>   cuando sí. Ahora las funciones mutadoras se descubren, y también en qué
+>   posición reciben el camino.
+> - **Contaba CREAR un fichero como mutarlo.** La mutación que añade un script
+>   nuevo a la raíz para exigir que el censo lo cace **se blindaba sola**: la
+>   suite que acababa de crearlo aparecía escribiéndolo. Un guardián no fabrica
+>   el código que vigila; se lo encuentra y se lo estropea. Ahora una función
+>   solo cuenta si LEE el fichero antes de escribirlo.
+>
+> Y una mutación mía tampoco valía: quitarle a `validar.py` uno de sus DOS
+> guardianes no lo deja sin guardián. Ahora quita el único que tiene `deuda.py`.
+> `mutaciones_censo` 34/34.
+
+**Lo siguiente:** el `PLAN_21` está cerrado entero. No queda plan escrito por
+delante.
 
 ---
 

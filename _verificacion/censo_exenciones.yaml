@@ -88,6 +88,13 @@ exentas:
     motivo: "biblioteca de descomposición de costes de material; la usa validar_materiales(), que sí se audita, y lanza ante lo que no entiende"
   - unidad: "modulo:prerrequisitos.py"
     motivo: "biblioteca de la gramática de prerrequisitos (Fase 15); lanza `ErrorDePrerrequisito` ante lo que no sabe evaluar, y quien la audita es validar_prerrequisitos()"
+  # ── Fila 10 · guardianes con guardián (fase 3 del PLAN_21) ──────────
+  # Lo que se declara aquí NO es «no hace falta mutarlo»: es «mutar su código
+  # no prueba nada sobre la base de hoy». Solo hay un caso, y hubo que medirlo
+  # para saberlo: el plan predecía dos (`materiales.py` también), y esa
+  # predicción venía de confundir esta pregunta con la de `fila_modulos`.
+  - unidad: "guardian:_convertir_hechizos.py"
+    motivo: "conversor de UN SOLO USO: leyó `_origen_hechizos.csv` una vez y su resultado, `hechizos.json`, ya está en la base y lo validan `validar_hechizos` y las 391 citas de conjuro. Corromper su código hoy no cambiaría ningún dato, así que una suite que lo mutara no podría exigir que nadie lo notara: no hay nada que notar"
   - unidad: "modulo:informar.py"
     motivo: "el muro de errores (fase 2 del PLAN_21); no tiene chequeos propios que puedan callarse —lo suyo es que los de los demás no se pierdan— y su única rama, la que deja pasar un `sys.exit`, existe para NO callar. Quien la audita es `_verificacion/mutaciones_muro.py`, que inyecta un `raise` en un chequeo de cada script y exige que el informe siga saliendo"
   - unidad: "modulo:deuda.py"

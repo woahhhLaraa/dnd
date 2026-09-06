@@ -387,6 +387,61 @@ def m_deuda_rehecha(r):
             "lo medido hoy y 480 rasgos sin declarar quedan «declarados»")
 
 
+# ══ Fila 10 · guardianes con guardián (fase 3 del PLAN_21) ═══════════════
+
+def u_script_nuevo_sin_guardian(r):
+    """Un `.py` nuevo en la raíz al que nadie puede corromperle el código.
+
+    Es la puerta que la fila cierra: hasta el 2026-09-06 se podía añadir un
+    verificador entero y **ninguna cuenta se movía**. Los seis guardianes que
+    se cazaron a sí mismos en el PLAN_20 entraron así, uno detrás de otro.
+    """
+    (r / "verificar_inventado.py").write_text(
+        "#!/usr/bin/env python3\n"
+        '"""Un verificador nuevo que nadie muta."""\n'
+        "def verificar_algo():\n"
+        "    return 'algo', [], []\n", encoding="utf-8")
+    return ("un script nuevo en la raíz que ninguna suite corrompe: se le "
+            "puede meter un fallo y todo sigue en verde")
+
+
+def m_suite_deja_de_mutar_el_script(r):
+    """La otra dirección: la suite sigue ahí y en verde, pero ya no toca el
+    código que decía guardar.
+
+    Se elige `deuda.py` a propósito, porque `mutaciones_deuda` es su ÚNICO
+    guardián. La primera versión de esta mutación quitaba a
+    `mutaciones_silencios` de `validar.py`, y no se detectaba: `validar.py`
+    también lo muta `mutaciones_muro`, así que seguía guardado. Una mutación
+    que quita uno de dos guardianes no prueba nada.
+    """
+    _sust(r, "_verificacion/mutaciones_deuda.py",
+          '"deuda.py"', '"reglas/efectos.yaml"', cuenta=99)
+    return ("una suite que deja de mutar el CÓDIGO que decía guardar y pasa a "
+            "mutar la base: sigue en verde y deja de ser un guardián")
+
+
+def n_suite_que_solo_muta_la_base(r):
+    """Control negativo, y es el que da sentido a la fila: mutar la base NO
+    cuenta como guardar código. `mutaciones_prerrequisitos` es exactamente eso
+    —10/10, en verde, y sin tocar una línea de `prerrequisitos.py`—, así que si
+    el censo lo contara como guardián, `prerrequisitos.py` saldría cubierto sin
+    estarlo. Aquí se añade otra suite del mismo tipo y el censo NO puede
+    inmutarse."""
+    (r / "_verificacion" / "mutaciones_inventadas.py").write_text(
+        "#!/usr/bin/env python3\n"
+        '"""Muta la base, no el código."""\n'
+        "import pathlib\n"
+        "def _sust(raiz, rel, viejo, nuevo):\n"
+        "    p = raiz / rel\n"
+        "    p.write_text(p.read_text().replace(viejo, nuevo))\n"
+        "def m_algo(r):\n"
+        '    _sust(r, "clases/picaro.yaml", "Pícaro", "Pícara")\n',
+        encoding="utf-8")
+    return ("una suite nueva que muta solo la BASE: no convierte en guardado "
+            "ningún script de la raíz")
+
+
 def u_efecto_nuevo_sin_carga(r):
     """Fila 8 (auditoría, fase 1.3). Un efecto nuevo en la base entra en el
     universo, y como ninguna ficha con lectura independiente lo sostiene ni
@@ -424,13 +479,15 @@ DEBEN = [u_fichero_de_regla, u_variable_calculable, u_columna_de_clase,
          u_rebanada_estrechada, u_rebanada_nueva,
          m_excluido_muerto, m_deuda_rehecha,
          u_efecto_nuevo_sin_carga,
+         u_script_nuevo_sin_guardian, m_suite_deja_de_mutar_el_script,
          u_fichero_de_equipo_sin_clasificar, u_directorio_nuevo_sin_declarar,
          m_clasificacion_de_equipo_muerta,
          u_constante_de_dominio_nueva, u_constante_dentro_de_funcion,
          u_declaracion_de_constante_desfasada]
 NO_DEBEN = [n_rasgo_no_automatizado, n_yaml_en_directorio_no_de_regla,
             n_columna_ya_contrastada, n_suite_sin_chequeos, n_exencion_con_motivo,
-            n_literal_que_no_es_de_la_base, n_constante_movida_de_linea]
+            n_literal_que_no_es_de_la_base, n_constante_movida_de_linea,
+            n_suite_que_solo_muta_la_base]
 # Mutaciones que NO deben hacer fallar al censo pero SÍ subir su recuento.
 # Quedó vacía al cerrar el bloque D: la única que había —el rasgo nuevo— ahora
 # tiene que fallar, no solo contarse. Se conserva el mecanismo porque la fila

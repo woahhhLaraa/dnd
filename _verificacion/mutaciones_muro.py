@@ -137,6 +137,73 @@ CASOS = [
 ]
 
 
+# ══ El muro mismo: mutar `informar.py`, no solo a sus usuarios ═══════════
+# La fila 10 del censo (fase 3 del `PLAN_21`) lo destapó el mismo día que se
+# escribió: esta suite mutaba los SIETE scripts y ni una línea de `informar.py`.
+# O sea que el módulo que existe para que un fallo no se pierda podía perder
+# fallos él mismo, en verde. Es literalmente el guardián sin guardián que la
+# fila cuenta, dentro de la fase que la escribió.
+#
+# Cada mutación rompe UNA de las tres cosas que `muro` promete, y se exige que
+# el efecto se vea desde fuera, en un script real.
+
+MUROS_ROTOS = [
+    {
+        "nombre": "`muro` deja de capturar: el fallo vuelve a matar al informe",
+        "muta": lambda r: _sust(r, "informar.py",
+                                "    except Exception as e:                                   # noqa: BLE001\n"
+                                "        return None, Fallo(etiqueta or _etiqueta_de(fn), e)",
+                                "    except Exception:                                        # noqa: BLE001\n"
+                                "        raise"),
+        # Se mira en `censo.py`: con el muro roto, una fila que revienta se
+        # lleva el recuento entero, que es lo que pasaba antes de la fase 2.
+        "prepara": lambda r: _sust(r, "censo.py", "def fila_rasgos():\n",
+                                   "def fila_rasgos():\n    " + REVIENTA),
+        "cmd": ("censo.py",),
+        "no_sale": "unidades censadas",
+    },
+    {
+        "nombre": "`muro` se traga el `sys.exit`: un dato que falta deja de parar",
+        "muta": lambda r: _sust(r, "informar.py",
+                                "        if not salida_es_veredicto:\n            raise",
+                                "        if False:\n            raise"),
+        "prepara": lambda r: _sust(
+            r, "validar.py", "def validar_dados():\n",
+            "def validar_dados():\n"
+            "    sys.exit('falta un dato de la base: esto tiene que parar')\n"),
+        "cmd": ("validar.py",),
+        # Lo observable NO es que `validar.py` acabe en verde —no lo hace: el
+        # muro convierte la salida en un error y sigue habiendo rojo—, sino
+        # **que siga corriendo**. Con la salida propagándose, `validar.py`
+        # muere en `validar_dados` y los chequeos de después no llegan a
+        # ejecutarse: «referencias» no aparece. Con el muro roto aparece, y el
+        # dato que falta queda como «❌ 1 errores», una línea entre otras.
+        # Es justo lo que el `PLAN_21` prohíbe en su punto 4.
+        #
+        # La primera versión de esta mutación esperaba que empezara a salir
+        # «BASE VALIDADA» y NO SE DETECTABA: en los siete sitios donde el muro
+        # está puesto, un `Fallo` siempre acaba en rojo, así que tragarse la
+        # salida no cambiaba el veredicto. Es la tercera vez en este proyecto
+        # que una mutación no cambia nada porque **solo cambiaría el
+        # comportamiento en una situación que no ocurre**; se le cambia el
+        # vehículo, no se borra.
+        "sale": "referencias",
+    },
+    {
+        "nombre": "`Fallo` pierde la etiqueta: el informe no dice QUIÉN reventó",
+        "muta": lambda r: _sust(r, "informar.py",
+                                '        return f"{self.etiqueta}: {self.motivo}"',
+                                '        return f"{self.motivo}"'),
+        "prepara": lambda r: _sust(r, "verificar_personaje.py",
+                                   "def verificar_idiomas(",
+                                   "def verificar_idiomas(*_a, **_k):\n    " + REVIENTA
+                                   + "\n\ndef _verificar_idiomas_original("),
+        "cmd": ("verificar_personaje.py", "personajes/aasimar_clerigo.yaml"),
+        "no_sale": "verificar_idiomas",
+    },
+]
+
+
 # ══ Controles negativos ══════════════════════════════════════════════════
 
 def n_salida_legitima_para(raiz):
@@ -145,10 +212,16 @@ def n_salida_legitima_para(raiz):
           "def validar_dados():\n"
           "    sys.exit('falta un dato de la base: esto tiene que parar')\n")
     codigo, salida = _corre(raiz, "validar.py")
-    # Para de verdad: ni informe ni línea de cierre.
-    paro = codigo != 0 and "BASE VALIDADA" not in salida
-    return paro, ("un `sys.exit` desde un chequeo de `validar.py` sigue "
-                  "parando el proceso: no se convierte en una línea más")
+    # PARA DE VERDAD: el proceso muere ahí y los chequeos de después no llegan
+    # a correr. Comprobar solo que no sale «BASE VALIDADA» no distinguía nada
+    # —con el muro roto tampoco sale, porque la salida se cuenta como error—,
+    # así que este control pasaba en verde con la propiedad rota. Lo destapó su
+    # propia mutación, `m_muro_se_traga_la_salida`.
+    paro = (codigo != 0 and "BASE VALIDADA" not in salida
+            and "referencias" not in salida)
+    return paro, ("un `sys.exit` desde un chequeo de `validar.py` PARA el "
+                  "proceso ahí mismo: los chequeos de después no llegan a "
+                  "correr, y el dato que falta no queda como una línea más")
 
 
 def n_salida_es_veredicto_en_personaje(raiz):
@@ -203,7 +276,7 @@ def main():
     print("═" * 74)
 
     ok = 0
-    total = len(CASOS) + len(NEGATIVOS)
+    total = len(CASOS) + len(MUROS_ROTOS) + len(NEGATIVOS)
 
     print("\n Un `raise` en un chequeo: el informe TIENE que seguir saliendo")
     for caso in CASOS:
@@ -230,6 +303,26 @@ def main():
                     print(f"        ↑ {f}")
                 print(f"        últimas líneas: "
                       f"{' / '.join(salida.strip().splitlines()[-3:])[:200]}")
+
+    print("\n Romper el muro MISMO: el efecto tiene que verse desde fuera")
+    for caso in MUROS_ROTOS:
+        with tempfile.TemporaryDirectory() as tmp:
+            raiz = _copia(tmp)
+            caso["prepara"](raiz)
+            # Control: con el muro intacto, el escenario se comporta como debe.
+            _c0, antes = _corre(raiz, *caso["cmd"])
+            caso["muta"](raiz)
+            _c1, despues = _corre(raiz, *caso["cmd"])
+            if "no_sale" in caso:
+                bien = caso["no_sale"] in antes and caso["no_sale"] not in despues
+                pista = f"«{caso['no_sale']}» tiene que dejar de salir"
+            else:
+                bien = caso["sale"] not in antes and caso["sale"] in despues
+                pista = f"«{caso['sale']}» tiene que empezar a salir"
+            ok += bien
+            print(f"   {'✅' if bien else '❌'} {caso['nombre']}")
+            if not bien:
+                print(f"        ↑ NO DETECTADA — {pista}, y no cambia nada")
 
     print("\n Controles negativos")
     for neg in NEGATIVOS:

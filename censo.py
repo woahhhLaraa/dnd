@@ -822,9 +822,209 @@ def fila_constantes_de_dominio():
                 manifiesto="_verificacion/constantes_de_dominio.json")
 
 
+
+# ══ Fila 10 · guardianes con guardián ═════════════════════════════════════
+# Fase 3 del `PLAN_21`. Convierte «todo verificador tiene su prueba por
+# mutación» de COSTUMBRE en CUENTA.
+#
+# El motivo, medido el 2026-09-06: el `PLAN_20` cerró con seis guardianes que
+# se cazaron a sí mismos en un solo día, y ninguno se había cazado antes. El
+# patrón que lo explica —«un verificador que se comprueba a sí mismo no
+# comprueba nada»— solo se cierra desde fuera, y desde fuera significa: alguien
+# le corrompe el CÓDIGO y exige que se note.
+#
+# `alcanzada` NO es «tiene una suite con su nombre». Es **alguna suite escribe
+# su fichero .py**. La diferencia es toda la fila: `mutaciones_materiales`,
+# `mutaciones_prerrequisitos`, `mutaciones_subida` y `mutaciones_documentos`
+# existen y están en verde, y **ninguna toca una línea del código que dicen
+# guardar** — mutan la base o los documentos, que prueba que el chequeo caza
+# datos malos, no que el chequeo no mienta.
+
+_ESCRITURA = {"write_text", "write_bytes", "unlink"}
+
+
+def _es_escritura(nodo):
+    import ast as A
+    return (isinstance(nodo, A.Call) and isinstance(nodo.func, A.Attribute)
+            and nodo.func.attr in _ESCRITURA)
+
+
+def _operando_del_camino(nodo):
+    """De `raiz / rel` devuelve `rel`; de cualquier otra cosa, `None`."""
+    import ast as A
+    if isinstance(nodo, A.BinOp) and isinstance(nodo.op, A.Div):
+        return nodo.right
+    return None
+
+
+_LECTURA = {"read_text", "read_bytes"}
+
+
+def _mutadores(arbol):
+    """Funciones que CORROMPEN un fichero cuyo camino les llega por parámetro,
+    y en qué posición.
+
+    Corromper, no escribir: la función tiene que LEER el mismo fichero antes de
+    escribirlo. Sin ese requisito, escribir un `.py` NUEVO contaba como
+    guardarlo, y eso no es teórico —lo destapó la propia mutación de esta fila:
+    `u_script_nuevo_sin_guardian` crea `verificar_inventado.py` en la raíz para
+    exigir que el censo lo cace, y el censo lo daba por GUARDADO porque la
+    suite que acababa de crearlo aparecía escribiéndolo—. Un guardián no
+    fabrica el código que vigila: se lo encuentra y se lo estropea.
+
+    Todo lo demás también se descubre; no se lista. La primera versión buscaba
+    los nombres `sust`/`_sust`/`write_text` a mano y ya nacía coja por dos
+    sitios: `sust` vive en `_arnes.py` y se IMPORTA —así que mirar solo el
+    fichero de la suite decía que `mutaciones_aritmetica` no muta `calculo.py`,
+    y sí lo hace—, y mirar cualquier cadena de la llamada tomaba por destino el
+    TEXTO que se sustituye, no el fichero. La posición del argumento también se
+    descubre: es el operando derecho del `/` que forma el camino.
+    """
+    import ast as A
+    out = {}
+    for fn in [n for n in A.walk(arbol) if isinstance(n, A.FunctionDef)]:
+        params = [a.arg for a in fn.args.args]
+        de_param = {}
+        for n in A.walk(fn):
+            if (isinstance(n, A.Assign) and len(n.targets) == 1
+                    and isinstance(n.targets[0], A.Name)):
+                der = _operando_del_camino(n.value)
+                if isinstance(der, A.Name) and der.id in params:
+                    de_param[n.targets[0].id] = params.index(der.id)
+
+        def _indice(nodo):
+            """De un `x.write_text(...)` o `x.read_text()`, qué parámetro es
+            el camino."""
+            obj = nodo.func.value
+            if isinstance(obj, A.Name) and obj.id in de_param:
+                return de_param[obj.id]
+            der = _operando_del_camino(obj)
+            if isinstance(der, A.Name) and der.id in params:
+                return params.index(der.id)
+            return None
+
+        escritos, leidos = set(), set()
+        for n in A.walk(fn):
+            if _es_escritura(n):
+                i = _indice(n)
+                if i is not None:
+                    escritos.add(i)
+            elif (isinstance(n, A.Call) and isinstance(n.func, A.Attribute)
+                    and n.func.attr in _LECTURA):
+                i = _indice(n)
+                if i is not None:
+                    leidos.add(i)
+        for i in sorted(escritos & leidos):
+            out[fn.name] = i
+    return out
+
+
+def _indice_de_mutadores():
+    """El índice se construye sobre TODOS los módulos de `_verificacion/`,
+    no solo sobre cada suite: los arneses compartidos viven en `_arnes.py`."""
+    import ast as A
+    indice, conflictos = {}, []
+    for f in sorted((B / "_verificacion").glob("*.py")):
+        for nom, i in _mutadores(A.parse(f.read_text(encoding="utf-8"))).items():
+            if indice.get(nom, i) != i:
+                conflictos.append(f"{nom}: posición {indice[nom]} y {i}")
+            indice[nom] = i
+    if conflictos:
+        raise ErrorDeCenso(
+            "dos arneses de mutación llaman igual a su función y le pasan el "
+            "camino en sitios distintos, así que no se puede saber qué fichero "
+            "muta cada llamada:\n  · " + "\n  · ".join(conflictos))
+    return indice
+
+
+def _codigo_que_muta(arbol, indice):
+    """Los `.py` de la raíz que esta suite escribe."""
+    import ast as A
+    muta = {**indice, **_mutadores(arbol)}
+    out = set()
+    # Solo por función mutadora descubierta. Una escritura suelta
+    # —`(r / "x.py").write_text(...)`— no cuenta: es fabricar un fichero, no
+    # corromper el que hay, y contarla dejaba que una suite se blindara sola
+    # creando el script que decía guardar.
+    for n in A.walk(arbol):
+        if isinstance(n, A.Call):
+            nom = getattr(n.func, "id", None) or getattr(n.func, "attr", None)
+            i = muta.get(nom)
+            if i is not None and len(n.args) > i:
+                a = n.args[i]
+                if isinstance(a, A.Constant) and isinstance(a.value, str):
+                    out.add(a.value)
+    return {d for d in out if d.endswith(".py") and "/" not in d}
+
+
+def guardianes():
+    """`{script de la raíz: {suites que mutan su código}}`. Se descubre."""
+    import ast as A
+    import collections as C
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("_vc", B / "verificar_chequeos.py")
+    vc = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(vc)
+
+    indice = _indice_de_mutadores()
+    quien = C.defaultdict(set)
+    for f in sorted((B / "_verificacion").glob("mutaciones_*.py")):
+        arbol = A.parse(f.read_text(encoding="utf-8"))
+        for rel in _codigo_que_muta(arbol, indice):
+            quien[rel].add(f.name)
+    return {rel: quien.get(rel, set()) for rel in vc.fuentes()}
+
+
+def fila_guardianes():
+    import deuda as D
+    mapa = guardianes()
+    universo = {f"guardian:{rel}": (", ".join(sorted(s)) if s
+                                    else "ninguna suite muta su código")
+                for rel, s in mapa.items()}
+    alcanzadas = {f"guardian:{rel}" for rel, s in mapa.items() if s}
+
+    dd = D.Deuda(
+        "_verificacion/guardianes_sin_guardian.json",
+        nota=("Scripts de la raíz que NINGUNA suite de `_verificacion/` "
+              "corrompe. Se les puede meter un fallo y todo sigue en verde: "
+              "es la definición del guardián sin guardián que el PLAN_20 midió "
+              "seis veces en un día. Deuda enumerada, no permiso."),
+        como_se_salda=("una suite de `_verificacion/mutaciones_*.py` que "
+                       "escriba ESE fichero .py —que le corrompa el código, no "
+                       "la base— y exija que algo lo note"),
+        identidad="nombre-del-script",
+        identidad_explicada=("el nombre del fichero en la raíz. Lo que cambia "
+                             "con el tiempo es quién lo muta, no cómo se "
+                             "llama"),
+        # CERRADA: un script nuevo en la raíz sin nadie que lo mute es
+        # exactamente lo que esta fila existe para impedir, y da igual que el
+        # script sea de hoy. Es el mismo criterio que `chequeos_silenciosos`.
+        cerrada=True)
+    # Lo declarado en el manifiesto del censo NO entra en la deuda: sería la
+    # misma unidad escrita en dos sitios, y el día que una dijera una cosa y
+    # la otra otra no habría forma de saber cuál manda. Queda sin alcanzar y
+    # sin deuda, así que `main()` llega a la declaración, la usa y la cuenta —
+    # que es también como el censo detecta que una declaración se ha podrido.
+    exentas, _pend = cargar_manifiesto()
+    sin = {rel: universo[f"guardian:{rel}"]
+           for rel, s in mapa.items()
+           if not s and not _declarada(f"guardian:{rel}", exentas)}
+    inf = dd.contrastar(sin, elenco_hoy=set(mapa))
+    inf.imprimir(vigentes=False)
+
+    deuda = {f"guardian:{rel}": (f"{len(inf.vigentes)} scripts de la raíz que "
+                                 f"ninguna suite corrompe: se les puede meter "
+                                 f"un fallo y todo sigue en verde")
+             for rel in inf.vigentes}
+    return Fila("guardian", "guardianes con guardián", universo, alcanzadas,
+                "una suite de _verificacion/ que MUTE SU CÓDIGO", deuda=deuda,
+                manifiesto="_verificacion/guardianes_sin_guardian.json")
+
+
 FILAS = (fila_ficheros_de_regla, fila_variables, fila_columnas,
          fila_datos_externos, fila_chequeos, fila_modulos, fila_rasgos,
-         fila_efectos_con_carga, fila_constantes_de_dominio)
+         fila_efectos_con_carga, fila_constantes_de_dominio,
+         fila_guardianes)
 
 
 # ══ El manifiesto de declaraciones ════════════════════════════════════════
