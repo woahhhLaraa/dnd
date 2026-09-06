@@ -17,23 +17,29 @@
 > 2. **`PLAN_19_PRODUCTO_COMPLETO.md`** — el plan de trabajo vigente hacia el
 >    producto completo: qué falta, qué logra cada fase, resultados medidos
 >    de las fases 1-3 en sus §14-16;
-> 3. **`PLAN_21_REARQUITECTURA.md`** — **el plan vigente**: los cuatro
->    frentes que hicieron posible que cada guardián se cazara a sí mismo, y las
->    tres fases que los cierran. Nace del encargo del 2026-09-06;
-> 4. **`PLAN_20_AUDITORIA.md`** — **la auditoría, ya cerrada**: el inventario
+> 3. **`ARQUITECTURA.md`** — **cómo está construido esto y por qué así**: el
+>    error de siempre nombrado, las cuatro decisiones que lo cierran, las
+>    piezas, cómo se añade algo sin romperlo, y lo que la arquitectura NO
+>    garantiza. Va anclado: `verificar_documentos.py` contrasta sus listas
+>    contra el disco en las dos direcciones;
+> 4. **`PLAN_21_REARQUITECTURA.md`** — la rearquitecturación, **ya cerrada**:
+>    los cuatro frentes que hicieron posible que cada guardián se cazara a sí
+>    mismo, y las tres fases que los cerraron. Nace del encargo del 2026-09-06;
+> 5. **`PLAN_20_AUDITORIA.md`** — **la auditoría, ya cerrada**: el inventario
 >    medido de autoridad duplicada y las cinco fases que la cerraron. Nace del
 >    encargo del 2026-09-03 y de lo que la ronda 2 de estrés destapó;
-> 5. **`PLAN_ESTRES.md`** — la rutina de estrés con agentes y sus dos rondas
+> 6. **`PLAN_ESTRES.md`** — la rutina de estrés con agentes y sus dos rondas
 >    corridas, con los hallazgos de cada una;
-> 6. **`FODA.md`** — análisis vigente, si vas a decidir arquitectura;
-> 7. **`PLAN_18_REVISION_COMPLETA.md`** — registro de los bloques A-D del
+> 7. **`FODA.md`** — el análisis de fuerzas y riesgos, con sus cifras
+>    ancladas. La arquitectura en sí está en el 3;
+> 8. **`PLAN_18_REVISION_COMPLETA.md`** — registro de los bloques A-D del
 >    Plan 18 (censo, mutaciones, listas cerradas), ya absorbido por el 19
 >    pero con el detalle de cada uno;
-> 8. **`PLAN_17_SALIR_DEL_ESPIRAL.md`** — solo su §1 (investigación sobre
+> 9. **`PLAN_17_SALIR_DEL_ESPIRAL.md`** — solo su §1 (investigación sobre
 >    Foundry dnd5e y DiceCloud) y su §2 (el diagnóstico del espiral: qué es
 >    un "parche puntual" y por qué el proyecto lo prohíbe). Es la base de la
 >    auditoría pendiente, ver más abajo;
-> 9. **`FUENTES.md`** — procedencia y correcciones de transcripción, la más
+> 10. **`FUENTES.md`** — procedencia y correcciones de transcripción, la más
 >    reciente arriba (es largo; se lee por sección).
 
 ---
@@ -50,6 +56,8 @@ for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 26/
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240
 python3 verificar_documentos.py   # ¿CONTINUAR.md y FODA.md dicen la verdad?
 python3 verificar_chequeos.py     # ¿algún chequeo abandona un registro en silencio?
+#   ARQUITECTURA.md dice cómo está construido esto; sus listas las ancla
+#   verificar_documentos.py contra el disco, en las dos direcciones.
 ```
 
 Las 20 suites de `_verificacion/mutaciones_*.py` están todas en verde;

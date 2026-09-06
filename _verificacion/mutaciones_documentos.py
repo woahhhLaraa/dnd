@@ -120,6 +120,47 @@ def f_cifra_mejoras(r):
     return "CONTINUAR.md dice 56 mejoras de dote y las dotes traen 55"
 
 
+def d_arquitectura_borrada(r):
+    """Sin la página, el repo deja de decir cómo está construido."""
+    (r / "ARQUITECTURA.md").unlink()
+    return ("desaparece ARQUITECTURA.md: el repo deja de describir su propia "
+            "arquitectura y nadie lo nota")
+
+
+def d_modulo_nuevo_sin_documentar(r):
+    """La dirección que de verdad importa: **la página se queda corta**. Es la
+    forma exacta del error que este repositorio persigue —una lista escrita a
+    mano que no crece con lo que describe— y aquí se le exige que falle."""
+    (r / "verificar_inventado.py").write_text(
+        "#!/usr/bin/env python3\n\"\"\"Un módulo nuevo que nadie documenta.\"\"\"\n",
+        encoding="utf-8")
+    return ("un módulo nuevo en la raíz que ARQUITECTURA.md no nombra: la "
+            "página se ha quedado corta")
+
+
+def d_modulo_muerto_documentado(r):
+    """La otra dirección: la página describe algo que ya no existe. Sin este
+    chequeo, borrar un módulo dejaría su descripción viva — que es como el
+    manifiesto del censo llegó a tener ocho declaraciones muertas."""
+    _sust(r, "ARQUITECTURA.md",
+          "| `materiales.py` | descompone costes de material |",
+          "| `materiales.py` | descompone costes de material |\n"
+          "| `verificar_borrado.py` | un módulo que ya no existe |")
+    return ("ARQUITECTURA.md describe un módulo que no está en el disco: la "
+            "página se ha quedado vieja")
+
+
+def d_fila_nueva_sin_documentar(r):
+    """Lo mismo con las filas del censo, que son la otra lista de la página."""
+    _sust(r, "censo.py",
+          "def fila_guardianes():\n",
+          "def fila_inventada():\n"
+          "    return Fila('inventada', 'inventada', {}, set(), 'nada')\n\n\n"
+          "def fila_guardianes():\n")
+    _sust(r, "censo.py", "         fila_guardianes)", "         fila_guardianes, fila_inventada)")
+    return ("una fila nueva del censo que ARQUITECTURA.md no nombra")
+
+
 def f_cuenta_de_suites(r):
     """Falsear la cuenta es el otro modo: el que ya pasó, con 17 escrito y 18
     en el disco. Se pone una de menos, que es la dirección en que se desfasa
@@ -158,7 +199,9 @@ def n_prosa_reescrita(r):
 
 DEBEN = [d_ancla_srd_borrada, d_ancla_foundry_borrada,
          d_linea_integridad_borrada, d_mejoras_borrada,
-         d_cuenta_de_suites_borrada,
+         d_cuenta_de_suites_borrada, d_arquitectura_borrada,
+         d_modulo_nuevo_sin_documentar, d_modulo_muerto_documentado,
+         d_fila_nueva_sin_documentar,
          f_cifra_srd, f_cifra_integridad, f_cifra_mejoras,
          f_cuenta_de_suites, f_total_externo_foda]
 NO_DEBEN = [n_intacta, n_prosa_reescrita]

@@ -317,6 +317,58 @@ def main():
         print(f" ✅ mutaciones_foundry: los documentos coinciden "
               f"({sorted({n for _, n in dichas})[0]}); no se ejecuta aquí (>10 min)")
 
+    # ── 4 ter. ARQUITECTURA.md, anclado en las DOS direcciones ───────────
+    # Un documento de arquitectura escrito a mano ES el error que este
+    # repositorio persigue: una lista que se queda vieja sin que nadie se
+    # entere. Así que no se le pide disciplina, se le pide que falle.
+    #
+    # Se contrastan sus dos listas contra el disco, y en los dos sentidos:
+    # un módulo o una fila que aparezcan en el disco y no en la página hacen
+    # fallar (la página se quedó corta), y una que esté en la página y no en
+    # el disco también (la página se quedó vieja). Sin la segunda dirección,
+    # borrar un módulo dejaría una descripción de algo que ya no existe, que
+    # es como el manifiesto del censo se llenó de ocho declaraciones muertas.
+    arq_f = B / "ARQUITECTURA.md"
+    if not arq_f.exists():
+        fallos += 1
+        print(" ❌ falta ARQUITECTURA.md: el repo no describe cómo está "
+              "construido, y esa descripción es lo que impide repetir el error")
+    else:
+        arq = arq_f.read_text(encoding="utf-8")
+        import importlib.util as _iu
+        _sp = _iu.spec_from_file_location("_cen", B / "censo.py")
+        _cen = _iu.module_from_spec(_sp)
+        _sp.loader.exec_module(_cen)
+        listas = (
+            ("módulos de la raíz",
+             {f.name for f in B.glob("*.py")},
+             lambda n: f"`{n}`" in arq),
+            ("filas del censo",
+             {f.__name__ for f in _cen.FILAS},
+             lambda n: f"`{n}`" in arq),
+        )
+        for etiqueta, en_disco, nombrado in listas:
+            faltan = sorted(n for n in en_disco if not nombrado(n))
+            if faltan:
+                fallos += 1
+                print(f" ❌ ARQUITECTURA.md no nombra {len(faltan)} "
+                      f"{etiqueta}: {', '.join(faltan)}")
+            else:
+                print(f" ✅ ARQUITECTURA.md nombra {'los' if 'módulos' in etiqueta else 'las'} "
+                      f"{len(en_disco)} {etiqueta}")
+        # La otra dirección: nombres con la forma de un módulo o de una fila
+        # que la página cite y el disco ya no tenga.
+        citados = set(re.findall(r"`([a-z_0-9]+\.py)`", arq))
+        citados |= set(re.findall(r"`(fila_[a-z_0-9]+)`", arq))
+        vivos = {f.name for f in B.glob("*.py")} | {f.__name__ for f in _cen.FILAS}
+        muertos = sorted(citados - vivos)
+        if muertos:
+            fallos += 1
+            print(f" ❌ ARQUITECTURA.md describe {len(muertos)} cosa(s) que ya "
+                  f"no existen: {', '.join(muertos)}")
+        else:
+            print(" ✅ ARQUITECTURA.md no describe nada que ya no exista")
+
     # ── 3bis. El repo se puede EJECUTAR (fase 1 del PLAN_19) ─────────────
     # El 2026-08-31 `verificar_foundry.py` llevaba un `SyntaxError` —una
     # f-string con comillas anidadas, válida solo desde 3.12 (PEP 701)— y
