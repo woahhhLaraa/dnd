@@ -321,14 +321,35 @@ mandato necesita:
 **No se elige a ojo qué fichas calcular.** El encargo de cada tanda sale de dos
 listas que el propio repo mantiene:
 
-- `_verificacion/motor_sin_carga.json` — los 7 trozos de motor que hoy no
-  protege nada. Son la prioridad: no es que estén poco cubiertos, es que no
-  los cubre nadie.
-- `_verificacion/efectos_sin_carga.json` — los 25 efectos sin lectura
-  independiente detrás.
+> **CORREGIDO el 2026-09-07 (`PLAN_22`), y el motivo importa más que la
+> corrección.** Hasta hoy este criterio decía: elígelas por
+> `motor_sin_carga.json` (7 trozos de motor sin cubrir) y
+> `efectos_sin_carga.json` (25 efectos sin lectura independiente), y ciérralo
+> con «fila 8 a 25/25 y `motor_sin_carga.json` vacío».
+>
+> **Ese criterio ya no elige nada, y nadie lo notó.** Medido: `efectos_sin_carga`
+> está a CERO —la fila 8 se cerró en el `PLAN_20`— y `motor_sin_carga` tiene
+> tres entradas que el propio `PLAN_20` declaró **imposibles con los datos de
+> hoy** («No busques una ficha imposible»). O sea que la sección que empieza
+> diciendo «no se elige a ojo» llevaba un día entero obligando a elegir a ojo.
+> Una lista que se queda sin poder dirigir y sigue en su sitio como si
+> dirigiera es la forma exacta del error que este repositorio persigue
+> (`ARQUITECTURA.md` §1), y por eso el criterio nuevo **es una fila del censo**
+> y no otra lista aquí dentro.
 
-Una ficha se elige **porque ejercita algo de esas listas**, y al aprobarse lo
-tacha. Criterio de cierre: fila 8 a 25/25 y `motor_sin_carga.json` vacío.
+- `censo.py → fila_lectura_independiente` — la **fila 11**: qué fichas tienen
+  una derivación a ciegas y cuáles no. Su deuda vive en
+  `_verificacion/lectura_independiente.json` y **solo puede bajar**.
+- Dentro de esa deuda, el orden lo da lo que compra cada ficha, y eso también
+  se mide, no se opina: **una clase sin ninguna lectura independiente a ningún
+  nivel** vale más que una décima ficha de nivel 1 de una clase ya cubierta a
+  nivel alto. El 2026-09-07 eran cuatro: Brujo, Guerrero, Mago y Pícaro.
+- `_verificacion/motor_sin_carga.json` sigue consultándose, pero **hoy no
+  dirige**: sus tres entradas están declaradas imposibles con los datos
+  actuales. Si alguna deja de serlo, vuelve a ser prioridad.
+
+Una ficha se elige **porque la fila 11 la tiene en deuda**, y al aprobarse sale
+de ella. Criterio de cierre: **fila 11 a cero**.
 
 ## Lo que dieron las dos tandas (2026-09-05)
 

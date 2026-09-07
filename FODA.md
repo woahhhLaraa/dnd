@@ -228,12 +228,12 @@ Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
 10. **✅ CERRADA (2026-09-02) — la regla inviolable 6 ya no es prosa.**
    *(era 🔴 desde el 2026-08-31, el mismo día en que se escribió)*
 
-   `censo.py` la convierte en una cuenta: **957 unidades censadas, 0 sin
-   declarar, 576 pendientes con su bloque y su motivo**. Diez clases de unidad
-   —la séptima, los módulos de herramienta, la añadió el bloque A2; la octava,
-   los efectos con carga, la fase 1.3 de `PLAN_20_AUDITORIA.md`; la novena, las
-   constantes de dominio en Python, su fase 3; y la décima, los guardianes con
-   guardián, la fase 3 del `PLAN_21`—, diez
+   `censo.py` la convierte en una cuenta: **983 unidades censadas, 0 sin
+   declarar, 590 pendientes con su bloque y su motivo**. Una clase de unidad
+   por fila —las últimas: los efectos con carga (`PLAN_20`, fase 1.3), las
+   constantes de dominio en Python (su fase 3), los guardianes con guardián
+   (`PLAN_21`, fase 3) y las fichas con lectura independiente (`PLAN_22`)—,
+   todos los
    universos descubiertos (glob, AST y el vocabulario de la base), y un
    manifiesto —`_verificacion/censo_exenciones.yaml`— donde lo que no se
    alcanza se declara una a una. Una declaración que ya no corresponda a

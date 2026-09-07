@@ -151,7 +151,10 @@ parando el proceso. Hay un solo sitio donde se declara lo contrario, con su
 motivo escrito —`verificar_personaje`, donde lo examinado es la ficha y la
 salida es un veredicto sobre la entrada, no un dato que falte—.
 
-### 3.4 · El censo: diez preguntas, diez universos descubiertos
+### 3.4 · El censo: una pregunta por fila, y todos los universos descubiertos
+
+*(Sin recuento en el encabezado a propósito: una cifra escrita a mano ahí
+se queda vieja en cuanto nace una fila. La tabla sí está anclada.)*
 
 Cada fila es «¿hay alguna unidad de esta clase sin nada que la alcance?». El
 universo se descubre; lo no alcanzado se declara con motivo o se enumera como
@@ -169,11 +172,18 @@ deuda.
 | `fila_efectos_con_carga` | los efectos que alguna ficha sostiene |
 | `fila_constantes_de_dominio` | los literales de Python que duplican la base |
 | `fila_guardianes` | los scripts de la raíz sin guardián de su código |
+| `fila_lectura_independiente` | las fichas cuya aritmética firma el mismo motor que la calculó |
 
-La última cierra el círculo: **convierte «todo verificador tiene su prueba por
-mutación» de costumbre en cuenta.** Y «alcanzada» no es «tiene una suite con su
-nombre», es **alguna suite escribe su fichero `.py`** — mutar la base prueba
-que el chequeo caza datos malos, no que el chequeo no mienta.
+La novena y la décima cierran el círculo hacia dentro: `fila_guardianes`
+**convierte «todo verificador tiene su prueba por mutación» de costumbre en
+cuenta**, y «alcanzada» no es «tiene una suite con su nombre», es **alguna
+suite escribe su fichero `.py`** — mutar la base prueba que el chequeo caza
+datos malos, no que el chequeo no mienta.
+
+Y la undécima lo cierra hacia FUERA, que es lo que ninguna otra puede:
+`fila_lectura_independiente` cuenta las fichas que tienen una derivación hecha
+a ciegas desde la base. Es la única fila cuyo universo no lo alcanza ningún
+chequeo escrito aquí dentro — y por eso es la que mide el límite del §5.
 
 ---
 

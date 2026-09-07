@@ -157,7 +157,13 @@ def d_fila_nueva_sin_documentar(r):
           "def fila_inventada():\n"
           "    return Fila('inventada', 'inventada', {}, set(), 'nada')\n\n\n"
           "def fila_guardianes():\n")
-    _sust(r, "censo.py", "         fila_guardianes)", "         fila_guardianes, fila_inventada)")
+    # El anclaje se pone en el CIERRE del paréntesis de `FILAS`, no en el
+    # nombre de la última fila: anclar en `fila_guardianes)` dejó de encajar en
+    # cuanto nació la fila 11 y esta suite reventó entera. Es la misma familia
+    # de defecto que la propia página vigila —algo escrito en un sitio que se
+    # queda viejo cuando cambia otro—, dentro de su prueba.
+    _sust(r, "censo.py", "fila_lectura_independiente)",
+          "fila_lectura_independiente, fila_inventada)")
     return ("una fila nueva del censo que ARQUITECTURA.md no nombra")
 
 

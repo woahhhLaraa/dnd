@@ -421,6 +421,52 @@ def m_suite_deja_de_mutar_el_script(r):
             "mutar la base: sigue en verde y deja de ser un guardián")
 
 
+# ══ Fila 11 · fichas con lectura independiente (fase 1 del PLAN_22) ══════
+
+def u_ficha_nueva_sin_lectura_independiente(r):
+    """Una ficha nueva cuyo `calculado` lo firma el mismo motor que lo calculó.
+
+    Es la puerta que la fila cierra. Sin ella, la cobertura de lo ÚNICO que
+    mira desde fuera del sistema podía bajar en porcentaje escribiendo fichas,
+    y ninguna cuenta se movía.
+    """
+    import shutil
+    shutil.copy(r / "personajes" / "orco_barbaro.yaml",
+                r / "personajes" / "inventado_sin_lectura.yaml")
+    import yaml as Y
+    q = r / "personajes" / "inventado_sin_lectura.yaml"
+    d = Y.safe_load(q.read_text(encoding="utf-8"))
+    d["nombre"] = "Ficha inventada sin lectura independiente"
+    (d.get("calculado") or {}).pop("_origen", None)
+    q.write_text(Y.safe_dump(d, allow_unicode=True, sort_keys=False),
+                 encoding="utf-8")
+    return ("una ficha nueva sin lectura independiente: su aritmética la firma "
+            "el mismo motor que la calculó y nada lo cuenta")
+
+
+def m_origen_sin_informe(r):
+    """La otra dirección, y es peor: la ficha DICE que tiene lectura
+    independiente y el informe no está en disco. No es «todavía no se ha
+    derivado», es «dice que sí y no está el papel» — una declaración muerta, y
+    de esas este repositorio ya se llenó una vez con ocho."""
+    _sust(r, "personajes/orco_barbaro.yaml",
+          '"_verificacion/_aritmetica/orco_barbaro-calculista-ciego.md"',
+          '"_verificacion/_aritmetica/no_existe.md"')
+    return ("una ficha que declara `agente-manual` con un informe que no está "
+            "en disco: la lectura independiente se da por hecha sin papel")
+
+
+def n_ficha_con_su_informe_en_disco(r):
+    """Control negativo, y el que da sentido a los dos de arriba: una ficha con
+    su `_origen: agente-manual` y su informe donde dice, no es deuda. Si esto
+    saltara, la fila estaría exigiendo algo que ninguna ficha puede cumplir."""
+    _sust(r, "_verificacion/_aritmetica/orco_barbaro-calculista-ciego.md",
+          "**Agente E · «el calculista» — ronda 3 de estrés**",
+          "**Agente E · «el calculista» — ronda 3 de estrés (redactado de nuevo)**")
+    return ("se reescribe la prosa de una derivación SIN tocar sus números: un "
+            "informe tiene que poder editarse, y su ficha sigue alcanzada")
+
+
 def n_suite_que_solo_muta_la_base(r):
     """Control negativo, y es el que da sentido a la fila: mutar la base NO
     cuenta como guardar código. `mutaciones_prerrequisitos` es exactamente eso
@@ -480,6 +526,7 @@ DEBEN = [u_fichero_de_regla, u_variable_calculable, u_columna_de_clase,
          m_excluido_muerto, m_deuda_rehecha,
          u_efecto_nuevo_sin_carga,
          u_script_nuevo_sin_guardian, m_suite_deja_de_mutar_el_script,
+         u_ficha_nueva_sin_lectura_independiente, m_origen_sin_informe,
          u_fichero_de_equipo_sin_clasificar, u_directorio_nuevo_sin_declarar,
          m_clasificacion_de_equipo_muerta,
          u_constante_de_dominio_nueva, u_constante_dentro_de_funcion,
@@ -487,7 +534,7 @@ DEBEN = [u_fichero_de_regla, u_variable_calculable, u_columna_de_clase,
 NO_DEBEN = [n_rasgo_no_automatizado, n_yaml_en_directorio_no_de_regla,
             n_columna_ya_contrastada, n_suite_sin_chequeos, n_exencion_con_motivo,
             n_literal_que_no_es_de_la_base, n_constante_movida_de_linea,
-            n_suite_que_solo_muta_la_base]
+            n_suite_que_solo_muta_la_base, n_ficha_con_su_informe_en_disco]
 # Mutaciones que NO deben hacer fallar al censo pero SÍ subir su recuento.
 # Quedó vacía al cerrar el bloque D: la única que había —el rasgo nuevo— ahora
 # tiene que fallar, no solo contarse. Se conserva el mecanismo porque la fila

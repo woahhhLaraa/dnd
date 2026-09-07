@@ -1021,10 +1021,116 @@ def fila_guardianes():
                 manifiesto="_verificacion/guardianes_sin_guardian.json")
 
 
+
+# ══ Fila 11 · fichas con lectura independiente ════════════════════════════
+# Fase 1 del `PLAN_22`. Cuenta lo único que mira desde FUERA del sistema.
+#
+# `ARQUITECTURA.md` §5 dice cuál es el límite de todo lo demás: **un guardián
+# no puede cazar aquello en lo que el motor y el verificador se equivocan de
+# acuerdo**. Si la regla nunca entró en la base, el motor no la aplica, el
+# verificador no la exige, y las dos partes coinciden — en verde. Eso solo lo
+# encuentra una derivación hecha a mano, a ciegas, desde la base: el mandato
+# «el calculista» de `PLAN_ESTRES.md`. De ahí salieron los rasgos de nivel 20
+# que subían características y llevaban semanas en verde.
+#
+# **Por qué esta fila existe, y no es simetría.** El mandato dice, textual: «No
+# se elige a ojo qué fichas calcular», y mandaba elegirlas por
+# `efectos_sin_carga.json` y `motor_sin_carga.json`. Medido el 2026-09-07: el
+# primero está a CERO y el segundo tiene tres entradas declaradas imposibles
+# con los datos de hoy. **El criterio ya no elige nada, y nadie lo notó.** Una
+# lista que se queda sin poder dirigir y sigue en su sitio como si dirigiera es
+# la forma exacta del error que este repositorio persigue. Aquí se convierte en
+# cuenta, que es lo que hizo la fila 10 con «todo verificador tiene su prueba
+# por mutación».
+def fila_lectura_independiente():
+    """¿Qué fichas tienen una derivación a mano, hecha a ciegas y por escrito?
+
+    `alcanzada` pide DOS cosas, no una: que el `_origen` diga `agente-manual` y
+    que su informe **esté en disco**. Un `_origen` que apunta a un informe
+    borrado es una declaración muerta, y este repositorio ya se llenó una vez de
+    ocho de esas. Una ficha así no cuenta como alcanzada ni entra en la deuda:
+    sale como hueco, porque no es «todavía no se ha derivado», es «dice que sí
+    y no está el papel».
+    """
+    import yaml as Y
+
+    import deuda as D
+
+    universo, alcanzadas, mienten = {}, set(), {}
+    for p in sorted((B / "personajes").glob("*.yaml")):
+        # Sin `try`: si una ficha no se puede leer, que reviente. El muro de
+        # `main()` lo convierte en «fila rota» y el censo se pone rojo, que es
+        # lo correcto — saltársela en silencio sería contar menos universo sin
+        # decirlo.
+        ficha = Y.safe_load(p.read_text(encoding="utf-8")) or {}
+        clases = [c for c in (ficha.get("clases") or []) if isinstance(c, dict)]
+        # El universo son las FICHAS DE PERSONAJE, y lo que hace ficha a un
+        # YAML es tener clases: un personaje sin clases no es un personaje.
+        #
+        # Afinado el 2026-09-07, y lo cazó un control negativo que ya existía:
+        # `n_yaml_en_directorio_no_de_regla` deja un `personajes/prueba.yaml`
+        # con una sola clave para exigir que **no todo `.yaml` del repositorio
+        # sea una regla**. Con el universo puesto en «todo `.yaml` de
+        # `personajes/`», esta fila le pedía una derivación a mano a ese
+        # fichero de prueba. Falso positivo, corregido AFINANDO —el criterio
+        # dice ahora qué es una ficha— y no relajando, y el control se queda
+        # donde estaba.
+        if not clases:
+            continue        # TOLERADO: no es una ficha de personaje; lo cubre
+                            # `fila_ficheros_de_regla`, que sí cuenta los YAML
+        origen = (ficha.get("calculado") or {}).get("_origen") or {}
+        uid = f"ficha:{p.name}"
+        universo[uid] = ", ".join(f"{c.get('clase')} {c.get('nivel')}"
+                                  for c in clases)
+        informe = origen.get("informe") or ""
+        if origen.get("metodo") == "agente-manual" and (B / informe).is_file():
+            alcanzadas.add(uid)
+        elif origen.get("metodo") == "agente-manual":
+            mienten[uid] = informe or "(sin `informe`)"
+
+    for uid, informe in sorted(mienten.items()):
+        print(f" ❌ lectura independiente declarada sin informe · {uid} dice "
+              f"`agente-manual` y su informe «{informe}» no está en disco")
+
+    dd = D.Deuda(
+        "_verificacion/lectura_independiente.json",
+        nota=("Fichas cuyo bloque `calculado` no lo sostiene ninguna derivación "
+              "hecha a ciegas. El motor y el verificador pueden estar de "
+              "acuerdo en equivocarse y nadie lo vería: es el límite que "
+              "`ARQUITECTURA.md` §5 declara. Deuda enumerada, no permiso."),
+        como_se_salda=("una derivación del mandato «el calculista» "
+                       "(`PLAN_ESTRES.md`) escrita en "
+                       "`_verificacion/_aritmetica/`, que coincida con el "
+                       "motor; entonces la ficha gana su `_origen: "
+                       "agente-manual`. No se salda editando esta lista"),
+        identidad="nombre-de-la-ficha",
+        identidad_explicada=("el nombre del fichero en `personajes/`. Lo que "
+                             "cambia con el tiempo es si tiene derivación, no "
+                             "cómo se llama"))
+    # `cerrada=False`, como `fila_rasgos` y `fila_efectos_con_carga`: una ficha
+    # nueva cae en `medidos_nuevos`, no entra en `deuda`, y `Fila` la saca como
+    # SIN DECLARAR — que ya es rojo. Poner `cerrada=True` sería una segunda
+    # puerta para el mismo rojo.
+    inf = dd.contrastar({uid.replace("ficha:", "", 1): universo[uid]
+                         for uid in universo
+                         if uid not in alcanzadas and uid not in mienten},
+                        elenco_hoy={u.replace("ficha:", "", 1) for u in universo})
+    inf.imprimir(vigentes=False)
+
+    deuda = {f"ficha:{n}": (f"{len(inf.vigentes)} fichas sin lectura "
+                            f"independiente: su aritmética la firma el mismo "
+                            f"motor que la calculó")
+             for n in inf.vigentes}
+    return Fila("ficha", "fichas con lectura independiente", universo,
+                alcanzadas, "una derivación a ciegas del mandato «el calculista»",
+                deuda=deuda,
+                manifiesto="_verificacion/lectura_independiente.json")
+
+
 FILAS = (fila_ficheros_de_regla, fila_variables, fila_columnas,
          fila_datos_externos, fila_chequeos, fila_modulos, fila_rasgos,
          fila_efectos_con_carga, fila_constantes_de_dominio,
-         fila_guardianes)
+         fila_guardianes, fila_lectura_independiente)
 
 
 # ══ El manifiesto de declaraciones ════════════════════════════════════════
