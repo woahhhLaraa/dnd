@@ -322,7 +322,7 @@ pg_por_nivel:
 calculado:
   # Lo escribió el motor, no una lectura independiente de la
   # página. Ver `PLAN_20_AUDITORIA.md` §1.2.
-  _origen: {metodo: motor, informe: null, fecha: "2026-09-05"}
+  _origen: {metodo: agente-manual, informe: "_verificacion/_aritmetica/gnomo_mago_n20-calculista-ciego.md", fecha: "2026-09-08"}
   pg_max: 142
   ca: 13
   bonif_competencia: 6

@@ -494,27 +494,54 @@ def u_efecto_nuevo_sin_carga(r):
     está en `efectos_sin_carga.json`, sale SIN DECLARAR. Es la puerta que la
     fila cierra: la deuda enumerada solo puede bajar.
 
-    **Cambió de vehículo el 2026-09-06, no de chequeo.** Colgaba de «Furia»,
-    del Bárbaro, y el día que la fila 8 llegó a 25/25 hubo un Bárbaro con
-    lectura independiente que la sostenía: el efecto nuevo pasaba a estar
-    alcanzado y la mutación dejaba de demostrar nada. Cuelga ahora de un rasgo
-    de **Brujo**, que es una de las cuatro clases sin ficha promovida —Brujo,
-    Guerrero, Mago y Pícaro—. Si algún día se promueve un Brujo, esta mutación
-    volverá a callarse y habrá que mudarla otra vez: queda dicho aquí para que
-    la próxima no parezca un fallo del censo.
+    **Ha cambiado de vehículo DOS veces, y la segunda enseñó a elegirlo bien.**
+
+    Colgó primero de «Furia», del Bárbaro. El día que la fila 8 llegó a 25/25
+    hubo un Bárbaro con lectura independiente que la sostenía, y la mutación
+    dejó de demostrar nada. Se mudó a un rasgo de **Brujo**, «una de las cuatro
+    clases sin ficha promovida», con esta nota escrita al lado: *«si algún día
+    se promueve un Brujo, habrá que mudarla otra vez»*. Se promovió el
+    2026-09-08, en la primera tanda del `PLAN_22`, y se calló.
+
+    Mudarla a otra clase habría sido comprar unas horas: la fase 2.1 existe
+    justamente para promover las 26 fichas, y **cuando estén todas no quedará
+    ninguna clase libre**. Así que el vehículo ya no se elige a mano: se
+    DESCUBRE. Se cuelga de una subclase que ninguna ficha usa, y esa siempre
+    existe — hay 48 subclases y 26 fichas, así que como poco sobran 22.
     """
-    p2 = r / "clases/rasgos/brujo.yaml"
-    t = p2.read_text(encoding="utf-8")
-    viejo = '  - nombre: "Magia del pacto"\n'
-    assert viejo in t, "el rasgo del que cuelga esta mutación ya no existe"
-    t = t.replace(viejo,
-                  viejo
-                  + '    efectos:\n'
-                    '      - {objetivo: velocidad, op: add, formula: "1",\n'
-                    '         pagina: {pdf: 74, libro: 72}}\n', 1)
-    p2.write_text(t, encoding="utf-8")
-    return ("un efecto NUEVO en la base que ninguna ficha sostiene y que no "
-            "está en la deuda enumerada")
+    import yaml as Y
+
+    usadas = set()
+    for f in sorted((r / "personajes").glob("*.yaml")):
+        ficha = Y.safe_load(f.read_text(encoding="utf-8")) or {}
+        for c in (ficha.get("clases") or []):
+            if isinstance(c, dict) and c.get("subclase"):
+                usadas.add(str(c["subclase"]).split("#")[-1])
+
+    # Los rasgos de subclase son diccionarios EN LÍNEA (`- {nivel: 3, nombre:
+    # "...", desc: "..."}`), así que el efecto se inserta dentro de la llave,
+    # antes de cerrarla. Anclar por líneas no encajaba con ninguna.
+    EFECTO = (', efectos: [{objetivo: velocidad, op: add, formula: "1", '
+              'pagina: {pdf: 74, libro: 72}}]}')
+    for p2 in sorted((r / "clases" / "subclases").glob("*.yaml")):
+        doc = Y.safe_load(p2.read_text(encoding="utf-8")) or {}
+        for s in (doc.get("subclases") or []):
+            if s["nombre"] in usadas or not s.get("rasgos"):
+                continue
+            rasgo = s["rasgos"][0]["nombre"]
+            lineas = p2.read_text(encoding="utf-8").splitlines(keepends=True)
+            for i, linea in enumerate(lineas):
+                if f'nombre: "{rasgo}"' not in linea or not linea.rstrip().endswith("}"):
+                    continue
+                lineas[i] = linea.rstrip()[:-1] + EFECTO + "\n"
+                p2.write_text("".join(lineas), encoding="utf-8")
+                return (f"un efecto NUEVO en la base que ninguna ficha "
+                        f"sostiene —va en «{rasgo}», de la subclase "
+                        f"«{s['nombre']}», que ninguna ficha usa— y que no "
+                        f"está en la deuda enumerada")
+    raise AssertionError(
+        "no queda ninguna subclase sin usar donde colgar esta mutación: si "
+        "eso llega a pasar, el vehículo hay que repensarlo, no borrarlo")
 
 
 DEBEN = [u_fichero_de_regla, u_variable_calculable, u_columna_de_clase,

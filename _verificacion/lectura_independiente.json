@@ -4,8 +4,14 @@
  "_identidad": "nombre-de-la-ficha",
  "_identidad_explicada": "el nombre del fichero en `personajes/`. Lo que cambia con el tiempo es si tiene derivación, no cómo se llama",
  "_fecha": "2026-09-06",
+ "_ultima_poda": {
+  "fecha": "2026-09-06",
+  "saldados": [
+   "Brujo 1",
+   "Mago 20"
+  ]
+ },
  "entradas": {
-  "_ejemplo_aerin.yaml": "Brujo 1",
   "aasimar_clerigo.yaml": "Clérigo 1",
   "draconido_hechicero.yaml": "Hechicero 1",
   "draconido_hechicero_n4.yaml": "Hechicero 4",
@@ -14,7 +20,6 @@
   "elfo_paladin.yaml": "Paladín 1",
   "enano_guerrero.yaml": "Guerrero 1",
   "gnomo_mago.yaml": "Mago 1",
-  "gnomo_mago_n20.yaml": "Mago 20",
   "humano_explorador.yaml": "Explorador 1",
   "mago_quebradizo_n3.yaml": "Mago 3",
   "mediano_picaro.yaml": "Pícaro 1",
