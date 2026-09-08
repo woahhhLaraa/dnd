@@ -498,3 +498,23 @@ aptitud mágica Carisma.
 **Descartado por incumplimiento de condición:** «Defensa sin armadura» de
 «Juego de pies deslumbrante» (requiere no llevar armadura ni escudo; lleva
 Armadura de cuero tachonado). Da el mismo 13 por casualidad aritmética.
+
+---
+
+## Veredicto
+
+*Bloque añadido el 2026-09-08 (fase 2.0 del `PLAN_22`). Los números NO se han
+tocado: se transcriben de la tabla final de este mismo informe, escrita antes,
+y sin mirar lo que da el motor. Existe para que esta derivación se pueda
+**volver a contrastar**: hasta hoy se comprobaba una vez, a ojo, el día que se
+escribió, y nunca más — así que un motor que cambiara dejaba el informe viejo y
+la ficha seguía diciendo «lo verificó un agente». Lo contrasta ahora
+`verificar_personaje.verificar_veredicto` en cada pasada.*
+
+```veredicto
+pg_max: 24
+ca: 13
+velocidad: 9
+cd_conjuros: 12
+bonif_ataque_conjuros: 4
+```

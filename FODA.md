@@ -31,7 +31,7 @@ reproducen con los cinco comandos del final.
    `mutaciones_dados.py` (12/12), `mutaciones_conversiones.py` (16/16),
    `mutaciones_integridad.py` (24/24), `mutaciones_efectos.py` (42/42),
    `mutaciones_pg.py` (13/13), `mutaciones_materiales.py` (10/10),
-   `mutaciones_tiradas.py` (19/19), `mutaciones_prerrequisitos.py` (10/10), `mutaciones_subida.py` (7/7), `mutaciones_nivel20.py` (52/52),
+   `mutaciones_tiradas.py` (19/19), `mutaciones_prerrequisitos.py` (10/10), `mutaciones_subida.py` (7/7), `mutaciones_nivel20.py` (55/55),
    `mutaciones_deuda.py` (10/10), `mutaciones_muro.py` (13/13) y
    `mutaciones_foundry.py` (47/47). La mitad
    de cada suite son **controles negativos**: datos raros pero legítimos que no
@@ -366,7 +366,7 @@ python3 _verificacion/mutaciones_materiales.py   # 10/10
 python3 _verificacion/mutaciones_tiradas.py      # 19/19
 python3 _verificacion/mutaciones_prerrequisitos.py # 10/10
 python3 _verificacion/mutaciones_subida.py       # 7/7
-python3 _verificacion/mutaciones_nivel20.py      # 52/52
+python3 _verificacion/mutaciones_nivel20.py      # 55/55
 python3 _verificacion/mutaciones_deuda.py        # 10/10
 python3 _verificacion/mutaciones_muro.py         # 13/13
 python3 _verificacion/intervalo.py 48 305 306    # la tasa del 15,7 % (antes de corregir)

@@ -1038,6 +1038,67 @@ def verificar_sin_copias(ficha, inf):
     walk(ficha, "")
 
 
+def _veredicto_del_informe(texto):
+    """El bloque ```veredicto de una derivación, o `None` si no lo trae."""
+    import re as _re
+    m = _re.search(r"```veredicto\n(.*?)```", texto, _re.S)
+    return yaml.safe_load(m.group(1)) if m else None
+
+
+def verificar_veredicto(ficha, inf):
+    """¿La derivación a ciegas SIGUE diciendo lo mismo que el motor?
+
+    Una ficha con `_origen: agente-manual` afirma que un agente derivó sus
+    números a mano, a ciegas, desde la base. Hasta el 2026-09-08 eso se
+    comprobaba **una vez, a ojo**, el día que se escribió el informe, y nunca
+    más: `censo.fila_lectura_independiente` mira que el papel EXISTA, no que
+    siga diciendo lo mismo.
+
+    Media comprobación, y de la peor clase: el motor cambió mucho en tres días
+    —`PLAN_20` y `PLAN_21`—, y una ficha podía seguir declarando «lo verificó
+    un agente» con una derivación que ya no cuadraba. Una declaración que se
+    queda vieja sin que nadie se entere es el error que este repositorio
+    persigue; aquí sale gratis cerrarlo, porque el bloque ya se calcula.
+
+    El contraste es contra el bloque `veredicto` del informe, escrito por el
+    agente, **no contra la tabla en prosa**: los formatos de las tablas varían
+    y dos derivaciones traen lecturas alternativas. Sacar números de la prosa
+    sería elegir una huella mala, que es un error ya cometido tres veces aquí.
+    """
+    origen = (ficha.get("calculado") or {}).get("_origen") or {}
+    if origen.get("metodo") == "agente-manual":
+        rel = origen.get("informe") or ""
+        p = pathlib.Path(__file__).parent / rel
+        # Que el informe EXISTA ya lo exige `verificar_origen_del_calculado`;
+        # aquí no se repite para no dar dos errores por una sola causa.
+        if p.is_file():
+            ver = _veredicto_del_informe(p.read_text(encoding="utf-8"))
+            if not isinstance(ver, dict):
+                inf.error(f"{rel} no trae bloque ```veredicto: sin él su "
+                          f"derivación no se puede volver a contrastar, y una "
+                          f"lectura independiente que solo se miró una vez "
+                          f"caduca en silencio")
+            else:
+                bloque, _avisos = calcular_bloque(ficha)
+                for clave in ("pg_max", "ca", "velocidad", "cd_conjuros",
+                              "bonif_ataque_conjuros"):
+                    dice = ver.get(clave, "(ausente)")
+                    # `no_procede` es lo que el agente escribe cuando la regla
+                    # no le asigna ninguno —un Bárbaro no tiene CD de
+                    # conjuros—, y el motor lo expresa NO poniendo la clave.
+                    # Son la misma afirmación escrita de dos maneras.
+                    real = bloque.get(clave, "no_procede")
+                    if str(dice) != str(real):
+                        inf.error(
+                            f"{rel}: el agente derivó `{clave}` = {dice!r} y "
+                            f"el motor da {real!r}. O el informe ya no vale "
+                            f"contra el motor de hoy, o el motor cambió sin "
+                            f"que nadie rehiciera la lectura independiente: "
+                            f"las dos cosas hay que mirarlas, no arreglarlas")
+                    else:
+                        inf.comprobados += 1
+
+
 def calcular_bloque(ficha):
     """El bloque `calculado` que esta ficha DEBERÍA tener.
 
@@ -1414,7 +1475,8 @@ def main():
                     verificar_origen_del_calculado,
                     verificar_mejoras, verificar_conjuros,
                     verificar_dotes_y_subclase, verificar_forma_competencias,
-                    verificar_calculado, verificar_sin_copias):
+                    verificar_calculado, verificar_sin_copias,
+                    verificar_veredicto):
         _v, fallo = _I.muro(chequeo, ficha, inf, salida_es_veredicto=True)
         # La redacción de `KeyError` se conserva porque DICE MÁS que el muro:
         # nombra el bloque que falta y manda al esquema. El muro cierra el

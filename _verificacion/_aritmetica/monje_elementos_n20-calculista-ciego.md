@@ -438,3 +438,28 @@ Las dejo por escrito porque las he visto al recorrer la base, no porque me las h
 | mod. Sab | +4 (crudos) / +6 (con «Cuerpo y mente») | Sab 19 / 23 |
 | Armadura y escudo | ninguno | `equipo: []` |
 | Descartado por situacional | «Paradigma elemental» (subclase n17, +6 m), «Paso de los elementos» (n11, volar/nadar), «Revelación celestial» (Aasimar, volar), «Defensa superior» (n18, resistencia) | §2.3 y §3.4 |
+
+---
+
+## Veredicto
+
+*Bloque añadido el 2026-09-08 (fase 2.0 del `PLAN_22`). Los números NO se han
+tocado: se transcriben de la tabla final de este mismo informe, escrita antes,
+y sin mirar lo que da el motor. Existe para que esta derivación se pueda
+**volver a contrastar**: hasta hoy se comprobaba una vez, a ojo, el día que se
+escribió, y nunca más — así que un motor que cambiara dejaba el informe viejo y
+la ficha seguía diciendo «lo verificó un agente». Lo contrasta ahora
+`verificar_personaje.verificar_veredicto` en cada pasada.*
+
+`ca` 23 es la lectura ELEGIDA. El informe da 19 como alternativa, con las
+puntuaciones tal cual venían en los crudos. La diferencia de 4 es «Cuerpo y
+mente», el rasgo de nivel 20 que solo vivía en la prosa: ese fue el hallazgo,
+y se resolvió a favor de 23.
+
+```veredicto
+pg_max: 123
+ca: 23
+velocidad: 27
+cd_conjuros: no_procede
+bonif_ataque_conjuros: no_procede
+```

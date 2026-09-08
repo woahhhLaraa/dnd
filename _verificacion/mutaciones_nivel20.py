@@ -187,6 +187,43 @@ def c_extra_sin_fuente(r):
 
 # ══ Controles negativos ══════════════════════════════════════════════════
 
+def e_veredicto_desfasado(r):
+    """Fase 2.0 del `PLAN_22`. Una ficha con `_origen: agente-manual` afirma
+    que un agente derivó sus números a ciegas. Hasta el 2026-09-08 eso se
+    comprobaba UNA VEZ, a ojo, el día que se escribió el informe, y nunca más:
+    el censo miraba que el papel existiera, no que siguiera diciendo lo mismo.
+
+    O sea que el motor podía cambiar —y cambió mucho en tres días— y la ficha
+    seguiría declarando «lo verificó un agente» con una derivación que ya no
+    cuadra. Aquí se fabrica justo eso: el informe dice un `pg_max` y el motor
+    da otro."""
+    _sust(r, "_verificacion/_aritmetica/enano_clerigo_n5-calculista-ciego.md",
+          "pg_max: 44", "pg_max: 45")
+    return ("el `veredicto` de una derivación deja de cuadrar con el motor: la "
+            "lectura independiente ha caducado y la ficha sigue diciendo que "
+            "la tiene")
+
+
+def e_veredicto_borrado(r):
+    """La otra dirección: el informe existe pero ya no dice qué números dio.
+    Sin bloque `veredicto` no se puede volver a contrastar nunca, que es
+    exactamente el estado del que venimos."""
+    _sust(r, "_verificacion/_aritmetica/goliat_druida-calculista-ciego.md",
+          "```veredicto", "```veredicto-desactivado")
+    return ("una derivación sin bloque `veredicto`: su lectura independiente "
+            "no se puede volver a comprobar")
+
+
+def n_prosa_de_la_derivacion_reescrita(r):
+    """Control negativo: una derivación es un informe en prosa y tiene que
+    poder editarse —corregir una cita, aclarar un paso— sin que nada salte.
+    Lo que se contrasta son sus NÚMEROS, no su redacción."""
+    _sust(r, "_verificacion/_aritmetica/enano_clerigo_n5-calculista-ciego.md",
+          "## Veredicto", "## Veredicto (números derivados a mano)")
+    return ("se reescribe la prosa de una derivación sin tocar un solo número: "
+            "un informe tiene que poder editarse")
+
+
 def n_otro_reparto_legal(r):
     def f(d):
         # El reparto nuevo se DERIVA del que había, en vez de escribir los dos
@@ -421,6 +458,15 @@ def n_pg_tirada_al_minimo(r):
             if e["nivel"] == 5:
                 e["valor"] = 1
         d["calculado"]["pg_max"] = 39
+        # Y pierde su lectura independiente, que es lo correcto y lo que este
+        # control aprendió el 2026-09-08: la derivación a ciegas de esta ficha
+        # se hizo sobre OTRAS tiradas, así que ya no dice nada sobre esta.
+        # Cambiar las entradas invalida la lectura independiente hasta que
+        # alguien la rehaga; `verificar_veredicto` lo caza, y tiene razón.
+        # Lo que este control sigue afirmando es lo suyo: un 1 en el dado es
+        # legal. No se relaja el chequeo nuevo, se deja de mentir aquí.
+        d["calculado"]["_origen"] = {"metodo": "motor", "informe": None,
+                                     "fecha": "2026-09-08"}
     _editar(r, CLERIGO_N5, edita)
     return "una tirada de 1 en el d8: es el peor resultado posible, y es legal"
 
@@ -608,12 +654,13 @@ ESTRES = [e_dote_sin_prerrequisito, e_subclase_de_otra_clase,
           e_idioma_de_rasgo_inexistente, e_idiomas_de_mas_por_eleccion,
           e_clave_raza, e_clave_en_singular, e_clave_nunca_vista,
           e_calculado_sin_origen, e_origen_agente_sin_informe,
-          e_origen_informe_inexistente, e_campo_de_mas_en_calculado]
+          e_origen_informe_inexistente, e_campo_de_mas_en_calculado, e_veredicto_desfasado, e_veredicto_borrado]
 NO_DEBEN = [n_otro_reparto_legal, n_otro_conjuro, n_prosa_de_decisiones,
             n_una_sola_clase_sigue_pasando,
             n_conjuros_de_subclase_bien_declarados, n_categoria_con_mayuscula,
             n_pg_tirada_al_minimo, n_conjuro_de_dote_de_otra_lista,
-            n_idioma_de_rasgo_de_clase, n_clave_de_prosa_libre]
+            n_idioma_de_rasgo_de_clase, n_clave_de_prosa_libre,
+            n_prosa_de_la_derivacion_reescrita]
 MULTICLASE = [m_dos_clases, m_dos_clases_nivel_alto]
 
 

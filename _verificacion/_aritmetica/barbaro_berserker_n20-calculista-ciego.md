@@ -497,3 +497,28 @@ una puntuación de característica**. Si no lo admite, el hueco es más hondo qu
 una línea que falta: sería que la base no tiene forma de expresar «un rasgo de
 clase sube una puntuación». Que alguien con permiso para abrir ese fichero lo
 compruebe.
+
+---
+
+## Veredicto
+
+*Bloque añadido el 2026-09-08 (fase 2.0 del `PLAN_22`). Los números NO se han
+tocado: se transcriben de la tabla final de este mismo informe, escrita antes,
+y sin mirar lo que da el motor. Existe para que esta derivación se pueda
+**volver a contrastar**: hasta hoy se comprobaba una vez, a ojo, el día que se
+escribió, y nunca más — así que un motor que cambiara dejaba el informe viejo y
+la ficha seguía diciendo «lo verificó un agente». Lo contrasta ahora
+`verificar_personaje.verificar_veredicto` en cada pasada.*
+
+`pg_max` 365 es la lectura ELEGIDA. El informe da 325 como alternativa B,
+sin «Campeón primordial». Esa diferencia FUE el hallazgo: el rasgo de nivel
+20 subía dos características y solo vivía en la prosa. Se resolvió a favor
+de 365 y la base cambió.
+
+```veredicto
+pg_max: 365
+ca: 17
+velocidad: 15
+cd_conjuros: no_procede
+bonif_ataque_conjuros: no_procede
+```

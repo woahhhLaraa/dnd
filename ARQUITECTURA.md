@@ -116,7 +116,7 @@ Ninguno repite al otro. Esa es la propiedad que los hace valer.
 | `verificar_srd.py` | ¿coincide con el SRD 5.2, una fuente externa sin traducir? |
 | `verificar_foundry.py` | ¿coincide con el SRD estructurado de los packs de Foundry? |
 | `cobertura.py` | ¿sabe la base RESPONDER lo que la skill preguntará? |
-| `verificar_personaje.py` | ¿es legal esta ficha, y se comprueba todo lo que aprueba? |
+| `verificar_personaje.py` | ¿es legal esta ficha, se comprueba todo lo que aprueba, y **sigue cuadrando su lectura independiente**? |
 | `censo.py` | ¿hay alguna unidad de la base sin ningún chequeo que la alcance? |
 | `verificar_chequeos.py` | ¿algún chequeo abandona un registro en silencio? |
 | `verificar_documentos.py` | ¿dicen la verdad los documentos de estado? |
@@ -184,6 +184,12 @@ Y la undécima lo cierra hacia FUERA, que es lo que ninguna otra puede:
 `fila_lectura_independiente` cuenta las fichas que tienen una derivación hecha
 a ciegas desde la base. Es la única fila cuyo universo no lo alcanza ningún
 chequeo escrito aquí dentro — y por eso es la que mide el límite del §5.
+
+La fila mira que el papel EXISTA. Que siga **diciendo lo mismo que el motor** lo
+mira `verificar_personaje.verificar_veredicto`, contra el bloque `veredicto` que
+cada derivación lleva al final. Sin eso, una lectura independiente se comprobaba
+una vez, el día que se escribió, y caducaba en silencio en cuanto el motor
+cambiara — media comprobación, y de la clase que este documento persigue.
 
 ---
 

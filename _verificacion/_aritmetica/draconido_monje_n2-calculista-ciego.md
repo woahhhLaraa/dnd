@@ -529,3 +529,23 @@ defecto de una criatura sin armadura (10 + modificador de Destreza). No afecta a
 esta ficha, porque Defensa sin armadura de monje declara una base propia y
 completa, pero sí afectaría a cualquier personaje sin armadura que no tenga un
 rasgo de defensa sin armadura.
+
+---
+
+## Veredicto
+
+*Bloque añadido el 2026-09-08 (fase 2.0 del `PLAN_22`). Los números NO se han
+tocado: se transcriben de la tabla final de este mismo informe, escrita antes,
+y sin mirar lo que da el motor. Existe para que esta derivación se pueda
+**volver a contrastar**: hasta hoy se comprobaba una vez, a ojo, el día que se
+escribió, y nunca más — así que un motor que cambiara dejaba el informe viejo y
+la ficha seguía diciendo «lo verificó un agente». Lo contrasta ahora
+`verificar_personaje.verificar_veredicto` en cada pasada.*
+
+```veredicto
+pg_max: 17
+ca: 15
+velocidad: 12
+cd_conjuros: no_procede
+bonif_ataque_conjuros: no_procede
+```

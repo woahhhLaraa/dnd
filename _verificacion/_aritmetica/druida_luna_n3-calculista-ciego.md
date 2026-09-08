@@ -472,3 +472,23 @@ Luna, nivel 3) y su cláusula «tu CA pasa a ser 13 + mod. Sabiduría»**.
 comparación explícita es «si es superior a la de **la bestia**» — sin bestia adoptada la
 cláusula no tiene término contra el que compararse. La lectura B exigiría ignorar las dos
 primeras palabras del rasgo.
+
+---
+
+## Veredicto
+
+*Bloque añadido el 2026-09-08 (fase 2.0 del `PLAN_22`). Los números NO se han
+tocado: se transcriben de la tabla final de este mismo informe, escrita antes,
+y sin mirar lo que da el motor. Existe para que esta derivación se pueda
+**volver a contrastar**: hasta hoy se comprobaba una vez, a ojo, el día que se
+escribió, y nunca más — así que un motor que cambiara dejaba el informe viejo y
+la ficha seguía diciendo «lo verificó un agente». Lo contrasta ahora
+`verificar_personaje.verificar_veredicto` en cada pasada.*
+
+```veredicto
+pg_max: 24
+ca: 13
+velocidad: 9
+cd_conjuros: 13
+bonif_ataque_conjuros: 5
+```

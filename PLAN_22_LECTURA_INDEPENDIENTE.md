@@ -1,6 +1,6 @@
 # PLAN 22 — la lectura independiente, dirigida por una cuenta y no por el ojo
 
-> Estado: **fase 1 cerrada el 2026-09-07**; fase 2 en marcha.
+> Estado: **fases 1 y 2.0 cerradas el 2026-09-08**; la tanda (2.1) en marcha.
 
 ## Contexto
 
@@ -155,9 +155,91 @@ cuanto la fila 11 pasó a ser la última el anclaje dejó de encajar y
 lo que no se mueve. La otra cosa que cazó en la misma pasada: `CONTINUAR.md`
 prometía 34/34 para `mutaciones_censo` cuando ya eran 37/37 — mía también.
 
+
 ---
 
-## Fase 2 · La tanda, en el orden que la fila dicta
+## Fase 2.0 · El `veredicto`, para que la lectura independiente no caduque
+
+**El hueco, encontrado al mirar cómo se contrasta.** La fila 11 comprueba que
+el informe **existe en disco**. No comprueba que **siga diciendo lo mismo que
+el motor**. O sea: una vez que una ficha gana su `_origen: agente-manual`,
+nada vuelve a mirar esa derivación nunca más. Si el motor cambia mañana —y ha
+cambiado mucho: `PLAN_20` y `PLAN_21` en tres días—, la ficha sigue diciendo
+«un agente verificó esto a ciegas» sin que nadie lo compruebe. Es media
+comprobación, y del tipo exacto que este repositorio persigue: una declaración
+que se queda vieja sin que nadie se entere.
+
+Además, **el contraste no tiene hoy ninguna herramienta ni ningún registro**:
+se hace a ojo, leyendo la tabla final del informe y comparándola con
+`--calcular`. Un paso hecho a ojo, por quien además quiere que coincida.
+
+**El arreglo, y es barato:** cada derivación termina en un bloque
+legible por máquina, y `verificar_personaje.py` lo contrasta.
+
+````markdown
+```veredicto
+pg_max: 14
+ca: 13
+velocidad: 9
+cd_conjuros: no_procede
+bonif_ataque_conjuros: no_procede
+```
+````
+
+- **Dónde vive el contraste:** en `verificar_personaje.py`. Es su sitio natural
+  —el verificador de la ficha comprueba lo que la ficha declara— y sale
+  **gratis**, porque ya calcula ese bloque para la propia ficha. NO va en
+  `censo.py`: la fila tendría que calcular las 26 fichas en cada pasada, y
+  `mutaciones_censo` corre el censo 37 veces (≈ +40 min por suite).
+- **Retrofit de las 12 que ya existen.** Sus tablas finales son prosa y varían
+  de formato —cabeceras distintas, negrita en sitios distintos, y las dos de
+  nivel 20 traen **dos lecturas alternativas**, que es justo donde estuvo el
+  hallazgo—. Así que no se parsea la prosa: **se transcribe a mano el bloque, y
+  luego se contrasta**. Cualquier desacuerdo se INVESTIGA, no se corrige: puede
+  ser mi transcripción o puede ser que la derivación ya no case con el motor de
+  hoy, y lo segundo es un hallazgo.
+- **Las dos de nivel 20** (`barbaro_berserker_n20`, `monje_elementos_n20`)
+  llevan la lectura que se resolvió —fue el hallazgo de «Campeón primordial» y
+  «Cuerpo y mente»— con una nota diciendo cuál era la otra y por qué se cerró.
+
+**Se comprueba:** una mutación que altere un valor del `veredicto` y exija que
+`verificar_personaje` lo cace, más un control negativo —reescribir la prosa de
+la derivación no cambia nada—. Va en la suite que ya construye fichas y las
+pasa por `verificar_personaje` (`mutaciones_nivel20.py`, 4 usos, o
+`mutaciones_pg.py`, 2; **a decidir mirando cuál encaja**).
+
+### ✅ FASE 2.0 CERRADA (2026-09-08)
+
+`verificar_personaje.verificar_veredicto` contrasta el bloque de cada
+derivación contra lo que el motor calcula, para toda ficha con
+`_origen: agente-manual`. Sale gratis: el bloque ya se calculaba. La mutación
+va en `mutaciones_nivel20.py`, que ya construye fichas y las pasa por el
+verificador.
+
+**Las 12 derivaciones retrofiteadas, y las 12 siguen cuadrando.** Los bloques se
+transcribieron de la tabla final de cada informe **sin mirar el motor**, y solo
+después se contrastaron: **0 desacuerdos**. No era obvio — esas derivaciones son
+del 2026-09-06 y el motor cambió mucho entre medias (`PLAN_20` y `PLAN_21`), así
+que el resultado es información, no rutina. Las dos de nivel 20 llevan su nota:
+la lectura elegida fue la del hallazgo («Campeón primordial», «Cuerpo y mente»),
+y se dice cuál era la otra y por qué se cerró.
+
+`mutaciones_nivel20` pasa de 52/52 a **55/55**: dos mutaciones —el `veredicto`
+deja de cuadrar con el motor; el `veredicto` desaparece— y un control negativo
+—reescribir la prosa del informe no cambia nada—.
+
+**Y un control negativo que hubo que afinar, no relajar.**
+`n_pg_tirada_al_minimo` cambia una tirada de PG a 1 —legal, por deprimente que
+sea— y actualizaba `calculado.pg_max` para que cuadrase. Con el chequeo nuevo
+saltaba, y **tenía razón**: la derivación a ciegas de esa ficha se hizo sobre
+otras tiradas, así que ya no dice nada sobre esta. Lo que se corrigió es el
+control, que ahora también baja el `_origen` a `motor`. La regla que eso
+encodifica, y que no estaba escrita en ninguna parte: **cambiar las entradas de
+una ficha invalida su lectura independiente hasta que alguien la rehaga.**
+
+---
+
+## Fase 2.1 · La tanda, en el orden que la fila dicta
 
 Las **14**, por orden de valor —el de la tabla de arriba—, hasta llevar la fila
 11 a cero.
@@ -177,7 +259,31 @@ Las **14**, por orden de valor —el de la tabla de arriba—, hasta llevar la f
 ### Lo que deriva
 
 `pg_max`, `ca`, `velocidad`, `cd_conjuros` y `bonif_ataque_conjuros`, con cada
-paso escrito y **citando de dónde sale cada regla**.
+paso escrito, **citando de dónde sale cada regla**, y terminando en el bloque
+` ```veredicto ` de la fase 2.0.
+
+**El listón está puesto y hay 12 ejemplos.** `orco_barbaro-calculista-ciego.md`
+son 472 líneas con esta estructura, que el encargo pide mantener: cabecera con
+la ficha y los ficheros consultados · **«Desviaciones cometidas — declaración
+honesta»**, donde el agente declara lo que ha rozado y por qué no le contamina
+· modificadores primero · **inventario cerrado de fuentes de efectos** —leído
+de `reglas/fuentes_de_efectos.yaml`, para poder afirmar que no se deja
+ninguna— · un apartado por valor · tabla final · «lo que NO se ha podido
+derivar de la base».
+
+Un detalle del método que ese informe fija y hay que conservar: varios ficheros
+permitidos traen, junto al texto en prosa, un bloque `efectos:` con la fórmula
+ya formalizada. **Se deriva desde el `desc` en prosa y solo después se mira el
+`efectos:` como confirmación**, diciéndolo. Si no, la derivación deja de ser
+una segunda transcripción y pasa a ser una lectura del motor con otra letra.
+
+### Cómo se lanzan
+
+De **uno o dos a la vez**, nunca los catorce: los límites de tasa mataron
+agentes en dos tandas anteriores. Antes de lanzar cada uno, los datos crudos se
+escriben fuera del repositorio con
+`verificar_personaje.py --datos-crudos` — así el agente nunca necesita abrir
+`personajes/`.
 
 **Con una adaptación que hay que decir:** el mandato original dice «citando la
 página del manual», y **el PDF no está en este contenedor**. Así que la cita es
@@ -222,7 +328,16 @@ manual—, que sí necesita leer la página.
 4. **No hacer `cerrada=True` en la deuda de la fila 11.** El rojo ya lo pone
    `Fila` vía SIN DECLARAR; dos puertas para el mismo rojo es ruido.
 5. **No fabricar el motivo de `_ejemplo_aerin`** sin mirar qué papel tiene.
-6. **No dar por buena ninguna cifra de este documento sin remedirla.**
+6. **No parsear la prosa de las derivaciones para sacar sus números.** Los
+   formatos varían y dos traen lecturas alternativas; una huella mal elegida
+   sobre prosa es un error que este repositorio ya ha cometido tres veces. El
+   bloque `veredicto` se escribe explícito.
+7. **No "arreglar" un desacuerdo del retrofit.** Si el `veredicto` transcrito
+   no casa con el motor, se investiga: o la transcripción está mal, o la
+   derivación ya no vale contra el motor de hoy — y lo segundo es un hallazgo.
+8. **No poner el contraste en `censo.py`.** Calcularía las 26 fichas en cada
+   pasada y `mutaciones_censo` corre el censo 37 veces.
+9. **No dar por buena ninguna cifra de este documento sin remedirla.**
 
 ---
 
@@ -233,15 +348,23 @@ python3 validar.py && python3 censo.py && python3 verificar_chequeos.py
 python3 verificar_srd.py && python3 verificar_foundry.py && python3 cobertura.py
 for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done
 python3 generar_ficha.py --barrido --exhaustivo
-python3 _verificacion/mutaciones_censo.py     # con las dos nuevas de la fila 11
+python3 _verificacion/mutaciones_censo.py     # las tres de la fila 11
+python3 _verificacion/mutaciones_nivel20.py   # la del `veredicto` (fase 2.0)
 python3 _verificacion/mutaciones_deuda.py
 python3 verificar_documentos.py               # corre las suites (~5 min)
 ```
 
-Estado al empezar, para contrastar: censo **957** unidades · 0 sin declarar ·
-576 pendientes · 26 fichas · barrido 240/240 · 646 valores contra el SRD y 3749
-contra Foundry · ramas silenciosas 120/120 · censo 34/34 · muro 13/13 ·
-documentos 16/16 · deuda 10/10 · silencios 7/7 · efectos 42/42 · motor 12/12.
+**Y el contraste, que es lo que esta fase compra:** cada
+`verificar_personaje.py personajes/<ficha>.yaml` de una ficha con
+`_origen: agente-manual` tiene que decir que su `veredicto` sigue coincidiendo
+con el motor. Las 12 viejas incluidas — ahí está el primer sitio donde puede
+saltar algo.
+
+Estado al empezar la fase 2, remedido tras cerrar la fase 1: censo **983**
+unidades · 0 sin declarar · **590** pendientes · fila 11 **26 · 12 · 14** ·
+26 fichas · barrido 240/240 · 646 contra el SRD y 3749 contra Foundry · ramas
+silenciosas 120/120 · censo **37/37** · muro 13/13 · documentos 16/16 · deuda
+10/10 · silencios 7/7 · efectos 42/42 · motor 12/12 · nivel20 52/52.
 
 Y las reglas que no cambian: **todo hueco que se cierre lleva su chequeo y su
 prueba por mutación**; todo falso positivo se corrige **afinando, no
@@ -250,10 +373,14 @@ todo módulo y toda fila** — la fila 11 tendrá que entrar ahí, o el ancla fa
 
 ### Ficheros críticos
 
-- `censo.py` — `fila_efectos_con_carga` (el patrón a copiar), `FILAS`
-- `_verificacion/mutaciones_censo.py` — las dos mutaciones y el control
-- `PLAN_ESTRES.md` — «Cómo se dirige» y el criterio de cierre, que hoy mandan
-  algo ya cumplido
-- `ARQUITECTURA.md` — la tabla de filas, anclada
-- `verificar_personaje.py:1342` — `--datos-crudos`, la ceguera repartida
-- `_verificacion/_aritmetica/` — las 14 derivaciones nuevas
+- `verificar_personaje.py` — el contraste del `veredicto` (fase 2.0), junto a
+  `calcular_bloque`; y `--datos-crudos` (línea 1342), la ceguera repartida
+- `_verificacion/_aritmetica/` — las 12 derivaciones a retrofitear y las 14
+  nuevas. `orco_barbaro-calculista-ciego.md` es el modelo
+- `_verificacion/mutaciones_nivel20.py` — la mutación del `veredicto`
+- `personajes/*.yaml` — el `_origen` de cada ficha que apruebe
+
+Ya cerrados en la fase 1, aquí solo se tocan sus cifras: `censo.py`
+(`fila_lectura_independiente`), `_verificacion/mutaciones_censo.py`,
+`_verificacion/lectura_independiente.json`, `PLAN_ESTRES.md`,
+`ARQUITECTURA.md`, `CONTINUAR.md` y `FODA.md`.

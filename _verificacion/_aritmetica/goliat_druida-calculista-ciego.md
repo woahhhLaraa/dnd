@@ -407,3 +407,23 @@ declarar.
    bonificadores de ataque simultáneos, y un único campo no podría
    representarlo. La base permite esa elección (`dotes/origen.yaml → Iniciado
    en la magia`: *«aptitud mágica Inteligencia, Sabiduría o Carisma»*).
+
+---
+
+## Veredicto
+
+*Bloque añadido el 2026-09-08 (fase 2.0 del `PLAN_22`). Los números NO se han
+tocado: se transcriben de la tabla final de este mismo informe, escrita antes,
+y sin mirar lo que da el motor. Existe para que esta derivación se pueda
+**volver a contrastar**: hasta hoy se comprobaba una vez, a ojo, el día que se
+escribió, y nunca más — así que un motor que cambiara dejaba el informe viejo y
+la ficha seguía diciendo «lo verificó un agente». Lo contrasta ahora
+`verificar_personaje.verificar_veredicto` en cada pasada.*
+
+```veredicto
+pg_max: 10
+ca: 14
+velocidad: 10.5
+cd_conjuros: 13
+bonif_ataque_conjuros: 5
+```
