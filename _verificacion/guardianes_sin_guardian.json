@@ -1,0 +1,41 @@
+{
+ "_nota": "Scripts de la raíz que NINGUNA suite de `_verificacion/` corrompe. Se les puede meter un fallo y todo sigue en verde: es la definición del guardián sin guardián que el PLAN_20 midió seis veces en un día. Deuda enumerada, no permiso.",
+ "_como_se_salda": "una suite de `_verificacion/mutaciones_*.py` que escriba ESE fichero .py —que le corrompa el código, no la base— y exija que algo lo note",
+ "_identidad": "nombre-del-script",
+ "_identidad_explicada": "el nombre del fichero en la raíz. Lo que cambia con el tiempo es quién lo muta, no cómo se llama",
+ "_fecha": "2026-09-06",
+ "_ultima_poda": {
+  "fecha": "2026-09-06",
+  "saldados": [
+   "ninguna suite muta su código"
+  ]
+ },
+ "entradas": {
+  "buscar.py": "ninguna suite muta su código",
+  "generar_ficha.py": "ninguna suite muta su código",
+  "materiales.py": "ninguna suite muta su código",
+  "prerrequisitos.py": "ninguna suite muta su código",
+  "subir_nivel.py": "ninguna suite muta su código",
+  "verificar_documentos.py": "ninguna suite muta su código"
+ },
+ "elenco": [
+  "_convertir_hechizos.py",
+  "buscar.py",
+  "calculo.py",
+  "censo.py",
+  "cobertura.py",
+  "deuda.py",
+  "efectos.py",
+  "generar_ficha.py",
+  "informar.py",
+  "materiales.py",
+  "prerrequisitos.py",
+  "subir_nivel.py",
+  "validar.py",
+  "verificar_chequeos.py",
+  "verificar_documentos.py",
+  "verificar_foundry.py",
+  "verificar_personaje.py",
+  "verificar_srd.py"
+ ]
+}

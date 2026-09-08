@@ -21,7 +21,7 @@ caracteristicas:
   metodo: conjunto_estandar
   base: {fue: 8, des: 14, con: 13, int: 10, sab: 12, car: 15}
   ajuste_trasfondo: {car: 2, con: 1}
-  final: {fue: 8, des: 14, con: 14, int: 10, sab: 12, car: 17}
+  final: {fue: 8, des: 14, con: 14, int: 10, sab: 12, car: 18}
 
 competencias:
   salvaciones: [Constitución, Carisma]
@@ -54,7 +54,7 @@ conjuros:
     - {ref: "hechizos.json#Mano de mago"}
     - {ref: "hechizos.json#Prestidigitación"}
     - {ref: "hechizos.json#Luces danzantes"}
-    - {ref: "hechizos.json#Descarga sobrenatural"}
+    - {ref: "hechizos.json#Estallido mágico"}
   preparados:
     - {ref: "hechizos.json#Proyectil mágico"}
     - {ref: "hechizos.json#Escudo"}
@@ -62,11 +62,12 @@ conjuros:
     - {ref: "hechizos.json#Dormir"}
     - {ref: "hechizos.json#Rayo abrasador"}
     - {ref: "hechizos.json#Invisibilidad"}
-    - {ref: "hechizos.json#Rayo de escarcha"}
+    - {ref: "hechizos.json#Armadura de mago"}
 
 dotes:
   - {ref: "dotes/origen.yaml#Afortunado", origen: {trasfondo: Comerciante}}
-  - {ref: "dotes/generales.yaml#Lanzador ritual", origen: {clase: Hechicero, nivel: 4}}
+  - {ref: "dotes/generales.yaml#Lanzador ritual", origen: {clase: Hechicero, nivel: 4},
+     sube: {car: 1}}
 
 # La historia de PG: una entrada por nivel, con el método ELEGIDO y el valor
 # obtenido. Una tirada no es reproducible, así que se guarda el resultado.
@@ -84,11 +85,14 @@ pg_por_nivel:
      cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
 
 calculado:
+  # Lo escribió el motor, no una lectura independiente de la
+  # página. Ver `PLAN_20_AUDITORIA.md` §1.2.
+  _origen: {metodo: motor, informe: null, fecha: "2026-09-05"}
   pg_max: 31
-  ca: 15
+  ca: 16
   bonif_competencia: 2
-  cd_conjuros: 13
-  bonif_ataque_conjuros: 5
+  cd_conjuros: 14
+  bonif_ataque_conjuros: 6
   velocidad: 9
 
 decisiones:
@@ -99,7 +103,16 @@ decisiones:
     eleccion: "dote Lanzador ritual en vez de mejora de característica"
     cita: {archivo: "dotes/generales.yaml", registro: "Lanzador ritual", campo: "prerrequisito"}
   - en: "nivel 4"
-    eleccion: "truco nuevo: Descarga sobrenatural; conjuro preparado nuevo: Rayo de escarcha"
+    eleccion: >
+      mejora de característica de la dote Lanzador ritual: +1 Carisma.
+      La dote permite Inteligencia, Sabiduría o Carisma; se elige Carisma por
+      ser la aptitud mágica del Hechicero. CORRECCIÓN del 2026-08-31 (C3 del
+      Plan 17): la ficha tomaba la dote y NO aplicaba su +1, así que Carisma
+      estaba en 17 y la CD, el bonificador de ataque y la CA iban un punto por
+      debajo. Nadie lo detectaba porque el +1 de una dote no tenía dónde entrar.
+    cita: {archivo: "dotes/generales.yaml", registro: "Lanzador ritual", campo: "mejora_caracteristica"}
+  - en: "nivel 4"
+    eleccion: "truco nuevo: Estallido mágico; conjuro preparado nuevo: Armadura de mago"
     cita: {archivo: "clases/hechicero.yaml", campo: "progresion[n=4]"}
   - en: "nivel 2"
     eleccion: "PG: valor establecido (4) en vez de tirar el d6"

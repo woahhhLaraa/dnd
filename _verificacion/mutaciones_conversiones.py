@@ -6,19 +6,40 @@ demuestra nada. Este script copia la base a un directorio desechable, la
 corrompe de una forma distinta cada vez, y comprueba que `validar.py`
 **salta**.
 
-Aquí los controles negativos pesan tanto como las detecciones, y por una
-razón medida: la primera versión de este chequeo dio **cinco falsos
-positivos**, todos por el parser de números y no por la aritmética. La base
-mezcla **tres notaciones decimales distintas** en conversiones correctas
-—«1,5» (castellana), «0.9» (inglesa) y «1’5» (apóstrofe tipográfico)— y
-además usa el punto como separador de millar («5.000 pies»). Un parser que
-asuma una sola notación convierte datos buenos en errores.
+── El chequeo cambió de sentido el 2026-09-02, y esta suite con él ────────
+Antes comprobaba que las 543 equivalencias «6 m / 20 pies» del texto
+estuvieran **bien calculadas**. Lo estaban. El problema era otro: **el manual
+castellano no imprime ni una sola unidad imperial** —nueve lectores sobre 23
+páginas—, así que las había añadido la base. Se borraron (fase 2 del PLAN_19)
+y el chequeo pasa a impedir que vuelvan.
 
-La aritmética tiene su propia trampa, ya documentada en `ESTADO_13p.md`: el
-factor correcto es el **de juego** (5 pies = 1,5 m), no el físico (3,28084).
-Medido sobre las 548 conversiones a pies de la base, el de juego deja 539
-exactas y el físico solo 313. Elegir mal el factor no da un chequeo estricto:
-da cientos de falsos positivos.
+Eso parte la suite en dos mitades, y la segunda hereda todo lo que la primera
+había aprendido:
+
+  · TEXTO — cualquier conversión en `descripcion` o `alcance.texto` es error,
+    esté bien o mal calculada. Aquí las viejas mutaciones siguen sirviendo,
+    pero por otra razón: ya no saltan por ser falsas, saltan por existir. Y
+    los que eran controles NEGATIVOS —conversiones correctas— pasan a ser
+    detecciones: una conversión correcta también sobra.
+
+  · DERIVADOS — `alcance.metros`/`pies`/`casillas` NO se borraron: no son
+    texto que finja ser del manual, son dato, y `verificar_foundry.py`
+    contrasta `alcance.pies` contra el SRD número contra número. Su aritmética
+    sigue comprobándose, así que **aquí se muda todo lo que esta suite sabía**
+    y que si no se habría perdido al vaciar el texto:
+
+      – la base mezcla **tres notaciones decimales** en datos correctos:
+        «1,5» (castellana), «0.9» (inglesa) y «1’5» (apóstrofe tipográfico), y
+        además el punto de millar («5.000»). Un parser que asuma una sola
+        convierte datos buenos en errores: así salieron cinco falsos positivos
+        en la primera versión;
+      – el factor es el **de juego** (5 pies = 1,5 m), no el físico (3,28084).
+        Medido sobre las 548 conversiones de entonces: el de juego dejaba 539
+        exactas y el físico solo 313. Elegir mal el factor no da un chequeo
+        estricto, da cientos de falsos positivos;
+      – la tolerancia es **absoluta** porque el redondeo legítimo que más se
+        desvía («0,9 mi» por 0,93) lo hace un 3,4 % relativo, más que «30 m /
+        98 pies», que es un defecto.
 
     python3 _verificacion/mutaciones_conversiones.py
 """
@@ -31,6 +52,12 @@ import tempfile
 
 BASE = pathlib.Path(__file__).resolve().parent.parent
 
+# Qué chequeo de `validar.py` cubre esta suite. Lo lee `censo.py` (bloque A
+# del Plan 18) para contar qué chequeos tienen red y cuáles no; la promesa no
+# es gratis: el censo exige que la suite mencione la ETIQUETA que ese chequeo
+# imprime, así que no se puede declarar cobertura que no se ejerce.
+CHEQUEOS = ("validar_conversiones",)
+
 
 def _hechizo(raiz, nombre, campo, fn):
     p = raiz / "hechizos.json"
@@ -41,7 +68,20 @@ def _hechizo(raiz, nombre, campo, fn):
                  encoding="utf-8")
 
 
-# ── Mutaciones que DEBEN saltar ───────────────────────────────────────────
+# ── Helper para mutar los campos DERIVADOS de `alcance` ───────────────────
+def _alcance(raiz, nombre, campo, valor):
+    import json
+    p = raiz / "hechizos.json"
+    d = json.loads(p.read_text(encoding="utf-8"))
+    h = next(x for x in d["hechizos"] if x["nombre"] == nombre)
+    h.setdefault("alcance", {})[campo] = valor
+    p.write_text(json.dumps(d, ensure_ascii=False, indent=1) + "\n",
+                 encoding="utf-8")
+
+
+# ══ TEXTO · ninguna conversión vuelve a entrar ════════════════════════════
+# Todas saltan por EXISTIR, no por ser falsas. Por eso están aquí también las
+# que antes eran controles negativos: una conversión correcta sobra igual.
 
 def m_nube_de_dagas_reintroducida(r):
     """El defecto original, tal cual: 1,5 m convertidos a 10 pies."""
@@ -51,117 +91,153 @@ def m_nube_de_dagas_reintroducida(r):
     return "«1,5 m / 10 pies» reintroducido en Nube de dagas (el defecto original)"
 
 
-def m_pies_con_factor_fisico(r):
-    """El error de convención: convertir con 3,28084 en vez de 5/1,5.
+def m_conversion_correcta_tambien_sobra(r):
+    """La que antes era un control negativo. **Este es el cambio de sentido.**"""
+    _hechizo(r, "Bola de fuego", "descripcion",
+             lambda s: s + " Un radio de 1,5 m / 5 pies.")
+    return ("una conversión CORRECTA («1,5 m / 5 pies»): antes era un control "
+            "negativo y ahora es una detección — el manual no la imprime")
 
-    Es el fallo más probable de quien añada una conversión a mano, porque
-    3,28084 es el factor «correcto» fuera del juego.
-    """
+
+def m_conversion_en_alcance_texto(r):
+    _hechizo(r, "Bola de fuego", "descripcion", lambda s: s)   # no-op
+    _alcance(r, "Bola de fuego", "texto", "45 m / 150 f / 30 cas")
+    return ("la forma vieja de `alcance.texto` («45 m / 150 f / 30 cas») "
+            "reintroducida: es el campo del que se borraron 222")
+
+
+def m_pies_con_factor_fisico(r):
     _hechizo(r, "Bola de fuego", "descripcion",
              lambda s: s + " El fuego se extiende 30 m / 98 pies.")
     return "conversión con el factor físico (30 m → 98 pies en vez de 100)"
 
 
-def m_orden_de_magnitud(r):
+def m_millas_en_prosa(r):
     _hechizo(r, "Bola de fuego", "descripcion",
-             lambda s: s + " Alcanza 6 m / 200 pies.")
-    return "conversión con un orden de magnitud de más (6 m → 200 pies)"
+             lambda s: s + " Se percibe a 1,5 km / 0,9 mi.")
+    return "conversión a millas en la prosa, con su redondeo legítimo y todo"
 
 
-def m_unidad_equivocada(r):
-    """*Crecimiento vegetal* decía «0,46 yardas» donde eran millas."""
-    _hechizo(r, "Bola de fuego", "descripcion",
-             lambda s: s + " Cubre 1 km / 0,6 yardas.")
-    return "unidad equivocada (1 km → «0,6 yardas», que son millas)"
+# ══ DERIVADOS · la aritmética que NO se borró ═════════════════════════════
+
+def d_pies_con_factor_fisico(r):
+    """El error más probable de quien recalcule a mano: 3,28084 en vez de 5/1,5."""
+    _alcance(r, "Bola de fuego", "pies", "98")
+    return "`alcance.pies` con el factor físico (36 m → 98 en vez de 120)"
 
 
-def m_casillas_mal(r):
-    _hechizo(r, "Bola de fuego", "descripcion",
-             lambda s: s + " Un radio de 9 m / 12 cas.")
-    return "casillas mal contadas (9 m son 6 casillas, no 12)"
+def d_orden_de_magnitud(r):
+    _alcance(r, "Bola de fuego", "pies", "1200")
+    return "`alcance.pies` con un orden de magnitud de más"
 
 
-def m_centimetros_mal(r):
-    """El caso de Disco flotante de Tenser: 90 cm declarados como 1 pie."""
-    _hechizo(r, "Bola de fuego", "descripcion",
-             lambda s: s + " Un grosor de 90 cm / 1 pie.")
-    return "centímetros mal convertidos (90 cm son 3 pies, no 1)"
+def d_casillas_mal(r):
+    _alcance(r, "Bola de fuego", "casillas", "48")
+    return "`alcance.casillas` mal contadas (36 m son 24 casillas, no 48)"
+
+
+def d_metros_movidos(r):
+    """Si `metros` cambia y los derivados no, dejan de cuadrar: es el modo de
+    fallo del dato derivado — se corrige la fuente y las copias se quedan."""
+    _alcance(r, "Bola de fuego", "metros", "18")
+    return ("se corrige `alcance.metros` a 18 y nadie recalcula `pies`: el dato "
+            "derivado se queda con el valor viejo")
 
 
 DEBEN_SALTAR = [
-    m_nube_de_dagas_reintroducida, m_pies_con_factor_fisico,
-    m_orden_de_magnitud, m_unidad_equivocada, m_casillas_mal,
-    m_centimetros_mal,
+    m_nube_de_dagas_reintroducida, m_conversion_correcta_tambien_sobra,
+    m_conversion_en_alcance_texto, m_pies_con_factor_fisico, m_millas_en_prosa,
+    d_pies_con_factor_fisico, d_orden_de_magnitud, d_casillas_mal,
+    d_metros_movidos,
 ]
 
 
 # ── Controles negativos: NO deben saltar ──────────────────────────────────
+# Las tres notaciones decimales y el punto de millar se mudan del texto a los
+# campos derivados, que es donde ahora vive la aritmética. Sin esto, vaciar el
+# texto habría tirado a la basura lo que costó cinco falsos positivos aprender.
 
 def n_notacion_castellana(r):
-    _hechizo(r, "Bola de fuego", "descripcion",
-             lambda s: s + " Un radio de 1,5 m / 5 pies.")
-    return "notación castellana «1,5 m / 5 pies» (correcta)"
+    _alcance(r, "Clarividencia", "metros", "1500")
+    _alcance(r, "Clarividencia", "pies", "5000")
+    _alcance(r, "Clarividencia", "casillas", "1000")
+    return "derivados correctos con notación simple (1500 m → 5000 pies)"
 
 
 def n_notacion_inglesa(r):
-    """«0.9» con punto decimal: la base lo usa en Tormenta de la venganza."""
-    _hechizo(r, "Bola de fuego", "descripcion",
-             lambda s: s + " Un alcance de 1,5 km / 0.9 mi.")
-    return "notación inglesa «0.9 mi» (correcta; leerla como 9 era el falso positivo)"
+    """Punto decimal: la base lo usa en «0.9 mi» de Tormenta de la venganza.
+
+    Ojo con el valor: *Bola de fuego* son 45 m / 150 pies, así que el control
+    tiene que escribir 45 en notación inglesa, no otro número. La primera
+    versión ponía «36.0» y daba un falso positivo que hablaba de la mutación,
+    no del chequeo.
+    """
+    _alcance(r, "Bola de fuego", "metros", "45.0")
+    return "notación inglesa «45.0» en `metros` (leerla como 450 era el falso positivo)"
 
 
 def n_apostrofe_tipografico(r):
-    """«1’5 km»: la base lo usa en el alcance de Clarividencia."""
-    _hechizo(r, "Bola de fuego", "descripcion",
-             lambda s: s + " Un alcance de 1’5 km / 0,9 mi.")
-    return "apóstrofe decimal «1’5 km» (correcto; leerlo como 5 km era el falso positivo)"
+    """«1’5»: la base lo usa en el alcance de Clarividencia."""
+    _alcance(r, "Bola de fuego", "metros", "1’5")
+    _alcance(r, "Bola de fuego", "pies", "5")
+    _alcance(r, "Bola de fuego", "casillas", "1")
+    return "apóstrofe decimal «1’5» (leerlo como 15 era el falso positivo)"
 
 
 def n_punto_de_millar(r):
-    """«5.000 pies»: la base lo usa en Alarma. Era el otro falso positivo."""
-    _hechizo(r, "Bola de fuego", "descripcion",
-             lambda s: s + " Se oye a 1,5 km / 5.000 pies.")
-    return "punto de millar «5.000 pies» (correcto; leerlo como 5,0 era el falso positivo)"
+    """«5.000»: la base lo usa en Alarma. Era el otro falso positivo."""
+    _alcance(r, "Bola de fuego", "metros", "1500")
+    _alcance(r, "Bola de fuego", "pies", "5.000")
+    _alcance(r, "Bola de fuego", "casillas", "1000")
+    return "punto de millar «5.000» en `pies` (leerlo como 5,0 era el falso positivo)"
 
 
-def n_redondeo_a_la_baja(r):
-    """«1,5 km / 0,9 mi»: el valor exacto es 0,93 y la base escribe 0,9.
+def n_redondeo_de_valor_no_multiplo(r):
+    """El redondeo que la tolerancia SÍ debe admitir, y por qué hace falta.
 
-    Es el redondeo legítimo que más se desvía de toda la base (3,4 % relativo,
-    0,032 absoluto) y aparece en cuatro conjuros reales — Clarividencia,
-    Tsunami, Tormenta de la venganza y Tormenta de meteoritos. Es la razón de
-    que la tolerancia sea **absoluta**: en relativo, este dato bueno se desvía
-    más que «30 m / 98 pies», que es un defecto.
+    Medido el 2026-09-02: **los 436 pares derivados de la base son exactos**,
+    desviación 0,0000. Con metros múltiplos de 1,5 el factor de juego no deja
+    resto nunca, así que hoy la tolerancia no protege ningún dato real.
+
+    Pero la admite el día que entre un valor que no sea múltiplo —el volumen de
+    *Cofre oculto de Leomund* son 0,34 m—, y entonces el redondeo es legítimo:
+    0,34 × 10/3 = 1,13 pies, que se escribe «1». La primera versión de este
+    control usaba «119 pies por 120», una desviación de un entero: eso NO es
+    redondeo, es exactamente el defecto que la tolerancia absoluta separa —«el
+    menor defecto real desvía 1 entero»—. El control estaba mal, no el chequeo.
     """
-    _hechizo(r, "Bola de fuego", "descripcion",
-             lambda s: s + " Se percibe a 1,5 km / 0,9 mi.")
-    return "redondeo legítimo «0,9 mi» por 0,93 (la desviación mayor de la base)"
-
-
-def n_pulgada_redondeada(r):
-    """«2,5 cm / 1 pulgada»: el valor exacto es 0,98. Lo usan cuatro conjuros."""
-    _hechizo(r, "Bola de fuego", "descripcion",
-             lambda s: s + " No atraviesa 2,5 cm / 1 pulgada de metal.")
-    return "redondeo legítimo «1 pulgada» por 0,98"
+    _alcance(r, "Bola de fuego", "metros", "0,34")
+    _alcance(r, "Bola de fuego", "pies", "1")
+    _alcance(r, "Bola de fuego", "casillas", "0")
+    return ("redondeo legítimo de un valor no múltiplo de 1,5 (0,34 m → «1» "
+            "pie, exacto 1,13)")
 
 
 def n_nota_verificacion_cita_el_valor_malo(r):
-    """Una nota de procedencia que cita la conversión corrupta que se corrigió.
+    """Una nota de procedencia que cita la conversión que se borró.
 
     Es el modo de fallo que ya arruinó la primera versión de `validar_dados()`:
     un chequeo probado solo en la dirección de detectar acaba prohibiendo
-    documentar lo que corrigió.
+    documentar lo que corrigió. Y ahora importa el doble: el borrado del
+    2026-09-02 dejó notas que citan a propósito el texto viejo.
     """
     _hechizo(r, "Nube de dagas", "_nota_verificacion",
              lambda s: "decía «cubo de 1,5 m / 10 pies»; la página no trae "
-                       "conversión y 1,5 m son 5 pies. Corregido.")
-    return "_nota_verificacion citando la conversión «1,5 m / 10 pies» ya corregida"
+                       "conversión y se borró el 2026-09-02.")
+    return "_nota_verificacion citando la conversión «1,5 m / 10 pies» ya borrada"
+
+
+def n_alcance_sin_cifra(r):
+    """«Toque» y «Lanzador» no tienen derivados que comprobar."""
+    _alcance(r, "Bola de fuego", "texto", "Toque")
+    return "un alcance sin cifra: no hay derivado que contrastar, y no pasa nada"
 
 
 NO_DEBEN_SALTAR = [
     n_notacion_castellana, n_notacion_inglesa, n_apostrofe_tipografico,
-    n_punto_de_millar, n_redondeo_a_la_baja, n_pulgada_redondeada,
+    n_punto_de_millar, n_redondeo_de_valor_no_multiplo,
     n_nota_verificacion_cita_el_valor_malo,
+    n_alcance_sin_cifra,
 ]
 
 

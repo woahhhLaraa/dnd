@@ -45,4 +45,10 @@ subclases:
       - {nivel: 3, nombre: "Manipular los elementos", desc: "Conoces el conjuro elementalismo. La Sabiduría es tu aptitud mágica para lanzarlo."}
       - {nivel: 6, nombre: "Explosión elemental", desc: "Acción de magia: gasta 2 puntos de concentración para que la energía elemental explote en una esfera de 6 m de radio a 36 m o menos, con un tipo de daño elegido (ácido, frío, fuego, relámpago o trueno). Las criaturas en la esfera hacen TdS de Destreza: sufren el resultado de tres tiradas de tu dado de Artes marciales si fallan, mitad si superan."}
       - {nivel: 11, nombre: "Paso de los elementos", desc: "Mientras Armonía con los elementos esté activa, obtienes también velocidad nadando y velocidad volando iguales a tu velocidad."}
-      - {nivel: 17, nombre: "Paradigma elemental", desc: "Mientras Armonía con los elementos esté activa: Golpes potenciados (una vez por turno, daño adicional igual al resultado de tu dado de Artes marciales del mismo tipo al acertar un ataque sin armas), Paso destructivo (al usar Paso del viento, tu velocidad aumenta 6 m hasta el final del turno, y cualquier criatura elegida sufre el resultado de tu dado de Artes marciales del tipo elegido al entrar en un espacio a 1,5 m o menos de ella, una vez por turno) y Resistencia al daño (resistencia a un tipo elemental a tu elección, cambiable al principio de cada uno de tus turnos)."}
+      - nivel: 17
+        nombre: "Paradigma elemental"
+        desc: "Mientras Armonía con los elementos esté activa: Golpes potenciados (una vez por turno, daño adicional igual al resultado de tu dado de Artes marciales del mismo tipo al acertar un ataque sin armas), Paso destructivo (al usar Paso del viento, tu velocidad aumenta 6 m hasta el final del turno, y cualquier criatura elegida sufre el resultado de tu dado de Artes marciales del tipo elegido al entrar en un espacio a 1,5 m o menos de ella, una vez por turno) y Resistencia al daño (resistencia a un tipo elemental a tu elección, cambiable al principio de cada uno de tus turnos)."
+        efectos:
+          - {objetivo: velocidad, op: conditional,
+             texto: "Paso destructivo: +6 m hasta el final del turno al usar Paso del viento, y solo mientras Armonía con los elementos esté activa",
+             pagina: {pdf: 157, libro: 155}}

@@ -15,7 +15,14 @@ respuestas: solo dice si la base tiene con qué responder.
 Uso: python3 cobertura.py [-v]
 """
 import json, sys, re, pathlib
+import informar as _I
 import yaml
+
+# Los marcadores de la tabla se preguntan a `calculo`, que los lee de
+# `reglas/subida_de_nivel.yaml`. Aquí estaban las tres cadenas escritas a mano
+# (auditoría del 2026-09-03). `calculo` no importa nada del proyecto, así que
+# no hay ciclo.
+from calculo import cargar, es_marcador_de
 
 B = pathlib.Path(__file__).parent
 VERBOSE = "-v" in sys.argv
@@ -23,12 +30,8 @@ VERBOSE = "-v" in sys.argv
 # Las 18 habilidades del juego. Es la única lista que este script da por
 # sabida, y solo para comprobar que lo que la base cita son habilidades
 # reales: no se usa para rellenar ningún dato de la ficha.
-HABILIDADES = {
-    "Acrobacias", "Atletismo", "Conocimiento arcano", "Engaño", "Historia",
-    "Interpretación", "Intimidación", "Investigación", "Juego de manos",
-    "Medicina", "Naturaleza", "Percepción", "Perspicacia", "Persuasión",
-    "Religión", "Sigilo", "Supervivencia", "Trato con animales",
-}
+HABILIDADES = {h if isinstance(h, str) else h.get("nombre")
+               for h in (cargar("reglas/habilidades.yaml") or {}).get("habilidades", [])}
 
 
 class Informe:
@@ -105,8 +108,7 @@ def inventario_equipo():
             for v in o:
                 walk(v)
 
-    for fn in ("armas.yaml", "armaduras.yaml", "herramientas.yaml", "aventureros.yaml",
-               "municion.yaml"):
+    for fn in sorted(p.name for p in (B / "equipo").glob("*.yaml")):
         d = cargar(f"equipo/{fn}")
         if d:
             walk(d)
@@ -323,7 +325,7 @@ def cobertura_trasfondos(inf, inv_equipo):
     lista = next((v for v in d.values() if isinstance(v, list)), [])
 
     dotes = set()
-    for fn in ("origen.yaml", "generales.yaml", "estilo_de_combate.yaml", "don_epico.yaml"):
+    for fn in sorted(p.name for p in (B / "dotes").glob("*.yaml")):
         dd = cargar(f"dotes/{fn}") or {}
         for v in dd.values():
             if isinstance(v, list):
@@ -461,9 +463,10 @@ def cobertura_subir_nivel(inf):
 
         for fila in d.get("progresion", []):
             for r in fila.get("rasgos", []):
-                if r == "Mejora de característica" or r.startswith("Subclase de"):
+                if (es_marcador_de("mejora_caracteristica_o_dote", r)
+                        or es_marcador_de("subclase", r)):
                     continue
-                if r == "Rasgo de subclase":
+                if es_marcador_de("rasgo_de_subclase", r):
                     if fila["n"] not in niveles_sub:
                         inf.hueco(b, clase,
                                   "la tabla concede un rasgo de subclase en un nivel que ninguna subclase cubre",
@@ -549,19 +552,34 @@ def main():
     print("═" * 70)
     print("COBERTURA — ¿puede la base responder a lo que la skill preguntará?")
     print("═" * 70)
-    cobertura_clases(inf, inv)
-    cobertura_especies(inf)
-    cobertura_trasfondos(inf, inv)
-    cobertura_reglas_generales(inf)
-    cobertura_subir_nivel(inf)
+    # ── El muro, bloque a bloque (fase 2 del PLAN_21) ───────────────────
+    # Los cinco bloques son independientes: que las especies no se puedan
+    # medir no dice nada sobre si las clases sí. Antes, el primero que
+    # reventara se llevaba los otros cuatro y el informe entero — y este
+    # script existe precisamente para enumerar huecos, así que perder cuatro
+    # quintas partes de la enumeración es perderlo casi todo.
+    rotos = []
+    for bloque, args in ((cobertura_clases, (inf, inv)),
+                         (cobertura_especies, (inf,)),
+                         (cobertura_trasfondos, (inf, inv)),
+                         (cobertura_reglas_generales, (inf,)),
+                         (cobertura_subir_nivel, (inf,))):
+        _v, fallo = _I.muro(bloque, *args)
+        if fallo:
+            rotos.append(str(fallo))
     total = inf.imprimir()
     print("\n" + "─" * 70)
+    for r in rotos:
+        print(f"❌ bloque sin medir · {r}")
+    if rotos:
+        print(f"   {len(rotos)} de 5 bloques no se han podido preguntar: lo "
+              f"verde de arriba no cubre lo que no se ha mirado.")
     if total:
         print(f"❌ {total} preguntas que la base NO puede responder.")
         print("   Cada una es un hueco que el LLM rellenaría con reglas de 2014.")
-    else:
+    elif not rotos:
         print("✅ La base responde a todas las preguntas simuladas.")
-    return 1 if total else 0
+    return 1 if (total or rotos) else 0
 
 
 if __name__ == "__main__":

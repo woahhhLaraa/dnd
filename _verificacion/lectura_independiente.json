@@ -1,0 +1,58 @@
+{
+ "_nota": "Fichas cuyo bloque `calculado` no lo sostiene ninguna derivación hecha a ciegas. El motor y el verificador pueden estar de acuerdo en equivocarse y nadie lo vería: es el límite que `ARQUITECTURA.md` §5 declara. Deuda enumerada, no permiso.",
+ "_como_se_salda": "una derivación del mandato «el calculista» (`PLAN_ESTRES.md`) escrita en `_verificacion/_aritmetica/`, que coincida con el motor; entonces la ficha gana su `_origen: agente-manual`. No se salda editando esta lista",
+ "_identidad": "nombre-de-la-ficha",
+ "_identidad_explicada": "el nombre del fichero en `personajes/`. Lo que cambia con el tiempo es si tiene derivación, no cómo se llama",
+ "_fecha": "2026-09-06",
+ "_ultima_poda": {
+  "fecha": "2026-09-06",
+  "saldados": [
+   "Brujo 1",
+   "Mago 20"
+  ]
+ },
+ "entradas": {
+  "aasimar_clerigo.yaml": "Clérigo 1",
+  "aerin_vellamora.yaml": "Brujo 5",
+  "draconido_hechicero.yaml": "Hechicero 1",
+  "draconido_hechicero_n4.yaml": "Hechicero 4",
+  "draconido_monje.yaml": "Monje 1",
+  "draconido_monje_n20.yaml": "Monje 20",
+  "elfo_paladin.yaml": "Paladín 1",
+  "enano_guerrero.yaml": "Guerrero 1",
+  "gnomo_mago.yaml": "Mago 1",
+  "humano_explorador.yaml": "Explorador 1",
+  "mago_quebradizo_n3.yaml": "Mago 3",
+  "mediano_picaro.yaml": "Pícaro 1",
+  "tiefling_bardo.yaml": "Bardo 1"
+ },
+ "elenco": [
+  "_ejemplo_aerin.yaml",
+  "aasimar_clerigo.yaml",
+  "aerin_vellamora.yaml",
+  "barbaro_berserker_n20.yaml",
+  "bardo_danza_n3.yaml",
+  "bardo_valor_n3.yaml",
+  "draconido_hechicero.yaml",
+  "draconido_hechicero_n3.yaml",
+  "draconido_hechicero_n4.yaml",
+  "draconido_monje.yaml",
+  "draconido_monje_n2.yaml",
+  "draconido_monje_n20.yaml",
+  "druida_luna_n3.yaml",
+  "elfo_paladin.yaml",
+  "enano_clerigo_n5.yaml",
+  "enano_guerrero.yaml",
+  "explorador_penumbra_n6.yaml",
+  "gnomo_mago.yaml",
+  "gnomo_mago_n20.yaml",
+  "goliat_druida.yaml",
+  "humano_explorador.yaml",
+  "mago_quebradizo_n3.yaml",
+  "mediano_picaro.yaml",
+  "monje_elementos_n20.yaml",
+  "orco_barbaro.yaml",
+  "paladin_gloria_n15.yaml",
+  "tiefling_bardo.yaml"
+ ]
+}

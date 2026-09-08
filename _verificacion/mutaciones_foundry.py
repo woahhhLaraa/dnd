@@ -37,6 +37,16 @@ def _json_hechizo(raiz, nombre, ruta, valor):
     p.write_text(json.dumps(d, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
 
 
+def _sust(raiz, rel, viejo, nuevo, cuenta=1):
+    """Sustitución textual. Para ficheros que se leen a mano —los glosarios—,
+    donde volver a volcarlos con `yaml.safe_dump` borraría los comentarios que
+    son la mitad del contenido."""
+    p = raiz / rel
+    t = p.read_text(encoding="utf-8")
+    assert viejo in t, f"la mutación no encaja en {rel}: {viejo[:70]!r}"
+    p.write_text(t.replace(viejo, nuevo, cuenta), encoding="utf-8")
+
+
 def _yaml_edit(raiz, rel, fn):
     p = raiz / rel
     d = yaml.safe_load(p.read_text(encoding="utf-8"))
@@ -262,6 +272,180 @@ def m_coste_material_ilegible(r):
     return "coste sin unidad («1000*»), sin `materiales` que lo descompongan"
 
 
+# ── `verificar_clases()`: el pack `classes24/class` ───────────────────────
+# Cada una toca una rama distinta del módulo nuevo. La cobaya es el Bárbaro
+# siempre que sirve (tres escalas y ninguna excepción declarada), y el Monje
+# donde hace falta una columna en pies o la celda de la excepción.
+
+def _clase(raiz, stem, fn):
+    _yaml_edit(raiz, f"clases/{stem}.yaml", fn)
+
+
+def m_dado_golpe_clase(r):
+    _clase(r, "barbaro", lambda d: d["atributos_basicos"].update(dado_golpe="d8"))
+    return "dado de golpe de una clase cambiado (Bárbaro: d12 -> d8)"
+
+
+def m_lanzador_clase(r):
+    """Rompe la biyección del vocabulario: `full` ya está atado a `completo`
+    por las otras clases lanzadoras, así que un Mago `medio` deja a `full`
+    apuntando a dos palabras nuestras."""
+    _clase(r, "mago", lambda d: d.update(lanzador="medio"))
+    return "tipo de lanzador de una clase cambiado (Mago: completo -> medio)"
+
+
+def m_oro_inicial_clase(r):
+    _clase(r, "barbaro",
+           lambda d: d["atributos_basicos"]["equipo_inicial"].update(b="50 po"))
+    return "oro inicial de una clase cambiado (Bárbaro: 75 po -> 50 po)"
+
+
+def m_oro_inicial_no_es_oro(r):
+    """La última opción de equipo deja de ser una cifra de oro, así que ya no
+    hay nada que contrastar con el `wealth` del SRD. Callar aquí sería perder
+    el chequeo sin que nadie lo note."""
+    _clase(r, "barbaro",
+           lambda d: d["atributos_basicos"]["equipo_inicial"].update(b="un hacha"))
+    return "última opción de equipo que ya no es oro (Bárbaro: '75 po' -> 'un hacha')"
+
+
+def m_escala_celda(r):
+    def f(d):
+        d["progresion"][0]["furias"] = 5
+    _clase(r, "barbaro", f)
+    return "una celda de escala cambiada (Bárbaro N1 furias: 2 -> 5)"
+
+
+def m_escala_celda_pies(r):
+    """La rama que compara en pies: nuestra columna va en metros y la escala
+    del SRD en `ft`, así que el error solo salta si la conversión se hace."""
+    def f(d):
+        d["progresion"][1]["mov_sin_armadura_m"] = 6
+    _clase(r, "monje", f)
+    return "celda de escala en pies cambiada (Monje N2 mov_sin_armadura_m: 3 -> 6 m)"
+
+
+def m_escala_columna_ausente(r):
+    def f(d):
+        for fila in d["progresion"]:
+            fila.pop("furias", None)
+    _clase(r, "barbaro", f)
+    return "columna que el SRD publica como escala, borrada de la progresión (Bárbaro `furias`)"
+
+
+def m_columna_sin_contrastar(r):
+    """Una columna nuestra que no la mira ni `verificar_srd.py` ni ninguna
+    escala del pack, y que nadie ha declarado en `_COLUMNA_SIN_ESCALA`."""
+    def f(d):
+        for fila in d["progresion"]:
+            fila["puntos_de_ira"] = 3
+    _clase(r, "barbaro", f)
+    return "columna nuestra nueva sin fuente externa ni declaración (Bárbaro `puntos_de_ira`)"
+
+
+def m_excepcion_escala_movida(r):
+    """La excepción declarada ampara el par examinado (nuestro 0, SRD 1), no
+    la celda entera. Si nuestro valor cambia, la venda tiene que caerse."""
+    def f(d):
+        d["progresion"][0]["puntos_concentracion"] = 3
+    _clase(r, "monje", f)
+    return "celda amparada por una excepción, movida (Monje N1 puntos_concentracion: 0 -> 3)"
+
+
+# ── `verificar_rasgos_clase()`: `classes24/*/class-features/` ─────────────
+
+def _rasgos(raiz, stem, fn):
+    _yaml_edit(raiz, f"clases/rasgos/{stem}.yaml", fn)
+
+
+def m_rasgo_de_nivel_borrado(r):
+    def f(d):
+        d["rasgos"] = [x for x in d["rasgos"] if x["nombre"] != "Sentir el peligro"]
+    _rasgos(r, "barbaro", f)
+    return "un rasgo de clase borrado (Bárbaro N2 «Sentir el peligro»)"
+
+
+def m_rasgo_de_nivel_movido(r):
+    """El defecto que más importa: el rasgo existe, pero en el nivel que no
+    es. Un contraste que solo contara rasgos por clase no lo vería."""
+    def f(d):
+        for x in d["rasgos"]:
+            if x["nombre"] == "Sentir el peligro":
+                x["nivel"] = 4
+    _rasgos(r, "barbaro", f)
+    return "un rasgo de clase movido de nivel (Bárbaro «Sentir el peligro»: N2 -> N4)"
+
+
+def m_rasgo_de_nivel_inventado(r):
+    def f(d):
+        d["rasgos"].append({"nivel": 2, "nombre": "Rugido intimidante",
+                            "desc": "Un rasgo que el manual no imprime."})
+    _rasgos(r, "barbaro", f)
+    return "un rasgo de clase de más (Bárbaro N2 «Rugido intimidante»)"
+
+
+def m_excepcion_de_rasgos_movida(r):
+    """Las excepciones de `_EXCEPCIONES_RASGOS` amparan el par examinado, no
+    el nivel: si nuestro lado cambia, la venda tiene que caerse."""
+    def f(d):
+        d["rasgos"] = [x for x in d["rasgos"] if x["nombre"] != "Desviar energía"]
+    _rasgos(r, "monje", f)
+    return "nivel amparado por una excepción, cambiado (Monje N13 «Desviar energía» borrado)"
+
+
+# ── `verificar_subclases()`: el puente de nombres propios ─────────────────
+# El glosario se escribe a mano, así que lo que hay que probar es que el
+# contraste que lo respalda MUERDE: si el puente se cruza o nuestros datos se
+# mueven, el módulo tiene que saltar.
+
+GLOSARIO_SUB = "_verificacion/glosario_subclases.yaml"
+
+
+def _subclase(raiz, stem, nombre, fn):
+    def edita(d):
+        for sc in d["subclases"]:
+            if sc["nombre"] == nombre:
+                fn(sc)
+    _yaml_edit(raiz, f"clases/subclases/{stem}.yaml", edita)
+
+
+def m_rasgo_de_subclase_borrado(r):
+    def f(sc):
+        sc["rasgos"] = [x for x in sc["rasgos"] if x["nivel"] != 6]
+    _subclase(r, "barbaro", "Senda del Berserker", f)
+    return "un rasgo de subclase borrado (Senda del Berserker, N6)"
+
+
+def m_rasgo_de_subclase_movido(r):
+    def f(sc):
+        for x in sc["rasgos"]:
+            if x["nivel"] == 6:
+                x["nivel"] = 10
+    _subclase(r, "barbaro", "Senda del Berserker", f)
+    return "un rasgo de subclase movido de nivel (Senda del Berserker: N6 -> N10)"
+
+
+def m_glosario_cruzado_de_subclase(r):
+    """El cruce que el perfil de niveles SÍ distingue: el Berserker concede un
+    rasgo en N3 y el Corazón Salvaje dos."""
+    _sust(r, GLOSARIO_SUB, '"Senda del Berserker": "Path of the Berserker"',
+          '"Senda del Berserker": null')
+    _sust(r, GLOSARIO_SUB, '"Senda del Corazón Salvaje": null',
+          '"Senda del Corazón Salvaje": "Path of the Berserker"')
+    return "el puente apunta a otra subclase de la misma clase (Berserker -> Corazón Salvaje)"
+
+
+def m_glosario_incompleto(r):
+    _sust(r, GLOSARIO_SUB, '  "Senda del Fanático": null\n', '')
+    return ("una subclase nuestra que el glosario no menciona: nadie ha "
+            "decidido si el SRD la publica")
+
+
+def m_glosario_huerfano(r):
+    _sust(r, GLOSARIO_SUB, '"Ladrón": "Thief"', '"Ladrón": null')
+    return "una subclase del pack que ninguna línea del glosario reclama (Thief)"
+
+
 MUTACIONES = [
     m_coste_material_borrado, m_coste_material_cifra,
     m_coste_material_unidad, m_coste_material_ilegible,
@@ -276,6 +460,15 @@ MUTACIONES = [
     m_dote_trasfondo_no_origen, m_herramienta_trasfondo,
     m_caracteristica_herramienta, m_precio_herramienta,
     m_alcance_conjuro, m_duracion_conjuro,
+    m_dado_golpe_clase, m_lanzador_clase,
+    m_oro_inicial_clase, m_oro_inicial_no_es_oro,
+    m_escala_celda, m_escala_celda_pies, m_escala_columna_ausente,
+    m_columna_sin_contrastar, m_excepcion_escala_movida,
+    m_rasgo_de_nivel_borrado, m_rasgo_de_nivel_movido,
+    m_rasgo_de_nivel_inventado, m_excepcion_de_rasgos_movida,
+    m_rasgo_de_subclase_borrado, m_rasgo_de_subclase_movido,
+    m_glosario_cruzado_de_subclase, m_glosario_incompleto,
+    m_glosario_huerfano,
 ]
 
 

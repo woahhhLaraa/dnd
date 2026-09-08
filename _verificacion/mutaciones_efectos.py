@@ -39,6 +39,12 @@ import sys
 import tempfile
 
 BASE = pathlib.Path(__file__).resolve().parent.parent
+
+# Qué chequeo de `validar.py` cubre esta suite. Lo lee `censo.py` (bloque A
+# del Plan 18) para contar qué chequeos tienen red y cuáles no; la promesa no
+# es gratis: el censo exige que la suite mencione la ETIQUETA que ese chequeo
+# imprime, así que no se puede declarar cobertura que no se ejerce.
+CHEQUEOS = ("validar_efectos", "validar_vocabulario_consumido")
 MONJE = "clases/rasgos/monje.yaml"
 EFECTO_MONJE = ('- {objetivo: ca, op: base, formula: "10 + mod_des + mod_sab", '
                 'requiere: [sin_armadura, sin_escudo], pagina: {pdf: 151, libro: 149}}')
@@ -142,11 +148,21 @@ def n_condicion_mas_estricta(r):
 
 
 def n_prosa_sin_promesa(r):
+    # Actualizado por el bloque D (2026-09-02). Antes bastaba con que la prosa
+    # dejara de prometer: sin promesa no había deuda, y el rasgo podía quedarse
+    # mudo. Desde que la puerta está cerrada, **callarse ya no es una opción**:
+    # un rasgo sin `efectos:` tiene que decir `no_automatizado` con su motivo.
+    # Así que el control conserva lo que probaba —que la mitad AUSENCIA no da
+    # falsos positivos cuando la prosa no promete nada— y añade la respuesta
+    # que la regla nueva exige. Que esta mutación empezara a saltar al cerrar
+    # el bloque D es la señal de que la puerta cerró de verdad.
     _sust(r, MONJE, "Mientras no lleves armadura ni portes un escudo, tu clase de armadura base es",
           "Mientras no lleves armadura ni portes un escudo, tu clase de armadura vale")
-    _muta_monje(r, "    efectos:\n      " + EFECTO_MONJE + "\n", "")
-    return ("prosa que ya NO promete «CA base» y sin efecto: sin promesa no hay "
-            "deuda (control del falso positivo de la mitad AUSENCIA)")
+    _muta_monje(r, "    efectos:\n      " + EFECTO_MONJE + "\n",
+                '    no_automatizado: "su texto ya no promete una CA base"\n')
+    return ("prosa que ya NO promete «CA base», sin efecto y declarando "
+            "`no_automatizado`: sin promesa no hay deuda, pero sí hay que "
+            "decirlo (control del falso positivo de la mitad AUSENCIA)")
 
 
 def n_efecto_extra_bien_formado(r):
@@ -164,13 +180,22 @@ F_DEBEN = [f_objetivo_inventado, f_operacion_inventada, f_condicion_inventada,
            f_variable_inventada, f_sin_pagina, f_pagina_no_numerica,
            f_sintaxis_peligrosa, f_ciclo]
 def a_efecto_en_fichero_no_recorrido(r):
-    p = r / "dotes/origen.yaml"
+    # Actualizado por C1 (Plan 17, 2026-08-31). La mutación original ponía el
+    # efecto en `dotes/origen.yaml`, que la tupla `_ORIGENES` no recorría.
+    # Desde C1 el motor DESCUBRE sus fuentes y `dotes/` sí se recorre, así que
+    # allí el efecto ya no es huérfano — la premisa de la mutación desapareció
+    # porque se arregló la causa.
+    #
+    # La garantía que este caso protege sigue siendo necesaria y no ha
+    # cambiado: un `efectos:` en un fichero que NADIE recorre tiene que
+    # saltar. Se muda a `equipo/armas.yaml`, que no es fuente de efectos ni
+    # está bajo los directorios de regla que `origenes()` clasifica.
+    p = r / "equipo/armas.yaml"
     t = p.read_text(encoding="utf-8")
-    i = t.index("\n", t.index("descripcion:")) + 1
-    p.write_text(t[:i] + "    efectos:\n      - {objetivo: ca, op: add, "
-                 'formula: "1", pagina: {pdf: 1, libro: 1}}\n' + t[i:],
+    p.write_text(t + "\nefectos:\n  - {objetivo: ca, op: add, "
+                 'formula: "1", pagina: {pdf: 1, libro: 1}}\n',
                  encoding="utf-8")
-    return ("un efecto en `dotes/origen.yaml`, que `_ORIGENES` no recorre: "
+    return ("un efecto en `equipo/armas.yaml`, que ninguna fuente recorre: "
             "existiría en el YAML y no existiría para el motor")
 
 
@@ -221,6 +246,201 @@ def n_columna_de_otro_nivel(r):
     _sust(r, "clases/monje.yaml", "mov_sin_armadura_m: 9", "mov_sin_armadura_m: 10")
     return ("cambiar el valor del nivel 18, que ninguna ficha alcanza: el motor "
             "no lo lee y no hay nada que romper")
+
+
+
+
+# ══ TOPE · el `modifica_tope` del bloque C ════════════════════════════════
+# «Maestro en armaduras medias» cambia el «(máx. 2)» que la armadura media
+# impone al modificador de Destreza. Es el único rasgo de la base que lo hace,
+# y por eso es el que más fácil sería romper sin enterarse: ninguna de las 17
+# fichas lo toma, así que el barrido no lo toca. Se comprueba con un personaje
+# sintético, construido aquí mismo, y se exige lo que el manual dice — no que
+# el motor «no reviente».
+
+_GUION_CA = """
+import sys
+sys.path.insert(0, '.')
+import efectos as E
+base = {'especie': {'ref': 'especies/especies.yaml#Humano'}, 'nivel_total': 4,
+        'clases': [{'clase': 'Guerrero', 'nivel': 4}], 'equipo': [], 'dotes': []}
+mods = {'mod_fue': 2, 'mod_con': 2, 'mod_int': 0, 'mod_sab': 1, 'mod_car': 0}
+def ca(armadura, dote, des):
+    f = dict(base, equipo=[{'ref': armadura}],
+             dotes=([{'ref': 'dotes/generales.yaml#Maestro en armaduras medias'}]
+                    if dote else []))
+    return E.calcular_de_ficha(f, dict(mods, mod_des=des), 2, 30)['ca']
+MEDIA = 'equipo/armaduras.yaml#Cota de escamas'
+LIGERA = 'equipo/armaduras.yaml#Armadura de cuero tachonado'
+try:
+    print(','.join(str(x) for x in (
+        ca(MEDIA, False, 3), ca(MEDIA, True, 3),      # Des 16: 16 -> 17
+        ca(MEDIA, False, 2), ca(MEDIA, True, 2),      # Des 14: sin cambio
+        ca(LIGERA, False, 3), ca(LIGERA, True, 3))))  # ligera: sin cambio
+except Exception as e:
+    print('ERROR:' + type(e).__name__)
+"""
+
+_CA_ESPERADA = "16,17,16,16,15,15"
+
+
+def _ca_del_sintetico(raiz):
+    r = subprocess.run([sys.executable, "-c", _GUION_CA], cwd=raiz,
+                       capture_output=True, text=True)
+    return (r.stdout.strip().splitlines() or [r.stderr.strip()[-120:]])[-1]
+
+
+def t_tope_no_es_variable(r):
+    _sust(r, "dotes/generales.yaml", "op: modifica_tope, tope: mod_des",
+          "op: modifica_tope, tope: mod_suerte")
+    return "`modifica_tope` sobre `mod_suerte`, que no es variable declarada"
+
+
+def t_tope_sin_requiere(r):
+    _sust(r, "dotes/generales.yaml",
+          'formula: "3",\n         requiere: [con_armadura_media], pagina: {pdf: 208, libro: 206}',
+          'formula: "3", pagina: {pdf: 208, libro: 206}')
+    return ("`modifica_tope` sin `requiere`: un tope sin condición cambiaría la "
+            "CA de cualquier armadura, y el manual lo condiciona a la media")
+
+
+def t_tope_sin_formula(r):
+    _sust(r, "dotes/generales.yaml",
+          'op: modifica_tope, tope: mod_des, formula: "3"',
+          'op: modifica_tope, tope: mod_des, texto: "sube el tope"')
+    return "`modifica_tope` sin `formula`: no dice cuál es el tope nuevo"
+
+
+def t_armadura_sin_tope(r):
+    """El caso que de verdad importa: que NO se aplique en silencio."""
+    p = r / "equipo/armaduras.yaml"
+    txt = p.read_text(encoding="utf-8")
+    p.write_text(txt.replace(" (máx. 2)", ""), encoding="utf-8")
+    return ("las armaduras medias pierden su «(máx. 2)»: el tope se quedaría "
+            "sin nada que modificar, y aplicarlo a nada y seguir en verde sería "
+            "el fallo silencioso que este proyecto persigue")
+
+
+# ══ PUERTA · todo rasgo dice si toca algo (bloque D) ══════════════════════
+# El chequeo que cierra la puerta: o `efectos:`, o `no_automatizado:` con su
+# motivo. Los 480 que todavía no dicen nada van enumerados en
+# `_verificacion/rasgos_sin_declarar.json`, y esa lista solo puede bajar.
+
+_RASGO_NUEVO = ('  - nombre: "Reflejos de sombra"\n    nivel: 1\n'
+                '    pagina: {pdf: 169, libro: 167}\n'
+                '    desc: "Texto de prueba."\n')
+
+
+def d_rasgo_nuevo_mudo(r):
+    _sust(r, "clases/rasgos/picaro.yaml", "rasgos:\n", "rasgos:\n" + _RASGO_NUEVO)
+    return ("un rasgo nuevo que no dice si toca alguna variable calculable: "
+            "ni `efectos:` ni `no_automatizado:`, y no está en la lista")
+
+
+def d_no_automatizado_sin_motivo(r):
+    _sust(r, "trasfondos/trasfondos.yaml",
+          'no_automatizado: "el trasfondo no tiene texto de rasgo',
+          'no_automatizado: true  # "el trasfondo no tiene texto de rasgo',
+          )
+    return ("`no_automatizado: true` pelado: es una firma en blanco, dice «lo "
+            "miramos» sin decir qué se miró")
+
+
+def d_lista_perdida(r):
+    (r / "_verificacion/rasgos_sin_declarar.json").unlink()
+    return ("desaparece `rasgos_sin_declarar.json`: sin él no se distingue un "
+            "rasgo nuevo sin declarar de los 480 conocidos")
+
+
+def d_rasgo_sacado_de_la_lista(r):
+    p = r / "_verificacion/rasgos_sin_declarar.json"
+    import json as _j
+    d = _j.loads(p.read_text(encoding="utf-8"))
+    # `entradas`, un diccionario `id → frase`, desde la fase 1 del PLAN_21:
+    # antes era `rasgos`, una lista de ids. La forma la fija ahora `deuda.py`
+    # para los cinco ficheros, en vez de una por fichero.
+    d["entradas"] = {k: v for k, v in d["entradas"].items()
+                     if "Ataque temerario" not in k}
+    p.write_text(_j.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
+    return ("se borra «Ataque temerario» de la lista sin declararle nada: la "
+            "deuda no se salda tachándola, se salda declarándola")
+
+
+def n_rasgo_nuevo_declarado(r):
+    _sust(r, "clases/rasgos/picaro.yaml", "rasgos:\n",
+          "rasgos:\n" + _RASGO_NUEVO.rstrip("\n")
+          + '\n    no_automatizado: "no toca CA, PG máximos ni velocidad"\n')
+    return ("el MISMO rasgo nuevo, pero declarando `no_automatizado` con su "
+            "motivo: esa es la respuesta legítima que el bloque D quería")
+
+
+def n_rasgo_nuevo_con_efecto(r):
+    _sust(r, "clases/rasgos/picaro.yaml", "rasgos:\n",
+          "rasgos:\n" + _RASGO_NUEVO.rstrip("\n")
+          + '\n    efectos:\n      - {objetivo: ca, op: add, formula: "1",\n'
+            '         pagina: {pdf: 169, libro: 167}}\n')
+    return "el mismo rasgo nuevo, pero declarando un efecto bien formado"
+
+
+# ══ Fase 4 · vocabularios cerrados sin consumidor exhaustivo ══════════════
+# El censo comprueba **base → código**: que ninguna unidad de la base se quede
+# sin chequeo. A esto le faltaba la vuelta, **código → base**: que ningún
+# término de un vocabulario cerrado se quede sin nadie que lo consuma.
+#
+# Medido el 2026-09-06, ANTES de escribir los consumidores: las cinco
+# mutaciones de aquí abajo pasaban en verde. Se podía añadir una condición,
+# una operación o una fuente de valor a `reglas/efectos.yaml` y `validar.py`
+# seguía diciendo «0 errores» — y el efecto que la usara no se habría aplicado,
+# en silencio.
+
+def v_condicion_sin_decidir(r):
+    p = r / "reglas/efectos.yaml"
+    t = p.read_text(encoding="utf-8")
+    i = t.index("\ncondiciones:")
+    j = t.index("\n", i + 1) + 1
+    p.write_text(t[:j] + '  con_montura:\n    desc: "va montado"\n' + t[j:],
+                 encoding="utf-8")
+    return ("una condición NUEVA que no dice cómo se decide: "
+            "`estado_de_equipo()` no la devolvería y su efecto no aplicaría nunca")
+
+
+def v_condicion_de_grupo_inexistente(r):
+    _sust(r, "reglas/efectos.yaml", "    grupo: armaduras_pesadas",
+          "    grupo: armaduras_exoticas")
+    return "una condición que se decide por un grupo que no existe en `armaduras.yaml`"
+
+
+def v_operacion_sin_agregar(r):
+    _sust(r, "reglas/efectos.yaml",
+          "operaciones: [base, add, mul, min, max, set, conditional, modifica_tope]",
+          "operaciones: [base, add, mul, min, max, set, conditional, modifica_tope, divide]")
+    return ("una operación NUEVA que no está ni en `orden_de_agregacion` ni en "
+            "`no_se_agregan`")
+
+
+def v_operacion_fuera_del_orden(r):
+    _sust(r, "reglas/efectos.yaml",
+          '  - {op: set, hace: "si hay alguno, gana sobre todo lo anterior"}\n', "")
+    return "una operación declarada que desaparece de `orden_de_agregacion`"
+
+
+def v_fuente_de_valor_sin_lector(r):
+    _sust(r, "reglas/efectos.yaml", "fuentes_de_valor: [formula, columna]",
+          "fuentes_de_valor: [formula, columna, tabla_externa]")
+    return "una fuente de valor NUEVA que ningún lector sabe leer"
+
+
+def n_v_orden_reordenado(r):
+    """CONTROL NEGATIVO: mover `mul` detrás de `min` es una decisión de regla
+    legítima —cambia el resultado, y por eso el orden vive en la base—. Lo que
+    no puede pasar es que un término se quede sin consumidor."""
+    _sust(r, "reglas/efectos.yaml",
+          '  - {op: mul, hace: "se multiplican todos, sobre (base + Σ add)"}\n', "")
+    _sust(r, "reglas/efectos.yaml",
+          '  - {op: set, hace: "si hay alguno, gana sobre todo lo anterior"}',
+          '  - {op: mul, hace: "se multiplican todos, sobre (base + Σ add)"}\n'
+          '  - {op: set, hace: "si hay alguno, gana sobre todo lo anterior"}')
+    return "el orden de agregación reordenado, con todas las operaciones dentro"
 
 
 def _falla_por(raiz, etiqueta="efectos"):
@@ -312,6 +532,20 @@ def main():
         return 1
     print(" ✅ control · la base intacta pasa el chequeo de efectos")
 
+    # Y los seis números del personaje sintético del bloque TOPE quedan
+    # clavados: si cambian sin que nadie lo quiera, se ve aquí y no en una
+    # ficha de alguien. Es la CA de un guerrero con armadura media, con y sin
+    # «Maestro en armaduras medias», a Destreza 16 y 14, más el control de
+    # armadura ligera.
+    real = _ca_del_sintetico(BASE)
+    if real != _CA_ESPERADA:
+        print(f"✗ CONTROL: la CA del personaje sintético es {real!r} y se "
+              f"esperaba {_CA_ESPERADA!r} (Des16 media sin/con dote, Des14 "
+              f"media sin/con, ligera sin/con)")
+        return 1
+    print(f" ✅ control · el `modifica_tope` da {real} — el +1 aparece solo con "
+          f"armadura media y Destreza 16+")
+
     ok = total = 0
     for titulo, deben, no_deben, prueba in (
             ("FORMA · efectos mal escritos", F_DEBEN, [],
@@ -322,6 +556,23 @@ def main():
              [f_columna_inexistente, f_columna_y_formula,
               f_columna_no_numerica, f_columna_que_desaparece], [],
              lambda r: _falla_por(r)[0]),
+            ("TOPE · el `modifica_tope` de «Maestro en armaduras medias»",
+             [t_tope_no_es_variable, t_tope_sin_requiere, t_tope_sin_formula], [],
+             lambda r: _falla_por(r)[0]),
+            ("TOPE · y que NO se aplique en silencio",
+             [t_armadura_sin_tope], [],
+             lambda r: _ca_del_sintetico(r).startswith("ERROR:")),
+            ("PUERTA · todo rasgo dice si toca algo", 
+             [d_rasgo_nuevo_mudo, d_no_automatizado_sin_motivo, d_lista_perdida,
+              d_rasgo_sacado_de_la_lista],
+             [n_rasgo_nuevo_declarado, n_rasgo_nuevo_con_efecto],
+             lambda r: _falla_por(r)[0]),
+            ("VOCABULARIO · ¿lo consume alguien? (fase 4)",
+             [v_condicion_sin_decidir, v_condicion_de_grupo_inexistente,
+              v_operacion_sin_agregar, v_operacion_fuera_del_orden,
+              v_fuente_de_valor_sin_lector],
+             [n_v_orden_reordenado],
+             lambda r: _falla_por(r, "vocabulario consumido")[0]),
             ("CARGA · ¿los efectos sostienen las fichas?",
              [c_formula_movida, c_pg_enano_movido, c_columna_movida],
              [c_condicion_relajada, n_columna_de_otro_nivel],

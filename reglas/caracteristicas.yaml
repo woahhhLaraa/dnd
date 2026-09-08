@@ -1,0 +1,50 @@
+# Las seis características y sus abreviaturas.
+#
+# ── Por qué existe este fichero (fase 3 de PLAN_20_AUDITORIA.md, 2026-09-05)
+# El emparejamiento «Fuerza» ↔ `fue` **no estaba declarado en ninguna parte de
+# la base**, y Python lo llevaba escrito a mano CUATRO veces:
+#
+#     validar.ABREV · validar._CARACT_DE_ABREV
+#     verificar_personaje._ABREV · verificar_foundry._ABREV (los nombres)
+#
+# Cuatro copias del mismo dato que nadie comparaba. Es el defecto nº 4 del §2
+# del Plan 18 —autoridad en la base, copiada en Python, sin nadie contrastando
+# las copias—, salvo que aquí ni siquiera había autoridad en la base: solo las
+# copias.
+#
+# ── PROCEDENCIA: este fichero NO añade ningún dato nuevo ─────────────────
+# Reúne en un registro lo que la base ya tenía repartido en tres sitios, y que
+# ya estaba transcrito y sellado. Es el mismo método —y las mismas palabras—
+# que `reglas/prerrequisitos.yaml` y `equipo/municion.yaml`: se estructura, no
+# se relee.
+#
+#   · los nombres completos y su orden ......... reglas/prerrequisitos.yaml → caracteristicas
+#   · las abreviaturas y su orden .............. reglas/generacion_personaje.yaml → conjunto_estandar_por_clase.filas (las claves)
+#   · el emparejamiento nombre↔abreviatura ..... reglas/efectos.yaml → variables.mod_* (el nombre de la variable y su `desc`)
+#
+# Las tres fuentes coinciden en contenido y en orden, y `validar_caracteristicas`
+# lo COMPRUEBA en cada pasada: este fichero no puede separarse de aquello de lo
+# que salió. Si algún día se lee la página del manual, se añade su `pagina:` y
+# el contraste sigue valiendo.
+edicion: "2024 (5.5e)"
+fuente:
+  archivo: "Manual_del_Jugador_2024.pdf"
+  derivado_de:
+    - "reglas/prerrequisitos.yaml → caracteristicas"
+    - "reglas/generacion_personaje.yaml → conjunto_estandar_por_clase.filas"
+    - "reglas/efectos.yaml → variables.mod_*"
+  nota: "sin lectura visual propia: los tres orígenes ya estaban transcritos y auditados. Falta la página de la tabla del capítulo 1, que se añadirá cuando alguien la lea"
+fidelidad: "estructurado"
+verificado:
+  metodo: "reestructuracion-de-transcripcion"
+  fecha: "2026-09-05"
+  nota: "No se releyó el manual. Se reúne el emparejamiento que la base ya tenía repartido, y `validar_caracteristicas` contrasta este fichero contra sus tres orígenes en cada pasada."
+
+# El orden es el canónico del juego, y es el que traen las tres fuentes.
+caracteristicas:
+  - {nombre: "Fuerza",       abrev: "fue", variable: "mod_fue"}
+  - {nombre: "Destreza",     abrev: "des", variable: "mod_des"}
+  - {nombre: "Constitución", abrev: "con", variable: "mod_con"}
+  - {nombre: "Inteligencia", abrev: "int", variable: "mod_int"}
+  - {nombre: "Sabiduría",    abrev: "sab", variable: "mod_sab"}
+  - {nombre: "Carisma",      abrev: "car", variable: "mod_car"}

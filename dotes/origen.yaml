@@ -28,6 +28,13 @@ dotes:
     prerrequisito: null
     repetible: false
     descripcion: "Tus PG máximos aumentan en una cantidad igual al doble de tu nivel de personaje al adquirir esta dote. A partir de entonces, cada vez que subas de nivel, tus PG máximos aumentan 2 puntos adicionales."
+    # El texto da DOS reglas que juntas equivalen a `2 * nivel_total`:
+    # al adquirirla, el doble del nivel; y +2 por cada nivel posterior, que
+    # mantiene la igualdad en todos los niveles siguientes. No se simplifica
+    # ninguna regla: se declara la forma cerrada que el propio texto produce.
+    efectos:
+      - {objetivo: pg_max, op: add, formula: "2 * nivel_total",
+         pagina: {pdf: 203, libro: 201}}
 
   - nombre: Fabricante
     pagina: {pdf: 203, libro: 201}

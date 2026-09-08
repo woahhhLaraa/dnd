@@ -84,6 +84,16 @@ pg_por_nivel:
      cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
 
 calculado:
+  # Lo escribió el motor, no una lectura independiente de la
+  # página. Ver `PLAN_20_AUDITORIA.md` §1.2.
+  # Segunda transcripción: un agente ciego —recibió la ficha SIN este
+  # bloque, vía `verificar_personaje.py --datos-crudos`— derivó a mano
+  # los tres que tiene (pg_max, ca, velocidad); no lanza conjuros
+  # citando fichero y página en cada paso, y COINCIDE con el motor.
+  # Esa es la única independencia que existe aquí: la ficha se escribe
+  # y se verifica con el mismo código, así que un error del motor
+  # produce una ficha coherente y equivocada.
+  _origen: {metodo: agente-manual, informe: "_verificacion/_aritmetica/draconido_monje_n2-calculista-ciego.md", fecha: "2026-09-05"}
   pg_max: 17
   ca: 15
   bonif_competencia: 2

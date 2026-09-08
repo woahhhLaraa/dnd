@@ -10,6 +10,7 @@ citado de dónde sale cada fórmula. Uso como librería (import) o CLI:
     python3 calculo.py cd-conjuros --aptitud 3 --nivel 1
 """
 import argparse
+import functools
 import json
 import pathlib
 import re
@@ -23,13 +24,141 @@ except ImportError:
 B = pathlib.Path(__file__).parent
 
 
+@functools.lru_cache(maxsize=None)
 def cargar(rel):
+    """Lee un fichero de la base. **El resultado se cachea y se comparte.**
+
+    Medido el 2026-08-31 con cProfile sobre `validar.py`: el **98 % del tiempo**
+    se iba en `yaml.safe_load`, con 1068 parseos de los mismos ficheros. Solo
+    `validar_subida()` gastaba 34 s releyendo las tablas de clase 333 veces,
+    una por salto de nivel.
+
+    **Contrato: lo devuelto es de SOLO LECTURA.** Todos los llamadores actuales
+    lo respetan (comprobado: ninguno asigna ni muta sobre el resultado). Si
+    alguna vez hace falta modificarlo, cópialo primero.
+
+    **Por qué es seguro con las pruebas por mutación:** copian la base a un
+    directorio temporal y lanzan `validar.py` en SUBPROCESO, así que cada
+    mutación estrena caché. Una caché de proceso no puede servir datos viejos
+    a la mutación siguiente.
+    """
     f = B / rel
     if not f.exists():
         sys.exit(f"✗ no existe: {rel}")
     if f.suffix == ".json":
         return json.loads(f.read_text(encoding="utf-8"))
     return yaml.safe_load(f.read_text(encoding="utf-8"))
+
+
+# ── Marcadores de la tabla de clase ─────────────────────────────────────
+# «Mejora de característica», «Rasgo de subclase» y «Subclase de <clase>» no
+# son rasgos con texto propio: son instrucciones de la tabla, y su vocabulario
+# vive en `reglas/subida_de_nivel.yaml → marcadores` con su nota al lado.
+#
+# Hasta el 2026-09-02 había DOS copias cableadas de esa lista, una en
+# `validar.py` y otra en `subir_nivel.py`, y **ya habían divergido**: la
+# primera normalizaba con `.strip()` y exigía «Subclase de » con espacio final;
+# la segunda no normalizaba y aceptaba «Subclase de» sin él, así que un rasgo
+# llamado «Subclase deluxe» era marcador para una y rasgo para la otra. Es el
+# defecto nº 4 del §2 del PLAN_18 (`_TABLA_COSTE`) otra vez: un dato que vive
+# en la base, copiado en Python, y nadie comparando las copias.
+#
+# Ahora se lee. Añadir un cuarto marcador al YAML lo reconocen los dos sin
+# tocar código, y quitarlo lo deja de reconocer en los dos a la vez.
+@functools.lru_cache(maxsize=None)
+def _marcadores():
+    d = cargar("reglas/subida_de_nivel.yaml") or {}
+    literales, patrones = set(), []
+    for m in d.get("marcadores") or []:
+        if isinstance(m, str):
+            literales.add(m.strip())
+        elif isinstance(m, dict) and m.get("patron"):
+            # «Subclase de <clase>» → prefijo «Subclase de », con su espacio.
+            patrones.append(m["patron"].split("<", 1)[0])
+        else:
+            sys.exit(f"✗ marcador no reconocido en reglas/subida_de_nivel.yaml: "
+                     f"{m!r}. Un marcador es un literal o un `patron` con <…>")
+    if not literales and not patrones:
+        sys.exit("✗ reglas/subida_de_nivel.yaml no declara `marcadores`: sin "
+                 "ellos no se distingue una instrucción de la tabla de un "
+                 "rasgo con texto propio")
+    return frozenset(literales), tuple(patrones)
+
+
+def es_marcador(nombre):
+    """¿Es una instrucción de la tabla y no un rasgo con texto propio?"""
+    n = (nombre or "").strip()
+    literales, patrones = _marcadores()
+    return n in literales or any(n.startswith(pref) for pref in patrones)
+
+
+# ── Los marcadores, uno a uno y por su nombre ────────────────────────────
+# `es_marcador()` responde «¿esto es UN marcador?». Pero la auditoría del
+# 2026-09-03 encontró que siete sitios no preguntan eso: preguntan «¿es ESTE
+# marcador?» —el de mejora, el de subclase— y para distinguirlos volvían a
+# escribir la cadena a mano, con `es_marcador()` leyendo la base al lado sin
+# que nadie la usara para esto. Detectar el marcador y despacharlo eran dos
+# listas, y solo una se leía.
+#
+# La base ya los tiene CON NOMBRE: `concesiones`/`elecciones` de
+# `reglas/subida_de_nivel.yaml` traen un campo `marcador` bajo una clave
+# semántica (`rasgo_de_subclase`, `subclase`, `mejora_caracteristica_o_dote`),
+# que además es la misma cadena que `subir_nivel.py` ya emite como `tipo`.
+#
+# Y el índice se CONTRASTA contra la lista plana `marcadores` en vez de
+# confiar en ella: son el mismo dato escrito dos veces DENTRO de la base, y
+# hasta hoy nadie las comparaba. Si divergen, se para.
+@functools.lru_cache(maxsize=None)
+def _marcadores_con_nombre():
+    d = cargar("reglas/subida_de_nivel.yaml") or {}
+    idx = {}
+    for bloque in ("concesiones", "elecciones"):
+        for clave, cuerpo in (d.get(bloque) or {}).items():
+            if isinstance(cuerpo, dict) and cuerpo.get("marcador"):
+                idx[clave] = str(cuerpo["marcador"]).strip()
+    if not idx:
+        sys.exit("✗ reglas/subida_de_nivel.yaml no da nombre a ningún marcador "
+                 "en `concesiones`/`elecciones`: sin eso no se puede pedir uno "
+                 "concreto sin volver a escribirlo a mano")
+    literales, patrones = _marcadores()
+    for clave, m in sorted(idx.items()):
+        if not (m in literales or any(m.startswith(p) for p in patrones)):
+            sys.exit(f"✗ reglas/subida_de_nivel.yaml se contradice: "
+                     f"{_bloque_de(clave)}«{clave}» declara el marcador «{m}» y "
+                     f"la lista `marcadores` no lo reconoce. Son el mismo dato "
+                     f"escrito dos veces y han divergido")
+    return idx
+
+
+def _bloque_de(clave):
+    """Solo para el mensaje de error de arriba: en qué bloque vive la clave."""
+    d = cargar("reglas/subida_de_nivel.yaml") or {}
+    for bloque in ("concesiones", "elecciones"):
+        if clave in (d.get(bloque) or {}):
+            return f"{bloque}."
+    return ""
+
+
+def marcador(clave):
+    """El literal del marcador que la base llama `clave`, leído de la base."""
+    idx = _marcadores_con_nombre()
+    if clave not in idx:
+        sys.exit(f"✗ reglas/subida_de_nivel.yaml no declara ningún marcador "
+                 f"llamado «{clave}». Los que hay: {', '.join(sorted(idx))}")
+    return idx[clave]
+
+
+def es_marcador_de(clave, nombre):
+    """¿`nombre` es el marcador que la base llama `clave`?
+
+    Respeta la forma que declare la base: un `patron` con `<…>` compara por
+    prefijo («Subclase de <clase>» → «Subclase de »), un literal compara
+    entero. Así el «Subclase deluxe» que ya hizo divergir dos copias en la
+    Fase 16 no puede volver a colarse por un lado y no por el otro.
+    """
+    m = marcador(clave)
+    n = (nombre or "").strip()
+    return n.startswith(m.split("<", 1)[0]) if "<" in m else n == m
 
 
 # ── Modificador por puntuación ──────────────────────────────────────────
@@ -42,16 +171,47 @@ def modificador(puntuacion):
 
 # ── Compra por puntos ────────────────────────────────────────────────────
 # reglas/generacion_personaje.yaml → metodos_generacion_caracteristicas.coste_en_puntos
-_TABLA_COSTE = {8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9}
+#
+# La tabla SE LEE de la base; no se copia aquí. Hasta el 2026-08-31 estaba
+# cableada como `_TABLA_COSTE = {8:0, 9:1, ...}` **con este mismo comentario
+# encima señalando el YAML**, y las dos copias no las contrastaba nadie:
+# `validar.py` validaba la del YAML y `calculo.py` calculaba con la suya. Una
+# corrección en la base habría dejado la aritmética con los valores viejos y
+# todo en verde. Es el mismo defecto que `_CA_SIN_ARMADURA` y `_ORIGENES`, en
+# el núcleo aritmético. Regla inviolable 6 de CONTINUAR.md.
+def _tabla_coste():
+    cp = cargar("reglas/generacion_personaje.yaml")[
+        "metodos_generacion_caracteristicas"]["coste_en_puntos"]
+    return {int(k): v for k, v in cp["tabla_coste"].items()}
+
+
+def puntos_totales():
+    """El presupuesto de la compra por puntos, leído de la base.
+
+    La ironía del 2026-09-03: la tabla de arriba se arregló para que se leyera,
+    con once líneas de comentario explicando por qué, y el TOTAL que la
+    acompaña —dos líneas más arriba en el mismo bloque del YAML— se quedó
+    cableado como `!= 27` en `verificar_personaje.py` y como dos literales en
+    el `main` de aquí abajo.
+    """
+    cp = cargar("reglas/generacion_personaje.yaml")[
+        "metodos_generacion_caracteristicas"]["coste_en_puntos"]
+    if "puntos_totales" not in cp:
+        sys.exit("✗ reglas/generacion_personaje.yaml no declara "
+                 "`coste_en_puntos.puntos_totales`: sin él no hay presupuesto "
+                 "contra el que comprobar una compra por puntos")
+    return int(cp["puntos_totales"])
 
 
 def coste_compra_puntos(scores):
-    """Suma el coste de las 6 puntuaciones. Lanza si alguna está fuera de 8-15."""
+    """Suma el coste de las 6 puntuaciones. Lanza si alguna está fuera de tabla."""
+    tabla = _tabla_coste()
     total = 0
     for car, val in scores.items():
-        if val not in _TABLA_COSTE:
-            sys.exit(f"✗ {car}={val} fuera del rango de compra por puntos (8-15)")
-        total += _TABLA_COSTE[val]
+        if val not in tabla:
+            sys.exit(f"✗ {car}={val} fuera del rango de compra por puntos "
+                     f"({min(tabla)}-{max(tabla)})")
+        total += tabla[val]
     return total
 
 
@@ -191,6 +351,39 @@ _RE_CA_FORMULA = re.compile(
 )
 
 
+# ── La CA base sin armadura: 10, y el 10 SE LEE ──────────────────────────
+# Lo destapó la tanda a ciegas del mandato «el calculista» (2026-09-05): los
+# dos agentes, cada uno con su ficha, informaron de que la base no declaraba
+# en ninguna parte la CA por defecto de quien no lleva armadura. **Se
+# equivocaban, y por culpa del método**: sí la declara —`reglas/efectos.yaml →
+# variables.ca.base_por_defecto`, citada en pdf 43 = libro 41— pero ese
+# fichero es justo el que el mandato les prohíbe abrir, porque es el
+# vocabulario del motor cuya independencia se está comprando.
+#
+# Solo que al ir a comprobarlo apareció el defecto de verdad, y es peor que el
+# que ellos creyeron ver: `efectos.py` SÍ lee ese `base_por_defecto`
+# (`efectos.py` → `calcular()`), y aquí estaba cableado `10 + des_mod`. Dos
+# implementaciones de la misma regla en el mismo repositorio, y nadie
+# comparándolas — el defecto nº 4 del §2 del Plan 18, y exactamente lo que el
+# propio PLAN_20 prohíbe escribir («no escribir un segundo calculador»)
+# encontrado ya escrito. Medido antes de arreglarlo: poniendo `11 + mod_des`
+# en la base, tres fichas se quejan por el camino del motor y `calculo.ca()`
+# seguía diciendo 12.
+@functools.lru_cache(maxsize=1)
+def _ca_base_sin_armadura():
+    decl = ((cargar("reglas/efectos.yaml").get("variables") or {})
+            .get("ca") or {}).get("base_por_defecto")
+    m = re.match(r"^\s*(\d+)\s*\+\s*mod_des\s*$", str(decl or ""))
+    if not m:
+        sys.exit(
+            f"✗ `reglas/efectos.yaml → variables.ca.base_por_defecto` dice "
+            f"{decl!r}, y esta función solo sabe implementar «N + mod_des».\n"
+            f"  Si la regla ha cambiado de forma, esta función tiene que "
+            f"cambiar con ella: callarse y seguir dando 10 sería volver a "
+            f"tener dos copias que divergen.")
+    return int(m.group(1))
+
+
 def ca(des_mod, con_mod=0, sab_mod=0, clase=None, armadura=None, escudo=False):
     """Calcula CA. Si `armadura` es un nombre, se busca en equipo/armaduras.yaml
     y se parsea su fórmula. Si `armadura` es None, se usa la Defensa sin
@@ -198,7 +391,8 @@ def ca(des_mod, con_mod=0, sab_mod=0, clase=None, armadura=None, escudo=False):
     if armadura:
         d = cargar("equipo/armaduras.yaml")
         entrada = None
-        for grupo in ("armaduras_ligeras", "armaduras_medias", "armaduras_pesadas"):
+        import efectos                      # perezoso, como en `_tiene_ca_de_rasgo`
+        for grupo in efectos.grupos_de_armadura()[0]:
             for a in d[grupo]["tabla"]:
                 if a["nombre"].lower() == armadura.lower():
                     entrada = a
@@ -228,7 +422,7 @@ def ca(des_mod, con_mod=0, sab_mod=0, clase=None, armadura=None, escudo=False):
                     f"personaje lo tiene (nivel, subclase, escudo).\n"
                     f"  Usa la ficha: efectos.calcular_de_ficha(...) — o "
                     f"`python3 verificar_personaje.py <ficha>`.")
-        valor = 10 + des_mod
+        valor = _ca_base_sin_armadura() + des_mod
 
     if escudo:
         d = cargar("equipo/armaduras.yaml")
@@ -238,16 +432,49 @@ def ca(des_mod, con_mod=0, sab_mod=0, clase=None, armadura=None, escudo=False):
 
 
 # ── Conjuros: CD y bonificador de ataque ─────────────────────────────────
-# Manual_del_Jugador_2024.pdf pdf 240 = libro 238, "Tiradas de salvación" /
-# "Tiradas de ataque":
-#   CD de salvación de conjuros = 8 + mod. aptitud mágica + bonif. competencia
-#   Modificador de ataque de conjuros = mod. aptitud mágica + bonif. competencia
+# El `8` SE LEE de `reglas/generacion_personaje.yaml → conjuros`, citado en
+# pdf 240 = libro 238. Hasta el 2026-09-05 estaba cableado aquí con la cita en
+# este mismo comentario, que es exactamente donde una regla no puede vivir:
+# cableada no se puede citar, ni validar, ni corregir cuando la base cambia.
+#
+# Lo destapó el mandato «el calculista» de la ronda 3 de estrés: dos agentes
+# independientes, calculando a mano dos fichas distintas, pararon en el mismo
+# sitio porque la base no definía la fórmula. Es el mismo patrón que
+# `_TABLA_COSTE`, `COMPLETO`/`MEDIO` y el tope de 20 de las mejoras.
+@functools.lru_cache(maxsize=1)
+def _regla_de_conjuros():
+    c = cargar("reglas/generacion_personaje.yaml").get("conjuros")
+    if not c:
+        sys.exit("✗ `reglas/generacion_personaje.yaml` no declara `conjuros`: "
+                 "sin esa regla no se puede dar la CD de ningún lanzador")
+    return c
+
+
+def _base_de_conjuros(clave):
+    """El `base:` de un sub-bloque de `conjuros`, o un `sys.exit` que DICE qué
+    falta.
+
+    Un `[clave]["base"]` a pelo levantaba `KeyError` cuando la base venía sin
+    ese sub-bloque, y quien llamaba —`validar.py`— moría antes de imprimir la
+    etiqueta de su chequeo: la mutación que borraba el bloque contaba como no
+    detectada. Es la familia del hueco nº 10 de la ronda 2 de estrés, un
+    chequeo que explota en vez de hablar, y por eso el acceso pasa por aquí:
+    faltar un dato de la base es un mensaje, nunca una traza.
+    """
+    bloque = _regla_de_conjuros().get(clave)
+    if not isinstance(bloque, dict) or bloque.get("base") is None:
+        sys.exit(f"✗ `reglas/generacion_personaje.yaml → conjuros` no declara "
+                 f"`{clave}.base`: sin ese número no se puede dar la CD ni el "
+                 f"bonificador de ataque de ningún lanzador")
+    return bloque["base"]
+
+
 def cd_conjuros(aptitud_mod, pb):
-    return 8 + aptitud_mod + pb
+    return _base_de_conjuros("cd_salvacion") + aptitud_mod + pb
 
 
 def bonif_ataque_conjuros(aptitud_mod, pb):
-    return aptitud_mod + pb
+    return _base_de_conjuros("bonificador_ataque") + aptitud_mod + pb
 
 
 # ── Espacios de conjuro ───────────────────────────────────────────────────
@@ -280,17 +507,37 @@ def _tiene_ca_de_rasgo(clase):
                for e in efectos.efectos_declarados(rutas))
 
 
+@functools.lru_cache(maxsize=1)
+def abreviaturas():
+    """Las seis abreviaturas, en orden, desde `reglas/caracteristicas.yaml`.
+
+    Iban escritas a mano en cinco módulos (fase 3 del PLAN_20). El
+    emparejamiento con el nombre completo no existía en la base hasta que ese
+    fichero lo reunió; ahora hay una autoridad y estas son sus lectoras.
+    """
+    d = cargar("reglas/caracteristicas.yaml")
+    filas = (d or {}).get("caracteristicas")
+    if not filas:
+        sys.exit("✗ `reglas/caracteristicas.yaml` no declara `caracteristicas`")
+    return tuple(c["abrev"] for c in filas)
+
+
+@functools.lru_cache(maxsize=1)
+def nombres_de_caracteristica():
+    """`{"fue": "Fuerza", …}`, del mismo sitio."""
+    d = cargar("reglas/caracteristicas.yaml")
+    return {c["abrev"]: c["nombre"] for c in (d or {}).get("caracteristicas") or []}
+
+
 def _archivo_clase(nombre):
-    mapa = {
-        "Bárbaro": "barbaro.yaml", "Bardo": "bardo.yaml", "Brujo": "brujo.yaml",
-        "Clérigo": "clerigo.yaml", "Druida": "druida.yaml",
-        "Explorador": "explorador.yaml", "Guerrero": "guerrero.yaml",
-        "Hechicero": "hechicero.yaml", "Mago": "mago.yaml", "Monje": "monje.yaml",
-        "Paladín": "paladin.yaml", "Pícaro": "picaro.yaml",
-    }
+    """El emparejamiento nombre→fichero se DERIVA: cada `clases/*.yaml`
+    declara su propio `clase:`. Iba escrito a mano aquí y otra vez en
+    `efectos._RASGOS_DE_CLASE`, dos copias que nadie comparaba (fase 3)."""
+    import efectos                          # perezoso, como más arriba
+    mapa = efectos.clases_por_nombre()
     if nombre not in mapa:
         sys.exit(f"✗ clase desconocida: {nombre!r} (¿nombre exacto, con tilde?)")
-    return mapa[nombre]
+    return f"{mapa[nombre]}.yaml"
 
 
 # ── CLI ────────────────────────────────────────────────────────────────
@@ -364,10 +611,12 @@ def main():
     elif a.cmd == "espacios":
         print(espacios_de_conjuro(a.clase, a.nivel))
     elif a.cmd == "coste-compra":
-        scores = {"fue": a.fue, "des": a.des, "con": a.con,
-                  "int": a.int_, "sab": a.sab, "car": a.car}
+        # `int` es palabra reservada, así que argparse la guarda como `int_`.
+        scores = {ab: getattr(a, ab if ab != "int" else "int_")
+                  for ab in abreviaturas()}
         total = coste_compra_puntos(scores)
-        print(total, "de 27" if total != 27 else "de 27 ✓")
+        presupuesto = puntos_totales()
+        print(total, f"de {presupuesto}" + ("" if total != presupuesto else " ✓"))
 
 
 if __name__ == "__main__":

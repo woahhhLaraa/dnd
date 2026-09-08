@@ -4,7 +4,9 @@ No consulta el manual: comprueba coherencia interna. Un dato inventado
 que no respete estas reglas hace fallar la validación.
 Uso: python3 validar.py
 """
-import re, json, sys, pathlib
+import functools, math, re, json, sys, pathlib
+
+import calculo
 try:
     import yaml
 except ImportError:
@@ -12,16 +14,60 @@ except ImportError:
 
 B = pathlib.Path(__file__).parent
 
-# --- Tablas canónicas de espacios de conjuro (invariante, no del OCR) ---
-COMPLETO = [[2,0,0,0,0,0,0,0,0],[3,0,0,0,0,0,0,0,0],[4,2,0,0,0,0,0,0,0],[4,3,0,0,0,0,0,0,0],
- [4,3,2,0,0,0,0,0,0],[4,3,3,0,0,0,0,0,0],[4,3,3,1,0,0,0,0,0],[4,3,3,2,0,0,0,0,0],
- [4,3,3,3,1,0,0,0,0],[4,3,3,3,2,0,0,0,0],[4,3,3,3,2,1,0,0,0],[4,3,3,3,2,1,0,0,0],
- [4,3,3,3,2,1,1,0,0],[4,3,3,3,2,1,1,0,0],[4,3,3,3,2,1,1,1,0],[4,3,3,3,2,1,1,1,0],
- [4,3,3,3,2,1,1,1,1],[4,3,3,3,3,1,1,1,1],[4,3,3,3,3,2,1,1,1],[4,3,3,3,3,2,2,1,1]]
-MEDIO = [[2,0,0,0,0],[2,0,0,0,0],[3,0,0,0,0],[3,0,0,0,0],[4,2,0,0,0],[4,2,0,0,0],
- [4,3,0,0,0],[4,3,0,0,0],[4,3,2,0,0],[4,3,2,0,0],[4,3,3,0,0],[4,3,3,0,0],
- [4,3,3,1,0],[4,3,3,1,0],[4,3,3,2,0],[4,3,3,2,0],[4,3,3,3,1],[4,3,3,3,1],
- [4,3,3,3,2],[4,3,3,3,2]]
+# ── Espacios de conjuro: la autoridad vive en la base, no aquí ────────────
+# Hasta el 2026-09-02 estas dos tablas eran literales de Python **sin cita de
+# página**, y eran contra lo que se contrastaban las progresiones de 7 clases.
+# No era el defecto del §2 del Plan 18 —las copias sí se comparaban— pero sí
+# una autoridad sin fuente por encima de una base citada: si el manual y el
+# literal discrepaban, ganaba el literal, y la única forma de enterarse era
+# leer `validar.py`. Lo destapó el censo (bloque A) al contar las columnas de
+# tabla de clase que nadie contrasta contra una fuente.
+#
+# La tabla del lanzador completo YA estaba en la base, citada: es
+# `multiclase.lanzamiento_de_conjuros_multiclase.tabla_espacios_de_conjuro`
+# de `reglas/generacion_personaje.yaml` (pdf 47 = libro 45). Así que se lee.
+# Es el mismo arreglo que `_TABLA_COSTE` (caso 4 del §2): un comentario que
+# señalaba dónde vive la autoridad, y debajo una copia.
+#
+# La del lanzador medio **no se copia ni se inventa: se deriva** con la regla
+# que el propio manual imprime al lado, en `calculo_nivel_para_tabla` —«la
+# mitad (redondeando arriba) de los niveles de explorador y paladín»—. Se
+# comprobó nivel a nivel que reproduce exactamente lo que decía el literal en
+# los 20 niveles antes de sustituirlo.
+_ESPACIOS_MAX = 9          # la escala de conjuros llega a 9 en 2024
+_ESPACIOS_MEDIO_MAX = 5    # un lanzador medio no pasa del nivel 5 de conjuro
+
+
+@functools.lru_cache(maxsize=None)
+def _espacios_completo():
+    """La tabla de espacios del lanzador completo, leída de la base."""
+    f = B / "reglas" / "generacion_personaje.yaml"
+    if yaml is None or not f.exists():
+        raise RuntimeError("no se puede leer la tabla de espacios de conjuro: "
+                           "sin ella no hay contra qué contrastar las clases")
+    d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+    tabla = (((d.get("multiclase") or {})
+              .get("lanzamiento_de_conjuros_multiclase") or {})
+             .get("tabla_espacios_de_conjuro") or {})
+    filas = tabla.get("filas") or []
+    if len(filas) != 20 or not tabla.get("fuente"):
+        # Falla ruidosamente: devolver una tabla a medias haría pasar en verde
+        # a clases que nadie ha comprobado, que es peor que no comprobar.
+        raise RuntimeError(
+            "`tabla_espacios_de_conjuro` de reglas/generacion_personaje.yaml "
+            f"tiene {len(filas)} filas y "
+            f"{'una' if tabla.get('fuente') else 'NINGUNA'} cita: se esperaban "
+            "20 filas citadas")
+    return [[fila.get(str(j), 0) for j in range(1, _ESPACIOS_MAX + 1)]
+            for fila in filas]
+
+
+@functools.lru_cache(maxsize=None)
+def _espacios_medio():
+    """La del lanzador medio, DERIVADA de la anterior con la regla citada."""
+    completo = _espacios_completo()
+    return [completo[math.ceil(n / 2) - 1][:_ESPACIOS_MEDIO_MAX]
+            for n in range(1, 21)]
 
 def parse_yaml(p):
     """Parser mínimo para el formato de estas fichas (sin dependencias)."""
@@ -68,12 +114,14 @@ def validar_clase(p):
     lanz = meta.get("lanzador")
     if lanz == "completo":
         for f in filas:
-            if f.get("slots") != COMPLETO[f["n"]-1]:
-                err.append(f"N{f['n']}: espacios {f.get('slots')} != {COMPLETO[f['n']-1]}")
+            if f.get("slots") != _espacios_completo()[f["n"]-1]:
+                err.append(f"N{f['n']}: espacios {f.get('slots')} != "
+                           f"{_espacios_completo()[f['n']-1]}")
     elif lanz == "medio":
         for f in filas:
-            if f.get("slots") != MEDIO[f["n"]-1]:
-                err.append(f"N{f['n']}: espacios {f.get('slots')} != {MEDIO[f['n']-1]}")
+            if f.get("slots") != _espacios_medio()[f["n"]-1]:
+                err.append(f"N{f['n']}: espacios {f.get('slots')} != "
+                           f"{_espacios_medio()[f['n']-1]}")
     elif lanz in ("ninguno", "pacto"):
         pass
     else:
@@ -96,7 +144,13 @@ def validar_clase(p):
                 err.append(f"columna '{col}' decrece: {vals}")
 
     # mejoras de característica: deben existir al menos en 4, 8, 12, 16
-    mejoras = {f["n"] for f in filas if any("Mejora de característica" in r for r in f["rasgos"])}
+    # El marcador se LEE de `reglas/subida_de_nivel.yaml` (auditoría del
+    # 2026-09-03): aquí estaba la cadena escrita a mano, y con `in` sobre el
+    # texto en vez de la comparación que declara la base.
+    import calculo
+    mejoras = {f["n"] for f in filas
+               if any(calculo.es_marcador_de("mejora_caracteristica_o_dote", r)
+                      for r in f["rasgos"])}
     faltan = {4,8,12,16} - mejoras
     if faltan:
         err.append(f"faltan mejoras de característica en niveles {sorted(faltan)}")
@@ -351,40 +405,91 @@ def _num_es(s):
 
 
 def validar_conversiones():
-    """Toda equivalencia «N m / M pies» de la base debe ser aritméticamente correcta."""
+    """Ninguna conversión editorial en el texto citable, y la aritmética de los
+    campos derivados de `alcance` correcta.
+
+    ── Por qué este chequeo cambió de sentido el 2026-09-02 ─────────────────
+    Antes comprobaba que las equivalencias «6 m / 20 pies» estuvieran **bien
+    calculadas**. Estaban: 543 de ellas, todas correctas. El problema era otro,
+    y es la debilidad nº 2 del `FODA.md`: **el manual castellano no imprime ni
+    una sola unidad imperial.** Nueve lectores independientes sobre 23 páginas
+    no vieron ninguna. Las había añadido la base entera, y `fidelidad: literal`
+    convivía con texto que la página no imprime. Comprobar que un añadido está
+    bien calculado no responde a si el añadido **debe existir**.
+
+    Borradas (fase 2 del PLAN_19), este chequeo pasa a impedir que vuelvan.
+
+    ── Y lo que NO se borró, porque no es cita sino dato ────────────────────
+    `alcance` guarda además `metros`, `pies` y `casillas` como campos
+    estructurados. Ésos se quedan: no son texto que finja ser del manual, son
+    dato derivado, y `verificar_foundry.py` contrasta `alcance.pies` contra el
+    SRD **número contra número**. Borrarlos habría dejado sin fuente externa
+    los 218 alcances con cifra.
+
+    Su aritmética sí hay que seguir comprobándola —si no, quitar las
+    conversiones del texto habría abierto un hueco donde antes había un
+    chequeo— así que la segunda mitad la hereda de la versión anterior, con la
+    misma tolerancia absoluta y por la misma razón medida.
+    """
     err, warn = [], []
-    vistos = 0
-
     f = B / "hechizos.json"
-    if f.exists():
-        for h in json.loads(f.read_text(encoding="utf-8"))["hechizos"]:
-            for m in _RE_CONVERSION.finditer(_texto_citable(h)):
-                vistos += 1
-                metros = _num_es(m.group(1)) * _A_METROS[m.group(2)]
-                declarado = _num_es(m.group(3))
-                esperado = metros * _DESDE_METROS[m.group(4)]
-                # Tolerancia **absoluta**, no relativa. Medido sobre la base ya
-                # corregida: los redondeos legítimos desvían como mucho 0,032
-                # («0,93 mi» escrito «0,9», «0,98 pulgadas» escrito «1»),
-                # mientras que el menor defecto real desvía 1 entero. Media
-                # unidad separa las dos poblaciones con holgura por ambos lados.
-                # Una tolerancia relativa del 2 % —la primera versión— hacía lo
-                # contrario: dejaba pasar «30 m / 98 pies» (error de 2 pies) y
-                # saltaba con «0,9 mi» (redondeo de 0,03). El término relativo
-                # se conserva solo para las magnitudes grandes, donde el manual
-                # sí redondea de verdad.
-                margen = max(0.5, abs(esperado) * 0.005)
-                if abs(declarado - esperado) > margen:
-                    err.append(
-                        f"{h['nombre']}: conversión falsa '{m.group(0)}' — "
-                        f"{metros:g} m son {esperado:.4g} {m.group(4)}, "
-                        f"no {declarado:g}"
-                    )
+    if not f.exists():
+        return "conversiones (0)", ["falta hechizos.json"], []
+    hs = json.loads(f.read_text(encoding="utf-8"))["hechizos"]
 
-    if not vistos:
-        err.append("el barrido de conversiones no encontró ninguna equivalencia: "
-                   "el chequeo se ha quedado sin ver la base")
-    return f"conversiones ({vistos} equivalencias)", err, warn
+    # ── (a) Ninguna conversión en el texto que la base presenta como cita ──
+    colados = 0
+    for h in hs:
+        for campo, txt in (("alcance.texto", (h.get("alcance") or {}).get("texto")),
+                           ("descripcion", h.get("descripcion"))):
+            for m in _RE_CONVERSION.finditer(str(txt or "")):
+                colados += 1
+                err.append(
+                    f"{h['nombre']} ({campo}): conversión editorial "
+                    f"'{m.group(0)}' en texto citable. El manual castellano es "
+                    f"métrico y no imprime unidades imperiales; las "
+                    f"equivalencias se borraron el 2026-09-02 y no vuelven a "
+                    f"entrar. Si hace falta la cifra en pies, va en el campo "
+                    f"derivado `alcance.pies`, que no es cita")
+
+    # ── (b) Los campos DERIVADOS de `alcance`, aritméticamente correctos ───
+    # Tolerancia **absoluta**, no relativa, y por una razón medida sobre la
+    # base ya corregida: los redondeos legítimos desvían como mucho 0,032
+    # («0,93 mi» escrito «0,9»), mientras que el menor defecto real desvía 1
+    # entero. Media unidad separa las dos poblaciones con holgura. Una
+    # tolerancia relativa del 2 % —la primera versión— hacía lo contrario:
+    # dejaba pasar «30 m / 98 pies» y saltaba con un redondeo de 0,03.
+    derivados = 0
+    for h in hs:
+        a = h.get("alcance") or {}
+        if a.get("metros") is None:
+            # TOLERADO: los alcances sin cifra —«Toque», «Lanzador»— no tienen
+            # nada que derivar. Que el barrido entero se quede sin ver la base
+            # lo caza el `if not derivados` de abajo, que es error.
+            continue
+        metros = _num_es(str(a["metros"]))
+        for campo, unidad in (("pies", "pies"), ("casillas", "cas")):
+            if a.get(campo) is None:
+                # TOLERADO: cuatro alcances kilométricos nunca tuvieron los
+                # campos derivados (Clarividencia, Tsunami y las dos tormentas)
+                # y no se les inventan: convertir 1,5 km a pies aquí sería
+                # meter en la base un número que nadie ha leído en la página.
+                continue
+            derivados += 1
+            declarado = _num_es(str(a[campo]))
+            esperado = metros * _DESDE_METROS[unidad]
+            margen = max(0.5, abs(esperado) * 0.005)
+            if abs(declarado - esperado) > margen:
+                err.append(
+                    f"{h['nombre']}: `alcance.{campo}` es {declarado:g} y "
+                    f"{metros:g} m son {esperado:.4g}. Es un campo DERIVADO: o "
+                    f"está mal calculado, o `metros` no es lo que dice la página")
+
+    if not derivados:
+        err.append("el barrido no encontró ningún `alcance` con cifra: el "
+                   "chequeo se ha quedado sin ver la base")
+    return (f"conversiones ({derivados} derivados · {colados} coladas)",
+            err, warn)
 
 
 def validar_referencias():
@@ -400,9 +505,17 @@ def validar_referencias():
         citados.add(m.group(1).strip().rstrip('"'))
     for m in re.finditer(r"truco ([a-záéíóúñ ]+?)[\.,;\"]", t):
         citados.add(m.group(1).strip())
+    # ── De aviso a ERROR (fase 1 del PLAN_19, 2026-09-02) ────────────────
+    # Una especie que concede un truco que no existe en `hechizos.json` es
+    # integridad referencial ROTA: el personaje tendría un conjuro que la base
+    # no sabe describir. Salía como un ⚠ entre otros treinta y `validar.py`
+    # terminaba con «0 errores». Hoy los 18 citados resuelven, así que
+    # promoverlo no deja deuda.
     faltan = sorted(c for c in citados if c.lower() not in idx)
     for c in faltan:
-        warn.append(f"conjuro citado por una especie y ausente de hechizos.json: '{c}'")
+        err.append(f"conjuro citado por una especie y ausente de "
+                   f"hechizos.json: '{c}'. El personaje tendría un conjuro que "
+                   f"la base no sabe describir")
     return f"referencias ({len(citados)} conjuros citados)", err, warn
 
 
@@ -464,8 +577,19 @@ def validar_dotes():
     if not d.exists():
         return "dotes", ["falta dotes/"], []
 
+    # El número de dotes por fichero es una guardia contra perder una en
+    # silencio: no se deriva del propio fichero, porque entonces diría «tiene
+    # las que tiene». Lo que SÍ se deriva es la lista de ficheros, y el mapa
+    # tiene que cubrirla: un `dotes/*.yaml` nuevo sin cuenta declarada es un
+    # error. Antes la lista iba a mano y el fichero nuevo no lo miraba nadie
+    # —así vivió `equipo/municion.yaml` (fase 2.4)—.
     esperadas = {"origen.yaml": 10, "generales.yaml": 43,
                  "estilo_de_combate.yaml": 10, "don_epico.yaml": 12}
+    hallados = sorted(q.name for q in d.glob("*.yaml"))
+    for fn in hallados:
+        if fn not in esperadas:
+            err.append(f"dotes/{fn} no tiene cuenta esperada en `validar_dotes`: "
+                       f"nadie comprobaría que no se pierde una dote suya")
     nombres = set()
     total = 0
     for fn, n_esperado in esperadas.items():
@@ -497,10 +621,148 @@ def validar_dotes():
 
     return f"dotes ({total})", err, warn
 
+# ── Los validadores de `equipo/`, uno por fichero ────────────────────────
+# Hasta el 2026-09-05 esto era un bloque con la tupla
+# `("armas.yaml", "armaduras.yaml", "herramientas.yaml", "aventureros.yaml")`
+# escrita a mano, y `municion.yaml` —que existe desde el 2026-08-19— **no lo
+# validaba nadie**. Es el patrón del espiral otra vez: una lista a mano que se
+# queda corta y nadie se entera.
+#
+# Ahora los ficheros se DESCUBREN del directorio y este mapa tiene que
+# cubrirlos: uno sin validador es un error, y un validador que apunte a un
+# fichero que ya no existe, también. La lista no puede quedarse corta porque
+# no es la lista: es la comprobación.
+
+def _eq_armas(data, err, warn):
+    props = set(data.get("propiedades", {}))                      # noqa: F841
+    maestrias = {k.capitalize() for k in data.get("propiedades_de_maestria", {})}
+    n = 0
+    import efectos as _E
+    for grupo in _E.grupos_de_armas():
+        armas = data.get(grupo, [])
+        n += len(armas)
+        for a in armas:
+            if not a.get("precio"):
+                err.append(f"armas.yaml / {a.get('nombre')}: sin precio")
+            if not a.get("maestria"):
+                err.append(f"armas.yaml / {a.get('nombre')}: sin maestría")
+            elif a["maestria"] not in maestrias:
+                err.append(f"armas.yaml / {a.get('nombre')}: maestría "
+                           f"'{a['maestria']}' no definida en propiedades_de_maestria")
+    return n
+
+
+def _eq_armaduras(data, err, warn):
+    n = 0
+    import efectos as _E
+    for grupo in sum(_E.grupos_de_armadura(), ()):
+        filas = data.get(grupo, {}).get("tabla", [])
+        n += len(filas)
+        for a in filas:
+            if not a.get("ca"):
+                err.append(f"armaduras.yaml / {a.get('nombre')}: sin CA")
+            if not a.get("precio"):
+                err.append(f"armaduras.yaml / {a.get('nombre')}: sin precio")
+    return n
+
+
+def _eq_herramientas(data, err, warn):
+    n = 0
+    for grupo in ("herramientas_de_artesano", "otras_herramientas"):
+        filas = data.get(grupo, [])
+        n += len(filas)
+        for h in filas:
+            if not h.get("utilizar"):
+                err.append(f"herramientas.yaml / {h.get('nombre')}: sin "
+                           f"descripción de 'utilizar'")
+    return n
+
+
+def _eq_aventureros(data, err, warn):
+    tabla = data.get("tabla_peso_precio", [])
+    desc = data.get("descripciones", {})
+    nombres_tabla = {re.sub(r"\s*\(.*?\)\s*$", "", o["nombre"]).strip() for o in tabla}
+    # objetos con reglas propias que deberían tener descripción (variable de
+    # precio => probablemente mecánico)
+    sin_desc = sorted(n for n in nombres_tabla
+                      if n not in desc and n not in
+                      {"Canalizador arcano", "Canalizador druídico", "Munición",
+                       "Símbolo sagrado"})
+    if len(sin_desc) > 5:
+        warn.append(f"aventureros.yaml: {len(sin_desc)} objetos de la tabla sin "
+                    f"descripción propia (posibles genéricos, revisar si hace falta)")
+    return len(tabla)
+
+
+def _eq_municion(data, err, warn):
+    """Fase 2.4 de `PLAN_20_AUDITORIA.md`. No lo validaba NADIE.
+
+    Sus cinco registros son casi todos referencias cruzadas —a un recipiente de
+    `aventureros.yaml` y a las armas de `armas.yaml` que gastan esa munición—,
+    que es justo el dato que se pudre en silencio cuando alguien renombra al
+    otro lado. Y la propiedad «munición» del arma es lo que hace que la fila
+    tenga sentido: sin ella, la referencia apunta a un arma que no consume nada.
+    """
+    filas = data.get("municion") or []
+    if not filas:
+        err.append("municion.yaml no declara `municion:` o está vacío")
+        return 0
+    if not (data.get("fuente") or {}).get("paginas_pdf"):
+        err.append("municion.yaml no cita página: sin cita, un dato no entra")
+    if not data.get("regla"):
+        err.append("municion.yaml no trae la `regla:` de la tabla «Munición»")
+
+    av = yaml.safe_load((B / "equipo/aventureros.yaml").read_text(encoding="utf-8"))
+    recipientes = {re.sub(r"\s*\(.*?\)\s*$", "", o["nombre"]).strip()
+                   for o in (av.get("tabla_peso_precio") or [])}
+    ar = yaml.safe_load((B / "equipo/armas.yaml").read_text(encoding="utf-8"))
+    armas = {}
+    import efectos as _E
+    for grupo in _E.grupos_de_armas():
+        for a in ar.get(grupo, []):
+            armas[a["nombre"]] = a
+
+    for f in filas:
+        nom = f.get("nombre")
+        for campo in ("cantidad", "peso_kg", "precio"):
+            if f.get(campo) is None:
+                err.append(f"municion.yaml / {nom}: sin `{campo}`")
+        rec = f.get("recipiente_objeto")
+        if not rec:
+            err.append(f"municion.yaml / {nom}: sin `recipiente_objeto`")
+        elif rec not in recipientes:
+            err.append(f"municion.yaml / {nom}: su recipiente {rec!r} no está "
+                       f"en la tabla de equipo/aventureros.yaml")
+        if not f.get("armas"):
+            err.append(f"municion.yaml / {nom}: no dice qué armas la gastan")
+        for a in (f.get("armas") or []):
+            if a not in armas:
+                err.append(f"municion.yaml / {nom}: el arma {a!r} no está en "
+                           f"equipo/armas.yaml")
+            elif "munici" not in str(armas[a].get("propiedades") or "").lower():
+                err.append(f"municion.yaml / {nom}: {a!r} no tiene la propiedad "
+                           f"«munición» en equipo/armas.yaml, así que no gasta "
+                           f"munición")
+    return len(filas)
+
+
+_VALIDADORES_DE_EQUIPO = {
+    "armas.yaml": _eq_armas,
+    "armaduras.yaml": _eq_armaduras,
+    "herramientas.yaml": _eq_herramientas,
+    "aventureros.yaml": _eq_aventureros,
+    "municion.yaml": _eq_municion,
+}
+
+
 def validar_equipo():
     """Comprueba los YAML de equipo/: que carguen, que cada arma/armadura/
-    herramienta/objeto tenga precio y (donde aplique) página o descripción,
-    y que las tablas de armas citen solo propiedades y maestrías definidas."""
+    herramienta/objeto/munición tenga sus campos, y que las referencias
+    cruzadas entre ficheros resuelvan.
+
+    La lista de ficheros se DERIVA del directorio: uno sin validador es un
+    error, no un salto silencioso.
+    """
     err, warn = [], []
     d = B / "equipo"
     if not d.exists():
@@ -508,71 +770,47 @@ def validar_equipo():
     if yaml is None:
         return "equipo", ["PyYAML no disponible: no se pudo validar equipo/"], []
 
-    esperados = ("armas.yaml", "armaduras.yaml", "herramientas.yaml", "aventureros.yaml")
+    hallados = sorted(p.name for p in d.glob("*.yaml"))
+    for n in hallados:
+        if n not in _VALIDADORES_DE_EQUIPO:
+            err.append(f"equipo/{n} no lo valida nadie: añade su validador a "
+                       f"`_VALIDADORES_DE_EQUIPO`. Así vivió `municion.yaml` "
+                       f"desde el 2026-08-19, porque la lista iba a mano")
+    for n in _VALIDADORES_DE_EQUIPO:
+        if n not in hallados:
+            err.append(f"hay un validador para equipo/{n} y ese fichero no "
+                       f"existe: declaración muerta")
+
     total = 0
-    for fn in esperados:
-        f = d / fn
-        if not f.exists():
-            err.append(f"falta equipo/{fn}")
+    for n in hallados:
+        fn = _VALIDADORES_DE_EQUIPO.get(n)
+        if not fn:
+            # El error ya está en `err` unas líneas arriba, con su nombre y su
+            # explicación; repetirlo aquí sería decirlo dos veces.
+            continue  # TOLERADO: lo avisa el bucle de ficheros sin validador
+        total += fn(yaml.safe_load((d / n).read_text(encoding="utf-8")), err, warn)
 
-    armas_f = d / "armas.yaml"
-    if armas_f.exists():
-        data = yaml.safe_load(armas_f.read_text(encoding="utf-8"))
-        props = set(data.get("propiedades", {}))
-        maestrias = {k.capitalize() for k in data.get("propiedades_de_maestria", {})}
-        for grupo in ("armas_cuerpo_a_cuerpo_sencillas", "armas_a_distancia_sencillas",
-                      "armas_cuerpo_a_cuerpo_marciales", "armas_a_distancia_marciales"):
-            armas = data.get(grupo, [])
-            total += len(armas)
-            for a in armas:
-                if not a.get("precio"):
-                    err.append(f"armas.yaml / {a.get('nombre')}: sin precio")
-                if not a.get("maestria"):
-                    err.append(f"armas.yaml / {a.get('nombre')}: sin maestría")
-                elif a["maestria"] not in maestrias:
-                    err.append(f"armas.yaml / {a.get('nombre')}: maestría '{a['maestria']}' no definida en propiedades_de_maestria")
+    return f"equipo ({total} entradas, {len(hallados)} ficheros)", err, warn
 
-    armaduras_f = d / "armaduras.yaml"
-    if armaduras_f.exists():
-        data = yaml.safe_load(armaduras_f.read_text(encoding="utf-8"))
-        for grupo in ("armaduras_ligeras", "armaduras_medias", "armaduras_pesadas", "escudos"):
-            filas = data.get(grupo, {}).get("tabla", [])
-            total += len(filas)
-            for a in filas:
-                if not a.get("ca"):
-                    err.append(f"armaduras.yaml / {a.get('nombre')}: sin CA")
-                if not a.get("precio"):
-                    err.append(f"armaduras.yaml / {a.get('nombre')}: sin precio")
 
-    herr_f = d / "herramientas.yaml"
-    if herr_f.exists():
-        data = yaml.safe_load(herr_f.read_text(encoding="utf-8"))
-        for grupo in ("herramientas_de_artesano", "otras_herramientas"):
-            filas = data.get(grupo, [])
-            total += len(filas)
-            for h in filas:
-                if not h.get("utilizar"):
-                    err.append(f"herramientas.yaml / {h.get('nombre')}: sin descripción de 'utilizar'")
+# Los nombres, las abreviaturas y su emparejamiento salen de
+# `reglas/caracteristicas.yaml` (fase 3 del PLAN_20). Iban escritos a mano aquí,
+# otra vez en `_CARACT_DE_ABREV`, otra en `verificar_personaje._ABREV` y otra
+# —los nombres— en `verificar_foundry._ABREV`: cuatro copias del mismo dato que
+# nadie comparaba, y sin autoridad en la base detrás de ninguna.
+@functools.lru_cache(maxsize=1)
+def _caracteristicas():
+    d = yaml.safe_load((B / "reglas/caracteristicas.yaml").read_text(encoding="utf-8"))
+    filas = (d or {}).get("caracteristicas")
+    if not filas:
+        sys.exit("✗ `reglas/caracteristicas.yaml` no declara `caracteristicas`: "
+                 "sin ese emparejamiento no se puede leer ninguna ficha")
+    return tuple((c["nombre"], c["abrev"]) for c in filas)
 
-    avent_f = d / "aventureros.yaml"
-    if avent_f.exists():
-        data = yaml.safe_load(avent_f.read_text(encoding="utf-8"))
-        tabla = data.get("tabla_peso_precio", [])
-        desc = data.get("descripciones", {})
-        total += len(tabla)
-        nombres_tabla = {re.sub(r"\s*\(.*?\)\s*$", "", o["nombre"]).strip() for o in tabla}
-        # objetos con reglas propias que deberían tener descripción (variable de precio => probablemente mecánico)
-        sin_desc = sorted(n for n in nombres_tabla
-                           if n not in desc and n not in
-                           {"Canalizador arcano", "Canalizador druídico", "Munición", "Símbolo sagrado"})
-        if len(sin_desc) > 5:
-            warn.append(f"aventureros.yaml: {len(sin_desc)} objetos de la tabla sin descripción propia (posibles genéricos, revisar si hace falta)")
 
-    return f"equipo ({total} entradas)", err, warn
-
-CARACTERISTICAS = {"Fuerza", "Destreza", "Constitución", "Inteligencia", "Sabiduría", "Carisma"}
-ABREV = {"Fuerza": "fue", "Destreza": "des", "Constitución": "con",
-         "Inteligencia": "int", "Sabiduría": "sab", "Carisma": "car"}
+CARACTERISTICAS = {n for n, _a in _caracteristicas()}
+ABREV = {n: a for n, a in _caracteristicas()}
+ABREVS = tuple(a for _n, a in _caracteristicas())
 
 def _principales(txt):
     """'Fuerza y Carisma' -> (['Fuerza','Carisma'], 'y'); 'Carisma' -> (['Carisma'], None)."""
@@ -581,8 +819,13 @@ def _principales(txt):
         return [partes[0]], None
     return [partes[0], partes[2]], partes[1]
 
+@functools.lru_cache(maxsize=None)
 def _clases_data():
-    """Carga los 12 clases/*.yaml con PyYAML, indexados por el campo 'clase'."""
+    """Carga los 12 clases/*.yaml con PyYAML, indexados por el campo 'clase'.
+
+    Cacheada el 2026-08-31: se llamaba 5 veces y costaba 2,8 s de los 13.
+    Solo lectura, como `calculo.cargar`.
+    """
     out = {}
     for p in sorted((B / "clases").glob("*.yaml")):
         d = yaml.safe_load(p.read_text(encoding="utf-8"))
@@ -715,11 +958,24 @@ def validar_generacion():
     mods = (met.get("modificadores_por_puntuacion") or {}).get("tabla") or {}
     if not mods:
         err.append("sin tabla de modificadores por puntuación")
+    # La tabla se contrasta contra `calculo.modificador()`, que es LA
+    # implementación que usa todo el proyecto — no contra una copia de la
+    # fórmula escrita aquí (auditoría del 2026-09-03). Hasta hoy esta línea
+    # decía `(p - 10) // 2`: una TERCERA copia de la misma regla, así que la
+    # tabla de la base y la fórmula de `calculo.py` podían divergir sin que
+    # este chequeo se enterara — contrastaba validar.py contra la base,
+    # dejando fuera justo al módulo que hace la cuenta de verdad.
+    #
+    # La base trae `formula:` Y `tabla:` a propósito, y esta es la razón de
+    # ser de esa duplicación: la fórmula es la implementación y la tabla es su
+    # prueba. Es el patrón de `cobertura.py` con las 18 habilidades.
+    import calculo
     for k, v in mods.items():
         rango = [int(x) for x in re.findall(r"\d+", str(k))]
         for p in range(rango[0], rango[-1] + 1):
-            if (p - 10) // 2 != v:
-                err.append(f"modificador de {k} es {v}, la fórmula da {(p - 10) // 2} para {p}")
+            if calculo.modificador(p) != v:
+                err.append(f"modificador de {k} es {v} en la tabla y "
+                           f"calculo.modificador({p}) da {calculo.modificador(p)}")
                 break
 
     # --- conjunto estándar por clase ---
@@ -732,7 +988,7 @@ def validar_generacion():
         vistas.add(nom)
         if nom not in clases:
             err.append(f"conjunto estándar: clase desconocida {nom!r}"); continue
-        vals = [fila.get(a) for a in ("fue", "des", "con", "int", "sab", "car")]
+        vals = [fila.get(a) for a in ABREVS]
         if None in vals:
             err.append(f"{nom}: fila del conjunto estándar incompleta"); continue
         if sorted(vals, reverse=True) != arr:
@@ -787,22 +1043,40 @@ def validar_generacion():
     if len(filas) != 20:
         err.append(f"tabla de espacios multiclase con {len(filas)} filas, se esperaban 20")
     else:
+        # ── Qué se comprueba aquí y qué NO, desde el 2026-09-02 ──────────
+        # Esta tabla ES la fuente citada de los espacios del lanzador completo
+        # (pdf 47 = libro 45): hasta hoy se comparaba contra el literal
+        # `COMPLETO` de este mismo fichero, que no tenía cita. Ahora que la
+        # autoridad es la tabla, compararla con `_espacios_completo()` sería
+        # compararla consigo misma, y un chequeo tautológico en verde es peor
+        # que ninguno: parece que cubre algo.
+        #
+        # El contraste numérico real lo hace `validar_clase()`, que enfrenta
+        # esta tabla a las progresiones de las 8 clases de lanzador completo y
+        # las 2 de lanzador medio —transcritas cada una desde su propia página
+        # del manual—. Se comprobó: mover una fila de esta tabla saca 7 clases
+        # en rojo. Aquí quedan las propiedades que ESA comprobación no ve: que
+        # la tabla tenga sus 20 filas, en orden, y sin huecos de columna.
         for i, fila in enumerate(filas):
             if fila.get("nivel") != i + 1:
                 err.append(f"tabla multiclase: nivel fuera de secuencia en fila {i+1}")
-            slots = [fila.get(str(j), 0) for j in range(1, 10)]
-            if slots != COMPLETO[i]:
-                err.append(f"tabla multiclase N{i+1}: {slots} != {COMPLETO[i]} (lanzador completo)")
+            faltan = [j for j in range(1, _ESPACIOS_MAX + 1) if str(j) not in fila]
+            if faltan:
+                err.append(f"tabla multiclase N{i+1}: le faltan las columnas "
+                           f"{faltan} (un nivel de conjuro ausente no es un 0: "
+                           f"es un dato que nadie ha transcrito)")
     if not lz.get("calculo_nivel_para_tabla"):
         err.append("multiclase: falta la regla de cálculo del nivel de lanzador")
 
     return "generación de personaje", err, warn
 
 # --- Marcadores de la tabla de clase que no son rasgos con texto propio ---
+# La lista vivía aquí cableada y otra copia en `subir_nivel.py`, ya divergidas
+# (ver la cabecera de `calculo.es_marcador`). Ahora se lee de
+# `reglas/subida_de_nivel.yaml → marcadores`, que es donde está declarada.
 def _es_marcador(nombre):
-    n = nombre.strip()
-    return (n == "Mejora de característica" or n == "Rasgo de subclase"
-            or n.startswith("Subclase de "))
+    import calculo
+    return calculo.es_marcador(nombre)
 
 def validar_hechizos_clases():
     """Integridad referencial hechizos.json -> clases/*.yaml.
@@ -1411,10 +1685,9 @@ _TIRADAS_EXCEPCION = {"Contactar con otro plano": "TdS Int. propia"}
 # `TdS`). Ver la docstring de `validar_tirada()`.
 _UMBRAL_DISPARADOR = 1 / 3
 
-_CARACT_DE_ABREV = {
-    "Fue.": "Fuerza", "Des.": "Destreza", "Con.": "Constitución",
-    "Int.": "Inteligencia", "Sab.": "Sabiduría", "Car.": "Carisma",
-}
+# «Fue.» → «Fuerza»: la forma con punto y mayúscula que usan las tiradas de
+# salvación de la base. Se construye del mismo emparejamiento, no se repite.
+_CARACT_DE_ABREV = {a.capitalize() + ".": n for n, a in _caracteristicas()}
 _CARACTS = r"(Fuerza|Destreza|Constituci[óo]n|Inteligencia|Sabidur[íi]a|Carisma)"
 _RE_SALVACION = re.compile(
     r"(?:tirada|tiradas)\s+de\s+salvaci[óo]n\s+de\s+" + _CARACTS, re.I)
@@ -1821,14 +2094,30 @@ def validar_costes_sin_fuente():
         if not h.get("_coste_verificado"):
             sin_verificar.append(h["nombre"])
 
+    # ── De aviso a ERROR (fase 1 del PLAN_19, 2026-09-02) ────────────────
+    # Este chequeo nunca llenaba `err`, así que su línea salía en ✅ pasara lo
+    # que pasara con el dato y `validar.py` terminaba con «0 errores». Lo
+    # destapó el bloque B al escribirle su prueba por mutación: no se le podía
+    # probar nada porque no podía fallar.
+    #
+    # Se puede promover sin dejar deuda porque los 52 están a cero hoy: el
+    # sello `_coste_verificado` está puesto en todos. Y el coste de que sea
+    # error es exactamente el que se quiere — un conjuro nuevo con material
+    # fuera del SRD **no entra** hasta que alguien lea su página, que es lo que
+    # este chequeo existía para pedir. Ya pasó una vez: `Golpe de viento
+    # acerado` tenía `coste: null` sobre una página que exige «un arma cuerpo a
+    # cuerpo que valga al menos 1 pp», y lo encontró una muestra por casualidad.
     if not sin_fuente:
         warn.append("ningún conjuro con material queda fuera del SRD: "
                     "¿se ha movido el pack?")
     if sin_verificar:
-        warn.append(f"{len(sin_verificar)} de {sin_fuente} conjuros con material "
-                    f"fuera del SRD sin `_coste_verificado`: "
-                    f"{', '.join(sorted(sin_verificar)[:6])}"
-                    + (" …" if len(sin_verificar) > 6 else ""))
+        err.append(f"{len(sin_verificar)} de {sin_fuente} conjuros con material "
+                   f"fuera del SRD sin `_coste_verificado`: "
+                   f"{', '.join(sorted(sin_verificar)[:6])}"
+                   + (" …" if len(sin_verificar) > 6 else "")
+                   + ". Su precio no lo respalda ninguna fuente externa, así "
+                     "que hay que leer la página y DECLARAR el resultado, "
+                     "incluido el negativo («sin coste, comprobado»)")
     return f"costes sin fuente ({sin_fuente})", err, warn
 
 
@@ -1843,10 +2132,11 @@ def validar_costes_sin_fuente():
 #   (a) que los efectos DECLARADOS sean válidos — barato y evidente;
 #   (b) que no haya prosa que prometa una mecánica SIN efecto detrás — que es
 #       lo que deja fuera al caso que nadie recuerda.
-_PROMESAS = (
-    ("ca", ("ca base", "clase de armadura base")),
-    ("pg_max", ("pg máximos aumentan", "puntos de golpe máximos aumentan")),
-)
+# Las frases de promesa vivían aquí, en una tupla escrita a mano, y conocían 2
+# de las 3 variables calculables: `velocidad` entró en el motor el 2026-08-30 y
+# nadie las actualizó. Es el caso 5 del §2 del Plan 18, cerrado el 2026-09-02
+# leyéndolas de `reglas/efectos.yaml`, donde viven pegadas a su variable. Ver
+# `_promesas()` más abajo: una variable `calculada` sin `promesas` es un error.
 
 
 def validar_efectos():
@@ -1877,7 +2167,35 @@ def validar_efectos():
         # fuentes del mismo dato. `columna` (Fase D4) lee la tabla dispersa de
         # la progresión de su clase, así que no menciona variables.
         tiene = [k for k in ("formula", "columna") if ef.get(k) is not None]
-        if len(tiene) != 1:
+        if ef.get("op") == "conditional":
+            # C4: no se calcula, se cita. Trae `texto` y NINGUNA fuente de
+            # valor — si trajera fórmula, alguien acabaría agregándola.
+            if not (ef.get("texto") or "").strip():
+                err.append(f"{d}: `conditional` sin `texto`: un efecto que no "
+                           f"se calcula tiene que decir qué hace")
+            if tiene:
+                err.append(f"{d}: `conditional` trae {tiene}, y no debe: es un "
+                           f"efecto que NO se calcula")
+        elif ef.get("op") == "modifica_tope":
+            # Bloque C: nombra la variable acotada y da su valor NUEVO. Se
+            # exige `formula` (el valor) y `tope` (a quién acota), y que ese
+            # tope sea una variable declarada: un tope sobre algo que no
+            # existe no modificaría nada y pasaría en verde.
+            if "formula" not in tiene:
+                err.append(f"{d}: `modifica_tope` sin `formula`: hay que decir "
+                           f"cuál es el tope nuevo")
+            variable = ef.get("tope")
+            if not variable:
+                err.append(f"{d}: `modifica_tope` sin `tope`: hay que decir a "
+                           f"qué variable acota el límite que se cambia")
+            elif variable not in vocab["variables"]:
+                err.append(f"{d}: `modifica_tope` sobre {variable!r}, que no es "
+                           f"una variable declarada en reglas/efectos.yaml")
+            if not (ef.get("requiere") or []):
+                err.append(f"{d}: `modifica_tope` sin `requiere`: un tope que "
+                           f"se aplicara siempre cambiaría la CA de cualquier "
+                           f"armadura, y el manual lo condiciona")
+        elif len(tiene) != 1:
             err.append(f"{d}: un efecto debe traer `formula` O `columna`, "
                        f"y trae {tiene or 'ninguna de las dos'}")
         elif "columna" in tiene:
@@ -1908,13 +2226,55 @@ def validar_efectos():
             err.append(f"efecto sin cita de página numérica en {d}")
 
     # (b) prosa que promete mecánica sin efecto detrás
+    #
+    # La cobertura de este chequeo se DESCUBRE del vocabulario: toda variable
+    # `calculada` tiene que traer sus `promesas`, y no traerlas es un error.
+    # Así no se puede añadir una cuarta variable y dejar su prosa sin vigilar,
+    # que es exactamente lo que pasó con `velocidad` durante tres días.
+    promesas = []
+    for nombre, v in (vocab.get("variables") or {}).items():
+        if (v or {}).get("tipo") != "calculada":
+            # Va sin anotación de tolerancia A PROPÓSITO: para anotarla habría
+            # que nombrar quién la cubre, y hoy no la cubre nadie. Un `tipo:` mal
+            # escrito (`calculadas`) saca a esa variable de este chequeo sin
+            # ruido, porque nada comprueba que `tipo` esté en un vocabulario
+            # cerrado. Eso es la fase 4 de `PLAN_20_AUDITORIA.md`; hasta
+            # entonces queda como deuda enumerada en
+            # `_verificacion/chequeos_silenciosos.json`, contada y visible.
+            continue
+        frases = (v or {}).get("promesas")
+        if not frases:
+            err.append(
+                f"la variable calculable «{nombre}» no declara `promesas` en "
+                f"reglas/efectos.yaml: sin las frases con las que su prosa la "
+                f"anuncia, un rasgo puede prometerla y no declararla y nadie "
+                f"lo diría")
+            continue
+        # ── Coincidencia con LÍMITE DE PALABRA (bloque C, 2026-09-02) ──
+        # Buscar la frase como subcadena suelta da falsos positivos que además
+        # son invisibles: «a tu ca» casaba dentro de «a tu CApacidad de carga»
+        # del rasgo «Constitución poderosa» del Goliat, que no toca la CA de
+        # nada. Un falso positivo aquí obliga a declarar ruido, y un
+        # manifiesto lleno de ruido no lo lee nadie.
+        #
+        # El guardián se pone solo donde el borde de la frase es una letra: la
+        # promesa «pg máximos +» termina en un signo, y exigirle límite detrás
+        # la haría no casar nunca con «PG máximos +40».
+        compiladas = []
+        for f in frases:
+            f = f.lower()
+            ini = r"(?<!\w)" if f[:1].isalnum() else ""
+            fin = r"(?!\w)" if f[-1:].isalnum() else ""
+            compiladas.append(re.compile(ini + re.escape(f) + fin))
+        promesas.append((nombre, tuple(compiladas)))
+
     con_efecto = {(ef["_archivo"], ef["_rasgo"], ef["objetivo"]) for ef in declarados}
-    for rel, camino in E._ORIGENES:
+    for rel, camino in E.origenes():
         doc = yaml.safe_load((B / rel).read_text(encoding="utf-8"))
         for reg, _anc in E._descender(doc, list(camino)):
-            txt = (reg.get("desc") or "").lower()
-            for objetivo, frases in _PROMESAS:
-                if not any(f in txt for f in frases):
+            txt = (reg.get("desc") or reg.get("descripcion") or "").lower()
+            for objetivo, frases in promesas:
+                if not any(f.search(txt) for f in frases):
                     continue
                 if (rel, reg.get("nombre"), objetivo) not in con_efecto:
                     err.append(
@@ -1922,12 +2282,77 @@ def validar_efectos():
                         f"fija «{objetivo}» y no declara ningún efecto que lo "
                         f"haga: la regla existe pero nadie la puede calcular")
 
+    # ── (b bis) LA PUERTA CERRADA · bloque D (2026-09-02) ────────────────
+    # Todo rasgo tiene que decir si toca alguna variable calculable: o trae
+    # `efectos:`, o trae `no_automatizado:` con su motivo. Los 496 que hoy no
+    # dicen ni una cosa ni la otra están ENUMERADOS en
+    # `_verificacion/rasgos_sin_declarar.json`, y esa lista solo puede bajar.
+    #
+    # Enumerarlos —y no taparlos con un comodín, que es lo que hacía el censo
+    # hasta hoy— es la diferencia entre «se ve crecer» y «no puede crecer»: un
+    # rasgo que se añada mañana sin declarar nada hace fallar esto.
+    # La línea base se lee por `deuda.Deuda`, no abriendo el JSON a mano
+    # (fase 1 del PLAN_21). Aquí y en `censo.fila_rasgos` se leía el mismo
+    # fichero con dos trozos de código distintos: el día que uno cambiara de
+    # forma, el otro se enteraría reventando.
+    # La prosa (`nota`, `como_se_salda`) va vacía a propósito: quien ESCRIBE
+    # este fichero es `censo.fila_rasgos`, y `Deuda._escribir` conserva
+    # siempre la del disco. Aquí solo se lee, y la identidad es la única que
+    # tiene que coincidir —si no coincidiera, `Deuda` lanza en vez de comparar
+    # dos cosas que ya no significan lo mismo—.
+    import deuda as _D
+    _dd = _D.Deuda("_verificacion/rasgos_sin_declarar.json", nota="",
+                   como_se_salda="", identidad="fichero-almohadilla-nombre")
+    if not _dd.ruta.exists():
+        err.append("falta _verificacion/rasgos_sin_declarar.json: sin él no se "
+                   "puede distinguir un rasgo nuevo sin declarar de la deuda "
+                   "conocida")
+    else:
+        conocidos = set(_dd.vigentes)
+        vistos, nuevos, resueltos_hoy = set(), [], []
+        for rel, camino in E.origenes():
+            doc = yaml.safe_load((B / rel).read_text(encoding="utf-8"))
+            for reg, _anc in E._descender(doc, list(camino)):
+                if not isinstance(reg, dict) or not reg.get("nombre"):
+                    continue
+                uid = f"{rel}#{reg['nombre']}"
+                declara = reg.get("efectos") or reg.get("no_automatizado")
+                # `no_automatizado` tiene que traer MOTIVO. Un `true` pelado
+                # sería una firma en blanco: dice «lo miramos» sin decir qué
+                # se miró, y es indistinguible de callarse.
+                na = reg.get("no_automatizado")
+                if na is not None and not (isinstance(na, str) and na.strip()):
+                    err.append(f"«{reg['nombre']}» ({rel}): `no_automatizado` "
+                               f"tiene que traer el motivo, no {na!r}. Decir "
+                               f"«lo miramos y no toca» sin decir qué se miró "
+                               f"es no decir nada")
+                if declara:
+                    if uid in conocidos:
+                        resueltos_hoy.append(uid)
+                    continue
+                vistos.add(uid)
+                if uid not in conocidos:
+                    nuevos.append(uid)
+        for uid in nuevos[:20]:
+            err.append(f"«{uid.split('#')[-1]}» ({uid.split('#')[0]}) no dice "
+                       f"si toca alguna variable calculable: o declara "
+                       f"`efectos:`, o `no_automatizado:` con su motivo")
+        if len(nuevos) > 20:
+            err.append(f"… y {len(nuevos) - 20} rasgos más sin declarar")
+        if resueltos_hoy:
+            warn.append(f"{len(resueltos_hoy)} rasgos de "
+                        f"`rasgos_sin_declarar.json` ya declaran algo: "
+                        f"bórralos de la lista, que solo puede bajar")
+
     # (b2) ningún `efectos:` fuera de los ficheros que el motor recorre.
-    # `efectos._ORIGENES` es una lista escrita a mano, y una lista escrita a
-    # mano es EXACTAMENTE lo que dejó fuera a las dos fórmulas de CA de
-    # subclase. Si alguien declara un efecto en `dotes/` o `trasfondos/`, hoy
-    # se ignoraría en silencio; esto lo convierte en un error ruidoso.
-    conocidos = {rel for rel, _ in E._ORIGENES}
+    # Antes de C1 (Plan 17) esto era el parche al síntoma: `efectos._ORIGENES`
+    # era una lista escrita a mano —lo que dejó fuera a las dos fórmulas de CA
+    # de subclase— y este chequeo solo avisaba de las consecuencias. Hoy la
+    # cobertura la calcula `E.origenes()` contra el manifiesto, así que los
+    # ficheros de REGLA ya no pueden quedarse fuera en silencio.
+    # Esto sigue haciendo falta para los demás directorios (`equipo/`,
+    # `reglas/`…), donde un `efectos:` suelto seguiría sin tener quien lo lea.
+    conocidos = {rel for rel, _ in E.origenes()}
     for f in sorted(B.glob("**/*.yaml")):
         rel = f.relative_to(B).as_posix()
         if rel in conocidos or rel.startswith(("_verificacion/", "personajes/")):
@@ -1935,7 +2360,7 @@ def validar_efectos():
         if re.search(r"^\s*efectos:", f.read_text(encoding="utf-8"), re.M):
             err.append(
                 f"{rel} declara `efectos:` y el motor no lo recorre: añádelo a "
-                f"`efectos._ORIGENES` o el efecto no existe para nadie")
+                f"`reglas/fuentes_de_efectos.yaml` o el efecto no existe para nadie")
 
     # (b3) un efecto con `columna` tiene que resolverse en TODOS los niveles de
     # su clase, no en uno.
@@ -1998,6 +2423,194 @@ def validar_efectos():
 # Es la capa 3 del método (invariantes deducibles). No demuestra que la tabla
 # esté bien copiada: demuestra que las dos transcripciones **cuentan la misma
 # historia**, y si una se rompe, deja de cuadrar.
+def validar_conjuros_cd():
+    """La regla de la CD de conjuros, contrastada contra su propia prosa.
+
+    Entró en la base el 2026-09-05 viniendo de `calculo.py`, donde estaba
+    cableada con su cita en un comentario. Traerla a la base no basta: si el
+    número y la frase que lo describe pudieran divergir, habría dos copias
+    otra vez —dentro del mismo registro esta vez—. Así que se exige que el
+    `base:` esté DENTRO de su `formula:`, que es el mismo contraste que
+    `validar_mejoras_de_dote` hace con `mejora_caracteristica`.
+
+    Y se comprueba que `calculo` dé lo que la base dice, que es lo que impide
+    que el módulo vuelva a cablearlo.
+    """
+    err, n = [], 0
+    g = yaml.safe_load((B / "reglas/generacion_personaje.yaml").read_text(encoding="utf-8"))
+    c = (g or {}).get("conjuros")
+    if not c:
+        return "CD de conjuros", ["reglas/generacion_personaje.yaml no declara "
+                                  "`conjuros`"], []
+    if not (c.get("pagina") or {}).get("pdf"):
+        err.append("`conjuros` no cita página: sin cita, un dato no entra")
+    for clave, texto in (("cd_salvacion", "8 +"), ("bonificador_ataque", None)):
+        bloque = c.get(clave) or {}
+        base, formula = bloque.get("base"), str(bloque.get("formula") or "")
+        if base is None or not formula:
+            err.append(f"`conjuros.{clave}` necesita `base:` y `formula:`")
+            continue
+        n += 1
+        # El número tiene que aparecer en la frase que lo describe, salvo
+        # cuando es 0: «0 + mod…» no es como se escribe una fórmula.
+        if base and str(base) not in formula:
+            err.append(f"`conjuros.{clave}`: `base: {base}` no aparece en su "
+                       f"`formula` ({formula!r}). Dos copias del mismo número "
+                       f"que nadie compara es como empezaron los ocho")
+        elif not base and texto:
+            err.append(f"`conjuros.{clave}`: `base: {base}` y su fórmula "
+                       f"empieza por {texto!r}")
+    # Y que el módulo lea de aquí, no de una copia suya. Solo si la estructura
+    # está sana: si el bloque ya vino mal, el error YA está dicho arriba y
+    # `calculo` no tiene de dónde leer —llamarlo encima solo taparía el
+    # mensaje con el suyo—.
+    if not err:
+        for clave, fn in (("cd_salvacion", calculo.cd_conjuros),
+                          ("bonificador_ataque", calculo.bonif_ataque_conjuros)):
+            n += 1
+            esperado = (c.get(clave) or {}).get("base", 0) + 3 + 2
+            if fn(3, 2) != esperado:
+                err.append(f"`calculo.{fn.__name__}` no usa el `base` de la "
+                           f"base: da {fn(3, 2)} y la regla dice {esperado}")
+    return f"CD de conjuros ({n})", err, []
+
+
+def validar_vocabulario_consumido():
+    """Los vocabularios cerrados de `reglas/efectos.yaml`, ¿los consume alguien?
+
+    Fase 4 de `PLAN_20_AUDITORIA.md`. El censo comprueba **base → código**: que
+    ninguna unidad de la base se quede sin chequeo. A esto le faltaba la vuelta,
+    **código → base**: que ningún término declarado en un vocabulario cerrado
+    se quede sin nadie que lo consuma.
+
+    Medido el 2026-09-06, antes de escribir esto: se podía añadir una condición
+    nueva, una operación nueva o una fuente de valor nueva a
+    `reglas/efectos.yaml` y `validar.py` seguía diciendo «0 errores». El
+    término entraba en la base y no lo consumía nada — un efecto que lo usara
+    se habría quedado sin aplicar, en silencio.
+    """
+    err, n = [], 0
+    import efectos as E
+    for etiqueta, fn in (("fuentes_de_valor", E.fuentes_de_valor),
+                         ("condiciones", E.condiciones_decidibles),
+                         ("operaciones", E.operaciones_agregadas)):
+        n += 1
+        try:
+            fn()
+        except E.ErrorDeEfectos as e:                    # noqa: PERF203
+            err.append(f"{etiqueta}: {e}")
+    return f"vocabulario consumido ({n} vocabularios)", err, []
+
+
+def validar_caracteristicas():
+    """El fichero de características, contrastado contra sus TRES orígenes.
+
+    `reglas/caracteristicas.yaml` no trae ningún dato nuevo: reúne lo que la
+    base ya tenía repartido. Por eso no basta con que exista — si pudiera
+    separarse de aquello de lo que salió, sería una quinta copia en vez de la
+    autoridad única, y habríamos cambiado cuatro literales de Python por un
+    YAML que miente. Este chequeo lo ata a los tres.
+    """
+    err = []
+    d = yaml.safe_load((B / "reglas/caracteristicas.yaml").read_text(encoding="utf-8"))
+    filas = (d or {}).get("caracteristicas") or []
+    if not filas:
+        return "características", [
+            "reglas/caracteristicas.yaml no declara `caracteristicas`: sin ella "
+            "el emparejamiento nombre↔abreviatura vuelve a vivir en Python"], []
+    if not (d.get("verificado") or {}).get("metodo"):
+        err.append("reglas/caracteristicas.yaml no dice cómo se verificó")
+
+    nombres = [c.get("nombre") for c in filas]
+    abrevs = [c.get("abrev") for c in filas]
+
+    # 1 · los nombres y su orden, contra `prerrequisitos.yaml`
+    pr = yaml.safe_load((B / "reglas/prerrequisitos.yaml").read_text(encoding="utf-8"))
+    if nombres != list(pr.get("caracteristicas") or []):
+        err.append(f"los nombres no coinciden con reglas/prerrequisitos.yaml → "
+                   f"caracteristicas: {nombres} vs {pr.get('caracteristicas')}")
+
+    # 2 · las abreviaturas y su orden, contra las columnas del conjunto estándar
+    g = yaml.safe_load((B / "reglas/generacion_personaje.yaml").read_text(encoding="utf-8"))
+    fila0 = ((g.get("conjunto_estandar_por_clase") or {}).get("filas") or [{}])[0]
+    columnas = [k for k in fila0 if k != "clase"]
+    if abrevs != columnas:
+        err.append(f"las abreviaturas no coinciden con las columnas de "
+                   f"`conjunto_estandar_por_clase.filas`: {abrevs} vs {columnas}")
+
+    # 3 · el EMPAREJAMIENTO, contra las variables del motor y su prosa
+    ef = yaml.safe_load((B / "reglas/efectos.yaml").read_text(encoding="utf-8"))
+    variables = ef.get("variables") or {}
+    for c in filas:
+        v = variables.get(c.get("variable"))
+        if v is None:
+            err.append(f"«{c.get('nombre')}» dice derivar de la variable "
+                       f"`{c.get('variable')}`, que no existe en reglas/efectos.yaml")
+            continue
+        if c.get("variable") != f"mod_{c.get('abrev')}":
+            err.append(f"«{c.get('nombre')}»: la variable `{c.get('variable')}` no "
+                       f"corresponde a la abreviatura `{c.get('abrev')}`")
+        if str(c.get("nombre")) not in str(v.get("desc") or ""):
+            err.append(f"«{c.get('nombre')}» no aparece en la descripción de "
+                       f"`{c.get('variable')}` ({v.get('desc')!r}): el "
+                       f"emparejamiento nombre↔abreviatura deja de estar "
+                       f"contrastado contra el motor")
+    return f"características ({len(filas)}, contra 3 orígenes)", err, []
+
+
+def validar_ca_base():
+    """Que las DOS implementaciones de la CA base sin armadura lean la base.
+
+    La regla vive en `reglas/efectos.yaml → variables.ca.base_por_defecto`,
+    citada en pdf 43 = libro 41. La lee `efectos.calcular()`, y hasta el
+    2026-09-05 `calculo.ca()` llevaba el `10` cableado: dos implementaciones
+    de la misma regla en el mismo repositorio, y nadie comparándolas. Medido
+    entonces: poniendo `11 + mod_des` en la base, tres fichas se quejaban por
+    el camino del motor y `calculo.ca()` seguía dando 12.
+
+    Este chequeo es lo que impide que vuelva a separarse. No reimplementa la
+    regla —eso sería una tercera copia—: le pide el número a cada camino y
+    exige que coincidan con lo que la base declara.
+    """
+    err = []
+    import efectos as E
+    vocab = E.cargar_vocabulario()
+    decl = ((vocab.get("variables") or {}).get("ca") or {}).get("base_por_defecto")
+    if not decl:
+        return "CA base sin armadura", [
+            "`reglas/efectos.yaml → variables.ca.base_por_defecto` no declara "
+            "la CA de quien no lleva armadura: sin ella, cada módulo se "
+            "inventa la suya"], []
+
+    m = re.match(r"^\s*(\d+)\s*\+\s*mod_des\s*$", str(decl))
+    if not m:
+        return "CA base sin armadura", [
+            f"`base_por_defecto` dice {decl!r}, y las dos implementaciones "
+            f"solo saben «N + mod_des». Si la regla cambia de forma, cambian "
+            f"ellas o el contraste deja de valer"], []
+    base = int(m.group(1))
+
+    # Camino 1: `calculo.ca()`, el de la línea de órdenes.
+    des = 2
+    if calculo.ca(des) != base + des:
+        err.append(f"`calculo.ca({des})` da {calculo.ca(des)} y la base "
+                   f"declara {decl!r}, o sea {base + des}. El número está "
+                   f"cableado otra vez")
+
+    # Camino 2: el motor de efectos, que es el que escribe las fichas. Sin
+    # `try`: si `calcular()` cambia de forma y esta llamada deja de valer, el
+    # chequeo tiene que ROMPERSE ruidosamente, no saltarse su propia mitad en
+    # silencio y seguir imprimiendo verde. (Escrito así en el primer intento,
+    # el `except` se tragaba un `KeyError` y este camino no se comprobaba: la
+    # familia del hueco nº 10 de la ronda 2, otra vez.)
+    del_motor = E.calcular({"mod_des": des}, [], {"ca": None},
+                           {"sin_armadura": True, "sin_escudo": True})["ca"]
+    if del_motor != base + des:
+        err.append(f"`efectos.calcular()` da una CA base de {del_motor} y la "
+                   f"base declara {base + des}")
+    return "CA base sin armadura (2 caminos)", err, []
+
+
 def validar_puntos_golpe():
     err, warn = [], []
     g = yaml.safe_load((B / "reglas/generacion_personaje.yaml").read_text(encoding="utf-8"))
@@ -2307,6 +2920,154 @@ def validar_tiradas():
 # Y un segundo chequeo, del que ya hay precedente: cada rasgo y cada categoría
 # de entrenamiento citados tienen que **resolver a un registro real**. Citar un
 # rasgo que no existe es el bug `Clerigo` otra vez.
+# ── C3 del Plan 17: la mejora de característica que concede una DOTE ──────
+# El defecto que cierra esto, medido el 2026-08-31: `Actor` concede «Carisma
+# +1» y ese +1 vivía SOLO dentro de la cadena `descripcion`. El esquema exigía
+# `final == base + ajuste_trasfondo + mejoras`, y una dote no tenía dónde
+# entrar. Resultado invertido: la ficha CORRECTA (Car 18) se rechazaba por
+# «puntuación sin justificar», y la ficha ROTA (Car 17, el +1 perdido)
+# verificaba en verde con la CD, el ataque y la CA un punto por debajo.
+#
+# Método: el mismo de la Fase 15 con los prerrequisitos — no se transcribe
+# nada nuevo, se ESTRUCTURA la prosa ya citada, y se exige IDA Y VUELTA. Si
+# la estructura no reproduce el fragmento del manual palabra por palabra, la
+# estructura está mal. 54/54 exactas al escribirse.
+#
+# Detalle que la ida y vuelta salvó: los 12 dones épicos dicen «máx. 30», no
+# «máx. 20». Haber supuesto 20 habría inventado una regla para 12 dotes.
+_MEJORA_FRAG = re.compile(
+    r'^\s*Mejora de característica:\s*'
+    r'(.+?\(máx\.\s*\d+\)(?: a una característica [^.]+)?)\.')
+# Los seis nombres salen de `reglas/caracteristicas.yaml` (fase 3 del PLAN_20).
+# Y va con otro nombre a propósito: `_CARACTS` ya existía en este módulo como
+# el fragmento de expresión regular de las salvaciones (línea ~1691), y tener
+# dos cosas distintas con el mismo nombre en el mismo fichero es un accidente
+# esperando a pasar.
+_NOMBRES_CARACT = tuple(n for n, _a in _caracteristicas())
+
+# La dote genérica «Mejora de característica» (pdf 209 = libro 207) redacta lo
+# mismo de otra forma, porque no es una sub-mejora dentro de una dote mayor:
+# es la dote entera. Su texto no encaja en `_MEJORA_FRAG`, y hasta el
+# 2026-09-03 era la ÚNICA de las 43 dotes sin `mejora_caracteristica`
+# estructurado — justo la que `personajes/_ESQUEMA.md` designa para cada
+# entrada de `mejoras:`—. La consecuencia: su «+2» y su tope de 20 vivían
+# CABLEADOS en `verificar_personaje.py`, sin fuente que nadie contrastara. Es
+# el defecto nº 4 del §2 del PLAN_18 (autoridad de la base copiada a Python) y
+# lo destapó la ronda 2 de estrés con agentes.
+#
+# El reparto no necesita campo propio: las formas legales de repartir
+# `cantidad` son sus particiones en partes de al menos 1 — con `cantidad: 1`
+# solo cabe [1], y con `cantidad: 2` caben [2] y [1,1], que es exactamente lo
+# que dice el texto. Un campo `reparto:` sería un tercer sitio donde decir lo
+# que ya dice `cantidad`.
+_MEJORA_GENERICA = re.compile(
+    r'^\s*Aumenta en (\d+) una puntuación de característica de tu elección, '
+    r'o aumenta dos en 1 cada una\. No puede superar (\d+)\.')
+
+
+def _mejora_a_prosa(m):
+    """estructura -> fragmento del manual. Es la mitad de vuelta."""
+    cant, mx = m.get("cantidad"), m.get("maximo")
+    if m.get("restriccion"):
+        return f"+{cant} (máx. {mx}) a una característica {m['restriccion']}"
+    e = m.get("entre")
+    if e == "cualquiera":
+        return f"una a elección +{cant} (máx. {mx})"
+    if not isinstance(e, list) or not e:
+        return None
+    if len(e) == 1:
+        cuerpo = e[0]
+    elif len(e) == 2:
+        cuerpo = f"{e[0]} o {e[1]}"
+    else:
+        cuerpo = ", ".join(e[:-1]) + f" o {e[-1]}"
+    return f"{cuerpo} +{cant} (máx. {mx})"
+
+
+def validar_mejoras_de_dote():
+    err, warn = [], []
+    n_ok = 0
+    for f in sorted((B / "dotes").glob("*.yaml")):
+        d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        rel = f.relative_to(B).as_posix()
+        for x in d.get("dotes", []) or []:
+            nom = x.get("nombre")
+            desc = str(x.get("descripcion", ""))
+            m = _MEJORA_FRAG.match(desc)
+            est = x.get("mejora_caracteristica")
+
+            # La forma genérica va primero porque su texto es el de la dote
+            # entera, no un fragmento dentro de otra: si encaja, no hay
+            # `_MEJORA_FRAG` que buscar.
+            mg = _MEJORA_GENERICA.match(desc)
+            if mg:
+                if not est:
+                    err.append(f"«{nom}» ({rel}) concede una mejora de "
+                               f"característica en su texto y no la declara "
+                               f"en `mejora_caracteristica`")
+                    continue
+                prometido = (int(mg.group(1)), int(mg.group(2)))
+                declarado = (est.get("cantidad"), est.get("maximo"))
+                if declarado != prometido:
+                    err.append(
+                        f"«{nom}» ({rel}): su texto promete cantidad "
+                        f"{prometido[0]} y máximo {prometido[1]}, y "
+                        f"`mejora_caracteristica` declara {declarado[0]} y "
+                        f"{declarado[1]}")
+                elif est.get("entre") != "cualquiera":
+                    err.append(
+                        f"«{nom}» ({rel}): su texto dice «de tu elección», "
+                        f"así que `entre` tiene que ser «cualquiera» y es "
+                        f"{est.get('entre')!r}")
+                else:
+                    n_ok += 1
+                continue
+
+            # (a) la prosa promete un +1 y no hay estructura -> el caso Actor
+            if m and not est:
+                err.append(f"«{nom}» ({rel}) concede una mejora de "
+                           f"característica en su texto y no la declara en "
+                           f"`mejora_caracteristica`: el +1 no lo aplicaría "
+                           f"nadie y la ficha correcta sería la rechazada")
+                continue
+            # (b) estructura sin prosa que la respalde -> dato inventado
+            if est and not m:
+                err.append(f"«{nom}» ({rel}) declara `mejora_caracteristica` "
+                           f"y su `descripcion` no dice que conceda ninguna: "
+                           f"una mejora sin texto que la cite es inventada")
+                continue
+            if not est:
+                # TOLERADO: lo cubren (a) y (b) de arriba. Una dote sin
+                # `mejora_caracteristica` cuyo texto tampoco promete ninguna
+                # no tiene nada que comprobar; los dos casos en que la
+                # ausencia SÍ es un defecto ya han saltado antes de llegar
+                # aquí (prosa sin estructura, estructura sin prosa).
+                continue
+
+            # (c) ida y vuelta exacta
+            generado = _mejora_a_prosa(est)
+            if generado != m.group(1):
+                err.append(f"«{nom}» ({rel}): `mejora_caracteristica` no "
+                           f"reproduce su propio texto.\n"
+                           f"        manual:    «{m.group(1)}»\n"
+                           f"        estructura: «{generado}»")
+                continue
+
+            # (d) el vocabulario de características es cerrado
+            e = est.get("entre")
+            if isinstance(e, list):
+                for c in e:
+                    if c not in _NOMBRES_CARACT:
+                        err.append(f"«{nom}» ({rel}): {c!r} no es una "
+                                   f"característica")
+            elif e != "cualquiera":
+                err.append(f"«{nom}» ({rel}): `entre` debe ser una lista de "
+                           f"características o «cualquiera», y es {e!r}")
+            n_ok += 1
+
+    return f"mejoras de dote ({n_ok})", err, warn
+
+
 def validar_prerrequisitos():
     err, warn = [], []
     import prerrequisitos as P
@@ -2423,11 +3184,38 @@ def validar_subida():
     return f"saltos de nivel ({saltos})", err, warn
 
 
+def _correr(fn, *args):
+    """Un chequeo que revienta HABLA, no mata a `validar.py`.
+
+    Escrito el 2026-09-06, y es la tercera vez en dos días que aparece la misma
+    familia de defecto —un chequeo que explota en vez de informar—: el hueco
+    nº 10 de la ronda 2 de estrés, el `KeyError` de `validar_conjuros_cd`
+    (fase 1.5) y ahora `operaciones_agregadas()`, que al detectar una operación
+    sin consumidor levantaba `ErrorDeEfectos` desde dentro de otro chequeo y
+    se llevaba por delante el informe entero. Arreglar instancias no bastaba;
+    esto lo cierra para TODOS los chequeos de este módulo a la vez.
+
+    Un fallo así no se traga: sale como error del chequeo que lo provocó, con
+    su tipo y su mensaje, y cuenta para el total.
+
+    Desde la fase 2 del `PLAN_21` esto son tres líneas sobre `informar.muro`:
+    el mecanismo vive fuera porque los otros seis verificadores lo necesitan
+    igual, y aquí se queda solo la ADAPTACIÓN a la terna `(nombre, errores,
+    avisos)` que espera `main()`. Sus trece usos no cambian.
+    """
+    import informar as _I
+    valor, fallo = _I.muro(fn, *args)
+    if fallo is None:
+        return valor
+    # La etiqueta va aparte: `main()` ya la imprime en su columna.
+    return (fallo.etiqueta, [fallo.motivo], [])
+
+
 def main():
     total_err = 0
     print("── CLASES " + "─"*52)
     for p in sorted((B/"clases").glob("*.yaml")):
-        nom, err, warn = validar_clase(p)
+        nom, err, warn = _correr(validar_clase, p)
         total_err += len(err)
         estado = "✅" if not err else "❌"
         print(f" {estado} {nom:<12} {'0 errores' if not err else str(len(err))+' ERRORES'}")
@@ -2436,23 +3224,23 @@ def main():
 
     print("── ORÍGENES " + "─"*50)
     for fn in (validar_trasfondos, validar_especies):
-        nom, err, warn = fn()
+        nom, err, warn = _correr(fn)
         total_err += len(err)
         print(f" {'✅' if not err else '❌'} {nom:<18} {'0 errores' if not err else str(len(err))+' ERRORES'}")
         for e in err[:12]: print(f"      ✗ {e}")
 
-    nom, err, warn = validar_subclases()
+    nom, err, warn = _correr(validar_subclases)
     total_err += len(err)
     print(f" {'✅' if not err else '❌'} {nom:<18} {'0 errores' if not err else str(len(err))+' ERRORES'}")
     for e in err[:12]:  print(f"      ✗ {e}")
     for w in warn[:4]:  print(f"      ⚠ {w}")
 
-    nom, err, warn = validar_dotes()
+    nom, err, warn = _correr(validar_dotes)
     total_err += len(err)
     print(f" {'✅' if not err else '❌'} {nom:<18} {'0 errores' if not err else str(len(err))+' ERRORES'}")
     for e in err[:20]: print(f"      ✗ {e}")
 
-    nom, err, warn = validar_equipo()
+    nom, err, warn = _correr(validar_equipo)
     total_err += len(err)
     print(f" {'✅' if not err else '❌'} {nom:<18} {'0 errores' if not err else str(len(err))+' ERRORES'}")
     for e in err[:20]: print(f"      ✗ {e}")
@@ -2460,34 +3248,36 @@ def main():
 
     print("── CREACIÓN DE PERSONAJE " + "─"*37)
     for fn in (validar_atributos_basicos, validar_generacion, validar_puntos_golpe,
+               validar_conjuros_cd, validar_ca_base,
+               validar_caracteristicas, validar_vocabulario_consumido,
                validar_rasgos_clase,
                validar_competencias_clase, validar_habilidades, validar_idiomas):
-        nom, err, warn = fn()
+        nom, err, warn = _correr(fn)
         total_err += len(err)
         print(f" {'✅' if not err else '❌'} {nom:<24} {'0 errores' if not err else str(len(err))+' ERRORES'}")
         for e in err[:20]: print(f"      ✗ {e}")
         for w in warn[:5]: print(f"      ⚠ {w}")
 
     print("── HECHIZOS " + "─"*50)
-    nom, err, warn = validar_hechizos()
+    nom, err, warn = _correr(validar_hechizos)
     total_err += len(err)
     print(f" {'✅' if not err else '❌'} {nom:<12} {'0 errores' if not err else str(len(err))+' ERRORES'}")
     for e in err[:10]: print(f"      ✗ {e}")
     for w in warn[:5]: print(f"      ⚠ {w}")
 
-    nom, err, warn = validar_hechizos_clases()
+    nom, err, warn = _correr(validar_hechizos_clases)
     total_err += len(err)
     print(f" {'✅' if not err else '❌'} {nom:<12} {'0 errores' if not err else str(len(err))+' ERRORES'}")
     for e in err[:12]: print(f"      ✗ {e}")
     for w in warn[:8]: print(f"      ⚠ {w}")
 
     print("── INTEGRIDAD " + "─"*48)
-    nom, err, warn = validar_dados()
+    nom, err, warn = _correr(validar_dados)
     total_err += len(err)
     print(f" {'✅' if not err else '❌'} {nom:<24} {'0 errores' if not err else str(len(err))+' ERRORES'}")
     for e in err[:20]: print(f"      ✗ {e}")
 
-    nom, err, warn = validar_conversiones()
+    nom, err, warn = _correr(validar_conversiones)
     total_err += len(err)
     print(f" {'✅' if not err else '❌'} {nom:<24} {'0 errores' if not err else str(len(err))+' ERRORES'}")
     for e in err[:20]: print(f"      ✗ {e}")
@@ -2495,16 +3285,23 @@ def main():
     for fn in (validar_tirada, validar_vecindad, validar_ortografia,
                validar_citas_conjuro, validar_costes_sin_fuente, validar_efectos,
                validar_materiales, validar_tiradas, validar_ataques,
-               validar_prerrequisitos, validar_subida):
-        nom, err, warn = fn()
+               validar_prerrequisitos, validar_subida,
+               validar_mejoras_de_dote):
+        nom, err, warn = _correr(fn)
         total_err += len(err)
         print(f" {'✅' if not err else '❌'} {nom:<24} {'0 errores' if not err else str(len(err))+' ERRORES'}")
         for e in err[:20]: print(f"      ✗ {e}")
         for w in warn[:6]: print(f"      ⚠ {w}")
 
-    nom, err, warn = validar_referencias()
+    nom, err, warn = _correr(validar_referencias)
     total_err += len(err)
-    print(f" {'✅' if not (err or warn) else '⚠'} {nom}")
+    # El marcador tiene que decir la verdad: ❌ si hay errores, ⚠ si solo hay
+    # avisos, ✅ si no hay nada. Hasta el 2026-09-02 esta línea imprimía ⚠
+    # aunque hubiera errores —daba igual, porque este chequeo no podía tener
+    # ninguno— y al promoverlo a error (fase 1 del PLAN_19) la línea seguía
+    # diciendo «aviso» de un fallo real: su prueba por mutación daba «no
+    # detectada» cuando lo que fallaba era el rótulo.
+    print(f" {'❌' if err else '⚠' if warn else '✅'} {nom}")
     for e in err:      print(f"      ✗ {e}")
     for w in warn[:12]: print(f"      ⚠ {w}")
 

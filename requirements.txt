@@ -1,0 +1,11 @@
+# Dependencias de terceros de la base canónica de D&D 2024.
+#
+# Es UNA, y conviene que siga siéndolo: todo lo demás es biblioteca estándar
+# (`ast`, `json`, `csv`, `pathlib`, `subprocess`…). Cuantas menos dependencias,
+# menos formas hay de que la base deje de poder comprobarse a sí misma en otra
+# máquina dentro de un año.
+#
+# Hasta el 2026-09-02 este fichero no existía: PyYAML era una dependencia real
+# —sin ella `validar.py` se degrada y `efectos.py` no arranca— y no estaba
+# declarada en ninguna parte.
+PyYAML>=6.0

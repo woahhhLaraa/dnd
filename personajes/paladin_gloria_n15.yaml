@@ -1,0 +1,267 @@
+# Esta ficha entró en la base el 2026-09-06 y de dónde sale importa: la eligió
+# la FILA 8 del censo, no una idea de personaje. Esa fila cuenta los efectos
+# declarados que ninguna ficha con lectura independiente sostiene —se pueden
+# corromper y todo sigue en verde—, y esta cierra SEIS de los dieciocho que
+# quedaban, más que ninguna otra combinación posible:
+#
+#   · «Aura de celeridad» (add y conditional) y «Defensa gloriosa», del
+#     Juramento de Gloria, que ninguna ficha de la base juraba;
+#   · las tres dotes generales que tocan CA o velocidad y que nadie tomaba.
+#
+# **La Destreza es 16 a propósito.** «Maestro en armaduras medias» sube el tope
+# del modificador por Destreza de 2 a 3 dentro de la fórmula de la armadura
+# (el único `modifica_tope` de toda la base). Con Destreza 15 el tope subiría y
+# el número no cambiaría: la ficha DECLARARÍA el efecto sin ejercitarlo, que es
+# exactamente la decoración que la fila 8 existe para contar. Con 16, la CA es
+# 18 en vez de 17, y corromper ese efecto rompe esta ficha.
+#
+# Las tres mejoras de característica (niveles 4, 8 y 12) se gastan en dotes, no
+# en puntuación: por eso `mejoras:` va vacía y cada dote declara su `sube:`.
+
+nombre: Ilanna Vela-de-Gloria
+jugador: null
+nivel_total: 15
+especie:
+  ref: especies/especies.yaml#Aasimar
+trasfondo:
+  ref: trasfondos/trasfondos.yaml#Acólito
+clases:
+- clase: Paladín
+  ref: clases/paladin.yaml
+  nivel: 15
+  subclase: clases/subclases/paladin.yaml#Juramento de Gloria
+caracteristicas:
+  metodo: conjunto_estandar
+  base:
+    fue: 15
+    car: 14
+    des: 13
+    con: 12
+    sab: 10
+    int: 8
+  ajuste_trasfondo:
+    fue: 2
+    car: 1
+  final:
+    fue: 17
+    des: 16
+    con: 12
+    int: 8
+    sab: 10
+    car: 15
+competencias:
+  salvaciones:
+  - Sabiduría
+  - Carisma
+  habilidades:
+  - nombre: Atletismo
+    origen:
+      clase: Paladín
+  - nombre: Intimidación
+    origen:
+      clase: Paladín
+  - nombre: Perspicacia
+    origen:
+      trasfondo: Acólito
+  - nombre: Religión
+    origen:
+      trasfondo: Acólito
+  armas:
+  - categoria: Armas sencillas
+    origen:
+      clase: Paladín
+  - categoria: Armas marciales
+    origen:
+      clase: Paladín
+  armaduras:
+  - categoria: Armaduras ligeras
+    origen:
+      clase: Paladín
+  - categoria: Armaduras medias
+    origen:
+      clase: Paladín
+  - categoria: Armaduras pesadas
+    origen:
+      clase: Paladín
+  - categoria: Escudos
+    origen:
+      clase: Paladín
+  herramientas: []
+  idiomas:
+  - nombre: Común
+equipo:
+- ref: equipo/armaduras.yaml#Media armadura
+  origen:
+    clase: Paladín
+    opcion: A
+mejoras: []
+pg_por_nivel:
+- nivel: 1
+  clase: Paladín
+  metodo: maximo_dado
+  valor: 10
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.nivel_1
+- nivel: 2
+  clase: Paladín
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 3
+  clase: Paladín
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 4
+  clase: Paladín
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 5
+  clase: Paladín
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 6
+  clase: Paladín
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 7
+  clase: Paladín
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 8
+  clase: Paladín
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 9
+  clase: Paladín
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 10
+  clase: Paladín
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 11
+  clase: Paladín
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 12
+  clase: Paladín
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 13
+  clase: Paladín
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 14
+  clase: Paladín
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 15
+  clase: Paladín
+  metodo: valor_establecido
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+conjuros:
+  preparados:
+  - ref: hechizos.json#Bendición
+  - ref: hechizos.json#Castigo abrasador
+  - ref: hechizos.json#Castigo atronador
+  - ref: hechizos.json#Castigo divino
+  - ref: hechizos.json#Castigo furioso
+  - ref: hechizos.json#Curar heridas
+  - ref: hechizos.json#Detectar el bien y el mal
+  - ref: hechizos.json#Detectar magia
+  - ref: hechizos.json#Detectar venenos y enfermedades
+  - ref: hechizos.json#Duelo forzado
+  - ref: hechizos.json#Escudo de fe
+  - ref: hechizos.json#Favor divino
+decisiones:
+- en: generación automática
+  eleccion: conjunto estándar repartido por característica principal; PG siempre por
+    valor establecido; mejoras a la principal. Es una heurística del generador, no
+    una regla del manual.
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: metodos_generacion_caracteristicas.conjunto_estandar
+- en: generación automática
+  eleccion: el equipo inicial vive como prosa en la base, así que esta ficha solo
+    lleva armadura; el inventario queda vacío a propósito.
+  cita:
+    archivo: clases/paladin.yaml
+    campo: atributos_basicos.equipo_inicial
+calculado:
+  # Segunda transcripción: un agente ciego —recibió la ficha SIN este
+  # bloque, vía `verificar_personaje.py --datos-crudos`— derivó a mano
+  # los cinco (pg_max, ca, velocidad, cd_conjuros, bonif_ataque_conjuros)
+  # citando fichero y página en cada paso, y COINCIDE con el motor.
+  # Sin eso, esta ficha no cuenta en la fila 8: el motor no puede
+  # darse la razón a sí mismo.
+  _origen:
+    metodo: agente-manual
+    informe: _verificacion/_aritmetica/paladin_gloria_n15-calculista-ciego.md
+    fecha: '2026-09-06'
+  pg_max: 109
+  ca: 18
+  bonif_competencia: 5
+  cd_conjuros: 15
+  bonif_ataque_conjuros: 7
+  velocidad: 12
+dotes:
+- ref: dotes/generales.yaml#Atacante a la carga
+  origen:
+    clase: Paladín
+    nivel: 4
+  sube:
+    des: 1
+- ref: dotes/generales.yaml#Duelista defensivo
+  origen:
+    clase: Paladín
+    nivel: 8
+  sube:
+    des: 1
+- ref: dotes/generales.yaml#Maestro en armaduras medias
+  origen:
+    clase: Paladín
+    nivel: 12
+  sube:
+    des: 1

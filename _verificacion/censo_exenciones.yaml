@@ -1,0 +1,185 @@
+# Manifiesto del censo (Bloque A del PLAN_18 — 2026-09-02).
+#
+# ── Qué es esto ──────────────────────────────────────────────────────────
+# `censo.py` enumera seis clases de unidad de la base y exige que cada una
+# esté ALCANZADA POR NOMBRE por algún chequeo. Lo que no lo está se declara
+# aquí, una a una y con motivo. No es una lista de perdón: es la forma de
+# decir «lo hemos mirado», que es exactamente lo que faltaba en los ocho
+# casos del §2 del plan.
+#
+# Dos clases de declaración, y la diferencia es la que importa:
+#
+#   exentas    — la unidad NO debe ser alcanzada por ese alcanzador, y aquí
+#                se dice QUIÉN responde por ella. Es permanente.
+#   pendientes — es un hueco REAL y conocido, con el bloque del plan que lo
+#                cierra. Es deuda declarada, y solo puede bajar.
+#
+# Una declaración que ya no corresponda a ninguna unidad hace fallar al
+# censo: el manifiesto no puede pudrirse en silencio, que es como empezaron
+# los ocho. Los comodines (`prefijo:*`) solo valen en `pendientes`, y el
+# informe imprime siempre cuántas unidades cubre cada uno.
+edicion: "2024 (5.5e)"
+verificado: {metodo: "estructural", fecha: "2026-09-02"}
+
+# ══ EXENTAS ══════════════════════════════════════════════════════════════
+exentas:
+  # ── Columnas de tabla de clase que el SRD de Open5e NO publica ────────
+  # Comprobado el 2026-09-02: `verificar_srd.MAPA` cubre TODAS las columnas
+  # que el SRD publica de las 12 clases; no se le escapa ninguna. Estas dos
+  # no tienen contraparte externa porque el SRD no las sirve como columna,
+  # y las alcanza un chequeo interno distinto.
+  - unidad: "columna:barbaro.n"
+    motivo: "es el índice de nivel, no un dato de la tabla; `validar_clase` exige la secuencia 1..20 y falla si una fila se sale de orden"
+  - unidad: "columna:bardo.n"
+    motivo: "es el índice de nivel, no un dato de la tabla; `validar_clase` exige la secuencia 1..20 y falla si una fila se sale de orden"
+  - unidad: "columna:brujo.n"
+    motivo: "es el índice de nivel, no un dato de la tabla; `validar_clase` exige la secuencia 1..20 y falla si una fila se sale de orden"
+  - unidad: "columna:clerigo.n"
+    motivo: "es el índice de nivel, no un dato de la tabla; `validar_clase` exige la secuencia 1..20 y falla si una fila se sale de orden"
+  - unidad: "columna:druida.n"
+    motivo: "es el índice de nivel, no un dato de la tabla; `validar_clase` exige la secuencia 1..20 y falla si una fila se sale de orden"
+  - unidad: "columna:explorador.n"
+    motivo: "es el índice de nivel, no un dato de la tabla; `validar_clase` exige la secuencia 1..20 y falla si una fila se sale de orden"
+  - unidad: "columna:guerrero.n"
+    motivo: "es el índice de nivel, no un dato de la tabla; `validar_clase` exige la secuencia 1..20 y falla si una fila se sale de orden"
+  - unidad: "columna:hechicero.n"
+    motivo: "es el índice de nivel, no un dato de la tabla; `validar_clase` exige la secuencia 1..20 y falla si una fila se sale de orden"
+  - unidad: "columna:mago.n"
+    motivo: "es el índice de nivel, no un dato de la tabla; `validar_clase` exige la secuencia 1..20 y falla si una fila se sale de orden"
+  - unidad: "columna:monje.n"
+    motivo: "es el índice de nivel, no un dato de la tabla; `validar_clase` exige la secuencia 1..20 y falla si una fila se sale de orden"
+  - unidad: "columna:paladin.n"
+    motivo: "es el índice de nivel, no un dato de la tabla; `validar_clase` exige la secuencia 1..20 y falla si una fila se sale de orden"
+  - unidad: "columna:picaro.n"
+    motivo: "es el índice de nivel, no un dato de la tabla; `validar_clase` exige la secuencia 1..20 y falla si una fila se sale de orden"
+  - unidad: "columna:barbaro.pb"
+    motivo: "`validar_clase` lo RECALCULA con la fórmula del manual (2 + (nivel-1)//4) en los 20 niveles; una copia comprobada contra su regla no necesita fuente externa"
+  - unidad: "columna:bardo.pb"
+    motivo: "`validar_clase` lo RECALCULA con la fórmula del manual (2 + (nivel-1)//4) en los 20 niveles; una copia comprobada contra su regla no necesita fuente externa"
+  - unidad: "columna:brujo.pb"
+    motivo: "`validar_clase` lo RECALCULA con la fórmula del manual (2 + (nivel-1)//4) en los 20 niveles; una copia comprobada contra su regla no necesita fuente externa"
+  - unidad: "columna:clerigo.pb"
+    motivo: "`validar_clase` lo RECALCULA con la fórmula del manual (2 + (nivel-1)//4) en los 20 niveles; una copia comprobada contra su regla no necesita fuente externa"
+  - unidad: "columna:druida.pb"
+    motivo: "`validar_clase` lo RECALCULA con la fórmula del manual (2 + (nivel-1)//4) en los 20 niveles; una copia comprobada contra su regla no necesita fuente externa"
+  - unidad: "columna:explorador.pb"
+    motivo: "`validar_clase` lo RECALCULA con la fórmula del manual (2 + (nivel-1)//4) en los 20 niveles; una copia comprobada contra su regla no necesita fuente externa"
+  - unidad: "columna:guerrero.pb"
+    motivo: "`validar_clase` lo RECALCULA con la fórmula del manual (2 + (nivel-1)//4) en los 20 niveles; una copia comprobada contra su regla no necesita fuente externa"
+  - unidad: "columna:hechicero.pb"
+    motivo: "`validar_clase` lo RECALCULA con la fórmula del manual (2 + (nivel-1)//4) en los 20 niveles; una copia comprobada contra su regla no necesita fuente externa"
+  - unidad: "columna:mago.pb"
+    motivo: "`validar_clase` lo RECALCULA con la fórmula del manual (2 + (nivel-1)//4) en los 20 niveles; una copia comprobada contra su regla no necesita fuente externa"
+  - unidad: "columna:monje.pb"
+    motivo: "`validar_clase` lo RECALCULA con la fórmula del manual (2 + (nivel-1)//4) en los 20 niveles; una copia comprobada contra su regla no necesita fuente externa"
+  - unidad: "columna:paladin.pb"
+    motivo: "`validar_clase` lo RECALCULA con la fórmula del manual (2 + (nivel-1)//4) en los 20 niveles; una copia comprobada contra su regla no necesita fuente externa"
+  - unidad: "columna:picaro.pb"
+    motivo: "`validar_clase` lo RECALCULA con la fórmula del manual (2 + (nivel-1)//4) en los 20 niveles; una copia comprobada contra su regla no necesita fuente externa"
+
+  # ── Módulos de la raíz sin función auditable (caso 6 del §2) ──────────
+  # `verificar_chequeos.py` busca ramas que abandonen un registro en silencio
+  # dentro de `validar_*`, `verificar_*` y `main`. Estos dos no tienen ninguna
+  # de las tres porque no son herramientas: son bibliotecas que otros módulos
+  # importan, y sus funciones LANZAN en vez de saltarse registros —que es lo
+  # contrario de callarse—. Se declaran para que un módulo nuevo sin chequeos
+  # tenga que pasar por aquí en vez de colarse.
+  - unidad: "modulo:materiales.py"
+    motivo: "biblioteca de descomposición de costes de material; la usa validar_materiales(), que sí se audita, y lanza ante lo que no entiende"
+  - unidad: "modulo:prerrequisitos.py"
+    motivo: "biblioteca de la gramática de prerrequisitos (Fase 15); lanza `ErrorDePrerrequisito` ante lo que no sabe evaluar, y quien la audita es validar_prerrequisitos()"
+  # ── Fila 10 · guardianes con guardián (fase 3 del PLAN_21) ──────────
+  # Lo que se declara aquí NO es «no hace falta mutarlo»: es «mutar su código
+  # no prueba nada sobre la base de hoy». Solo hay un caso, y hubo que medirlo
+  # para saberlo: el plan predecía dos (`materiales.py` también), y esa
+  # predicción venía de confundir esta pregunta con la de `fila_modulos`.
+  - unidad: "guardian:_convertir_hechizos.py"
+    motivo: "conversor de UN SOLO USO: leyó `_origen_hechizos.csv` una vez y su resultado, `hechizos.json`, ya está en la base y lo validan `validar_hechizos` y las 391 citas de conjuro. Corromper su código hoy no cambiaría ningún dato, así que una suite que lo mutara no podría exigir que nadie lo notara: no hay nada que notar"
+  - unidad: "modulo:informar.py"
+    motivo: "el muro de errores (fase 2 del PLAN_21); no tiene chequeos propios que puedan callarse —lo suyo es que los de los demás no se pierdan— y su única rama, la que deja pasar un `sys.exit`, existe para NO callar. Quien la audita es `_verificacion/mutaciones_muro.py`, que inyecta un `raise` en un chequeo de cada script y exige que el informe siga saliendo"
+  - unidad: "modulo:deuda.py"
+    motivo: "biblioteca de la deuda enumerada (fase 1 del PLAN_21); no tiene chequeos propios que puedan callarse —lleva la contabilidad de las líneas base de otros cinco— y lanza `ValueError` si la identidad de un fichero cambia sin decirlo. Quien la audita es `_verificacion/mutaciones_deuda.py`, que rompe una de sus propiedades cada vez —poda, nuevo ≠ perdido, elenco, identidad, prosa que dura, deuda cerrada— contra escenarios fabricados que crean esa situación, más dos controles negativos"
+
+  # ── Espacios de conjuro: cerrado el 2026-09-02 (bloque A2, caso 7) ────
+  # El SRD de Open5e solo publica los espacios del Brujo (`espacios`, ya en
+  # MAPA), así que estas 7 columnas no tienen contraparte externa. Estuvieron
+  # declaradas como PENDIENTES mientras el contraste se hacía contra los
+  # literales `COMPLETO`/`MEDIO` de `validar.py`, que no tenían cita: una
+  # autoridad sin fuente por encima de una base citada. Ya no.
+  # Ahora `validar_clase` las contrasta contra la tabla CITADA de
+  # `reglas/generacion_personaje.yaml` (pdf 47 = libro 45) —y la del lanzador
+  # medio se DERIVA de ella con la regla que el manual imprime al lado—, así
+  # que la unidad sí está alcanzada, por otro camino que el de MAPA.
+  - unidad: "columna:bardo.slots"
+    motivo: "el SRD de Open5e no publica esta columna; la contrasta `validar_clase` contra la tabla citada de reglas/generacion_personaje.yaml (pdf 47 = libro 45)"
+  - unidad: "columna:clerigo.slots"
+    motivo: "el SRD de Open5e no publica esta columna; la contrasta `validar_clase` contra la tabla citada de reglas/generacion_personaje.yaml (pdf 47 = libro 45)"
+  - unidad: "columna:druida.slots"
+    motivo: "el SRD de Open5e no publica esta columna; la contrasta `validar_clase` contra la tabla citada de reglas/generacion_personaje.yaml (pdf 47 = libro 45)"
+  - unidad: "columna:explorador.slots"
+    motivo: "el SRD de Open5e no publica esta columna; la contrasta `validar_clase` contra la tabla citada de reglas/generacion_personaje.yaml (pdf 47 = libro 45)"
+  - unidad: "columna:hechicero.slots"
+    motivo: "el SRD de Open5e no publica esta columna; la contrasta `validar_clase` contra la tabla citada de reglas/generacion_personaje.yaml (pdf 47 = libro 45)"
+  - unidad: "columna:mago.slots"
+    motivo: "el SRD de Open5e no publica esta columna; la contrasta `validar_clase` contra la tabla citada de reglas/generacion_personaje.yaml (pdf 47 = libro 45)"
+  - unidad: "columna:paladin.slots"
+    motivo: "el SRD de Open5e no publica esta columna; la contrasta `validar_clase` contra la tabla citada de reglas/generacion_personaje.yaml (pdf 47 = libro 45)"
+
+# ══ PENDIENTES — deuda declarada, con el bloque que la cierra ════════════
+pendientes:
+
+  # ── Caso 7 del §2: lo que queda sin contraste externo ─────────────────
+
+  # ── Caso 8 del §2: categorías de dato externo sin contrastar ──────────
+  # Medido por el censo. Desde el 2026-09-03 la unidad no es el par
+  # (carpeta, `type`) sino la terna (carpeta, REBANADA, `type`): el pack se
+  # agrupa él solo en subcarpetas, y `classes24/feat` metía en el mismo saco
+  # cuatro cosas con cuatro contrastes distintos —rasgos de clase, rasgos de
+  # subclase, metamagias e invocaciones—. Con la terna, cerrar una rebanada
+  # deja de dar por cerradas las otras tres.
+  #
+  # De `classes24` ya no queda casi nada: `class-features/feat` (159) lo cerró
+  # `verificar_rasgos_clase()`, y `subclass` (12) más las doce carpetas de
+  # rasgos de subclase (58) las cerró `verificar_subclases()` con el puente de
+  # `_verificacion/glosario_subclases.yaml`, que es de nombres propios y se
+  # audita a mano igual que el de las especies. Ahí está escrito por qué no se
+  # deduce: se probaron el vector de niveles (no discrimina) y la huella
+  # numérica del texto (acierta 10 de 12 — se equivoca en bardo y empata a
+  # cuatro en paladín).
+
+  - unidad: "externo:classes24/metamagic-options/feat"
+    bloque: "H"
+    motivo: "las 10 metamagias del SRD. Nuestra base las trae en el rasgo «Metamagia» del hechicero como un bloque de texto, no como registros con nombre, así que antes que el módulo hace falta decidir si se modelan una a una"
+  - unidad: "externo:classes24/eldritch-invocation-options/feat"
+    bloque: "H"
+    motivo: "28 invocaciones sobrenaturales del SRD. Mismo problema de forma que las metamagias, y además el SRD publica un subconjunto del manual, así que el contraste sería parcial por construcción"
+  - unidad: "externo:classes24/eldritch-invocation-options/weapon"
+    bloque: "H"
+    motivo: "1 arma que el pack guarda dentro de las invocaciones (el Pacto de la Espada); su contraste natural es el módulo `armas`, que hoy solo mira `equipment24`"
+  - unidad: "externo:classes24/class-features/weapon"
+    bloque: "H"
+    motivo: "2 armas que el pack guarda dentro de los rasgos de clase (el Golpe sin armas del bárbaro y el del monje); su contraste natural es el módulo `armas`, que hoy solo mira `equipment24`"
+  - unidad: "externo:equipment24/*/consumable"
+    bloque: "H"
+    motivo: "159 consumibles (pociones, pergaminos, munición) repartidos en 25 carpetas del pack. La base transcribe munición en `equipo/municion.yaml` y no la contrasta contra esto"
+  - unidad: "externo:equipment24/*/container"
+    bloque: "H"
+    motivo: "40 contenedores (mochilas, sacos, cofres) repartidos en 30 carpetas; parte de `equipo/aventureros.yaml` sin contraste externo"
+  - unidad: "externo:equipment24/*/loot"
+    bloque: "H"
+    motivo: "35 registros de botín y materiales; se solapan con los componentes materiales que `validar_materiales` ya descompone por precio"
+  - unidad: "externo:origins24/*/feat"
+    bloque: "H"
+    motivo: "MEDIDO el 2026-09-02 y NO son dotes, como suponía el plan: son los 36 RASGOS DE ESPECIE de 9 especies (Foundry los guarda como `feat` sin subtipo, y por eso `verificar_dotes` los saltaba). El contraste 1:1 no vale porque la granularidad difiere a propósito: Foundry parte «Elven Lineage» en tres registros (Drow, High, Wood) y «Giant Ancestry» en seis, mientras nuestra tabla los agrupa en un rasgo como hace la página. Contrastarlos por nombre exigiría traducir, que es justo lo que este verificador no hace. Hace falta decidir la forma del contraste —candidato: huella numérica del texto, como en armas— antes de escribirlo"
+  - unidad: "externo:spells24/supplemental-items/consumable"
+    bloque: "H"
+    motivo: "1 registro suelto dentro del pack de conjuros; se declara para que la terna quede contada y no reaparezca como sorpresa"
+  - unidad: "externo:tables24/*/None"
+    bloque: "H"
+    motivo: "45 tablas de tirada (creación de personaje, objetos mágicos, conjuros) sin campo `type`, en 8 carpetas. La base no modela tablas de tirada, así que antes que un módulo hace falta decidir si entran"
+
+  # ── Caso 6 del §2 · CERRADO el 2026-09-02 ─────────────────────────────
+  # Aquí vivieron los 19 chequeos `validar_*` sin prueba por mutación, uno a
+  # uno, para verlos tachar. El bloque B los cerró todos: `censo.py` cuenta
+  # hoy 30/30 con suite, y esta sección está vacía a propósito — que no quede
+  # ni una línea es el resultado, no un descuido.

@@ -61,7 +61,7 @@ competencias:
   idiomas:
   - nombre: Común
   - nombre: Gnomo
-  - nombre: Élfico
+  - nombre: Elfo
 equipo:
 - ref: equipo/armas.yaml#Daga
   origen:
@@ -152,6 +152,9 @@ dotes:
   origen:
     trasfondo: Erudito
 calculado:
+  # Lo escribió el motor, no una lectura independiente de la
+  # página. Ver `PLAN_20_AUDITORIA.md` §1.2.
+  _origen: {metodo: motor, informe: null, fecha: "2026-09-05"}
   pg_max: 8
   ca: 12
   bonif_competencia: 2
@@ -218,7 +221,7 @@ decisiones:
     registro: Gnomo
     campo: linajes
 - en: creación
-  eleccion: 'idiomas: Común, Gnomo, Élfico'
+  eleccion: 'idiomas: Común, Gnomo, Elfo'
   cita:
     archivo: reglas/idiomas.yaml
     campo: nota

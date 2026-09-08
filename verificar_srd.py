@@ -11,6 +11,9 @@ el Manual del Jugador y la discrepancia se resuelve leyendo la página.
 """
 import json, re, sys, pathlib
 
+import calculo
+import informar as _I
+
 B = pathlib.Path(__file__).parent
 SRD = B / "_verificacion" / "srd2024_open5e_clases.json"
 
@@ -65,6 +68,68 @@ def leer_nuestro(p):
     lz = re.search(r"^lanzador:\s*(\w+)", txt, re.M)
     return filas, (lz.group(1) if lz else None)
 
+def _contrastar_clase(arch, c, cols, p):
+    """Contrasta UNA clase contra el SRD. Devuelve `(comprobados, errs, notas)`.
+
+    Sacada de `main()` en la fase 2 del `PLAN_21` para poder ponerle el
+    muro: era el cuerpo del bucle, y lo que revienta aquí son claves de un
+    JSON externo que este repositorio no controla.
+    """
+    nuestro, lanz = leer_nuestro(p)
+    errs, notas, comprobados = [], [], 0
+
+    esperado = CASTER.get(c.get("caster_type"), "?")
+    if lanz != esperado:
+        errs.append(f"tipo de lanzador: nuestro '{lanz}' vs SRD '{esperado}'")
+
+    tablas = {f["name"]: f.get("data_for_class_table") or []
+              for f in c["features"] if f.get("feature_type") == "CLASS_TABLE_DATA"}
+    for col_srd, campo in cols.items():
+        for celda in tablas.get(col_srd, []):
+            n, val = celda["level"], norm(celda["column_value"])
+            if n not in nuestro or campo not in nuestro[n]:
+                # TOLERADO: lo cubre el recuento total. Si nuestra tabla
+                # perdiera una fila o una columna, este salto la sacaría
+                # del contraste sin decir nada — pero el número de valores
+                # contrastados bajaría de 646, y `verificar_documentos.py`
+                # compara esa cifra con la que promete `CONTINUAR.md`.
+                continue
+            comprobados += 1
+            if nuestro[n][campo] != val:
+                errs.append(f"N{n} {campo}: nuestro {nuestro[n][campo]!r} vs SRD {val!r}")
+
+    # mejoras de característica
+    asi_srd = set()
+    for f in c["features"]:
+        if f["name"] == "Ability Score Improvement":
+            asi_srd = {g["level"] for g in (f.get("gained_at") or [])}
+    # El marcador se LEE de `reglas/subida_de_nivel.yaml` vía `calculo`
+    # (auditoría del 2026-09-03): era la cuarta copia cableada de la misma
+    # cadena.
+    #
+    # Se compara por subcadena a propósito, y aquí sí toca: `leer_nuestro`
+    # parsea el .yaml con regex, no con PyYAML, así que `f["rasgos"]` es el
+    # TEXTO CRUDO de entre los corchetes —no una lista—, y `es_marcador_de`
+    # sobre él iteraría carácter a carácter. Lo que se quita es la copia
+    # del literal, no el modo de comparar.
+    marca = calculo.marcador("mejora_caracteristica_o_dote")
+    asi_nuestro = {n for n, f in nuestro.items()
+                   if marca in f.get("rasgos", "")}
+    if asi_srd and asi_srd != asi_nuestro:
+        solo_srd, solo_n = sorted(asi_srd-asi_nuestro), sorted(asi_nuestro-asi_srd)
+        # Falta en lo nuestro: error, hay que revisarlo.
+        if solo_srd:
+            errs.append(f"mejoras de característica que el SRD tiene y nosotros no: {solo_srd}")
+        # De más: puede ser una mejora extra de clase que el SRD no recoge.
+        # Verificado en el manual: el Pícaro sí la tiene en nivel 10 (PDF pág. 170).
+        if solo_n:
+            notas.append(f"mejoras extra de clase ausentes del SRD: {solo_n} "
+                         f"(confirmadas en el manual)")
+    comprobados += len(asi_srd)
+
+    return comprobados, errs, notas
+
+
 def main():
     if not SRD.exists(): sys.exit(f"falta {SRD}")
     d = json.loads(SRD.read_text(encoding="utf-8"))
@@ -74,47 +139,41 @@ def main():
     total_ok = total_err = 0
     print("Contraste contra SRD 5.2 (2024) · CC-BY-4.0 · vía Open5e")
     print("─"*66)
+    # `MAPA` es un GLOSARIO —nuestra clave → nombre en inglés y columnas—, así
+    # que se escribe a mano a propósito: nunca se traduce, se empareja. Pero
+    # nadie exigía que cubriera las clases que la base declara de verdad, y una
+    # clase nueva se habría quedado fuera del contraste externo **sin dar
+    # error**: habría dado MENOS contraste, que es peor, porque la cuenta final
+    # seguiría en verde (fase 3 del PLAN_20).
+    reales = {q.stem for q in sorted((B / "clases").glob("*.yaml"))}
+    for falta in sorted(reales - set(MAPA)):
+        print(f" ❌ `MAPA` no traduce clases/{falta}.yaml: esa clase se queda "
+              f"fuera del contraste contra el SRD sin que nada lo diga")
+        total_err += 1
+    for sobra in sorted(set(MAPA) - reales):
+        print(f" ❌ `MAPA` traduce clases/{sobra}.yaml, que ya no existe: "
+              f"entrada muerta")
+        total_err += 1
     for arch, (nom_en, cols) in sorted(MAPA.items()):
         p = B / "clases" / f"{arch}.yaml"
         if not p.exists(): print(f" ⚠ {arch}: falta el yaml"); continue
         c = srd.get(nom_en)
         if not c: print(f" ⚠ {arch}: '{nom_en}' no está en el SRD"); continue
 
-        nuestro, lanz = leer_nuestro(p)
-        errs, notas, comprobados = [], [], 0
-
-        esperado = CASTER.get(c.get("caster_type"), "?")
-        if lanz != esperado:
-            errs.append(f"tipo de lanzador: nuestro '{lanz}' vs SRD '{esperado}'")
-
-        tablas = {f["name"]: f.get("data_for_class_table") or []
-                  for f in c["features"] if f.get("feature_type") == "CLASS_TABLE_DATA"}
-        for col_srd, campo in cols.items():
-            for celda in tablas.get(col_srd, []):
-                n, val = celda["level"], norm(celda["column_value"])
-                if n not in nuestro or campo not in nuestro[n]: continue
-                comprobados += 1
-                if nuestro[n][campo] != val:
-                    errs.append(f"N{n} {campo}: nuestro {nuestro[n][campo]!r} vs SRD {val!r}")
-
-        # mejoras de característica
-        asi_srd = set()
-        for f in c["features"]:
-            if f["name"] == "Ability Score Improvement":
-                asi_srd = {g["level"] for g in (f.get("gained_at") or [])}
-        asi_nuestro = {n for n, f in nuestro.items() if "Mejora de característica" in f.get("rasgos","")}
-        if asi_srd and asi_srd != asi_nuestro:
-            solo_srd, solo_n = sorted(asi_srd-asi_nuestro), sorted(asi_nuestro-asi_srd)
-            # Falta en lo nuestro: error, hay que revisarlo.
-            if solo_srd:
-                errs.append(f"mejoras de característica que el SRD tiene y nosotros no: {solo_srd}")
-            # De más: puede ser una mejora extra de clase que el SRD no recoge.
-            # Verificado en el manual: el Pícaro sí la tiene en nivel 10 (PDF pág. 170).
-            if solo_n:
-                notas.append(f"mejoras extra de clase ausentes del SRD: {solo_n} "
-                             f"(confirmadas en el manual)")
-        comprobados += len(asi_srd)
-
+        # ── El muro, clase a clase (fase 2 del PLAN_21) ─────────────────
+        # El SRD es un JSON EXTERNO: sus claves no las controla este
+        # repositorio. Un `c["features"]` que un día no venga, o un
+        # `celda["level"]` ausente, se llevaba las DOCE clases y con ellas la
+        # cifra de 646 valores contrastados que `verificar_documentos.py`
+        # ancla contra `CONTINUAR.md`. Es la familia «un chequeo explota en vez
+        # de informar», y aquí el detonante ni siquiera está en nuestras manos.
+        datos, fallo = _I.muro(_contrastar_clase, arch, c, cols, p,
+                               etiqueta=arch)
+        if fallo:
+            print(f" ❌ {arch:<11} no se ha podido contrastar · {fallo.motivo}")
+            total_err += 1
+            continue
+        comprobados, errs, notas = datos
         total_ok += comprobados; total_err += len(errs)
         estado = "✅" if not errs else "❌"
         print(f" {estado} {arch:<11} {comprobados:>3} valores contrastados"

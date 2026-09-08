@@ -30,6 +30,8 @@ import re
 import subprocess
 import sys
 
+import informar as _I
+
 B = pathlib.Path(__file__).parent
 
 
@@ -56,17 +58,38 @@ def main():
     val = _salida("validar.py")
     srd = _salida("verificar_srd.py")
     fnd = _salida("verificar_foundry.py")
+    cen = _salida("censo.py")
 
     real = {}
     real["srd"], _ = _n(r"(\d+) valores contrastados contra el SRD", srd, "SRD")
+    # ── El censo, anclado (fase 2.5 del PLAN_20 — 2026-09-05) ────────────
+    # `CONTINUAR.md` y `FODA.md` prometían una cifra de censo que **nadie
+    # contrastaba**: el mismo modo de fallo que este script existe para cazar,
+    # en la cifra que más se mueve de todo el repositorio. En una sola sesión
+    # pasó de 867 a 892, 893, 898, 911 y 912, y cada vez había que acordarse
+    # de tocar dos documentos a mano. Acordarse no es un mecanismo.
+    real["censo"], _ = _n(r"(\d+) unidades censadas", cen, "unidades censadas")
+    real["pendientes"], _ = _n(r"(\d+) pendientes declaradas", cen, "pendientes")
     real["foundry"], _ = _n(r"(\d+) valores contrastados · ", fnd, "Foundry")
     for clave, patron in (("dados", r"dados \((\d+) tiradas\)"),
-                          ("conversiones", r"conversiones \((\d+) equivalencias\)"),
+                          # La etiqueta cambió el 2026-09-02 al borrar las
+                          # conversiones (fase 2 del PLAN_19): ya no se cuentan
+                          # «equivalencias» del texto, sino los campos DERIVADOS
+                          # de `alcance` que sí siguen comprobándose.
+                          ("conversiones", r"conversiones \((\d+) derivados"),
                           ("tirada", r"tirada \((\d+) conjuros\)"),
                           ("vecindad", r"vecindad \((\d+) pares"),
                           ("ortografia", r"ortografía \((\d+) campos\)"),
                           ("citas", r"citas de conjuro \((\d+)\)"),
-                          ("costes", r"costes sin fuente \((\d+)\)")):
+                          ("costes", r"costes sin fuente \((\d+)\)"),
+                          # Añadidas el 2026-08-31 (Plan 17). La lista de
+                          # cifras vigiladas es ella misma una lista escrita a
+                          # mano: `efectos` llevaba desde la Fase 14 sin que
+                          # nadie comprobara su número, y `mejoras de dote`
+                          # nació hoy. Es el mismo patrón que C1 cierra en el
+                          # motor, aquí arriba.
+                          ("efectos", r"✅ efectos \((\d+)\)"),
+                          ("mejoras", r"mejoras de dote \((\d+)\)")):
         real[clave], _ = _n(patron, val, clave)
 
     fallos = 0
@@ -76,9 +99,19 @@ def main():
         "srd": re.search(r"verificar_srd\.py.*?-> (\d+) valores", cont),
         "foundry": re.search(r"verificar_foundry\.py.*?-> (\d+) valores", cont),
     }
+    # Una promesa que DESAPARECE tiene que hacer fallar, no avisar (2026-09-03).
+    # Estos tres avisos eran `⚠` y no contaban como fallo, así que la
+    # reescritura de CONTINUAR.md de ese mismo día se llevó por delante cuatro
+    # anclas —once cifras dejaron de contrastarse contra la realidad— y el
+    # script siguió imprimiendo «los documentos de estado cuadran con la base».
+    # Es el modo de fallo que este módulo existe para cazar, dentro del propio
+    # módulo. El criterio de producto completo del PLAN_19 §12.1 ya lo prohíbe
+    # con todas las letras: «ningún chequeo se degrada a aviso».
     for clave, m in prometido.items():
         if not m:
-            print(f" ⚠ CONTINUAR.md ya no promete una cifra para «{clave}»")
+            print(f" ❌ CONTINUAR.md ya no promete una cifra para «{clave}» · "
+                  f"la realidad da {real[clave]} y nadie la contrasta")
+            fallos += 1
             continue
         dice, es = int(m.group(1)), real[clave]
         ok = dice == es
@@ -90,18 +123,52 @@ def main():
     # `\s+` en vez de espacios: la frase va partida en varias líneas del .md.
     m = re.search(r"(\d+)\s+dados\s+·\s+(\d+)\s+conversiones\s+·\s+(\d+)\s+conjuros\s+en\s+"
                   r"`tirada`\s+·\s+(\d+)\s+pares\s+de\s+vecindad\s+·\s+(\d+)\s+campos\s+de\s+"
-                  r"ortografía\s+·\s+(\d+)\s+citas\s+de\s+conjuro\s+·\s+(\d+)\s+costes",
+                  r"ortografía\s+·\s+(\d+)\s+citas\s+de\s+conjuro\s+·\s+(\d+)\s+costes"
+                  r"\s+sin\s+fuente\s+externa\s+·\s+(\d+)\s+efectos",
                   cont, re.S)
     if not m:
-        print(" ⚠ CONTINUAR.md ya no enumera las cifras de INTEGRIDAD")
+        print(" ❌ CONTINUAR.md ya no enumera las cifras de INTEGRIDAD · "
+              "ocho cifras sin contrastar")
+        fallos += 1
     else:
         for i, clave in enumerate(("dados", "conversiones", "tirada", "vecindad",
-                                   "ortografia", "citas", "costes")):
+                                   "ortografia", "citas", "costes", "efectos")):
             dice, es = int(m.group(i + 1)), real[clave]
             ok = dice == es
             fallos += not ok
             print(f" {'✅' if ok else '❌'} CONTINUAR.md dice {dice:>4} en "
                   f"«{clave}» · la realidad da {es}")
+
+    # 2 bis. El censo, en los dos documentos que lo prometen.
+    for nombre, txt, patron in (
+            ("CONTINUAR.md", cont,
+             r"censo\.py\s+#\s*(\d+) unidades · 0 sin declarar · (\d+) pendientes"),
+            ("FODA.md", foda,
+             r"\*\*(\d+) unidades censadas, 0 sin\s+declarar, (\d+) pendientes")):
+        mc = re.search(patron, txt)
+        if not mc:
+            print(f" ❌ {nombre} ya no promete la cifra del censo · la realidad "
+                  f"da {real['censo']} unidades y nadie la contrasta")
+            fallos += 1
+            continue
+        for i, clave in enumerate(("censo", "pendientes")):
+            dice, es = int(mc.group(i + 1)), real[clave]
+            ok = dice == es
+            fallos += not ok
+            print(f" {'✅' if ok else '❌'} {nombre} dice {dice} en «{clave}» · "
+                  f"la realidad da {es}")
+
+    m2 = re.search(r"\*{0,2}(\d+) mejoras de dote", cont)
+    if not m2:
+        print(f" ❌ CONTINUAR.md ya no dice cuántas mejoras de dote hay · "
+              f"la realidad da {real['mejoras']} y nadie la contrasta")
+        fallos += 1
+    else:
+        dice, es = int(m2.group(1)), real["mejoras"]
+        ok = dice == es
+        fallos += not ok
+        print(f" {'✅' if ok else '❌'} CONTINUAR.md dice {dice:>4} en "
+              f"«mejoras de dote» · la realidad da {es}")
 
     # 3. FODA.md cita el total de los dos contrastes externos.
     m = re.search(r"contrastan \*\*([\d.]+) valores\*\*", foda)
@@ -130,28 +197,92 @@ def main():
         if f.exists():
             docs[nombre] = f.read_text(encoding="utf-8")
 
-    suites = () if "--rapido" in sys.argv else (
-        "mutaciones_dados.py", "mutaciones_conversiones.py",
-        "mutaciones_integridad.py", "mutaciones_efectos.py",
-        "mutaciones_pg.py", "mutaciones_materiales.py",
-        "mutaciones_tiradas.py", "mutaciones_prerrequisitos.py",
-        "mutaciones_subida.py", "mutaciones_nivel20.py")
+    # ── La lista de suites se DESCUBRE (bloque B, 2026-09-02) ────────────
+    # Hasta hoy estaba escrita a mano aquí: diez nombres literales. Es el
+    # mismo defecto que `censo.py` existe para contar —una lista dentro de un
+    # módulo que se queda corta sin que nadie se entere—, y se habría quedado
+    # corta hoy mismo: las tres suites del bloque B habrían nacido con sus
+    # cifras sin vigilar. Ahora se descubren por patrón y lo que NO se ejecuta
+    # se declara aquí abajo con su motivo.
+    LENTAS = {
+        # >10 min. De esta se comprueba solo que los documentos no se
+        # contradigan entre sí (más abajo).
+        "mutaciones_foundry.py": "tarda más de diez minutos",
+    }
+    todas = sorted(f.name for f in (B / "_verificacion").glob("mutaciones_*.py"))
+
+    # ── Cuántas suites hay, anclado (fase 1 del PLAN_21 — 2026-09-06) ────
+    # `CONTINUAR.md` decía «las 17 suites» cuando en el disco ya eran 18, y lo
+    # decía **en la misma frase que presume de que las suites se descubren por
+    # patrón y no hace falta acordarse de sus nombres**. La cuenta sí había que
+    # recordarla, nadie la contrastaba, y se quedó atrás en silencio: es el
+    # modo de fallo que este módulo existe para cazar, dentro de este módulo,
+    # por tercera vez. Se ancla contra `todas` —lo descubierto, las lentas
+    # incluidas—, no contra las que se ejecutan aquí.
+    ms = re.search(r"[Ll]as (\d+) suites de `_verificacion/mutaciones_\*\.py`",
+                   cont)
+    if not ms:
+        print(f" ❌ CONTINUAR.md ya no dice cuántas suites de mutación hay · "
+              f"la realidad da {len(todas)} y nadie la contrasta")
+        fallos += 1
+    else:
+        dice, es = int(ms.group(1)), len(todas)
+        ok = dice == es
+        fallos += not ok
+        print(f" {'✅' if ok else '❌'} CONTINUAR.md dice {dice} suites de "
+              f"mutación · la realidad da {es}")
+
+    suites = () if "--rapido" in sys.argv else tuple(
+        s for s in todas if s not in LENTAS)
     if not suites:
         print(" ⚠ --rapido: no se comprueban las cifras de mutación")
     # Las suites son independientes entre sí (cada una copia la base a su propio
     # directorio desechable), así que se lanzan a la vez. En serie pasaban de
     # diez minutos, y **un chequeo que nadie corre por lento no chequea nada** —
     # es la misma razón por la que `mutaciones_foundry` se quedó fuera.
+    #
+    # Pero **una por núcleo, no todas a la vez** (2026-09-02). Con las tres
+    # suites del bloque B son trece, y lanzar trece en una máquina de cuatro
+    # núcleos —cada una copiando la base entera y lanzando `validar.py` en
+    # subproceso— no las hace ir más rápido: las hace competir por el disco y
+    # multiplica el tiempo total. Se cubrió de sobra: pasó de minutos a más de
+    # media hora. El límite es el número de núcleos.
     import concurrent.futures
-    salidas = {}
+    import os
+    salidas, sin_lanzar = {}, {}
     if suites:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=len(suites)) as ex:
+        obreros = min(len(suites), os.cpu_count() or 4)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=obreros) as ex:
             futuros = {ex.submit(_salida, f"_verificacion/{s}"): s for s in suites}
             for fut in concurrent.futures.as_completed(futuros):
-                salidas[futuros[fut]] = fut.result()
+                # `fut.result()` relanza lo que pasara dentro del obrero, y
+                # eso mataba al ejecutor entero: una suite que no se puede
+                # ni lanzar dejaba sin medir a las otras diecisiete.
+                salida, fallo = _I.muro(fut.result, etiqueta=futuros[fut])
+                # El motivo se guarda y se imprime abajo, con el resto de la
+                # suite: perderlo dejaría un «no termina en verde» sin decir
+                # que en realidad ni llegó a arrancar, que son cosas distintas.
+                salidas[futuros[fut]] = salida if fallo is None else ""
+                if fallo:
+                    sin_lanzar[futuros[fut]] = fallo
+    # ── El muro, suite a suite (fase 2 del PLAN_21) ─────────────────────
+    # `salida.strip().splitlines()[-1]` revienta con `IndexError` si una suite
+    # no imprime NADA —que es justo lo que hace una suite que muere al
+    # arrancar—, y se llevaba por delante las dieciocho y todos los bloques
+    # de cifras que vienen después. Un script cuyo trabajo es cazar
+    # documentos desfasados no puede callarse entero porque una de las suites
+    # que corre se haya roto: eso es la peor combinación de las dos cosas.
     for script in suites:
-        salida = salidas[script]
-        m = re.search(r"(\d+)\s*/\s*(\d+)", salida.strip().splitlines()[-1])
+        ultima, fallo = _I.muro(
+            lambda s: (salidas[s].strip().splitlines() or [""])[-1],
+            script, etiqueta=script)
+        fallo = sin_lanzar.get(script) or fallo
+        if fallo:
+            fallos += 1
+            print(f" ❌ {script}: no se ha podido leer su resultado · "
+                  f"{fallo.motivo}")
+            continue
+        m = re.search(r"(\d+)\s*/\s*(\d+)", ultima)
         if not m or m.group(1) != m.group(2):
             fallos += 1
             print(f" ❌ {script} no termina en verde")
@@ -185,6 +316,121 @@ def main():
     elif dichas:
         print(f" ✅ mutaciones_foundry: los documentos coinciden "
               f"({sorted({n for _, n in dichas})[0]}); no se ejecuta aquí (>10 min)")
+
+    # ── 4 ter. ARQUITECTURA.md, anclado en las DOS direcciones ───────────
+    # Un documento de arquitectura escrito a mano ES el error que este
+    # repositorio persigue: una lista que se queda vieja sin que nadie se
+    # entere. Así que no se le pide disciplina, se le pide que falle.
+    #
+    # Se contrastan sus dos listas contra el disco, y en los dos sentidos:
+    # un módulo o una fila que aparezcan en el disco y no en la página hacen
+    # fallar (la página se quedó corta), y una que esté en la página y no en
+    # el disco también (la página se quedó vieja). Sin la segunda dirección,
+    # borrar un módulo dejaría una descripción de algo que ya no existe, que
+    # es como el manifiesto del censo se llenó de ocho declaraciones muertas.
+    arq_f = B / "ARQUITECTURA.md"
+    if not arq_f.exists():
+        fallos += 1
+        print(" ❌ falta ARQUITECTURA.md: el repo no describe cómo está "
+              "construido, y esa descripción es lo que impide repetir el error")
+    else:
+        arq = arq_f.read_text(encoding="utf-8")
+        import importlib.util as _iu
+        _sp = _iu.spec_from_file_location("_cen", B / "censo.py")
+        _cen = _iu.module_from_spec(_sp)
+        _sp.loader.exec_module(_cen)
+        listas = (
+            ("módulos de la raíz",
+             {f.name for f in B.glob("*.py")},
+             lambda n: f"`{n}`" in arq),
+            ("filas del censo",
+             {f.__name__ for f in _cen.FILAS},
+             lambda n: f"`{n}`" in arq),
+        )
+        for etiqueta, en_disco, nombrado in listas:
+            faltan = sorted(n for n in en_disco if not nombrado(n))
+            if faltan:
+                fallos += 1
+                print(f" ❌ ARQUITECTURA.md no nombra {len(faltan)} "
+                      f"{etiqueta}: {', '.join(faltan)}")
+            else:
+                print(f" ✅ ARQUITECTURA.md nombra {'los' if 'módulos' in etiqueta else 'las'} "
+                      f"{len(en_disco)} {etiqueta}")
+        # La otra dirección: nombres con la forma de un módulo o de una fila
+        # que la página cite y el disco ya no tenga.
+        citados = set(re.findall(r"`([a-z_0-9]+\.py)`", arq))
+        citados |= set(re.findall(r"`(fila_[a-z_0-9]+)`", arq))
+        vivos = {f.name for f in B.glob("*.py")} | {f.__name__ for f in _cen.FILAS}
+        muertos = sorted(citados - vivos)
+        if muertos:
+            fallos += 1
+            print(f" ❌ ARQUITECTURA.md describe {len(muertos)} cosa(s) que ya "
+                  f"no existen: {', '.join(muertos)}")
+        else:
+            print(" ✅ ARQUITECTURA.md no describe nada que ya no exista")
+
+    # ── 3bis. El repo se puede EJECUTAR (fase 1 del PLAN_19) ─────────────
+    # El 2026-08-31 `verificar_foundry.py` llevaba un `SyntaxError` —una
+    # f-string con comillas anidadas, válida solo desde 3.12 (PEP 701)— y
+    # **cuatro herramientas estaban muertas sin que nadie se enterara**. No lo
+    # cazó ningún chequeo: lo cazó alguien intentando ejecutarlas.
+    #
+    # La causa no fue la versión: fue que **nadie ejecutaba ese fichero**. Un
+    # `compile()` sobre todos los `.py` cuesta un segundo y cierra eso para
+    # siempre, se corra el que se corra.
+    #
+    # ⚠ LÍMITE, y conviene que conste: esto comprueba la sintaxis contra el
+    # intérprete que esté corriendo. NO caza código que sea válido aquí e
+    # inválido en la versión mínima declarada —justo el caso original, porque
+    # el analizador de f-strings cambió en 3.12 y `ast.feature_version` no lo
+    # rebaja—. Para eso hace falta ejecutar en la versión mínima, que es otro
+    # trabajo. Lo que sí queda cerrado es el fallo que de verdad ocurrió.
+    import compileall  # noqa: F401  (documenta la intención; se usa compile())
+    rotos = []
+    for f in sorted(list(B.glob("*.py")) + list((B / "_verificacion").glob("*.py"))):
+        try:
+            compile(f.read_text(encoding="utf-8"), str(f), "exec")
+        except SyntaxError as e:
+            rotos.append(f"{f.relative_to(B)}:{e.lineno} {e.msg}")
+    for r in rotos:
+        fallos += 1
+        print(f" ❌ no compila · {r}")
+    if not rotos:
+        print(f" ✅ los {len(list(B.glob('*.py'))) + len(list((B / '_verificacion').glob('*.py')))} "
+              f"módulos compilan con el Python que los corre")
+
+    # Y la versión mínima que el repo declara, comprobada contra la que corre.
+    pv = B / ".python-version"
+    if not pv.exists():
+        fallos += 1
+        print(" ❌ falta `.python-version`: el repo no declara con qué Python "
+              "se puede ejecutar")
+    else:
+        minimo = tuple(int(x) for x in pv.read_text(encoding="utf-8").strip().split("."))
+        actual = sys.version_info[:len(minimo)]
+        ok = actual >= minimo
+        fallos += not ok
+        print(f" {'✅' if ok else '❌'} Python {'.'.join(map(str, actual))} "
+              f"≥ {'.'.join(map(str, minimo))} declarado en `.python-version`")
+
+    # Y la única dependencia de terceros, declarada y presente.
+    req = B / "requirements.txt"
+    if not req.exists():
+        fallos += 1
+        print(" ❌ falta `requirements.txt`: PyYAML es una dependencia real y "
+              "no estaría declarada en ninguna parte")
+    else:
+        declaradas = [l.split(">=")[0].split("==")[0].strip().lower()
+                      for l in req.read_text(encoding="utf-8").splitlines()
+                      if l.strip() and not l.lstrip().startswith("#")]
+        import importlib.util
+        modulos = {"pyyaml": "yaml"}
+        faltan = [d for d in declaradas
+                  if importlib.util.find_spec(modulos.get(d, d)) is None]
+        fallos += bool(faltan)
+        print(f" {'✅' if not faltan else '❌'} requirements.txt declara "
+              f"{len(declaradas)} dependencia(s)"
+              + (f" y falta(n) {faltan}" if faltan else " y está(n) instalada(s)"))
 
     # 4bis. Ningún chequeo puede abandonar un registro EN SILENCIO.
     # Es la causa raíz de los dos peores desfases del proyecto, así que se
@@ -244,7 +490,15 @@ def main():
         print(f" ✅ {len(skills)} skills · los scripts y subcomandos que mandan "
               f"usar existen todos")
 
-    # 6. Ningún documento vivo debe remitir al FODA archivado como si valiera.
+    # 6. El FODA archivado se borró el 2026-08-31 (Plan 17 §5). El chequeo pasa
+    #    de «que nadie lo cite como válido» a «que siga borrado y nadie lo cite
+    #    como si se pudiera abrir»: un documento del que hay que avisar «no lo
+    #    leas» sobra, y volver a añadirlo sería reintroducir la trampa.
+    if (B / "FODA_2026-08-19_OBSOLETO.md").exists():
+        fallos += 1
+        print(" ❌ FODA_2026-08-19_OBSOLETO.md ha vuelto: se borró a propósito "
+              "porque mandaba hacer fases ya cerradas (Plan 17 §5)")
+
     for nombre in ("CONTINUAR.md", "FODA.md"):
         txt = (B / nombre).read_text(encoding="utf-8")
         for m in re.finditer(r"[^\n]*FODA_2026-08-19_OBSOLETO[^\n]*", txt):

@@ -1,6 +1,7 @@
 # FODA — la base canónica como sustrato de un orquestador LLM
 
-> Fecha: **2026-08-29**. Sustituye a `FODA_2026-08-19_OBSOLETO.md`, cuyas
+> Fecha: **2026-08-29**. Sustituye a `FODA_2026-08-19_OBSOLETO.md` (borrado el 2026-08-31; en el
+> historial de git), cuyas
 > debilidades 1, 2, 3 y 4 están todas cerradas y cuya «Conclusión operativa»
 > mandaba hacer dos fases que ya se hicieron.
 > Premisa: **todo lo interpretativo lo ejecuta un LLM**; la base es su única
@@ -23,15 +24,16 @@ reproducen con los cinco comandos del final.
    **No queda manual que transcribir.**
 3. **Cuatro validadores independientes, y ninguno repite al otro.**
    `validar.py` cruza tablas transcritas por separado; `verificar_srd.py` y
-   `verificar_foundry.py` contrastan **3.666 valores** contra fuentes externas
+   `verificar_foundry.py` contrastan **4.395 valores** contra fuentes externas
    sin traducir (emparejan por claves independientes del idioma y exigen
    biyección); `cobertura.py` pregunta si la base sabe responder.
 4. **Cada chequeo nuevo se prueba por mutación, en las dos direcciones.**
-   `mutaciones_dados.py` (12/12), `mutaciones_conversiones.py` (13/13),
-   `mutaciones_integridad.py` (24/24), `mutaciones_efectos.py` (26/26),
+   `mutaciones_dados.py` (12/12), `mutaciones_conversiones.py` (16/16),
+   `mutaciones_integridad.py` (24/24), `mutaciones_efectos.py` (42/42),
    `mutaciones_pg.py` (13/13), `mutaciones_materiales.py` (10/10),
-   `mutaciones_tiradas.py` (19/19), `mutaciones_prerrequisitos.py` (10/10), `mutaciones_subida.py` (7/7), `mutaciones_nivel20.py` (15/15) y
-   `mutaciones_foundry.py` (29/29). La mitad
+   `mutaciones_tiradas.py` (19/19), `mutaciones_prerrequisitos.py` (10/10), `mutaciones_subida.py` (7/7), `mutaciones_nivel20.py` (55/55),
+   `mutaciones_deuda.py` (10/10), `mutaciones_muro.py` (13/13) y
+   `mutaciones_foundry.py` (47/47). La mitad
    de cada suite son **controles negativos**: datos raros pero legítimos que no
    deben hacer saltar nada. No es simetría estética — la primera versión del
    chequeo de dados se disparaba con su propia documentación.
@@ -43,6 +45,27 @@ reproducen con los cinco comandos del final.
    Un auditor al que se le exige citar textualmente ya sabe qué está citando.
 7. **La base sabe cuánto se equivoca.** Es lo más raro de este proyecto: hay
    tasas medidas con intervalo de confianza por superficie, no una sensación.
+
+### Lo que se aprendió mirando a los maduros (2026-08-31)
+
+Leído el código real de Foundry dnd5e y DiceCloud, no sus README:
+
+- **Foundry automatiza 76 de 332 rasgos de clase/subclase 2024 (23 %).** El
+  resto es texto. No resolvieron el problema automatizando todo: lo
+  resolvieron **no intentándolo**, y **declarando la frontera dentro del
+  dato** — 380 registros llevan una «Foundry Note» que dice qué no está
+  automatizado. Aquí la frontera era el silencio.
+- **Foundry no tiene tests.** Su `package.json` trae `build`, `lint` y
+  `watch`. Sustituyen verificación por cientos de miles de jugadores. Este
+  proyecto tiene una usuaria, así que sus 4395 valores y sus mutaciones
+  **son el sustituto correcto** y no se tocan. De Foundry se copia la
+  arquitectura, nunca la ausencia de pruebas.
+- **Una dote que sube una característica usa en Foundry el MISMO mecanismo
+  que la mejora de nivel 4** (`advancement/AbilityScoreImprovement`). Un solo
+  camino, por eso no se puede olvidar conectar uno de los dos.
+- **DiceCloud tiene 11 operaciones; aquí había 6.** La que faltaba y cierra
+  el espiral es `conditional`: un efecto citado que guarda texto y no se
+  calcula. Adoptada el 2026-08-31.
 
 ## 📉 Debilidades
 
@@ -64,14 +87,31 @@ reproducen con los cinco comandos del final.
    No prueba que la tasa haya bajado —los intervalos se solapan— pero **sí que
    auditar no deja limpio**: los 4 estaban en conjuros ya auditados, y dos
    habían pasado por la oleada 4 ese mismo día.
-2. **🔴 Las ~550 conversiones a pies son añadido editorial en un fichero
-   declarado literal.** **23 páginas leídas por nueve lectores independientes
-   no imprimen ni una sola unidad imperial**: el manual castellano es métrico, y
-   las conversiones las añadió la base entera. `validar_conversiones()` comprueba
-   que estén bien calculadas — **nadie comprueba que deban existir**.
-   **Mitigado, no resuelto:** `_meta` ya las declara como añadido editorial, así
-   que la base no las presenta como cita; queda decidir si se borran del texto
-   (330 en 178 conjuros). Detalle en `ESTADO_13p.md`.
+2. **✅ CERRADA (2026-09-02) — las conversiones a pies, borradas.**
+   *(era 🔴: añadido editorial en un fichero declarado literal)*
+
+   **23 páginas leídas por nueve lectores independientes no imprimen ni una
+   sola unidad imperial**: el manual castellano es métrico y las conversiones
+   las añadió la base entera. `validar_conversiones()` comprobaba que
+   estuvieran bien calculadas —lo estaban, las 543— pero **nadie comprobaba
+   que debieran existir**, que era la pregunta.
+
+   Borradas en la fase 2 del `PLAN_19`: 543 equivalencias en 399 registros de
+   298 conjuros, de `descripcion` (321) y `alcance.texto` (222). El chequeo
+   cambió de sentido y ahora **impide que vuelvan**.
+
+   **Lo que NO se borró, porque no es cita sino dato:** `alcance.metros`,
+   `alcance.pies` y `alcance.casillas` siguen ahí. `verificar_foundry.py`
+   contrasta `alcance.pies` contra el SRD número contra número, y borrarlos
+   habría dejado 218 alcances sin fuente externa. Su aritmética se sigue
+   comprobando, así que vaciar el texto no abrió ningún hueco.
+
+   **Y el borrado destapó un defecto que la conversión tapaba:** *Cofre oculto
+   de Leomund* decía «0,34 m / 1 pies³», con el cúbico solo en la unidad
+   añadida — quitarla dejaba «0,34 m», metros lineales para un volumen. Queda
+   como «0,34 m³», que es lo que dice la propia frase dos palabras después
+   («90 cm por 60 cm por 60 cm» = 0,324 m³), anotado y pendiente de confirmar
+   contra la página.
 3. **~~El campo `tirada`~~ → ✅ cerrado (2026-08-29).** Llegó a tener **15
    valores distintos para 6 tiradas posibles** porque ningún script lo consumía.
    Hoy tiene vocabulario cerrado, contraste contra su propia descripción, y la
@@ -114,7 +154,112 @@ reproducen con los cinco comandos del final.
    código independiente sobre el diff — las ~1.400 líneas de módulos nuevos de
    la última tanda **no las ha revisado nadie**, y en ellas ya aparecieron
    cuatro defectos, **dos de ellos silenciosos**.
-7. **`hechizos.json` pesa 564 KB.** Cargarlo entero es el fallo «lost in the
+8. **🔴 La cobertura se escribía a mano, y por eso el motor no veía media
+   base.** *(descubierto y medido el 2026-08-31)*
+
+   `efectos._ORIGENES` era una tupla de 15 rutas literales: conocía **2 de las
+   48 subclases** y **0 de los 4 ficheros de dotes**. Consecuencia medida, y
+   estaba **invertida**:
+
+   | Ficha | Veredicto antes |
+   |---|---|
+   | `Duro` (dote de origen, nivel 1) con su +2 PG aplicado — CORRECTA | ❌ rechazada |
+   | `Duro` con el +2 perdido — ROTA | ✅ «0 problemas» |
+
+   Es decir: el verificador **aprobaba la ficha mal y rechazaba la buena**, en
+   el primer personaje que se crea, con una dote corriente del manual. 54 de
+   las 75 dotes conceden «+1 a característica» y ninguna tenía dónde
+   declararlo; `efectos.py` tampoco miraba `dotes/`.
+
+   **Lo grave no es el fallo, es que es el mismo de la debilidad 5** un nivel
+   más arriba. La cabecera de `reglas/efectos.yaml` condena las reglas
+   cableadas —«no se entera de que hay una quinta»— y doce líneas después
+   había una tupla cableada de RUTAS en vez de un diccionario cableado de
+   FÓRMULAS. Se diagnosticó la enfermedad con precisión y se reprodujo en la
+   línea siguiente.
+
+   **Y apareció cinco veces en total**, en módulos escritos en momentos
+   distintos: `_ORIGENES`, las cifras de `verificar_documentos`,
+   `verificar_chequeos.FUENTES` (audita 3 de las 6 fuentes que declara),
+   `verificar_srd.MAPA` (deja `pb` sin contraste externo) y
+   `verificar_foundry.MODULOS`. Cuando el mismo defecto sale cinco veces sin
+   que nadie lo copie, la causa es el método, no el despiste.
+
+   ✅ **Cerradas las cinco** (2026-09-02, bloque A2): `verificar_chequeos`
+   descubre sus fuentes y audita también `main` —lo que sacó a la luz 9 ramas
+   que nadie miraba, en los tres ficheros que estaban en la lista sin aportar
+   nada—; las columnas que `verificar_srd.MAPA` no puede cubrir están o
+   contrastadas contra una tabla citada o declaradas una a una; y
+   `verificar_foundry.MODULOS` tiene sus 9 categorías sin pedir medidas y
+   declaradas como bloque H. La regla 6 ya no depende de que nadie se
+   despiste: la cuenta `censo.py`.
+
+   **La lección de fondo, que vale para todo el proyecto:** se verificaba con
+   obsesión que **lo escrito fuera correcto** y nunca que **estuviera todo**.
+   4395 valores contrastados y las mutaciones no dicen nada sobre los
+   registros que ningún módulo llega a mirar.
+
+9. **✅ CERRADA (2026-09-02) — los 30 chequeos `validar_*` ya tienen prueba
+   por mutación.** Eran 11 de 30 el 2026-08-31.
+
+   El bloque B del Plan 18 añadió tres suites: `mutaciones_aritmetica` 40/40 (7
+   chequeos, empezando por `mejoras_de_dote`, que era deuda del mismo día; las
+   cuatro últimas las trajo la CD de conjuros, fase 1 de `PLAN_20_AUDITORIA.md`),
+   `mutaciones_contenido` 61/61 (12) y `mutaciones_referencias` 10/10 (3). La
+   cifra **ya no se cuenta a mano**: la cuenta `censo.py`, que descubre los
+   chequeos del AST de `validar.py` y las suites por patrón.
+
+   **Lo que esto desbloquea:** un refactor es exactamente igual de seguro que
+   la cobertura de pruebas de lo que se refactoriza. Con la red puesta, el
+   bloque F ya es una opción real y no una apuesta.
+
+   **Y lo que salió al tenderla, que es una debilidad nueva:** *dos de los
+   treinta chequeos no pueden fallar.* `validar_costes_sin_fuente` y
+   `validar_referencias` solo llenan `warn`. Una referencia rota entre una
+   especie y `hechizos.json` sale como ⚠ y `validar.py` termina con «0
+   errores». Está probado que el aviso salta; que además bloquee es una
+   decisión pendiente.
+
+   Y la estructura, medida, **no justifica un refactor**: mediana de 35 líneas
+   por función en `validar.py`, 9 en `calculo.py`, y solo 5 de 47 funciones por
+   encima de 120 líneas. Ninguno de los ocho defectos de la debilidad 8 lo
+   causó la estructura; todos eran falta de una aserción de cobertura.
+
+10. **✅ CERRADA (2026-09-02) — la regla inviolable 6 ya no es prosa.**
+   *(era 🔴 desde el 2026-08-31, el mismo día en que se escribió)*
+
+   `censo.py` la convierte en una cuenta: **984 unidades censadas, 0 sin
+   declarar, 589 pendientes con su bloque y su motivo**. Una clase de unidad
+   por fila —las últimas: los efectos con carga (`PLAN_20`, fase 1.3), las
+   constantes de dominio en Python (su fase 3), los guardianes con guardián
+   (`PLAN_21`, fase 3) y las fichas con lectura independiente (`PLAN_22`)—,
+   todos los
+   universos descubiertos (glob, AST y el vocabulario de la base), y un
+   manifiesto —`_verificacion/censo_exenciones.yaml`— donde lo que no se
+   alcanza se declara una a una. Una declaración que ya no corresponda a
+   ninguna unidad hace fallar al censo, así que el manifiesto tampoco puede
+   pudrirse. Y tiene su propia prueba por mutación: **52/52**.
+
+   Lo que sigue es el diagnóstico original, que conviene no perder:
+
+   Se añadió «la cobertura se descubre, nunca se escribe a mano» a
+   `CONTINUAR.md` tras encontrar ocho casos del defecto. **Nada la impide.**
+   Puede aparecer el noveno mañana.
+
+   Es literalmente la lección que este repo ya había registrado en
+   `FUENTES.md:208` —*«una regla en prosa no impide nada»*— y que motivó
+   escribir `verificar_chequeos.py`. Se diagnosticó el problema de las reglas
+   en prosa, se convirtió una en script, y la siguiente nació en prosa igual.
+
+   **La salida no es prohibir listas** (detectarlas en el AST daría falsos
+   positivos con los mapas de traducción y los nodos del AST) sino una
+   invariante contable: *toda unidad de la base tiene que estar alcanzada por
+   nombre por algún chequeo, o declarada como no alcanzable con su motivo*.
+   Eso es `censo.py`, el bloque A del Plan 18, y va antes que arreglar las
+   cuatro listas que quedan: si se arreglan primero, se arreglan «las que
+   alguien encontró»; con el censo, «las que hay».
+
+11. **`hechizos.json` pesa 564 KB.** Cargarlo entero es el fallo «lost in the
    middle». `buscar.py` lo evita, pero hay que usarlo siempre.
 
 ## 🚀 Oportunidades
@@ -151,7 +296,13 @@ reproducen con los cinco comandos del final.
    `validar_vecindad()` lo vigila, pero **solo puede priorizar lectura, no
    decidir**: el manual repite texto de verdad entre conjuros hermanos.
 3. **🔴 Una rama de tolerancia en un chequeo es deuda invisible.** Va por su
-   **segundo** caso confirmado y los dos costaron semanas: `COSTE_COMPUESTO`
+   **tercer** caso confirmado —y el tercero es el más ilustrativo: hasta el
+   2026-09-02, `verificar_personaje.py` degradaba **cuatro** chequeos a aviso
+   en cuanto la ficha traía más de una clase, y la ficha imprimía «✅ FICHA
+   VERIFICADA — 0 problemas». El verificador aprobaba lo que no había mirado, y
+   el cuarto chequeo degradado era precisamente el que cazaba los huecos del
+   estrés con agentes. Cerrado en la fase 1 del `PLAN_19`: se rechaza.
+   Los dos anteriores costaron semanas: `COSTE_COMPUESTO`
    sacaba seis conjuros del contraste externo y escondía dos sumas inventadas;
    el `continue  # entradas antiguas con ref:` de `verificar_categorias()` dejó
    que **nueve de diecisiete fichas** violaran la regla 6 del esquema, y esas
@@ -206,16 +357,18 @@ el margen y seguir.
 ```bash
 python3 validar.py            # coherencia interna
 python3 verificar_srd.py      # 646 valores contra el SRD
-python3 verificar_foundry.py  # 3020 valores contra el SRD estructurado
+python3 verificar_foundry.py  # 3749 valores contra el SRD estructurado
 python3 cobertura.py          # ¿puede responder?
 python3 _verificacion/mutaciones_integridad.py   # 24/24
-python3 _verificacion/mutaciones_efectos.py      # 26/26
+python3 _verificacion/mutaciones_efectos.py      # 42/42
 python3 _verificacion/mutaciones_pg.py           # 13/13
 python3 _verificacion/mutaciones_materiales.py   # 10/10
 python3 _verificacion/mutaciones_tiradas.py      # 19/19
 python3 _verificacion/mutaciones_prerrequisitos.py # 10/10
 python3 _verificacion/mutaciones_subida.py       # 7/7
-python3 _verificacion/mutaciones_nivel20.py      # 15/15
+python3 _verificacion/mutaciones_nivel20.py      # 55/55
+python3 _verificacion/mutaciones_deuda.py        # 10/10
+python3 _verificacion/mutaciones_muro.py         # 13/13
 python3 _verificacion/intervalo.py 48 305 306    # la tasa del 15,7 % (antes de corregir)
 python3 _verificacion/intervalo.py 4 36 306      # el residuo del 11,1 % (después)
 ```

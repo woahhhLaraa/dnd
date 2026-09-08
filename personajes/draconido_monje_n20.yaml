@@ -1,170 +1,348 @@
-nombre: "Sarv Escamagris (nivel 20)"
+nombre: Sarv Escamagris (nivel 20)
 jugador: null
 nivel_total: 20
-
 especie:
-  ref: "especies/especies.yaml#Dracónido"
+  ref: especies/especies.yaml#Dracónido
   rasgos_elegidos:
-    linaje_dracónico: "Rojo (daño de Fuego, resistencia a Fuego)"
-
+    linaje_dracónico: Rojo (daño de Fuego, resistencia a Fuego)
 trasfondo:
-  ref: "trasfondos/trasfondos.yaml#Ermitaño"
-
+  ref: trasfondos/trasfondos.yaml#Ermitaño
 clases:
-  - clase: Monje
-    ref: "clases/monje.yaml"
-    nivel: 20
-    subclase: "clases/subclases/monje.yaml#Guerrero de la Mano Abierta"
-
+- clase: Monje
+  ref: clases/monje.yaml
+  nivel: 20
+  subclase: clases/subclases/monje.yaml#Guerrero de la Mano Abierta
 caracteristicas:
   metodo: conjunto_estandar
-  base: {fue: 12, des: 15, con: 13, int: 10, sab: 14, car: 8}
-  ajuste_trasfondo: {sab: 2, con: 1}
-  final: {fue: 12, des: 19, con: 14, int: 10, sab: 20, car: 8}
-
+  base:
+    fue: 12
+    des: 15
+    con: 13
+    int: 10
+    sab: 14
+    car: 8
+  ajuste_trasfondo:
+    sab: 2
+    con: 1
+  final:
+    fue: 12
+    des: 23
+    con: 14
+    int: 10
+    sab: 24
+    car: 8
 competencias:
-  salvaciones: [Fuerza, Destreza]
+  salvaciones:
+  - Fuerza
+  - Destreza
   habilidades:
-    - {nombre: Acrobacias, origen: {clase: Monje}}
-    - {nombre: Atletismo, origen: {clase: Monje}}
-    - {nombre: Medicina, origen: {trasfondo: Ermitaño}}
-    - {nombre: Religión, origen: {trasfondo: Ermitaño}}
+  - nombre: Acrobacias
+    origen:
+      clase: Monje
+  - nombre: Atletismo
+    origen:
+      clase: Monje
+  - nombre: Medicina
+    origen:
+      trasfondo: Ermitaño
+  - nombre: Religión
+    origen:
+      trasfondo: Ermitaño
   armas:
-    - {categoria: "Armas sencillas", origen: {clase: Monje}}
-    - {categoria: "Armas marciales con la propiedad \"ligera\"", origen: {clase: Monje}}
+  - categoria: Armas sencillas
+    origen:
+      clase: Monje
+  - categoria: Armas marciales con la propiedad "ligera"
+    origen:
+      clase: Monje
   armaduras: []
-  # El Monje no tiene competencia con armaduras (atributos_basicos.armaduras
-  # de clases/monje.yaml está vacío); confirmado con validar.py/cobertura.py,
-  # no es un hueco de la ficha.
   herramientas:
-    - {categoria: "Un tipo de herramientas de artesano o instrumento musical a elección", origen: {clase: Monje}}
-    # NOTA: la elección concreta ("útiles de herborista" del trasfondo
-    # Ermitaño) NO se lista aquí como segunda entrada de competencias.herramientas
-    # porque verificar_categorias() (verificar_personaje.py) solo construye
-    # `permitidas` a partir de `atributos_basicos.herramientas` de las
-    # CLASES del personaje, nunca del trasfondo — a pesar de que
-    # personajes/_ESQUEMA.md dice literalmente "se comprueban... (o del
-    # trasfondo cuando aplique)". Añadir esa entrada aquí hace fallar la
-    # verificación con "'útiles de herborista' no está en lo que conceden
-    # las clases del personaje". Ver hallazgos.
+  - categoria: Un tipo de herramientas de artesano o instrumento musical a elección
+    origen:
+      clase: Monje
   idiomas:
-    - {nombre: Común}
-    - {nombre: Dracónico, origen: {regla: "reglas/idiomas.yaml: todo personaje elige 2 además de Común"}}
-    - {nombre: Enano, origen: {regla: "reglas/idiomas.yaml: todo personaje elige 2 además de Común"}}
-
+  - nombre: Común
+  - nombre: Dracónico
+    origen:
+      regla: 'reglas/idiomas.yaml: todo personaje elige 2 además de Común'
+  - nombre: Enano
+    origen:
+      regla: 'reglas/idiomas.yaml: todo personaje elige 2 además de Común'
 equipo:
-  - {ref: "equipo/armas.yaml#Lanza", origen: {clase: Monje, opcion: A}}
-  - {ref: "equipo/armas.yaml#Daga", origen: {clase: Monje, opcion: A}, cantidad: 5}
-  - {ref: "equipo/aventureros.yaml#Paquete de explorador", origen: {clase: Monje, opcion: A}}
-  - {ref: "equipo/armas.yaml#Bastón", origen: {trasfondo: Ermitaño, opcion: A}}
-  - {ref: "equipo/herramientas.yaml#Útiles de herborista", origen: {trasfondo: Ermitaño, opcion: A}}
-  - {ref: "equipo/aventureros.yaml#Aceite", origen: {trasfondo: Ermitaño, opcion: A}, cantidad: 3}
-  - {ref: "equipo/aventureros.yaml#Lámpara", origen: {trasfondo: Ermitaño, opcion: A}}
-  - {ref: "equipo/aventureros.yaml#Libro", origen: {trasfondo: Ermitaño, opcion: A, nota: "de filosofía"}}
-  - {ref: "equipo/aventureros.yaml#Petate", origen: {trasfondo: Ermitaño, opcion: A}}
-  - {ref: "equipo/aventureros.yaml#Ropas de viaje", origen: {trasfondo: Ermitaño, opcion: A}}
-  # No se ref. el "instrumento musical o herramientas de artesano" de la
-  # opción A de equipo_inicial de Monje: no existe ningún catálogo de
-  # instrumentos musicales ni de tipos concretos de herramientas de artesano
-  # en equipo/ (grep sin resultados sobre "Instrumento"/"Herramientas de" en
-  # equipo/aventureros.yaml, salvo la mención de pasada dentro de la
-  # descripción de la dote Fabricante en dotes/origen.yaml). Hueco de datos,
-  # ver hallazgos.
-
+- ref: equipo/armas.yaml#Lanza
+  origen:
+    clase: Monje
+    opcion: A
+- ref: equipo/armas.yaml#Daga
+  origen:
+    clase: Monje
+    opcion: A
+  cantidad: 5
+- ref: equipo/aventureros.yaml#Paquete de explorador
+  origen:
+    clase: Monje
+    opcion: A
+- ref: equipo/armas.yaml#Bastón
+  origen:
+    trasfondo: Ermitaño
+    opcion: A
+- ref: equipo/herramientas.yaml#Útiles de herborista
+  origen:
+    trasfondo: Ermitaño
+    opcion: A
+- ref: equipo/aventureros.yaml#Aceite
+  origen:
+    trasfondo: Ermitaño
+    opcion: A
+  cantidad: 3
+- ref: equipo/aventureros.yaml#Lámpara
+  origen:
+    trasfondo: Ermitaño
+    opcion: A
+- ref: equipo/aventureros.yaml#Libro
+  origen:
+    trasfondo: Ermitaño
+    opcion: A
+    nota: de filosofía
+- ref: equipo/aventureros.yaml#Petate
+  origen:
+    trasfondo: Ermitaño
+    opcion: A
+- ref: equipo/aventureros.yaml#Ropas de viaje
+  origen:
+    trasfondo: Ermitaño
+    opcion: A
 dotes:
-  - {ref: "dotes/origen.yaml#Sanador", origen: {trasfondo: Ermitaño}}
-
-# Las cuatro mejoras de característica que la tabla del Monje concede (niveles
-# 4, 8, 12 y 16). `final` tiene que ser exactamente base + trasfondo + esto:
-# una puntuación sin justificar es una puntuación inventada.
+- ref: dotes/origen.yaml#Sanador
+  origen:
+    trasfondo: Ermitaño
 mejoras:
-  - {nivel: 4,  sube: {des: 2}, ref: "dotes/generales.yaml#Mejora de característica"}
-  - {nivel: 8,  sube: {sab: 2}, ref: "dotes/generales.yaml#Mejora de característica"}
-  - {nivel: 12, sube: {sab: 2}, ref: "dotes/generales.yaml#Mejora de característica"}
-  - {nivel: 16, sube: {des: 2}, ref: "dotes/generales.yaml#Mejora de característica"}
-
+- nivel: 4
+  sube:
+    des: 2
+  ref: dotes/generales.yaml#Mejora de característica
+- nivel: 8
+  sube:
+    sab: 2
+  ref: dotes/generales.yaml#Mejora de característica
+- nivel: 12
+  sube:
+    sab: 2
+  ref: dotes/generales.yaml#Mejora de característica
+- nivel: 16
+  sube:
+    des: 2
+  ref: dotes/generales.yaml#Mejora de característica
 pg_por_nivel:
-  - {nivel: 1, clase: Monje, metodo: maximo_dado, valor: 8,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.nivel_1"}}
-  - {nivel: 2, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 3, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 4, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 5, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 6, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 7, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 8, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 9, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 10, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 11, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 12, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 13, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 14, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 15, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 16, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 17, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 18, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 19, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-  - {nivel: 20, clase: Monje, metodo: valor_establecido, valor: 5,
-     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos"}}
-
+- nivel: 1
+  clase: Monje
+  metodo: maximo_dado
+  valor: 8
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.nivel_1
+- nivel: 2
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 3
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 4
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 5
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 6
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 7
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 8
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 9
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 10
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 11
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 12
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 13
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 14
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 15
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 16
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 17
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 18
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 19
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+- nivel: 20
+  clase: Monje
+  metodo: valor_establecido
+  valor: 5
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
 calculado:
   pg_max: 143
-  ca: 19
+  ca: 23
   bonif_competencia: 6
   velocidad: 18
-
+  _origen:
+    metodo: motor
+    informe: null
+    fecha: '2026-09-05'
 decisiones:
-  - en: "nivel 3"
-    eleccion: "subclase: Guerrero de la Mano Abierta"
-    cita: {archivo: "clases/monje.yaml", campo: "progresion[n=3].rasgos"}
-  - en: "nivel 4"
-    eleccion: "mejora de característica: Destreza +2 (15→17)"
-    cita: {archivo: "clases/monje.yaml", campo: "progresion[n=4].rasgos"}
-  - en: "nivel 8"
-    eleccion: "mejora de característica: Sabiduría +2 (16→18)"
-    cita: {archivo: "clases/monje.yaml", campo: "progresion[n=8].rasgos"}
-  - en: "nivel 12"
-    eleccion: "mejora de característica: Sabiduría +2 (18→20)"
-    cita: {archivo: "clases/monje.yaml", campo: "progresion[n=12].rasgos"}
-  - en: "nivel 16"
-    eleccion: "mejora de característica: Destreza +2 (17→19)"
-    cita: {archivo: "clases/monje.yaml", campo: "progresion[n=16].rasgos"}
-  - en: "niveles 2-20"
-    eleccion: "PG: valor establecido (5) en cada subida, sin tirar"
-    cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1"}
-  - en: "creación"
-    eleccion: "método de características: conjunto estándar (reparto sugerido para Monje)"
-    cita: {archivo: "reglas/generacion_personaje.yaml", campo: "conjunto_estandar_por_clase"}
-  - en: "creación"
-    eleccion: "ajuste de trasfondo: +2 Sabiduría, +1 Constitución"
-    cita: {archivo: "trasfondos/trasfondos.yaml", registro: Ermitaño, campo: caracteristicas}
-  - en: "creación"
-    eleccion: "habilidades de clase: Acrobacias, Atletismo"
-    cita: {archivo: "clases/monje.yaml", campo: "atributos_basicos.habilidades"}
-  - en: "creación"
-    eleccion: "linaje dracónico: Rojo (Fuego)"
-    cita: {archivo: "especies/especies.yaml", registro: Dracónido, campo: "rasgos.Linaje dracónico"}
-  - en: "creación"
-    eleccion: "equipo inicial opción A (clase y trasfondo)"
-    cita: {archivo: "clases/monje.yaml", campo: "atributos_basicos.equipo_inicial.a"}
-  - en: "creación"
-    eleccion: "idiomas elegidos: Dracónico, Enano (además de Común)"
-    cita: {archivo: "reglas/idiomas.yaml", campo: "nota"}
+- en: nivel 3
+  eleccion: 'subclase: Guerrero de la Mano Abierta'
+  cita:
+    archivo: clases/monje.yaml
+    campo: progresion[n=3].rasgos
+- en: nivel 4
+  eleccion: 'mejora de característica: Destreza +2 (15→17)'
+  cita:
+    archivo: clases/monje.yaml
+    campo: progresion[n=4].rasgos
+- en: nivel 8
+  eleccion: 'mejora de característica: Sabiduría +2 (16→18)'
+  cita:
+    archivo: clases/monje.yaml
+    campo: progresion[n=8].rasgos
+- en: nivel 12
+  eleccion: 'mejora de característica: Sabiduría +2 (18→20)'
+  cita:
+    archivo: clases/monje.yaml
+    campo: progresion[n=12].rasgos
+- en: nivel 16
+  eleccion: 'mejora de característica: Destreza +2 (17→19)'
+  cita:
+    archivo: clases/monje.yaml
+    campo: progresion[n=16].rasgos
+- en: niveles 2-20
+  eleccion: 'PG: valor establecido (5) en cada subida, sin tirar'
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1
+- en: creación
+  eleccion: 'método de características: conjunto estándar (reparto sugerido para Monje)'
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: conjunto_estandar_por_clase
+- en: creación
+  eleccion: 'ajuste de trasfondo: +2 Sabiduría, +1 Constitución'
+  cita:
+    archivo: trasfondos/trasfondos.yaml
+    registro: Ermitaño
+    campo: caracteristicas
+- en: creación
+  eleccion: 'habilidades de clase: Acrobacias, Atletismo'
+  cita:
+    archivo: clases/monje.yaml
+    campo: atributos_basicos.habilidades
+- en: creación
+  eleccion: 'linaje dracónico: Rojo (Fuego)'
+  cita:
+    archivo: especies/especies.yaml
+    registro: Dracónido
+    campo: rasgos.Linaje dracónico
+- en: creación
+  eleccion: equipo inicial opción A (clase y trasfondo)
+  cita:
+    archivo: clases/monje.yaml
+    campo: atributos_basicos.equipo_inicial.a
+- en: creación
+  eleccion: 'idiomas elegidos: Dracónico, Enano (además de Común)'
+  cita:
+    archivo: reglas/idiomas.yaml
+    campo: nota

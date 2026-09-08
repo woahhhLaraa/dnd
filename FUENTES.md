@@ -154,6 +154,100 @@ ausente, conector `y`/`o` cambiado) — las 8 detectadas.
 
 ## Correcciones registradas
 
+- **«Élfico» por «Elfo» en dos fichas, y el arreglo que se quedó a medias →
+  ronda 2 de estrés (2026-09-05)** — el nombre canónico de la tabla es
+  «Elfo»; `gnomo_mago.yaml` y `gnomo_mago_n20.yaml` decían «Élfico».
+
+  Lo que hace este caso distinto de un typo cualquiera es que **el defecto ya
+  era conocido**. `personajes/_ejemplo_aerin.yaml` lleva escrito, en un
+  comentario que sigue ahí:
+
+  > *«el nombre canónico de la tabla es "Elfo", no "Élfico" (bug real: la
+  > versión anterior de este ejemplo tenía ambos errores y ningún validador lo
+  > pilló, porque `idiomas` no lleva `ref:`)»*
+
+  Se arregló **en el ejemplo** y se quedó vivo en las otras dos fichas, porque
+  lo que se hizo fue corregir el dato y no cerrar el hueco: sin `ref:`, los
+  idiomas no pasaban por ningún contraste. Es el parche puntual en estado
+  puro, y por eso este caso se registra aunque el dato sea trivial.
+
+  Cerrado de verdad ahora: `verificar_idiomas()` contrasta cada nombre contra
+  las tablas de `reglas/idiomas.yaml`, comprueba el origen que declara —una
+  especie o un trasfondo NO conceden idiomas en esta base, un rasgo de clase
+  sí y tiene que existir— y cuenta que los elegidos no pasen de los «otros
+  dos» que da la nota. Con mutación en las dos direcciones, y con el Druida y
+  su «Druídico» como control negativo.
+
+- **Dos conjuros mal puestos en una ficha de la base → ronda 2 de estrés
+  (2026-09-05)** — `personajes/draconido_hechicero_n4.yaml` llevaba dos
+  defectos que ningún chequeo miraba, porque los dos chequeos de conjuros
+  **contaban la longitud de la lista sin mirar qué había dentro**:
+
+  | Defecto | Qué pasaba |
+  |---|---|
+  | «Descarga sobrenatural» entre los trucos | Es conjuro de **Brujo**, en un Hechicero. Los 391 conjuros de `hechizos.json` traen `clases`, y nadie lo consultaba |
+  | «Rayo de escarcha» en `trucos` **y** en `preparados` | Es de nivel 0, así que de los 7 preparados que concede la tabla la ficha tenía **6 reales** |
+
+  El primero lo **predijo** el agente A de la ronda de estrés con un caso
+  inventado («Tañido por los muertos» en un Hechicero) y resultó estar vivo en
+  la base; el segundo lo encontró el agente C leyendo los ejemplos, que es
+  justo lo que el briefing de esa ronda pedía por primera vez.
+
+  Corregido: el truco de Brujo pasa a «Estallido mágico» y el preparado
+  duplicado a «Armadura de mago», los dos de la lista real del Hechicero.
+  Y los dos huecos quedan cerrados con chequeo y mutación, no solo el dato:
+  ahora se comprueba que cada conjuro que cuenta contra la tabla sea de la
+  lista de su clase, que ninguno esté en las dos listas, y que el nivel del
+  conjuro corresponda con la lista en la que vive.
+
+- **El verificador aprobaba la ficha mal y rechazaba la buena → C1/C3/C4 del
+  Plan 17 (2026-08-31)** — el defecto más grave encontrado hasta la fecha, y
+  no era un dato equivocado: era un dato **que nadie miraba**.
+
+  **Medido, con la ficha de nivel 1 del propio repo:**
+
+  | Ficha | Veredicto antes |
+  |---|---|
+  | `Duro` (dote de origen) con su +2 PG aplicado — CORRECTA | ❌ rechazada |
+  | `Duro` con el +2 perdido — ROTA | ✅ «0 problemas» |
+  | `Actor` (nivel 4) con su +1 Carisma aplicado — CORRECTA | ❌ rechazada |
+  | `Actor` con el +1 perdido — ROTA | ✅ «0 problemas» |
+
+  **Causa:** `efectos._ORIGENES` era una tupla de 15 rutas escritas a mano.
+  Conocía 2 de las 48 subclases y **0 de los 4 ficheros de dotes**. Y 54 de
+  las 75 dotes conceden «Mejora de característica: X +1» dentro de una cadena
+  de texto, sin campo donde declararlo. Es el mismo defecto que la cabecera de
+  `reglas/efectos.yaml` condena para las fórmulas de CA cableadas, repetido un
+  nivel más arriba: un diccionario de FÓRMULAS sustituido por una tupla de
+  RUTAS.
+
+  **Corregido sin transcribir nada nuevo.** `mejora_caracteristica` se DERIVÓ
+  de la prosa ya citada, con **ida y vuelta 54/54 exacta** — el método de la
+  Fase 15. `validar_mejoras_de_dote()` la exige de forma permanente y salta en
+  los dos sentidos (prosa sin estructura, estructura sin prosa).
+
+  **Lo que la ida y vuelta evitó, y es el motivo de hacerla así:** los **12
+  dones épicos dicen «máx. 30», no 20**. Dar por hecho el 20 —que es lo que
+  «se sabe» de D&D— habría inventado una regla para 12 dotes. La ida y vuelta
+  lo hizo imposible antes de escribir nada.
+
+- **`personajes/draconido_hechicero_n4.yaml`: Carisma 17 → 18 (2026-08-31)** —
+  la ficha tomaba `Lanzador ritual`, que concede +1 a Inteligencia, Sabiduría
+  o Carisma, y **no aplicaba el +1**. Arrastraba CD 13, bonificador de ataque
+  +5 y CA 15 donde debían ser 14, +6 y 16. Se elige Carisma por ser la aptitud
+  mágica del Hechicero, y consta en el bloque `decisiones` de la ficha con su
+  cita. Nadie lo detectaba porque el +1 de una dote no tenía dónde entrar: el
+  esquema exigía `final == base + ajuste_trasfondo + mejoras`, y una dote no
+  era ninguna de las tres.
+
+- **`dotes/origen.yaml#Duro`: primer efecto de dote declarado (2026-08-31)** —
+  `{objetivo: pg_max, op: add, formula: "2 * nivel_total"}` (pdf 203 = libro
+  201). El texto da dos reglas —al adquirirla, el doble del nivel; después, +2
+  por nivel— que **juntas equivalen** a la forma cerrada declarada. No se
+  simplifica ninguna regla: se declara lo que el propio texto produce en todos
+  los niveles.
+
+
 - **«¿Cómo sabemos que no volverá a pasar?» → `verificar_chequeos.py`
   (2026-08-30)** — la respuesta honesta era **no lo sabemos**, y este proyecto ya
   tenía la prueba: la convención de `coste` *«llevaba una semana escrita en

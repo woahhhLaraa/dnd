@@ -154,6 +154,9 @@ dotes:
   origen:
     trasfondo: Artesano
 calculado:
+  # Lo escribió el motor, no una lectura independiente de la
+  # página. Ver `PLAN_20_AUDITORIA.md` §1.2.
+  _origen: {metodo: motor, informe: null, fecha: "2026-09-05"}
   pg_max: 9
   ca: 14
   bonif_competencia: 2

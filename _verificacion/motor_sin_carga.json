@@ -1,0 +1,28 @@
+{
+ "_nota": "Trozos del motor que NINGUNA ficha de `personajes/` protege: se pueden corromper y todas las fichas siguen verificando en verde. Es deuda enumerada, no permiso.",
+ "_como_se_salda": "escribiendo fichas que ejerciten esa aritmética —el mandato «el calculista»— o dándole al vocabulario un consumidor exhaustivo, que es como se cerraron `min`, `max` y `set` en la fase 4 del PLAN_20",
+ "_identidad": "nombre-de-mutacion",
+ "_identidad_explicada": "el NOMBRE de la función de mutación. Nunca su descripción: reescribir una frase hacía que el mismo hueco saliera como nuevo y esta suite gritara «cobertura perdida», que era falso",
+ "_fecha": "2026-09-06",
+ "_migracion_plan21": "El 2026-09-06 este fichero pasó a `deuda.Deuda`. Antes su lista vivía bajo «huecos_por_id» y su elenco bajo «mutaciones». Los ids NO cambian: cambiarlos invalidaría la línea base, que es la mentira que el PLAN_21 persigue.",
+ "_elenco": "todas las mutaciones que esta suite corre hoy. Sin esta lista no se distingue una mutación NUEVA de una que se cazaba y ha dejado de cazarse.",
+ "entradas": {
+  "m_mul_invertido": "el agregador `mul` divide en vez de multiplicar",
+  "m_orden_ignorado": "`agregar()` deja de leer `orden_de_agregacion` y usa un orden propio",
+  "m_sin_redondeo": "se quita el `math.floor` final de la agregación"
+ },
+ "elenco": [
+  "m_add_invertido",
+  "m_condiciones_ignoradas",
+  "m_estado_de_equipo_invertido",
+  "m_max_borrado",
+  "m_min_borrado",
+  "m_minimo_de_pg",
+  "m_mul_invertido",
+  "m_negada_ignorada",
+  "m_orden_ignorado",
+  "m_pg_nivel_1_sin_constitucion",
+  "m_set_borrado",
+  "m_sin_redondeo"
+ ]
+}

@@ -1,0 +1,165 @@
+# Manifiesto de fuentes de efectos (Plan 17, C1 — 2026-08-31).
+#
+# ── Por qué existe este fichero ──────────────────────────────────────────
+# Hasta hoy, `efectos.py` llevaba la lista de sus fuentes escrita a mano:
+# una tupla `_ORIGENES` con 15 rutas literales. Conocía 2 de las 48
+# subclases y 0 de los 4 ficheros de dotes, y **no había forma de que se
+# enterara de que existía una tercera**.
+#
+# Ese es exactamente el defecto que la cabecera de `reglas/efectos.yaml`
+# condena para las fórmulas de CA:
+#
+#   «Una regla cableada no se puede citar, no se puede validar y no se
+#    entera de que hay una quinta.»
+#
+# `_ORIGENES` era `_CA_SIN_ARMADURA` otra vez, un nivel más arriba: se
+# había sustituido un diccionario cableado de FÓRMULAS por una tupla
+# cableada de RUTAS. Mismo patrón, mismo modo de fallo.
+#
+# ── Qué cambia ───────────────────────────────────────────────────────────
+# La cobertura deja de ser una lista y pasa a ser una COMPROBACIÓN:
+# `efectos.py` descubre por patrón todos los ficheros de regla y consulta
+# aquí cómo recorrer cada uno. Un fichero descubierto que ningún patrón
+# sepa recorrer **es un error**, no un salto silencioso.
+#
+# Consecuencia práctica: añadir `clases/subclases/artificiero.yaml` hace
+# fallar al motor hasta que alguien decida (aquí) cómo se recorre. Ya no
+# se puede olvidar enchufar una fuente, porque no hay nada que enchufar.
+edicion: "2024 (5.5e)"
+verificado: {metodo: "estructural", fecha: "2026-08-31"}
+
+# ── Los DIRECTORIOS de regla, descubiertos (fase 2.1 del PLAN_20 — 2026-09-05)
+#
+# Hasta hoy `efectos.py` llevaba `_DIRECTORIOS_DE_REGLA` como tupla literal de
+# cinco nombres, y le faltaba `equipo`. Es el mismo defecto que este fichero
+# arregló un nivel más abajo: se sustituyó una tupla cableada de RUTAS por un
+# descubrimiento por patrón… **dentro de una tupla cableada de DIRECTORIOS**.
+#
+# Y no era inocuo. `censo.py` toma su universo de esa misma tupla, así que
+# `equipo/armaduras.yaml` —que **sí** es fuente de efectos: de ahí salen la CA
+# de las armaduras, el escudo y el −3 m por Fuerza— no lo censaba nadie. El
+# guardián de «la cobertura se descubre» tenía el defecto que persigue.
+#
+# Ahora los directorios de primer nivel con `.yaml` se DESCUBREN, y cada uno
+# tiene que estar en una de estas tres listas. Uno nuevo sin declarar es un
+# error, igual que un fichero sin clasificar.
+directorios:
+  # No son regla: su contenido no concede nada al personaje.
+  no_son_regla:
+    - ruta: "personajes"
+      motivo: "las fichas, que CONSUMEN las reglas; verlas como fuente sería circular"
+    - ruta: "_verificacion"
+      motivo: "líneas base y manifiestos de las suites de mutación, no contenido del juego"
+
+
+# `patron`  — glob relativo a la raíz de la base.
+# `camino`  — claves por las que descender hasta el registro que puede
+#             llevar `efectos:`. Lista vacía = el propio documento.
+# `que_es`  — para los mensajes de error; no lo consume el motor.
+# ── Fuentes DERIVADAS (fase 2.2 del PLAN_20 — 2026-09-05) ────────────────
+#
+# La taxonomía binaria de este fichero —`fuentes` o `excluidos`— no podía
+# decir la verdad sobre `equipo/armaduras.yaml`:
+#
+#   · `excluidos` sería MENTIRA: el motor fabrica de ahí la CA de las 12
+#     armaduras, el +2 del escudo y el −3 m por Fuerza. Es la fuente de más
+#     efectos de toda la base después de los rasgos.
+#   · `fuentes` no encaja: ningún registro lleva `efectos:`. Los efectos se
+#     DERIVAN de los campos `ca` y `fuerza` que la tabla ya trae, y escribir
+#     un `efectos:` al lado sería el modo de fallo nº 10 —dos copias del
+#     mismo dato que nadie vuelve a comparar—.
+#
+# Una tercera categoría dice lo que pasa de verdad: los efectos existen y los
+# fabrica una función nombrada aquí. `deriva:` se resuelve con `getattr` sobre
+# `efectos.py`; si esa función no existe, es un ERROR — la declaración no
+# puede quedarse apuntando al vacío cuando alguien renombre.
+derivadas:
+  - patron: "equipo/armaduras.yaml"
+    deriva: "efectos_de_equipo"
+    campos:
+      - {campo: ca,     objetivo: ca,        op: "base|add"}
+      - {campo: fuerza, objetivo: velocidad, op: add}
+    que_es: "sus 13 registros —12 armaduras y el escudo—; los efectos salen de `ca` y `fuerza`"
+
+# ── Ficheros de regla PENDIENTES de clasificar ───────────────────────────
+# Deuda ENUMERADA, no permiso: `origenes()` no revienta por ellos, pero el
+# censo los cuenta uno a uno con su motivo. **Solo puede vaciarse**, y un
+# `.yaml` nuevo sin clasificar sigue poniendo el censo en rojo.
+pendientes: []
+
+fuentes:
+  - patron: "especies/especies.yaml"
+    camino: [especies, rasgos]
+    que_es: "rasgos de especie"
+
+  - patron: "clases/rasgos/*.yaml"
+    camino: [rasgos]
+    que_es: "rasgos de clase"
+
+  - patron: "clases/subclases/*.yaml"
+    camino: [subclases, rasgos]
+    que_es: "rasgos de subclase"
+
+  - patron: "dotes/*.yaml"
+    camino: [dotes]
+    que_es: "dotes"
+
+  - patron: "trasfondos/*.yaml"
+    camino: [trasfondos]
+    que_es: "trasfondos"
+
+# ── Ficheros de regla que NO son fuente de efectos ───────────────────────
+# Se declaran uno a uno, con el motivo. No es una lista de perdón: es la
+# forma de decir «lo miramos y no lleva efectos», que es justo lo que
+# faltaba. Un fichero nuevo bajo `clases/`, `dotes/`, `especies/`,
+# `trasfondos/` o `reglas/` que no case con `fuentes` ni aparezca aquí
+# hace fallar al motor.
+excluidos:
+  - ruta: "equipo/armas.yaml"
+    motivo: "catálogo de armas: daño, propiedades y maestrías. No modifica ninguna variable calculable del personaje (pg_max, ca, velocidad); el daño de un ataque no es una de ellas"
+  - ruta: "equipo/aventureros.yaml"
+    motivo: "equipo de aventurero y paquetes: peso y precio. No concede nada calculable"
+  - ruta: "equipo/municion.yaml"
+    motivo: "tabla de munición: cantidad, peso, precio y a qué armas alimenta. No modifica ninguna variable calculable. Lo valida `validar_equipo` desde la fase 2.4, con sus referencias cruzadas a `armas.yaml` y `aventureros.yaml`"
+  - ruta: "equipo/herramientas.yaml"
+    motivo: "herramientas de artesano y sus usos. Las competencias que conceden se contrastan en `validar_competencias_clase`, no son efectos"
+  - ruta: "clases/barbaro.yaml"
+    motivo: "tabla de progresión y atributos básicos; sus números son columnas contrastadas por verificar_srd.py, no efectos"
+  - ruta: "clases/bardo.yaml"
+    motivo: "ídem"
+  - ruta: "clases/brujo.yaml"
+    motivo: "ídem"
+  - ruta: "clases/clerigo.yaml"
+    motivo: "ídem"
+  - ruta: "clases/druida.yaml"
+    motivo: "ídem"
+  - ruta: "clases/explorador.yaml"
+    motivo: "ídem"
+  - ruta: "clases/guerrero.yaml"
+    motivo: "ídem"
+  - ruta: "clases/hechicero.yaml"
+    motivo: "ídem"
+  - ruta: "clases/mago.yaml"
+    motivo: "ídem"
+  - ruta: "clases/monje.yaml"
+    motivo: "ídem"
+  - ruta: "clases/paladin.yaml"
+    motivo: "ídem"
+  - ruta: "clases/picaro.yaml"
+    motivo: "ídem"
+  - ruta: "reglas/caracteristicas.yaml"
+    motivo: "las seis características y sus abreviaturas; es vocabulario, no concede rasgos. Lo ata a sus tres orígenes `validar_caracteristicas`"
+  - ruta: "reglas/efectos.yaml"
+    motivo: "es el vocabulario del propio motor, no una fuente de efectos"
+  - ruta: "reglas/fuentes_de_efectos.yaml"
+    motivo: "este mismo fichero"
+  - ruta: "reglas/generacion_personaje.yaml"
+    motivo: "reglas de creación y multiclase; no concede rasgos"
+  - ruta: "reglas/habilidades.yaml"
+    motivo: "catálogo de las 18 habilidades; no concede rasgos"
+  - ruta: "reglas/idiomas.yaml"
+    motivo: "catálogo de idiomas; no concede rasgos"
+  - ruta: "reglas/prerrequisitos.yaml"
+    motivo: "gramática de prerrequisitos de dote (Fase 15); no concede rasgos"
+  - ruta: "reglas/subida_de_nivel.yaml"
+    motivo: "taxonomía de subida de nivel; no concede rasgos"

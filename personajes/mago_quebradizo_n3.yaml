@@ -1,0 +1,138 @@
+# Esta ficha entró en la base el 2026-09-06 y la eligió una lista, no una idea
+# de personaje: `_verificacion/motor_sin_carga.json`, los trozos del motor que
+# se pueden corromper sin que ninguna ficha se queje.
+#
+# **Ejercita el mínimo de 1 punto de golpe por nivel** (pdf 44 = libro 42,
+# paso 2), que hasta hoy no sostenía nadie. Para eso hacen falta las tres cosas
+# a la vez, y por eso la ficha es como es:
+#
+#   · Constitución 8 → modificador −1 (reparto legal del conjunto estándar,
+#     solo cambia a qué característica va cada número);
+#   · dado de golpe d6, el más pequeño del juego (Mago);
+#   · una tirada de 1 en el nivel 2.
+#
+# 1 + (−1) = 0, y el mínimo lo sube a 1. Cambiar `max(1, …)` por `max(0, …)` en
+# el motor deja los PG en 8 en vez de 9, y esta ficha lo grita. Sin ella, esa
+# línea se podía borrar y las 25 fichas seguían en verde.
+#
+# El verificador avisa además de un límite YA declarado: cuando el mínimo se
+# aplica, la base no resuelve qué pasa con la regla retroactiva del paso 5. No
+# es un fallo de esta ficha; es el hueco de transcripción que ese aviso existe
+# para no dejar olvidar.
+
+nombre: Pello el Quebradizo
+jugador: null
+nivel_total: 3
+especie:
+  ref: especies/especies.yaml#Aasimar
+trasfondo:
+  ref: trasfondos/trasfondos.yaml#Acólito
+clases:
+- clase: Mago
+  ref: clases/mago.yaml
+  nivel: 3
+  subclase: clases/subclases/mago.yaml#Abjurador
+caracteristicas:
+  metodo: conjunto_estandar
+  base:
+    int: 15
+    des: 14
+    sab: 13
+    car: 12
+    fue: 10
+    con: 8
+  ajuste_trasfondo:
+    int: 2
+    sab: 1
+  final:
+    fue: 10
+    des: 14
+    con: 8
+    int: 17
+    sab: 14
+    car: 12
+competencias:
+  salvaciones:
+  - Inteligencia
+  - Sabiduría
+  habilidades:
+  - nombre: Conocimiento arcano
+    origen:
+      clase: Mago
+  - nombre: Historia
+    origen:
+      clase: Mago
+  - nombre: Perspicacia
+    origen:
+      trasfondo: Acólito
+  - nombre: Religión
+    origen:
+      trasfondo: Acólito
+  armas:
+  - categoria: Armas sencillas
+    origen:
+      clase: Mago
+  armaduras: []
+  herramientas: []
+  idiomas:
+  - nombre: Común
+equipo: []
+pg_por_nivel:
+- nivel: 1
+  clase: Mago
+  metodo: maximo_dado
+  valor: 6
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.nivel_1
+- nivel: 2
+  clase: Mago
+  metodo: tirada
+  valor: 1
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.metodos[tirar]
+- nivel: 3
+  clase: Mago
+  metodo: valor_establecido
+  valor: 4
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: puntos_golpe.niveles_siguientes_al_1.tabla_valores_establecidos
+conjuros:
+  trucos:
+  - ref: hechizos.json#Agarre electrizante
+  - ref: hechizos.json#Amistad
+  - ref: hechizos.json#Descarga de fuego
+  preparados:
+  - ref: hechizos.json#Alarma
+  - ref: hechizos.json#Armadura de mago
+  - ref: hechizos.json#Caída de pluma
+  - ref: hechizos.json#Cuchillo de hielo
+  - ref: hechizos.json#Detectar magia
+  - ref: hechizos.json#Disco flotante de Tenser
+decisiones:
+- en: generación automática
+  eleccion: conjunto estándar repartido por característica principal; PG siempre por
+    valor establecido; mejoras a la principal. Es una heurística del generador, no
+    una regla del manual.
+  cita:
+    archivo: reglas/generacion_personaje.yaml
+    campo: metodos_generacion_caracteristicas.conjunto_estandar
+- en: generación automática
+  eleccion: el equipo inicial vive como prosa en la base, así que esta ficha solo
+    lleva armadura; el inventario queda vacío a propósito.
+  cita:
+    archivo: clases/mago.yaml
+    campo: atributos_basicos.equipo_inicial
+calculado:
+  pg_max: 9
+  ca: 12
+  bonif_competencia: 2
+  velocidad: 9
+  cd_conjuros: 13
+  bonif_ataque_conjuros: 5
+  _origen:
+    metodo: motor
+    informe: null
+    fecha: '2026-09-06'

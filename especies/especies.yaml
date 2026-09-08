@@ -88,7 +88,13 @@ especies:
     velocidad_m: 10.5
     rasgos:
       - {nombre: "Constitución poderosa", desc: "Ventaja en cualquier prueba de característica para poner fin al estado de agarrado. Cuentas como una categoría de tamaño superior para tu capacidad de carga."}
-      - {nombre: "Forma grande", nivel: 5, desc: "Acción adicional: cambias a tamaño Grande 10 minutos. Ventaja en las pruebas de Fuerza y tu velocidad aumenta en 3 m. 1 vez por descanso largo."}
+      - nombre: "Forma grande"
+        nivel: 5
+        desc: "Acción adicional: cambias a tamaño Grande 10 minutos. Ventaja en las pruebas de Fuerza y tu velocidad aumenta en 3 m. 1 vez por descanso largo."
+        efectos:
+          - {objetivo: velocidad, op: conditional,
+             texto: "+3 m mientras dure Forma grande (10 minutos, 1 vez por descanso largo), no de forma permanente",
+             pagina: {pdf: 194, libro: 192}}
       - {nombre: "Linaje gigante", desc: "Elige un beneficio; usos iguales a tu PB por descanso largo."}
     linajes:
       - {nombre: "Abrasión del fuego (gigante de fuego)", desc: "Al acertar un ataque y causar daño, también causas 1d10 de daño de fuego."}

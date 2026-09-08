@@ -8,19 +8,43 @@ justo lo que `calculo.py` produciría a partir del resto de la ficha. Una
 ficha que pase este script no puede sostenerse en la palabra del LLM: todo
 lo que dice es trazable.
 
-Alcance actual: personajes de creación en nivel 1 y una sola clase (lo que
-construye la skill /personaje de esta fase). Con multiclase o niveles
-superiores, la recomputación de `calculado` no se intenta — se avisa y se
-deja pasar solo la comprobación de referencias.
+Alcance actual: personajes de una sola clase, de nivel 1 a 20.
+
+**La multiclase se RECHAZA, no se avisa (2026-09-02, fase 1 del PLAN_19).**
+Hasta hoy **cuatro** chequeos se degradaban a aviso cuando la ficha traía más
+de una clase —la recomputación de `calculado`, la justificación de las mejoras
+de característica, el recuento de conjuros y las dotes y subclases— y la ficha
+terminaba imprimiendo
+«✅ FICHA VERIFICADA — 0 problemas». Es decir: el verificador aprobaba lo que
+no había comprobado, que es el peor resultado posible de los tres:
+
+  · rechazarla dice la verdad y no cuesta nada;
+  · comprobarla de verdad es la fase 6 del plan;
+  · **aprobarla sin mirar enseña a confiar en un ✅ que no significa nada.**
+
+El cuarto era el más feo: se saltaba los tres huecos que el estrés con agentes
+había destapado —la subclase de otra clase, el prerrequisito de dote sin
+comprobar—, así que una ficha multiclase esquivaba en silencio los chequeos
+escritos para cazar lo que se colaba en silencio.
+
+Es el tercer caso confirmado de la amenaza nº 3 del `FODA.md` —«una rama de
+tolerancia en un chequeo es deuda invisible»—, y los dos anteriores costaron
+semanas: `COSTE_COMPUESTO` escondía dos sumas inventadas, y un `continue` dejó
+que nueve de diecisiete fichas violaran la regla 6 de su propio esquema.
 
 Uso: python3 verificar_personaje.py personajes/aerin.yaml
 """
+import functools
+import pathlib
 import re
 import sys
+
+import yaml
 
 import calculo
 import efectos
 import buscar
+import informar as _I
 from calculo import cargar
 
 
@@ -28,12 +52,42 @@ class Informe:
     def __init__(self):
         self.errores = []
         self.avisos = []
+        # Cuántas afirmaciones se han contrastado de verdad. No es decoración:
+        # un chequeo que no suma aquí es un chequeo que no miró nada, y esa
+        # diferencia —entre «pasó» y «no se comprobó»— es la que este proyecto
+        # lleva persiguiendo desde el principio.
+        self.comprobados = 0
 
     def error(self, msg):
         self.errores.append(msg)
 
     def aviso(self, msg):
         self.avisos.append(msg)
+
+
+# Los tres chequeos que no saben multiclase comparten esta puerta. Se dice
+# UNA vez, no tres: repetir el mismo error por cada chequeo que se salta
+# entierra el motivo real bajo su propio ruido.
+_MOTIVO_MULTICLASE = (
+    "MULTICLASE: esta ficha declara {n} clases y este verificador solo sabe "
+    "comprobar una. NO se recomputa `calculado`, NO se justifican las mejoras "
+    "de característica, NO se cuentan los conjuros contra la tabla y NO se "
+    "comprueban ni los prerrequisitos de las dotes ni que la subclase sea de "
+    "su clase. Hasta el "
+    "2026-09-02 esto era un aviso y la ficha pasaba con «0 problemas»: el "
+    "verificador aprobaba lo que no había mirado. Las reglas están transcritas "
+    "y citadas en `reglas/generacion_personaje.yaml → multiclase`; "
+    "automatizarlas es la fase 6 del PLAN_19.")
+
+
+def una_sola_clase(ficha, inf):
+    """¿Puede este verificador responder por esta ficha? Si no, lo dice."""
+    n = len(ficha.get("clases") or [])
+    if n == 1:
+        return True
+    if not any(s.startswith("MULTICLASE:") for s in inf.errores):
+        inf.error(_MOTIVO_MULTICLASE.format(n=n))
+    return False
 
 
 # ── Resolución de referencias ────────────────────────────────────────────
@@ -93,6 +147,12 @@ def _recorrer_refs(nodo, inf, contador):
 
 
 # ── Categorías de armas/armaduras/herramientas ────────────────────────────
+def _norm_cat(s):
+    """Un nombre de categoría, comparable: se le quitan los espacios de sobra
+    y la capitalización, que no son dato. Las tildes se quedan."""
+    return re.sub(r"\s+", " ", str(s or "")).strip().lower()
+
+
 def verificar_categorias(ficha, inf):
     """`competencias.armas/armaduras/herramientas` van como texto literal de
     categoría (no `ref:` a equipo/ — esas categorías no son registros
@@ -151,7 +211,18 @@ def verificar_categorias(ficha, inf):
                 # `atributos_basicos`/`trasfondos.yaml`, que declara la apertura.
                 continue
             cat = e["categoria"]
-            if cat not in permitidas:
+            # La comparación NORMALIZA MAYÚSCULAS, y eso es afinar el chequeo,
+            # no relajarlo: la capitalización de un nombre de categoría es
+            # ortografía, no dato. La base misma es inconsistente —
+            # `trasfondos.yaml` guarda «suministros de calígrafo» en minúscula
+            # y `clases/*.yaml` guarda «Armaduras ligeras» con mayúscula—, así
+            # que una ficha que escribiera la herramienta con la mayúscula
+            # natural del castellano se rechazaba contra una lista que la
+            # contenía. Lo destapó la ronda 2 de estrés (agente A, 3 fichas).
+            #
+            # Las TILDES no se normalizan a propósito: en castellano sí son
+            # dato, y este proyecto ya perdió tiempo con la tilde de `Clérigo`.
+            if _norm_cat(cat) not in {_norm_cat(p) for p in permitidas}:
                 inf.error(f"competencias.{campo}: {cat!r} no está en lo que "
                           f"conceden las clases (ni el trasfondo, si aplica) "
                           f"del personaje ({sorted(permitidas)})")
@@ -219,17 +290,18 @@ def verificar_compra_puntos(ficha, inf):
     if car.get("metodo") != "compra_puntos":
         return
     total = calculo.coste_compra_puntos(car["base"])
-    if total != 27:
-        inf.error(f"compra por puntos suma {total}, debería ser 27")
+    # El presupuesto se LEE de la base (auditoría del 2026-09-03): era un `27`
+    # cableado aquí mientras la tabla de coste del MISMO bloque del YAML ya se
+    # leía, con un comentario encima explicando por qué había que leerla.
+    presupuesto = calculo.puntos_totales()
+    if total != presupuesto:
+        inf.error(f"compra por puntos suma {total}, debería ser {presupuesto}")
 
 
 # ── Recomputar `calculado` ────────────────────────────────────────────────
 def verificar_calculado(ficha, inf):
     clases = ficha.get("clases", [])
-    if len(clases) != 1:
-        inf.aviso("recomputación de 'calculado' omitida: la multiclase todavía "
-                  "no se recalcula (los PG de cada clase salen de su propio "
-                  "dado; ver reglas/generacion_personaje.yaml → multiclase)")
+    if not una_sola_clase(ficha, inf):
         return
     if clases[0]["nivel"] != ficha["nivel_total"]:
         inf.error(f"nivel_total {ficha['nivel_total']} no coincide con el nivel "
@@ -300,10 +372,66 @@ def verificar_calculado(ficha, inf):
             comprobaciones.append(("bonif_ataque_conjuros",
                                     calculo.bonif_ataque_conjuros(apt_mod, pb_esperado)))
 
+    sobran = set(calc) - {c for c, _ in comprobaciones} - {"_origen"}
+    if sobran:
+        inf.error(f"`calculado` trae campos que el verificador no recalcula: "
+                  f"{sorted(sobran)}. Un número en `calculado` que nadie "
+                  f"contrasta es un número inventado")
     for campo, esperado in comprobaciones:
         real = calc.get(campo)
         if real != esperado:
             inf.error(f"calculado.{campo} = {real!r}, pero recalculado da {esperado!r}")
+
+
+# ── De dónde sale el bloque `calculado` ──────────────────────────────────
+# Fase 1.2 de la auditoría (2026-09-05). El problema que cierra es de forma,
+# no de aritmética: la ficha se ESCRIBE con `calculo`/`efectos` (por
+# `--calcular`) y se VERIFICA recalculando con `calculo`/`efectos`. El círculo
+# está cerrado, así que un error del motor produce una ficha coherente y
+# equivocada, y sale en verde. `mutaciones_motor.py` lo midió: 7 de 11 trozos
+# del motor se pueden corromper sin que ninguna ficha se queje.
+#
+# Esto no arregla la aritmética —eso lo hace el mandato «el calculista» de la
+# ronda 3 de estrés—, pero hace VISIBLE lo que hoy es invisible: si un número
+# lo escribió el motor o una lectura independiente de la página.
+#
+# La regla dura, y es la que da sentido a todo: `calcular_bloque()` escribe
+# SIEMPRE `metodo: motor` y NUNCA puede firmar `agente-manual`. Si el
+# escritor puede firmar como oráculo, no hay oráculo.
+_METODOS_DE_ORIGEN = ("motor", "agente-manual")
+
+
+def verificar_origen_del_calculado(ficha, inf):
+    calc = ficha.get("calculado")
+    if not isinstance(calc, dict):
+        # TOLERADO: la ausencia del bloque entero la caza `verificar_calculado`,
+        # que lo compara campo a campo y saca un error por cada uno. Repetirlo
+        # aquí daría dos mensajes para un solo defecto.
+        return
+    o = calc.get("_origen")
+    if not isinstance(o, dict):
+        inf.error("`calculado` no dice de dónde sale. Necesita `_origen` con "
+                  "`metodo` (" + " | ".join(_METODOS_DE_ORIGEN) + "), porque "
+                  "un número escrito por el motor y otro leído a mano de la "
+                  "página no valen lo mismo")
+        return
+    metodo = o.get("metodo")
+    if metodo not in _METODOS_DE_ORIGEN:
+        inf.error(f"`calculado._origen.metodo` es {metodo!r} y solo vale "
+                  f"{list(_METODOS_DE_ORIGEN)}")
+        return
+    if metodo == "agente-manual":
+        informe = o.get("informe")
+        if not informe:
+            inf.error("`_origen.metodo: agente-manual` sin `informe:`. Un "
+                      "número que dice venir de una lectura independiente "
+                      "tiene que decir DÓNDE está esa lectura")
+            return
+        if not (pathlib.Path(__file__).parent / str(informe)).exists():
+            inf.error(f"`_origen.informe` apunta a {informe!r} y ese fichero "
+                      f"no existe: la derivación tiene que poder leerse")
+            return
+    inf.comprobados += 1
 
 
 # ── Las mejoras de característica, que nadie justificaba ─────────────────
@@ -316,7 +444,19 @@ def verificar_calculado(ficha, inf):
 # La regla está entera en `dotes/generales.yaml#Mejora de característica`
 # (pdf 209 = libro 207): «Aumenta en 2 una puntuación de característica de tu
 # elección, o aumenta dos en 1 cada una. No puede superar 20», `repetible: true`.
-_CARS = ("fue", "des", "con", "int", "sab", "car")
+# El emparejamiento sale de `reglas/caracteristicas.yaml` (fase 3 del PLAN_20):
+# iba escrito a mano aquí y en otros cuatro sitios, sin autoridad en la base.
+@functools.lru_cache(maxsize=1)
+def _caracteristicas():
+    d = cargar("reglas/caracteristicas.yaml")
+    filas = (d or {}).get("caracteristicas")
+    if not filas:
+        sys.exit("✗ `reglas/caracteristicas.yaml` no declara `caracteristicas`: "
+                 "sin ese emparejamiento no se puede leer ninguna ficha")
+    return {c["nombre"]: c["abrev"] for c in filas}
+
+
+_CARS = tuple(_caracteristicas().values())
 
 
 def _niveles_de_mejora(ficha):
@@ -326,46 +466,232 @@ def _niveles_de_mejora(ficha):
     d = cargar(c["ref"].split("#")[0]) or {}
     return [f["n"] for f in d.get("progresion", [])
             if f["n"] <= c["nivel"]
-            and "Mejora de característica" in (f.get("rasgos") or [])]
+            and any(calculo.es_marcador_de("mejora_caracteristica_o_dote", r)
+                    for r in (f.get("rasgos") or []))]
+
+
+# ── C3 del Plan 17: el +1 que concede una DOTE ───────────────────────────
+# 54 de las 75 dotes conceden «Mejora de característica: X +1». Hasta el
+# 2026-08-31 ese +1 no tenía dónde entrar: el esquema exigía
+# `final == base + ajuste_trasfondo + mejoras`, y la dote no era ninguna de
+# las tres. La consecuencia estaba INVERTIDA — la ficha correcta se rechazaba
+# y la rota pasaba en verde con la CD y el ataque un punto por debajo.
+#
+# La dote declara QUÉ puede subir (`mejora_caracteristica.entre`, contrastado
+# contra su propio texto por `validar_mejoras_de_dote`); la ficha declara QUÉ
+# eligió (`sube:`), porque es una elección del jugador y el motor no puede
+# deducirla. Es la misma división que ya usa `mejoras` para el nivel 4.
+def _mejora_de_dote(ref):
+    """`mejora_caracteristica` de la dote referenciada, o None."""
+    archivo, _, nombre = ref.partition("#")
+    d = cargar(archivo) or {}
+    for x in d.get("dotes", []) or []:
+        if x.get("nombre") == nombre:
+            return x.get("mejora_caracteristica")
+    return None
+
+
+def _valida_reparto(quien, mej, sube, final, inf):
+    """Comprueba un reparto `sube:` contra el `mejora_caracteristica` que la
+    dote declara EN LA BASE.
+
+    Es el ÚNICO camino, y eso es el punto. Foundry lo dejó escrito (ver
+    `PLAN_17` §1.2): allí «una dote que sube una característica usa el MISMO
+    mecanismo que la mejora de nivel 4», y por eso no se puede olvidar
+    conectar uno de los dos. Aquí eran dos caminos — el de las dotes leía
+    `mejora_caracteristica` de la base, y el de `mejoras:` llevaba el `+2` y
+    el tope de 20 CABLEADOS—, y el segundo se desincronizó en silencio: la
+    ronda 2 de estrés lo destapó cuando una dote con `maximo: 30` chocó
+    contra un `> 20` de Python que ninguna página respaldaba.
+    """
+    cant, tope, entre = mej.get("cantidad"), mej.get("maximo"), mej.get("entre")
+    valores = list(sube.values())
+    # Las formas legales de repartir `cantidad` son sus particiones en partes
+    # de 1 o más: con `cantidad: 1` solo cabe [1]; con 2, [2] y [1,1] — que es
+    # exactamente lo que dice el texto de la dote genérica. No hace falta un
+    # campo `reparto:` que lo repita, y en cambio SÍ hace falta exigir que
+    # ninguna parte sea 0 o negativa: `{fue: 3, des: -1}` suma 2 y no es
+    # ninguna de las dos formas.
+    if (sum(valores) != cant
+            or any(not isinstance(v, int) or v < 1 for v in valores)):
+        inf.error(f"{quien} concede +{cant} y la ficha reparte {sube!r}: cada "
+                  f"parte tiene que ser de 1 o más y sumar exactamente {cant}")
+    for k in sube:
+        if k not in _CARS:
+            inf.error(f"{quien} sube {k!r}, que no es una característica")
+            continue
+        if isinstance(entre, list):
+            permitidas = {_ABREV[c] for c in entre}
+            if k not in permitidas:
+                inf.error(f"{quien} solo permite subir {entre}, y la ficha "
+                          f"sube {k!r}")
+        valor = (final or {}).get(k)
+        if isinstance(valor, int) and isinstance(tope, int) and valor > tope:
+            inf.error(f"{quien} deja {k} en {valor} y su texto dice "
+                      f"«máx. {tope}»")
+
+
+def _subidas_por_rasgo(ficha, inf=None):
+    """{caracteristica: total} que aportan los RASGOS DE CLASE de la ficha.
+
+    Existe desde el 2026-09-06 y lo destapó la tanda a ciegas del calculista:
+    dos agentes distintos, en dos clases distintas, dieron un número mayor que
+    el motor —40 PG en el Bárbaro de nivel 20, 4 de CA en el Monje— porque
+    «Campeón primordial» y «Cuerpo y mente» dicen, sin condición ni duración,
+    que dos puntuaciones suben 4. La regla estaba transcrita y citada, **pero
+    solo en la prosa**: ni el motor la aplicaba ni la ficha podía expresarla,
+    así que un personaje de nivel 20 salía con dos características y varios
+    números de menos, y en verde.
+
+    No hace falta que la ficha declare nada: el rasgo lo concede la tabla de la
+    clase al alcanzar el nivel, no es una elección. Por eso esto se DERIVA de
+    la progresión en vez de leerse de la ficha — si dependiera de que alguien
+    lo escribiera, volveríamos al mismo silencio.
+    """
+    total, por_nivel = {}, {}
+    for c in ficha.get("clases", []) or []:
+        stem = _stem_de_clase(c.get("clase"))
+        if not stem:
+            continue
+        rasgos = cargar(f"clases/rasgos/{stem}.yaml") or {}
+        for r in rasgos.get("rasgos", []) or []:
+            mej = r.get("mejora_caracteristica")
+            if not mej or (r.get("nivel") or 0) > (c.get("nivel") or 0):
+                continue
+            entre = mej.get("entre") or []
+            if not mej.get("todas"):
+                if inf: inf.error(f"el rasgo «{r.get('nombre')}» declara "
+                          f"`mejora_caracteristica` sin `todas: true`, y la "
+                          f"ficha no tiene dónde decir cuál eligió: hoy solo "
+                          f"se saben derivar los que suben TODAS las que "
+                          f"nombran")
+                continue
+            for nombre_car in entre:
+                k = _ABREV.get(nombre_car)
+                if not k:
+                    if inf: inf.error(f"el rasgo «{r.get('nombre')}» nombra la "
+                              f"característica {nombre_car!r}, que no existe")
+                    continue
+                total[k] = total.get(k, 0) + mej.get("cantidad", 0)
+                por_nivel.setdefault(r.get("nivel") or 0, {})
+                por_nivel[r["nivel"]][k] = (por_nivel[r["nivel"]].get(k, 0)
+                                            + mej.get("cantidad", 0))
+    return total, por_nivel
+
+
+def _stem_de_clase(nombre):
+    import efectos as _E
+    return _E.clases_por_nombre().get(nombre)
+
+
+def _final_sin_rasgos_posteriores(ficha, inf, nivel, final):
+    """`final` menos lo que aportan los rasgos de niveles posteriores a
+    `nivel`. Ver el comentario de `_final_en` en `verificar_mejoras`."""
+    # Sin `inf`: los errores del rasgo los reporta `verificar_mejoras` una sola
+    # vez; repetirlos aquí, una por dote, sería ruido.
+    _t, por_nivel = _subidas_por_rasgo(ficha)
+    ajustado = dict(final)
+    for n_rasgo, subidas in por_nivel.items():
+        if n_rasgo > nivel:
+            for k, v in subidas.items():
+                ajustado[k] = ajustado.get(k, 0) - v
+    return ajustado
+
+
+def _subidas_por_dote(ficha, inf):
+    """{caracteristica: total} que aportan las dotes de la ficha. Valida de
+    paso que lo elegido sea una de las opciones que la dote permite."""
+    total = {}
+    for dt in ficha.get("dotes", []) or []:
+        ref = dt.get("ref", "")
+        mej = _mejora_de_dote(ref)
+        nombre = ref.split("#")[-1]
+        sube = dt.get("sube") or {}
+        if not mej:
+            if sube:
+                inf.error(f"la dote «{nombre}» no concede mejora de "
+                          f"característica y la ficha le pone `sube: {sube!r}`")
+            continue
+        if not sube:
+            inf.error(f"la dote «{nombre}» concede una mejora de "
+                      f"característica y la ficha no dice en qué la gastó. "
+                      f"Añade `sube:` a esa dote (opciones: "
+                      f"{mej.get('entre')})")
+            continue
+        final = (ficha.get("caracteristicas") or {}).get("final") or {}
+        # Igual que las mejoras: el tope se mide cuando se tomó la dote.
+        nivel_dote = (dt.get("origen") or {}).get("nivel") or 0
+        _valida_reparto(f"«{nombre}»", mej, sube,
+                        _final_sin_rasgos_posteriores(ficha, inf, nivel_dote, final),
+                        inf)
+        for k, v in sube.items():
+            total[k] = total.get(k, 0) + v
+    return total
+
+
+_ABREV = _caracteristicas()
 
 
 def verificar_mejoras(ficha, inf):
-    if len(ficha.get("clases", [])) != 1:
-        inf.aviso("multiclase: NO se han comprobado las mejoras de "
-                  "característica. `caracteristicas.final` queda sin justificar")
+    if not una_sola_clase(ficha, inf):
         return
     car = ficha.get("caracteristicas") or {}
     base, ajuste = car.get("base") or {}, car.get("ajuste_trasfondo") or {}
     final = car.get("final") or {}
     mejoras = ficha.get("mejoras") or []
+    por_dote = _subidas_por_dote(ficha, inf)
+    por_rasgo, rasgos_por_nivel = _subidas_por_rasgo(ficha, inf)
 
-    # 1. La suma tiene que cuadrar, característica a característica.
+    # El tope de una mejora («máx. 20») se mide EN SU MOMENTO, no al final. Un
+    # rasgo de nivel 20 que sube 4 puntos con tope 25 deja la puntuación en 24,
+    # y comparar la mejora del nivel 16 contra ese 24 la haría ilegal sin que
+    # lo fuera: cuando se gastó, la puntuación estaba en 20. Se descuenta lo
+    # que aportan los rasgos de niveles POSTERIORES a cada mejora.
+    def _final_en(nivel):
+        ajustado = dict(final)
+        for n_rasgo, subidas in rasgos_por_nivel.items():
+            if n_rasgo > nivel:
+                for k, v in subidas.items():
+                    ajustado[k] = ajustado.get(k, 0) - v
+        return ajustado
+
+    # 1. La suma tiene que cuadrar, característica a característica. Son
+    #    CUATRO fuentes, no tres: los rasgos de clase que suben puntuaciones
+    #    entraron el 2026-09-06 (ver `_subidas_por_rasgo`).
     for k in _CARS:
-        esperado = base.get(k, 0) + ajuste.get(k, 0) + sum(
-            (m.get("sube") or {}).get(k, 0) for m in mejoras)
+        de_mejoras = sum((m.get("sube") or {}).get(k, 0) for m in mejoras)
+        de_dotes = por_dote.get(k, 0)
+        de_rasgos = por_rasgo.get(k, 0)
+        esperado = (base.get(k, 0) + ajuste.get(k, 0) + de_mejoras + de_dotes
+                    + de_rasgos)
         if final.get(k) != esperado:
             inf.error(f"caracteristicas.final.{k} = {final.get(k)!r}, pero "
                       f"base {base.get(k)} + trasfondo {ajuste.get(k, 0)} + "
-                      f"mejoras {sum((m.get('sube') or {}).get(k, 0) for m in mejoras)} "
-                      f"= {esperado}. Una puntuación sin justificar es una "
-                      f"puntuación inventada")
+                      f"mejoras {de_mejoras} + dotes {de_dotes} + rasgos "
+                      f"{de_rasgos} = {esperado}. Una puntuación sin "
+                      f"justificar es una puntuación inventada")
 
-    # 2. Cada mejora reparte exactamente +2, como dice la dote.
+    # 2. Cada mejora reparte lo que dice LA DOTE QUE LA CONCEDE, leída de la
+    #    base por el `ref:` de la propia entrada. Aquí vivía el defecto que
+    #    destapó la ronda 2 de estrés: el `+2` y el tope de 20 estaban
+    #    cableados con literales, y `dotes/generales.yaml#Mejora de
+    #    característica` era la única de las 43 dotes sin
+    #    `mejora_caracteristica` estructurado — justo la que el esquema
+    #    designa para cada entrada de `mejoras:`. Ya lo trae, y este bucle lo
+    #    lee por el mismo camino que las dotes.
     for m in mejoras:
         sube = m.get("sube") or {}
-        total = sum(sube.values())
-        forma_ok = (sorted(sube.values()) == [2] or sorted(sube.values()) == [1, 1])
-        if total != 2 or not forma_ok:
-            inf.error(f"la mejora de nivel {m.get('nivel')} reparte {sube!r}: "
-                      f"la dote dice «aumenta en 2 una puntuación, o aumenta "
-                      f"dos en 1 cada una»")
-        for k in sube:
-            if k not in _CARS:
-                inf.error(f"la mejora de nivel {m.get('nivel')} sube {k!r}, "
-                          f"que no es una característica")
-            elif final.get(k, 0) > 20:
-                inf.error(f"la mejora de nivel {m.get('nivel')} deja {k} en "
-                          f"{final.get(k)}: la dote dice «No puede superar 20»")
+        ref = m.get("ref") or ""
+        mej = _mejora_de_dote(ref)
+        quien = f"la mejora de nivel {m.get('nivel')}"
+        if not mej:
+            inf.error(f"{quien} no dice de qué dote sale, o su `ref` no "
+                      f"resuelve a una que conceda mejora de característica: "
+                      f"{ref!r}. Sin eso no hay cantidad ni tope que aplicar "
+                      f"—y cablearlos aquí fue el defecto que la ronda 2 de "
+                      f"estrés destapó")
+            continue
+        _valida_reparto(quien, mej, sube, _final_en(m.get("nivel") or 0), inf)
 
     # 3. Cada nivel con «Mejora de característica» tiene que estar gastado:
     #    o en una mejora, o en una dote tomada en ese nivel. Ni de más ni de
@@ -395,11 +721,68 @@ def verificar_mejoras(ficha, inf):
 # `decisiones`**, que ningún script lee. Se reutiliza la convención que el
 # equipo ya usa: un conjuro con `origen:` es un extra y tiene que decir de
 # dónde sale; uno sin `origen:` cuenta contra la tabla.
+# Las fuentes de un conjuro EXTRA que este chequeo sabe reconocer. Vive como
+# constante porque el mensaje de error la nombra: un origen que no esté aquí
+# tiene que salir por pantalla con la lista de los que sí, no como un «no dice
+# de qué sale» que parece culpa de la ficha cuando es un hueco del chequeo.
+_ORIGENES_DE_CONJURO = ("dote", "especie", "rasgo", "trasfondo", "clase",
+                        "subclase")
+
+
+def _comprueba_conjuro_de_subclase(ficha, entrada, origen, clave, inf):
+    """Un conjuro que dice venir de la subclase tiene que estar de verdad en
+    la tabla `conjuros_siempre_preparados` de esa subclase, a un nivel que el
+    personaje ya haya alcanzado."""
+    c = ficha["clases"][0]
+    sub_ref = (c.get("subclase") or {}).get("ref") if isinstance(c.get("subclase"), dict) else c.get("subclase")
+    nombre_sub = str(origen.get("subclase") or "").strip()
+    if not sub_ref:
+        inf.error(f"conjuros.{clave}: {entrada.get('ref')!r} dice venir de la "
+                  f"subclase {nombre_sub!r} y la ficha no declara subclase")
+        return
+    doc = cargar(str(sub_ref).split("#")[0]) or {}
+    sub = next((x for x in (doc.get("subclases") or [])
+                if x.get("nombre") == str(sub_ref).split("#")[-1]), None)
+    if sub is None:
+        return          # la ref rota la caza `_recorrer_refs`, no este chequeo
+    if nombre_sub and nombre_sub != sub.get("nombre"):
+        inf.error(f"conjuros.{clave}: {entrada.get('ref')!r} dice venir de "
+                  f"{nombre_sub!r} y la subclase de la ficha es "
+                  f"{sub.get('nombre')!r}")
+        return
+    tabla = sub.get("conjuros_siempre_preparados") or {}
+    if not tabla:
+        inf.error(f"conjuros.{clave}: {entrada.get('ref')!r} dice venir de la "
+                  f"subclase {sub.get('nombre')!r}, y esa subclase no tiene "
+                  f"tabla de conjuros siempre preparados en la base")
+        return
+    nombre_conj = str(entrada.get("ref") or "").split("#")[-1]
+    concedidos = {}
+    for niv, lista in tabla.items():
+        for n in (lista or []):
+            concedidos.setdefault(n, int(niv))
+    if nombre_conj not in concedidos:
+        inf.error(f"conjuros.{clave}: {nombre_conj!r} dice venir de "
+                  f"{sub.get('nombre')!r} y no está en su tabla de conjuros "
+                  f"siempre preparados ({sorted(concedidos)})")
+        return
+    exige = concedidos[nombre_conj]
+    if c["nivel"] < exige:
+        inf.error(f"conjuros.{clave}: {nombre_conj!r} lo concede "
+                  f"{sub.get('nombre')!r} en el nivel {exige} y el personaje "
+                  f"es de nivel {c['nivel']}")
+        return
+    declarado = origen.get("nivel")
+    if declarado is not None and int(declarado) != exige:
+        inf.error(f"conjuros.{clave}: {nombre_conj!r} declara `nivel` "
+                  f"{declarado} y la tabla de {sub.get('nombre')!r} lo "
+                  f"concede en el {exige}")
+        return
+    inf.comprobados += 1
+
+
 def verificar_conjuros(ficha, inf):
-    if len(ficha.get("clases", [])) != 1:
-        inf.aviso("multiclase: NO se ha contado ningún conjuro contra la tabla. "
-                  "Las reglas de lanzamiento multiclase están en "
-                  "reglas/generacion_personaje.yaml y no se han automatizado")
+    if not una_sola_clase(ficha, inf):
         return
     c = ficha["clases"][0]
     clase_d = cargar(c["ref"].split("#")[0]) or {}
@@ -409,6 +792,49 @@ def verificar_conjuros(ficha, inf):
     if fila is None:
         return
     conj = ficha.get("conjuros") or {}
+
+    # Hueco nº 4 de la ronda 2: un conjuro puede estar en las DOS listas, y
+    # entonces cuenta dos veces. No es hipotético — lo encontró el agente C en
+    # una ficha de la propia base: `draconido_hechicero_n4.yaml` llevaba «Rayo
+    # de escarcha» (nivel 0) en `trucos` y también en `preparados`, así que de
+    # los 7 preparados que concede la tabla tenía 6 reales. El chequeo contaba
+    # la LONGITUD de la lista sin mirar qué había dentro.
+    vistos = {}
+    for clave in ("trucos", "preparados"):
+        for entrada in (conj.get(clave) or []):
+            ref = str(entrada.get("ref") or "")
+            nombre_c = ref.split("#")[-1]
+            if not nombre_c:
+                inf.error(f"conjuros.{clave}: una entrada no nombra ningún "
+                          f"conjuro (`ref: {ref!r}`). Se descartaba en "
+                          f"silencio, y descartada no cuenta contra la tabla")
+                continue
+            if nombre_c in vistos:
+                inf.error(f"conjuros: {nombre_c!r} aparece en "
+                          f"`{vistos[nombre_c]}` y otra vez en `{clave}`. Un "
+                          f"conjuro repetido cuenta dos veces contra la tabla")
+            else:
+                vistos[nombre_c] = clave
+    # Y el nivel tiene que corresponder con la lista en la que vive: los
+    # trucos son de nivel 0 y los preparados de nivel 1 o más.
+    for clave, nivel_esperado in (("trucos", 0), ("preparados", None)):
+        for entrada in (conj.get(clave) or []):
+            nombre_c = str(entrada.get("ref") or "").split("#")[-1]
+            if not nombre_c:
+                # Ya lo dijo el bucle de repetidos, unas líneas más arriba, que
+                # recorre estas mismas dos listas.
+                continue  # TOLERADO: lo avisa el bucle de conjuros repetidos
+            reg = buscar.conjuro(nombre_c)
+            niv = reg.get("nivel")
+            if nivel_esperado == 0 and niv != 0:
+                inf.error(f"conjuros.trucos: {nombre_c!r} es de nivel {niv}, "
+                          f"no es un truco")
+            elif nivel_esperado is None and niv == 0:
+                inf.error(f"conjuros.preparados: {nombre_c!r} es un truco "
+                          f"(nivel 0) y está entre los preparados, donde "
+                          f"infla el recuento de la tabla")
+            else:
+                inf.comprobados += 1
 
     for clave, columna in (("trucos", "trucos"), ("preparados", "prep")):
         esperado = fila.get(columna)
@@ -435,6 +861,33 @@ def verificar_conjuros(ficha, inf):
         lista = conj.get(clave) or []
         de_clase = [s for s in lista if _de_clase(s)]
         extras = [s for s in lista if not _de_clase(s)]
+
+        # Hueco nº 1 de la ronda 2 de estrés: se CONTABAN los conjuros contra
+        # la tabla y no se miraba si eran de la clase. Un Hechicero con un
+        # truco de Brujo/Clérigo/Mago verificaba en verde. Los 391 conjuros
+        # traen `clases` en `hechizos.json`, así que la fuente estaba ahí
+        # desde siempre — es el mismo mecanismo que ya usan armas, armaduras
+        # y herramientas: reúne lo permitido, comprueba membresía.
+        #
+        # Solo se comprueban los que CUENTAN contra la tabla. Los extras no:
+        # «Iniciado en la magia» concede conjuros de una lista ELEGIDA
+        # (clérigo, druida o mago), que por diseño puede no ser la del
+        # personaje, y un rasgo de especie o de subclase igual.
+        for s_ in de_clase:
+            nombre_c = str(s_.get("ref") or "").split("#")[-1]
+            reg = buscar.conjuro(nombre_c) if nombre_c else None
+            if not reg:
+                # TOLERADO: una ref que no resuelve ya la caza `_recorrer_refs`,
+                # que recorre TODAS las del fichero y falla ruidosamente. Aquí
+                # solo se evita repetir el mismo error con otras palabras.
+                continue
+            suyas = reg.get("clases") or []
+            if suyas and c["clase"] not in suyas:
+                inf.error(f"conjuros.{clave}: {nombre_c!r} no es un conjuro de "
+                          f"{c['clase']} (sus listas son {suyas}). Si viene de "
+                          f"otra fuente, dilo con `origen:`")
+            else:
+                inf.comprobados += 1
         if len(de_clase) != esperado:
             inf.error(
                 f"conjuros.{clave}: la tabla de {c['clase']} nivel {c['nivel']} "
@@ -443,18 +896,34 @@ def verificar_conjuros(ficha, inf):
                 f"conjuro de más sin fuente es un conjuro inventado")
         for s in extras:
             o = s.get("origen") or {}
-            if not any(k in o for k in ("dote", "especie", "rasgo", "trasfondo", "clase")):
+            if not any(k in o for k in _ORIGENES_DE_CONJURO):
                 inf.error(f"conjuros.{clave}: {s.get('ref')!r} declara `origen` "
-                          f"sin decir de qué sale: {o!r}")
+                          f"sin decir de qué sale: {o!r}. Fuentes que este "
+                          f"chequeo sabe reconocer: {sorted(_ORIGENES_DE_CONJURO)}")
+                continue
+            # `subclase` no estaba en la lista, y era un FALSO POSITIVO de los
+            # que más duelen: los conjuros de dominio del Clérigo —declarados
+            # exactamente como manda el esquema— se rechazaban uno a uno. Lo
+            # destapó la ronda 2 de estrés (agente B, ficha 2).
+            #
+            # Se arregla AFINANDO, no relajando: la base trae la tabla en
+            # `conjuros_siempre_preparados`, así que el origen no solo se
+            # acepta, se COMPRUEBA. Un conjuro de dominio inventado, o puesto
+            # a un nivel al que la subclase todavía no lo concede, ahora salta.
+            if "subclase" in o:
+                _comprueba_conjuro_de_subclase(ficha, s, o, clave, inf)
 
 
 # ── Tres huecos que destapó el estrés con agentes (2026-08-30) ───────────
 # Ninguno lo habría encontrado el generador automático: los tres son cosas que
 # el verificador **dejaba pasar en silencio**, no cosas que reventaran.
 def verificar_dotes_y_subclase(ficha, inf):
-    if len(ficha.get("clases", [])) != 1:
-        inf.aviso("multiclase: NO se han comprobado ni los prerrequisitos de "
-                  "las dotes ni que las subclases sean de su clase")
+    # El CUARTO chequeo degradado, y el que peor pinta tenía: se saltaba
+    # justamente los tres huecos que el estrés con agentes había destapado
+    # —la subclase de otra clase, el prerrequisito de dote sin comprobar—, o
+    # sea que una ficha multiclase esquivaba en silencio los chequeos escritos
+    # para cazar lo que se colaba en silencio.
+    if not una_sola_clase(ficha, inf):
         return
     c = ficha["clases"][0]
 
@@ -474,7 +943,8 @@ def verificar_dotes_y_subclase(ficha, inf):
             if not any(s["nombre"] == nombre for s in d.get("subclases", [])):
                 inf.error(f"la subclase {nombre!r} no existe en {archivo}")
             niveles = [f["n"] for f in (cargar(c["ref"].split("#")[0]) or {}).get("progresion", [])
-                       if any(r.startswith("Subclase de") for r in (f.get("rasgos") or []))]
+                       if any(calculo.es_marcador_de("subclase", r)
+                              for r in (f.get("rasgos") or []))]
             if niveles and c["nivel"] < min(niveles):
                 inf.error(f"la ficha declara subclase en el nivel {c['nivel']} y "
                           f"{c['clase']} no la concede hasta el {min(niveles)}")
@@ -568,6 +1038,67 @@ def verificar_sin_copias(ficha, inf):
     walk(ficha, "")
 
 
+def _veredicto_del_informe(texto):
+    """El bloque ```veredicto de una derivación, o `None` si no lo trae."""
+    import re as _re
+    m = _re.search(r"```veredicto\n(.*?)```", texto, _re.S)
+    return yaml.safe_load(m.group(1)) if m else None
+
+
+def verificar_veredicto(ficha, inf):
+    """¿La derivación a ciegas SIGUE diciendo lo mismo que el motor?
+
+    Una ficha con `_origen: agente-manual` afirma que un agente derivó sus
+    números a mano, a ciegas, desde la base. Hasta el 2026-09-08 eso se
+    comprobaba **una vez, a ojo**, el día que se escribió el informe, y nunca
+    más: `censo.fila_lectura_independiente` mira que el papel EXISTA, no que
+    siga diciendo lo mismo.
+
+    Media comprobación, y de la peor clase: el motor cambió mucho en tres días
+    —`PLAN_20` y `PLAN_21`—, y una ficha podía seguir declarando «lo verificó
+    un agente» con una derivación que ya no cuadraba. Una declaración que se
+    queda vieja sin que nadie se entere es el error que este repositorio
+    persigue; aquí sale gratis cerrarlo, porque el bloque ya se calcula.
+
+    El contraste es contra el bloque `veredicto` del informe, escrito por el
+    agente, **no contra la tabla en prosa**: los formatos de las tablas varían
+    y dos derivaciones traen lecturas alternativas. Sacar números de la prosa
+    sería elegir una huella mala, que es un error ya cometido tres veces aquí.
+    """
+    origen = (ficha.get("calculado") or {}).get("_origen") or {}
+    if origen.get("metodo") == "agente-manual":
+        rel = origen.get("informe") or ""
+        p = pathlib.Path(__file__).parent / rel
+        # Que el informe EXISTA ya lo exige `verificar_origen_del_calculado`;
+        # aquí no se repite para no dar dos errores por una sola causa.
+        if p.is_file():
+            ver = _veredicto_del_informe(p.read_text(encoding="utf-8"))
+            if not isinstance(ver, dict):
+                inf.error(f"{rel} no trae bloque ```veredicto: sin él su "
+                          f"derivación no se puede volver a contrastar, y una "
+                          f"lectura independiente que solo se miró una vez "
+                          f"caduca en silencio")
+            else:
+                bloque, _avisos = calcular_bloque(ficha)
+                for clave in ("pg_max", "ca", "velocidad", "cd_conjuros",
+                              "bonif_ataque_conjuros"):
+                    dice = ver.get(clave, "(ausente)")
+                    # `no_procede` es lo que el agente escribe cuando la regla
+                    # no le asigna ninguno —un Bárbaro no tiene CD de
+                    # conjuros—, y el motor lo expresa NO poniendo la clave.
+                    # Son la misma afirmación escrita de dos maneras.
+                    real = bloque.get(clave, "no_procede")
+                    if str(dice) != str(real):
+                        inf.error(
+                            f"{rel}: el agente derivó `{clave}` = {dice!r} y "
+                            f"el motor da {real!r}. O el informe ya no vale "
+                            f"contra el motor de hoy, o el motor cambió sin "
+                            f"que nadie rehiciera la lectura independiente: "
+                            f"las dos cosas hay que mirarlas, no arreglarlas")
+                    else:
+                        inf.comprobados += 1
+
+
 def calcular_bloque(ficha):
     """El bloque `calculado` que esta ficha DEBERÍA tener.
 
@@ -606,10 +1137,286 @@ def calcular_bloque(ficha):
             apt = calculo.modificador(final[clave])
             bloque["cd_conjuros"] = calculo.cd_conjuros(apt, pb)
             bloque["bonif_ataque_conjuros"] = calculo.bonif_ataque_conjuros(apt, pb)
+    # SIEMPRE `motor`, y no hay parámetro para cambiarlo. Este es el escritor:
+    # si pudiera firmar `agente-manual`, la firma no valdría nada. Un número
+    # solo puede declararse leído a mano si lo escribió una lectura a mano.
+    import datetime
+    bloque["_origen"] = {"metodo": "motor", "informe": None,
+                         "fecha": datetime.date.today().isoformat()}
     return bloque, avisos
 
 
+# ── Claves que el esquema no contempla ───────────────────────────────────
+# Hueco nº 5 de la ronda 2: una clave inventada NO se rechazaba. Un `raza:`
+# duplicando `especie:`, un `caracteristica:` en singular enmascarando que
+# falta el bloque obligatorio, un `decisiones[].nota` — tres agentes metieron
+# tres claves distintas y ninguna saltó como tal; solo saltaban de rebote si
+# su texto pasaba de 15 palabras.
+#
+# La tentación era rechazar esas tres. Eso habría sido el parche puntual:
+# la cuarta clave inventada volvería a colarse. Lo que se hace es leer la
+# lista de claves válidas **del propio `_ESQUEMA.md`** —el bloque de ejemplo
+# más la sección «Prosa libre»— y contrastar contra ella. El esquema es el
+# contrato, así que es el esquema quien tiene que decir qué cabe; si mañana
+# gana un campo, el chequeo lo aprende solo. Es la regla inviolable 6
+# aplicada a la forma de la ficha: la lista se DESCUBRE, no se teclea.
+@functools.lru_cache(maxsize=1)
+def _claves_del_esquema():
+    ruta = pathlib.Path(__file__).parent / "personajes" / "_ESQUEMA.md"
+    if not ruta.exists():
+        return frozenset()
+    t = ruta.read_text(encoding="utf-8")
+    claves = set()
+    for bloque in re.findall(r"```yaml\n(.*?)```", t, re.S):
+        limpio = "\n".join(l for l in bloque.splitlines()
+                           if not l.strip().startswith("#"))
+        claves |= set(re.findall(r"^([a-zA-Z_][\w]*):", limpio, re.M))
+    sec = re.search(r"## Prosa libre.*?\n(.*?)\n##", t, re.S)
+    if sec:
+        claves |= set(re.findall(r"`([a-z_]+)`", sec.group(1)))
+    return frozenset(claves)
+
+
+def verificar_claves(ficha, inf):
+    permitidas = _claves_del_esquema()
+    if not permitidas:
+        inf.error("no se pudo leer `personajes/_ESQUEMA.md`: sin el contrato "
+                  "no se puede comprobar qué claves valen")
+        return
+    for k in ficha:
+        if k in permitidas:
+            inf.comprobados += 1
+        else:
+            inf.error(
+                f"la ficha trae la clave {k!r}, que `personajes/_ESQUEMA.md` "
+                f"no contempla. O es un descuido —`raza` por `especie`, "
+                f"`caracteristica` por `caracteristicas`—, o el esquema tiene "
+                f"que documentarla primero")
+
+
+# ── Idiomas ──────────────────────────────────────────────────────────────
+# Hueco nº 3 de la ronda 2 de estrés: un idioma podía declarar el origen que
+# le diera la gana y nadie lo miraba. Dos agentes lo destaparon con el mismo
+# invento por caminos distintos —«Celestial por ser Aasimar», «Enano por ser
+# Enano»—, y el segundo con el señuelo de que el idioma se llama igual que la
+# especie. **Ninguna de las 10 especies de esta base concede idiomas**, ni
+# ninguno de los 16 trasfondos: se comprobó campo a campo el 2026-09-05.
+#
+# Es el mismo mecanismo que armas, armaduras y herramientas: reúne lo que la
+# base permite, y contrasta. Lo que la base permite son tres cosas, y las
+# tres se comprueban:
+#   · la ELECCIÓN de la tabla estándar (`reglas/idiomas.yaml` → nota), que
+#     concede «común y otros dos»;
+#   · un RASGO DE CLASE que conceda uno —«Druídico» del Druida, «Jerga de
+#     ladrones» del Pícaro—, y entonces el rasgo tiene que existir de verdad
+#     en esa clase y a un nivel ya alcanzado;
+#   · nada más.
+def verificar_idiomas(ficha, inf):
+    idiomas = (ficha.get("competencias") or {}).get("idiomas") or []
+    if not idiomas:
+        # TOLERADO: que la ficha no declare idiomas es un hueco del ESQUEMA,
+        # no de esta comprobación, y lo cubre `verificar_forma_competencias`.
+        # Aquí solo se comprueba lo que hay.
+        return
+    tablas = cargar("reglas/idiomas.yaml") or {}
+    validos = {x["nombre"] for grupo in ("estandar", "inusuales")
+               for x in (tablas.get(grupo) or []) if isinstance(x, dict)}
+    if not validos:
+        inf.error("reglas/idiomas.yaml no trae tablas legibles: no se pueden "
+                  "comprobar los idiomas")
+        return
+
+    por_eleccion = 0
+    for e in idiomas:
+        if not isinstance(e, dict):
+            inf.error(f"competencias.idiomas: entrada que no es un mapa: {e!r}")
+            continue
+        nombre = e.get("nombre")
+        if nombre not in validos:
+            inf.error(f"competencias.idiomas: {nombre!r} no está en las tablas "
+                      f"de `reglas/idiomas.yaml` (revisa el nombre exacto: la "
+                      f"tabla dice «Elfo», no «Élfico»)")
+            continue
+        o = e.get("origen") or {}
+        if not o:
+            # TOLERADO: no es abandonar el registro, es aprobarlo. Un idioma
+            # sin `origen` es uno de los elegidos, y su nombre ya se ha
+            # contrastado contra la tabla tres líneas más arriba.
+            inf.comprobados += 1
+            continue
+        if "especie" in o or "trasfondo" in o:
+            inf.error(
+                f"competencias.idiomas: {nombre!r} dice venir de "
+                f"{'la especie' if 'especie' in o else 'el trasfondo'}, y en "
+                f"esta base NINGUNA especie ni trasfondo concede idiomas. Los "
+                f"que no vienen de un rasgo de clase se ELIGEN de la tabla "
+                f"estándar (`reglas/idiomas.yaml` → nota)")
+            continue
+        if "regla" in o:
+            # TOLERADO: ídem, es la rama que aprueba. Y no se va de rositas:
+            # el recuento `por_eleccion` se contrasta al final contra el
+            # «común y otros dos» de la nota.
+            por_eleccion += 1
+            inf.comprobados += 1
+            continue
+        if "clase" in o and "rasgo" in o:
+            # TOLERADO: lo cubre `_comprueba_idioma_de_rasgo`, que es quien
+            # habla —aprueba o da el error— para este caso.
+            _comprueba_idioma_de_rasgo(ficha, nombre, o, inf)
+            continue
+        inf.error(f"competencias.idiomas: {nombre!r} declara un `origen` que "
+                  f"este chequeo no sabe comprobar: {o!r}")
+
+    # «Común y otros DOS» — la nota de la tabla. Los que vienen de un rasgo de
+    # clase van aparte y no cuentan contra ese par.
+    if por_eleccion > 2:
+        inf.error(f"competencias.idiomas: {por_eleccion} idiomas elegidos de "
+                  f"la tabla estándar, y `reglas/idiomas.yaml` concede «común "
+                  f"y otros dos»")
+    if "Común" not in {e.get("nombre") for e in idiomas if isinstance(e, dict)}:
+        inf.error("competencias.idiomas: falta «Común», que la nota de "
+                  "`reglas/idiomas.yaml` da a todo personaje")
+
+
+def _comprueba_idioma_de_rasgo(ficha, nombre, origen, inf):
+    """Un idioma que dice venir de un rasgo de clase: el rasgo tiene que
+    existir en esa clase, y el personaje haber llegado a su nivel."""
+    clase = origen.get("clase")
+    rasgo = origen.get("rasgo")
+    suya = next((c for c in (ficha.get("clases") or [])
+                 if c.get("clase") == clase), None)
+    if suya is None:
+        inf.error(f"competencias.idiomas: {nombre!r} dice venir de la clase "
+                  f"{clase!r} y el personaje no la tiene")
+        return
+    stem = suya["ref"].split("#")[0].split("/")[-1].replace(".yaml", "")
+    doc = cargar(f"clases/rasgos/{stem}.yaml") or {}
+    r = next((x for x in (doc.get("rasgos") or [])
+              if x.get("nombre") == rasgo), None)
+    if r is None:
+        inf.error(f"competencias.idiomas: {nombre!r} dice venir del rasgo "
+                  f"{rasgo!r} de {clase}, y esa clase no tiene ese rasgo")
+        return
+    if r.get("nivel", 1) > suya.get("nivel", 1):
+        inf.error(f"competencias.idiomas: {rasgo!r} es de nivel "
+                  f"{r.get('nivel')} y el personaje es de nivel "
+                  f"{suya.get('nivel')}")
+        return
+    inf.comprobados += 1
+
+
+# ── `pg_por_nivel`: que el valor CREÍBLE lo sea de verdad ────────────────
+# Hueco nº 2 de la ronda 2 de estrés (2026-09-05), y es patrón espiral puro:
+# `calculo.pg_max_de_ficha()` SUMABA el `valor` de cada nivel sin mirar si ese
+# número podía salir del dado de la clase. Tres agentes lo destaparon por
+# caminos distintos y ninguno hizo falta que fuera sutil:
+#
+#   · un d8 con una tirada de 9, y un d12 con una de 13;
+#   · un `valor_establecido` de 7 en un Guerrero, que es el del Bárbaro
+#     —el más fino de los tres: el método es correcto y el número existe,
+#     solo que en la tabla de OTRA clase—;
+#   · `metodo: maximo_dado` en el nivel 3, cuando es la regla del nivel 1.
+#
+# Lo que duele es que la autoridad ya estaba leída: `calculo.valor_establecido_pg()`
+# lee la tabla citada de la base desde la Fase 14b-1, y nadie la usaba para
+# verificar. Aquí no se cablea ni un número: los métodos legales salen de
+# `metodos` y el valor fijo de la tabla, los dos de la misma página citada.
+
+# Puente entre el `id` que usa la base y el `metodo` que usa el esquema de
+# ficha. Son dos vocabularios que nacieron por separado y hay que atarlos en
+# algún sitio; se hace aquí, explícito y de dos entradas, en vez de comparar
+# a ojo. `maximo_dado` no está: es la regla del nivel 1, que vive en otra
+# página (`puntos_golpe.nivel_1`) y no en la lista de métodos de subida.
+_METODO_DE_ID = {"tirar": "tirada", "valor_establecido": "valor_establecido"}
+
+
+def _caras(dado):
+    m = re.fullmatch(r"[dD](\d+)", str(dado or "").strip())
+    return int(m.group(1)) if m else None
+
+
+def verificar_pg_por_nivel(ficha, inf):
+    """Cada entrada de `pg_por_nivel` declara un método y un valor crudo. Se
+    comprueba que el método sea uno de los que la base admite para ese nivel,
+    y que el valor pueda salir de donde el método dice."""
+    if not una_sola_clase(ficha, inf):
+        return
+    historia = ficha.get("pg_por_nivel") or []
+    if not historia:
+        # TOLERADO: sin historia declarada, quien manda es `calculo`, que ya
+        # SALE CON ERROR si la ficha es de nivel 2 o más. Duplicar aquí ese
+        # rechazo daría dos mensajes para un solo defecto.
+        return
+    c = ficha["clases"][0]
+    clase_d = cargar(c["ref"].split("#")[0]) or {}
+    dado = (clase_d.get("atributos_basicos") or {}).get("dado_golpe")
+    caras = _caras(dado)
+    if caras is None:
+        inf.error(f"la clase {c['clase']!r} no declara un dado de golpe "
+                  f"legible ({dado!r}): no se puede comprobar `pg_por_nivel`")
+        return
+
+    g = cargar("reglas/generacion_personaje.yaml") or {}
+    sig = ((g.get("puntos_golpe") or {}).get("niveles_siguientes_al_1") or {})
+    metodos_subida = {_METODO_DE_ID[m["id"]]
+                      for m in (sig.get("metodos") or [])
+                      if m.get("id") in _METODO_DE_ID}
+    fijo = calculo.valor_establecido_pg(c["clase"])
+
+    for e in historia:
+        if not isinstance(e, dict):
+            # TOLERADO: una entrada que no es un mapa la caza `calculo`, que
+            # lee `e["nivel"]` de todas y revienta con la entrada delante.
+            continue
+        n, metodo, valor = e.get("nivel"), e.get("metodo"), e.get("valor")
+        if n == 1:
+            if metodo != "maximo_dado":
+                inf.error(f"pg_por_nivel nivel 1: el método es {metodo!r} y la "
+                          f"regla del nivel 1 es el máximo del dado "
+                          f"(`puntos_golpe.nivel_1`)")
+            elif valor != caras:
+                inf.error(f"pg_por_nivel nivel 1: el máximo de un {dado} es "
+                          f"{caras} y la ficha declara {valor!r}")
+            else:
+                inf.comprobados += 1
+            continue
+        if metodo not in metodos_subida:
+            inf.error(f"pg_por_nivel nivel {n}: método {metodo!r}. Para los "
+                      f"niveles 2+ la base solo admite "
+                      f"{sorted(metodos_subida)} "
+                      f"(`puntos_golpe.niveles_siguientes_al_1.metodos`)")
+            continue
+        if metodo == "valor_establecido":
+            if valor != fijo:
+                inf.error(f"pg_por_nivel nivel {n}: `valor_establecido` de "
+                          f"{c['clase']} es {fijo} y la ficha declara "
+                          f"{valor!r} (tabla «{(sig.get('tabla_valores_establecidos') or {}).get('titulo')}»)")
+                continue
+        elif not (isinstance(valor, int) and 1 <= valor <= caras):
+            inf.error(f"pg_por_nivel nivel {n}: una tirada de {dado} da entre "
+                      f"1 y {caras}, y la ficha declara {valor!r}")
+            continue
+        inf.comprobados += 1
+
+
 def main():
+    if len(sys.argv) == 3 and sys.argv[1] == "--datos-crudos":
+        # La ficha SIN su bloque `calculado`, para el mandato «el calculista»
+        # de `PLAN_ESTRES.md`.
+        #
+        # Existe porque la primera tanda (2026-09-05) lo pidió y no se pudo
+        # cumplir: los datos crudos y el bloque `calculado` viven en el MISMO
+        # fichero, así que leer la ficha es ver los números. Los dos agentes
+        # lo declararon solos —el sobre cerrado funcionando—, pero sus
+        # derivaciones dejaron de valer como segunda transcripción: una
+        # derivación anclada al número que ya se vio no es independiente, por
+        # honesta que sea. La ceguera no se pide, se REPARTE.
+        ficha = cargar(sys.argv[2])
+        if ficha is None:
+            sys.exit(f"✗ no se pudo leer {sys.argv[2]}")
+        ficha.pop("calculado", None)
+        print(yaml.safe_dump(ficha, allow_unicode=True, sort_keys=False))
+        return 0
     if len(sys.argv) == 3 and sys.argv[1] == "--calcular":
         ficha = cargar(sys.argv[2])
         if ficha is None:
@@ -622,7 +1429,7 @@ def main():
             print(f"  {k}: {v}")
         return 0
     if len(sys.argv) != 2:
-        sys.exit("Uso: python3 verificar_personaje.py [--calcular] "
+        sys.exit("Uso: python3 verificar_personaje.py [--calcular | --datos-crudos] "
                  "personajes/<nombre>.yaml")
     ruta = sys.argv[1]
     ficha = cargar(ruta)
@@ -632,15 +1439,61 @@ def main():
     inf = Informe()
     contador = [0]
     _recorrer_refs(ficha, inf, contador)
-    verificar_habilidades(ficha, inf)
-    verificar_categorias(ficha, inf)
-    verificar_compra_puntos(ficha, inf)
-    verificar_mejoras(ficha, inf)
-    verificar_conjuros(ficha, inf)
-    verificar_dotes_y_subclase(ficha, inf)
-    verificar_forma_competencias(ficha, inf)
-    verificar_calculado(ficha, inf)
-    verificar_sin_copias(ficha, inf)
+
+    # Los dos defectos de ROBUSTEZ de la ronda 2 de estrés se arreglan aquí,
+    # porque son el mismo problema visto dos veces: un chequeo que revienta se
+    # lleva por delante a los que venían detrás.
+    #
+    #   · una ficha sin bloque `caracteristicas` moría con un `KeyError` en
+    #     `buscar.py:174` **sin imprimir una sola línea**: rechazaba, sí, pero
+    #     no decía qué faltaba;
+    #   · un `pg_por_nivel` con un hueco hacía `sys.exit` desde `calculo`, y
+    #     la ficha 3 del agente B declaraba CINCO defectos de los que solo se
+    #     veía UNO. Un verificador que solo enseña el primer problema obliga a
+    #     iterar a ciegas, que es justo lo que este proyecto no quiere.
+    #
+    # Cada chequeo corre en su propia red: si revienta, se convierte en un
+    # error con su nombre delante y los demás siguen. No se traga nada — un
+    # fallo sigue siendo un fallo—, solo se deja de perder el resto del
+    # informe por culpa del primero.
+    #
+    # La red la pone `informar.muro` desde la fase 2 del `PLAN_21`. Hasta
+    # entonces era un `try` que solo cazaba `KeyError` y `SystemExit`: **una
+    # ficha que hiciera reventar un chequeo de cualquier otra forma —un
+    # `TypeError` con un nivel escrito como texto, pongamos— seguía llevándose
+    # el proceso entero**, que es exactamente el defecto que este bloque
+    # existe para cerrar, con el bloque puesto.
+    #
+    # `salida_es_veredicto=True` y el motivo, porque es el ÚNICO sitio del
+    # repositorio donde se declara: aquí lo que se examina es la ficha, no la
+    # base. Cuando `calculo` hace `sys.exit` sobre un `pg_por_nivel` roto, esa
+    # salida es un veredicto sobre la entrada bajo examen, no un dato que
+    # falte en la base. En cualquier otro verificador tiene que seguir parando.
+    for chequeo in (verificar_claves, verificar_habilidades,
+                    verificar_categorias, verificar_compra_puntos,
+                    verificar_pg_por_nivel, verificar_idiomas,
+                    verificar_origen_del_calculado,
+                    verificar_mejoras, verificar_conjuros,
+                    verificar_dotes_y_subclase, verificar_forma_competencias,
+                    verificar_calculado, verificar_sin_copias,
+                    verificar_veredicto):
+        _v, fallo = _I.muro(chequeo, ficha, inf, salida_es_veredicto=True)
+        # La redacción de `KeyError` se conserva porque DICE MÁS que el muro:
+        # nombra el bloque que falta y manda al esquema. El muro cierra el
+        # resto de casos, que antes no cerraba nadie.
+        #
+        # Escrito como `if fallo:` y no como `if fallo is None: continue`
+        # porque lo segundo es una rama que abandona un registro en silencio, y
+        # `verificar_chequeos.py` la cazó a los diez minutos de escribirla. No
+        # se declara con `# TOLERADO:`: se le da la vuelta, que es más corto.
+        if fallo and fallo.tipo == "KeyError":
+            inf.error(f"{fallo.etiqueta}: la ficha no trae {fallo.mensaje}, y "
+                      f"este chequeo lo necesita. Falta un bloque obligatorio "
+                      f"(ver `personajes/_ESQUEMA.md`)")
+        elif fallo and fallo.es_salida:
+            inf.error(f"{fallo.etiqueta}: {fallo.mensaje}")
+        elif fallo:
+            inf.error(str(fallo))
 
     print(f"{contador[0]} referencias comprobadas.")
     for a in inf.avisos:

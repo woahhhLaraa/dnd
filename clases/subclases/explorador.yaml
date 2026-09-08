@@ -17,7 +17,13 @@ subclases:
       17: ["Apariencia"]
     rasgos:
       - {nivel: 3, nombre: "Conjuros de acechador en la penumbra", desc: "Cuando alcances un nivel de explorador especificado en la tabla «Conjuros de acechador en la penumbra», a partir de entonces siempre tendrás preparados los conjuros que se indican."}
-      - {nivel: 3, nombre: "Emboscador pavoroso", desc: "Bonificador de iniciativa: sumas tu modificador por Sabiduría a la tirada de iniciativa. Golpe pavoroso: cuando ataques a una criatura con un arma y aciertes, puedes infligir 2d6 de daño psíquico adicional (una vez por turno); usos iguales a tu modificador por Sabiduría (mínimo 1), recuperados tras un descanso largo. Salto emboscador: al comienzo de tu primer turno de cada combate, tu velocidad aumenta en 3 m hasta el final de ese turno."}
+      - nivel: 3
+        nombre: "Emboscador pavoroso"
+        desc: "Bonificador de iniciativa: sumas tu modificador por Sabiduría a la tirada de iniciativa. Golpe pavoroso: cuando ataques a una criatura con un arma y aciertes, puedes infligir 2d6 de daño psíquico adicional (una vez por turno); usos iguales a tu modificador por Sabiduría (mínimo 1), recuperados tras un descanso largo. Salto emboscador: al comienzo de tu primer turno de cada combate, tu velocidad aumenta en 3 m hasta el final de ese turno."
+        efectos:
+          - {objetivo: velocidad, op: conditional,
+             texto: "Salto emboscador: +3 m al comienzo del primer turno de cada combate, hasta el final de ese turno",
+             pagina: {pdf: 108, libro: 106}}
       - {nivel: 3, nombre: "Visión en la umbra", desc: "Obtienes visión en la oscuridad hasta 18 m; si ya la posees, su alcance aumenta en 18 m. Además, mientras estés en oscuridad total, tienes el estado de invisible frente a cualquier criatura que dependa de visión en la oscuridad para verte en esas tinieblas."}
       - {nivel: 7, nombre: "Mente de hierro", desc: "Ganas competencia en tiradas de salvación de Sabiduría. Si ya la tienes, obtienes competencia en tiradas de salvación de Inteligencia o Carisma (a tu elección)."}
       - {nivel: 11, nombre: "Oleada del acechador", desc: "El daño psíquico de tu golpe pavoroso pasa a 2d8. Además, al usar el efecto de golpe pavoroso, puedes provocar uno de estos efectos adicionales: Ataque súbito (otro ataque con la misma arma contra una criatura distinta a 1,5 m o menos del objetivo original, dentro del alcance del arma); Terror masivo (el objetivo y las criaturas a 3 m o menos de él hacen TdS de Sabiduría contra tu CD de salvación de conjuros o quedan asustadas hasta el principio de tu siguiente turno)."}

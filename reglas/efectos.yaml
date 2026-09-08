@@ -17,6 +17,24 @@ fidelidad: estructurado
 # ── Variables ────────────────────────────────────────────────────────────
 # `entrada`  = la aporta la ficha o `calculo.py`; ningún efecto la produce.
 # `calculada` = la produce el motor agregando efectos sobre un valor base.
+#
+# ── `promesas` (bloque A2 del Plan 18, 2026-09-02) ───────────────────────
+# Las frases con las que el texto de un rasgo ANUNCIA que toca esta variable.
+# `validar_efectos()` las usa para el chequeo que de verdad importa: no que
+# los efectos escritos estén bien —eso es barato— sino que no haya prosa que
+# prometa una mecánica **sin efecto detrás**, que es el modo de fallo que de
+# verdad ocurrió (`bonus_pg_especie` cubría 1 de los 2 efectos sobre PG).
+#
+# Vivían en una tupla `_PROMESAS` dentro de `validar.py` con DOS entradas de
+# las tres variables calculables: `velocidad` entró en el motor el 2026-08-30
+# y nadie añadió sus frases, así que durante tres días un rasgo podía prometer
+# velocidad y no declararla sin que saltara nada. Es el caso 5 del §2 del plan,
+# y el defecto de siempre: una lista escrita a mano, en otro fichero, que se
+# queda corta en silencio.
+#
+# Ahora viven aquí, PEGADAS a la variable que anuncian, y declarar una variable
+# `calculada` sin `promesas` es un error: no se puede añadir una cuarta y
+# olvidarse de decir cómo se reconoce en la prosa.
 variables:
   mod_fue: {tipo: entrada, desc: "modificador de Fuerza"}
   mod_des: {tipo: entrada, desc: "modificador de Destreza"}
@@ -31,6 +49,14 @@ variables:
   ca:
     tipo: calculada
     desc: "Clase de Armadura"
+    # Las dos primeras cazan quien FIJA la CA; las cuatro siguientes, quien la
+    # modifica. Hasta el bloque C solo estaban las dos primeras, así que seis
+    # rasgos que suman o sustituyen CA —entre ellos el estilo de combate
+    # «Defensa», que es +1 permanente— no los veía nadie: la promesa existía y
+    # se había escrito estrecha. Se comprobó una a una que estas seis frases
+    # cazan esos seis rasgos y ninguno más.
+    promesas: ["ca base", "clase de armadura base", "a la clase de armadura",
+               "a tu ca", "a la ca", "a su ca", "tu ca pasa a ser"]
     base_por_defecto: "10 + mod_des"
     pagina: {pdf: 43, libro: 41}
     fidelidad: literal
@@ -56,10 +82,20 @@ variables:
   pg_max:
     tipo: calculada
     desc: "puntos de golpe máximos"
+    # «PG máximos +40» del don épico no dice «aumentan», y por eso se escapaba.
+    # Ojo con la precisión: media docena de rasgos hablan de «la mitad de tus
+    # PG máximos» o de recuperar PG, y ninguno toca el MÁXIMO; por eso la
+    # frase lleva el signo, que es lo que distingue subirlo de leerlo.
+    promesas: ["pg máximos aumentan", "puntos de golpe máximos aumentan",
+               "pg máximos +"]
     base_por_defecto: null      # la aporta `calculo.puntos_golpe_nivel_1()`
   velocidad:
     tipo: calculada
     desc: "velocidad de desplazamiento, en metros"
+    # Una sola frase basta y es la que imprime el manual en los diez rasgos que
+    # la tocan; se comprobó una a una que no deja fuera ninguno ni recoge de más
+    # («moverte hasta la mitad de tu velocidad» no la promete, y no entra).
+    promesas: ["velocidad aumenta"]
     base_de: "especies/especies.yaml → velocidad_m de la especie del personaje"
     decimal: true      # 4,5 m no se puede redondear: es media casilla real
     _nota: >
@@ -75,20 +111,94 @@ variables:
 # Tomadas de DiceCloud v2 (`computeVariable/getAggregatorResult.js`), leídas
 # como concepto y reimplementadas: DiceCloud es GPL-3.0 y no se copia código.
 # Ver ANALISIS_REPOS.md §1.
-operaciones: [base, add, mul, min, max, set]
+operaciones: [base, add, mul, min, max, set, conditional, modifica_tope]
+
+# ── `modifica_tope` (bloque C del Plan 18, 2026-09-02) ───────────────────
+# Es el `ModifyItem` de Foundry dnd5e, adoptado como concepto (ANALISIS_REPOS
+# §2). Foundry lo tiene porque le hizo falta, y aquí hace falta por lo mismo:
+# hay un rasgo en toda la base que no es `add` ni `set`.
+#
+# El caso, y no hay otro: «Maestro en armaduras medias» dice «mientras lleves
+# armadura media, sumas **3 (en vez de 2)** a tu CA por Destreza si tu Destreza
+# es 16 o más» (pdf 208 = libro 206). Eso no suma a la CA: cambia el TOPE que
+# la propia armadura impone al modificador de Destreza —el «(máx. 2)» de
+# `equipo/armaduras.yaml`— dentro de la fórmula que ya aporta la armadura.
+#
+# Se descartaron tres alternativas, y conviene que quede por qué:
+#   · `conditional` — sería mentir por clasificación. El efecto NO es
+#     situacional: es determinista, y un personaje con la dote saldría con un
+#     punto de CA de menos EN SILENCIO, que es lo contrario de la doctrina.
+#   · `add` con `max(min(mod_des - 2, 1), 0)` — es exacto, pero ese `2` sería
+#     una COPIA del tope que vive en `equipo/armaduras.yaml`, y nadie
+#     compararía las dos. Es el defecto nº 4 del §2 del Plan 18 otra vez.
+#   · negarse a calcular — coherente, pero convierte una dote del manual en
+#     algo que la base no sabe montar.
+#
+# Forma: `tope` nombra la variable acotada (la que va dentro del `min(...)`) y
+# `formula` da el valor NUEVO. No entra en la agregación: se aplica ANTES,
+# reescribiendo el tope del efecto que sí agrega. Y falla ruidosamente si no
+# encuentra a quién modificar: aplicar un tope a nada y seguir en verde sería
+# exactamente el fallo silencioso que este proyecto persigue.
+
+# ── `conditional` (C4 del Plan 17, 2026-08-31) ───────────────────────────
+# Tomado de DiceCloud, cuyo esquema de efectos lo trae con este comentario en
+# `app/imports/api/properties/Effects.ts`:
+#
+#     // Conditional benefits store just uncomputed text
+#
+# Es un efecto REAL sobre una variable declarada que el motor **no puede
+# calcular**, porque depende de la situación de juego («+2 a la CA contra el
+# primer ataque de cada turno»). Trae `texto` en vez de `formula`/`columna`,
+# no entra en la agregación, y `generar_ficha.py` lo imprime como nota.
+#
+# Por qué hace falta: sin él, la obligación de declarar de C2 solo tendría dos
+# respuestas —«se calcula» o «no está automatizado»— y los efectos ciertos
+# pero situacionales tendrían que mentir eligiendo una de las dos. Con esto,
+# «lo sé, está citado, y a propósito no lo calculo» es una respuesta legítima.
+#
+# Lo que NO es: un cajón de sastre. Si el rasgo no toca ninguna variable
+# declarada (ventaja en una prueba, resistencia a un daño, competencia nueva),
+# no es un `conditional`: es `efectos: []` con `no_automatizado`, que es lo
+# que declara C2.
 
 # Un efecto trae `formula` (aritmética sobre variables) **o** `columna` (el
 # nombre de una columna de la progresión de su clase, que se lee al vuelo con el
 # `nivel_clase` del personaje). Nunca las dos: serían dos fuentes del mismo dato.
 fuentes_de_valor: [formula, columna]
 
+# ── El orden de agregación (fase 4 del PLAN_20, 2026-09-06) ─────────────
+# Era una lista de PROSA («1. base → sustituye el valor base…») que `agregar()`
+# citaba en su docstring y **no leía**: el orden vivía en el orden de los
+# bucles de Python. Dos copias de la misma regla, y la de la base era la que
+# no mandaba. Medido antes de cambiarlo: se podía añadir una operación nueva
+# al vocabulario y `validar.py` seguía diciendo «0 errores».
+#
+# Ahora `agregar()` ITERA esta lista. Cambiar el orden aquí cambia el orden
+# real, una operación declarada sin implementación es un error, y una
+# implementación no declarada también.
 orden_de_agregacion:
-  - "1. base   → sustituye el valor base de la variable (ver `base_multiple`)"
-  - "2. add    → se suman todos"
-  - "3. mul    → se multiplican todos, sobre (base + Σ add)"
-  - "4. min/max→ se acota el resultado entre el mayor `min` y el menor `max`"
-  - "5. set    → si hay alguno, gana sobre todo lo anterior"
-  - "6. floor  → se redondea hacia abajo"
+  - {op: base, papel: semilla,
+     hace: "sustituye el valor base de la variable (ver `base_multiple`)"}
+  - {op: add, hace: "se suman todos"}
+  - {op: mul, hace: "se multiplican todos, sobre (base + Σ add)"}
+  - {op: min, hace: "acota por abajo: gana el mayor `min`"}
+  - {op: max, hace: "acota por arriba: gana el menor `max`"}
+  - {op: set, hace: "si hay alguno, gana sobre todo lo anterior"}
+
+# Y las que NO agregan, con su motivo. Estaban cableadas en `agregar()` como
+# `("conditional", "modifica_tope")`. Toda operación del vocabulario tiene que
+# estar o aquí o arriba: no hay tercera opción, y esa es la comprobación.
+no_se_agregan:
+  - {op: conditional,
+     motivo: "no aporta valor: se cita para decir que el efecto es situacional, y quien decide es `requiere`"}
+  - {op: modifica_tope,
+     motivo: "no agrega sobre el resultado: cambia el «(máx. N)» dentro de la fórmula que aporta la armadura, antes de que haya nada que agregar"}
+
+# El redondeo final no es una operación del vocabulario: es lo que hace el
+# motor con el resultado. DiceCloud redondea hacia abajo salvo en las
+# variables decimales, y `velocidad` es una de ellas —4,5 m es media casilla
+# de verdad, no un redondeo—.
+redondeo: "hacia abajo, salvo en las variables con `decimal: true`"
 
 # ── LA divergencia con DiceCloud, y es deliberada ────────────────────────
 base_multiple:
@@ -107,8 +217,48 @@ base_multiple:
 # ── Condiciones ──────────────────────────────────────────────────────────
 # Vocabulario cerrado. Un efecto solo aplica si se cumplen TODAS las suyas.
 # El estado lo deduce `efectos.py` del equipo de la ficha, nunca el LLM.
+# ── Cada condición dice CÓMO SE DECIDE (fase 4 del PLAN_20, 2026-09-06) ──
+# Antes eran `nombre: "descripción en prosa"`, y `efectos.estado_de_equipo()`
+# devolvía las seis a mano. Medido antes de cambiarlo: se podía añadir una
+# séptima condición y `validar.py` seguía diciendo «0 errores» — su efecto
+# **nunca se habría aplicado, sin ruido**, porque `estado_de_equipo` no la
+# devolvía y `aplica()` la habría leído como falsa.
+#
+# Ahora cada una declara su `grupo` —una clave de tabla de
+# `equipo/armaduras.yaml`, o el pseudogrupo `armaduras` (todos los de
+# armadura)— y si va `negada`. `estado_de_equipo()` se construye recorriendo
+# ESTE bloque, así que una condición sin `grupo` es un error y una condición
+# nueva bien declarada funciona sola.
 condiciones:
-  sin_armadura: "no lleva puesta ninguna armadura (el escudo no es armadura)"
-  con_armadura: "lleva puesta una armadura"
-  sin_escudo: "no embraza escudo"
-  con_escudo: "embraza escudo"
+  sin_armadura:
+    desc: "no lleva puesta ninguna armadura (el escudo no es armadura)"
+    grupo: armaduras
+    negada: true
+  con_armadura:
+    desc: "lleva puesta una armadura"
+    grupo: armaduras
+    negada: false
+  # Añadida el 2026-09-02 (bloque A2). No es «sin armadura» con otro nombre:
+  # el Bárbaro conserva su +3 m con armadura ligera o media y lo pierde solo
+  # con la pesada, mientras que el Monje lo pierde con cualquiera. Sin esta
+  # condición los dos rasgos tendrían que mentir eligiendo la que no es.
+  # La lista de armaduras pesadas la deduce `efectos.py` de
+  # `equipo/armaduras.yaml`, nunca el LLM.
+  sin_armadura_pesada:
+    desc: "no lleva puesta una armadura pesada (ligera o media sí)"
+    grupo: armaduras_pesadas
+    negada: true
+  # Añadida el 2026-09-02 (bloque C) para «Maestro en armaduras medias», que
+  # es el único rasgo del manual que distingue la media de las otras dos.
+  con_armadura_media:
+    desc: "lleva puesta una armadura media"
+    grupo: armaduras_medias
+    negada: false
+  sin_escudo:
+    desc: "no embraza escudo"
+    grupo: escudos
+    negada: true
+  con_escudo:
+    desc: "embraza escudo"
+    grupo: escudos
+    negada: false

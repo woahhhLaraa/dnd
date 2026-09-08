@@ -246,6 +246,37 @@ puntos_golpe:
       número correcto hasta la primera dote que suba Constitución, y a partir
       de ahí se equivoca en silencio.
 
+# ── Conjuros: CD de salvación y bonificador de ataque ────────────────────
+# Entró en la base el 2026-09-05, y de dónde venía importa: la fórmula que
+# gobierna la CD de TODO lanzador vivía solo en `calculo.py`, con su cita de
+# página en un COMENTARIO de Python — justo donde este proyecto ha decidido
+# que una regla no puede vivir, porque una regla cableada no se puede citar,
+# ni validar, ni corregir cuando la base cambia.
+#
+# No es una transcripción nueva: la página SE LEYÓ en su día. `FUENTES.md`
+# registra que las funciones de `calculo.py` se contrastaron «contra el manual
+# (pdf 42, 240)» en la Fase 8a. Lo que faltó fue traer el dato a la base; se
+# quedó a medio camino, en el código.
+#
+# Lo destapó el mandato «el calculista» de la ronda 3 de estrés: DOS agentes
+# independientes calcularon a mano los cinco valores derivados de dos fichas
+# distintas y los dos pararon en el mismo sitio, con la misma frase — ningún
+# fichero de la base define la fórmula, los rasgos la usan como término ya
+# conocido («…CD igual a tu CD de conjuros…») sin decir cuál es.
+conjuros:
+  pagina: {pdf: 240, libro: 238}
+  seccion: "Tiradas de salvación / Tiradas de ataque"
+  cd_salvacion:
+    formula: "8 + modificador de aptitud mágica + bonificador por competencia"
+    base: 8
+  bonificador_ataque:
+    formula: "modificador de aptitud mágica + bonificador por competencia"
+    base: 0
+  _nota_aptitud: >
+    La aptitud mágica de cada clase la declara su propio fichero, en
+    `clases/<clase>.yaml → aptitud_magica`. Aquí solo vive la fórmula que
+    la combina con el bonificador por competencia.
+
 px_por_nivel:
   fuente: {pagina_pdf: 43, pagina_libro: 41, tabla: "Progreso de los personajes", capitulo: 2, seccion: "Progresión de niveles"}
   verificado: {metodo: "vision-directa", fecha: "2026-08-19"}

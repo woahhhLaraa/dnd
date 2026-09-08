@@ -27,13 +27,36 @@ import sys
 
 import yaml
 
-from calculo import B, cargar, _archivo_clase
+from calculo import (B, cargar, es_marcador_de, _archivo_clase,
+                     abreviaturas, nombres_de_caracteristica)
 
-CARS = ("fue", "des", "con", "int", "sab", "car")
-_LARGO = {"fue": "Fuerza", "des": "Destreza", "con": "Constitución",
-          "int": "Inteligencia", "sab": "Sabiduría", "car": "Carisma"}
+CARS = abreviaturas()                      # reglas/caracteristicas.yaml
+# Heurística del generador, no regla del manual: tras la característica
+# principal, primero Constitución, luego Destreza y Sabiduría. NO es una copia
+# del vocabulario —lo que no nombra lo completa `CARS`, que sí se deriva—.
+_PREFERENCIA = ("con", "des", "sab")
+_LARGO = nombres_de_caracteristica()
 _CORTO = {v: k for k, v in _LARGO.items()}
-CONJUNTO = [15, 14, 13, 12, 10, 8]
+
+
+# El conjunto estándar se LEE de la base (auditoría del 2026-09-03). Estaba
+# copiado aquí como `[15, 14, 13, 12, 10, 8]` mientras
+# `reglas/generacion_personaje.yaml` lo declara en
+# `metodos_generacion_caracteristicas.conjunto_estandar.puntuaciones`, y nadie
+# comparaba las dos copias: corregir la base habría dejado al generador
+# repartiendo los valores viejos con todo en verde.
+def _conjunto_estandar():
+    g = cargar("reglas/generacion_personaje.yaml") or {}
+    p = ((g.get("metodos_generacion_caracteristicas") or {})
+         .get("conjunto_estandar") or {}).get("puntuaciones")
+    if not p:
+        sys.exit("✗ reglas/generacion_personaje.yaml no declara "
+                 "`metodos_generacion_caracteristicas.conjunto_estandar."
+                 "puntuaciones`: sin él no hay conjunto estándar que repartir")
+    return list(p)
+
+
+CONJUNTO = _conjunto_estandar()
 
 
 def _reparto(clase_d):
@@ -43,7 +66,11 @@ def _reparto(clase_d):
     ppal = clase_d["atributos_basicos"].get("caracteristica_principal") or ""
     orden = [_CORTO[p.strip()] for p in ppal.replace(" y ", ",").split(",")
              if p.strip() in _CORTO]
-    orden += [c for c in ("con", "des", "sab", "fue", "int", "car") if c not in orden]
+    # La preferencia es del GENERADOR; el resto se completa con las que
+    # declare la base. Antes la lista iba entera a mano, así que una séptima
+    # característica se habría quedado sin puntuación en silencio.
+    orden += [c for c in _PREFERENCIA if c not in orden]
+    orden += [c for c in CARS if c not in orden]
     return dict(zip(orden, CONJUNTO))
 
 
@@ -80,7 +107,8 @@ def generar(clase, nivel, especie=None, trasfondo=None, subclase=None):
 
     # ── mejoras de característica, una por cada nivel que las conceda
     niveles_mej = [n for n in sorted(prog) if n <= nivel
-                   and "Mejora de característica" in (prog[n].get("rasgos") or [])]
+                   and any(es_marcador_de("mejora_caracteristica_o_dote", r)
+                           for r in (prog[n].get("rasgos") or []))]
     final = {c: base.get(c, 8) + ajuste.get(c, 0) for c in CARS}
     ppal = _reparto(clase_d)
     orden_subida = [c for c in ppal if ppal[c] >= 13] or ["con"]
@@ -102,6 +130,28 @@ def generar(clase, nivel, especie=None, trasfondo=None, subclase=None):
             final[k] += v
         mejoras.append({"nivel": n, "sube": sube,
                         "ref": "dotes/generales.yaml#Mejora de característica"})
+
+    # ── y los RASGOS de clase que suben puntuaciones (fase de cierre del
+    #    PLAN_20, 2026-09-06). «Campeón primordial» y «Cuerpo y mente» suben
+    #    dos puntuaciones 4 puntos, sin condición ni duración, al llegar al
+    #    nivel 20. No son una elección: los concede la tabla, así que el
+    #    generador los aplica igual que el verificador los exige.
+    #
+    #    Lo destapó la tanda a ciegas del calculista: dos agentes distintos
+    #    dieron números mayores que el motor en dos clases distintas, y tenían
+    #    razón. Mientras esto no estuvo, TODA ficha generada de nivel 20 de
+    #    Bárbaro o Monje salía con dos características de menos, en verde.
+    import efectos as _E
+    _stem = _E.clases_por_nombre().get(clase)
+    for r in ((cargar(f"clases/rasgos/{_stem}.yaml") or {}).get("rasgos") or []):
+        mej_r = r.get("mejora_caracteristica")
+        if not mej_r or (r.get("nivel") or 0) > nivel or not mej_r.get("todas"):
+            continue
+        for nombre_car in (mej_r.get("entre") or []):
+            k = _CORTO.get(nombre_car)
+            if k:
+                final[k] = min(final.get(k, 0) + mej_r.get("cantidad", 0),
+                               mej_r.get("maximo", 20))
 
     # ── competencias
     hab_bloque = ab.get("habilidades") or {}
@@ -138,7 +188,7 @@ def generar(clase, nivel, especie=None, trasfondo=None, subclase=None):
     }
 
     # ── subclase, si la tabla la pide
-    if any("Subclase de" in r for n in sorted(prog) if n <= nivel
+    if any(es_marcador_de("subclase", r) for n in sorted(prog) if n <= nivel
            for r in (prog[n].get("rasgos") or [])):
         subs = (cargar(f"clases/subclases/{stem}.yaml") or {}).get("subclases", [])
         elegida = next((s for s in subs if s["nombre"] == subclase), subs[0])

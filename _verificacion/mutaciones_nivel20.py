@@ -32,6 +32,12 @@ MONJE = "personajes/draconido_monje_n20.yaml"
 MAGO = "personajes/gnomo_mago_n20.yaml"
 # Tercera ficha: la única con escudo Y entrenamiento con escudos.
 CLERIGO = "personajes/aasimar_clerigo.yaml"
+# Cuarta ficha: la única con una subclase que concede conjuros (ronda 2).
+CLERIGO_N5 = "personajes/enano_clerigo_n5.yaml"
+# Quinta ficha: la única con un idioma concedido por un RASGO DE CLASE
+# («Druídico»), que es el caso que el chequeo de idiomas no puede
+# llevarse por delante al cerrar el hueco nº 3.
+DRUIDA = "personajes/goliat_druida.yaml"
 
 
 def _sust(raiz, rel, viejo, nuevo, n=1):
@@ -93,6 +99,69 @@ def m_supera_veinte(r):
     return "una mejora que dejaría Sabiduría en 22: la dote dice «No puede superar 20»"
 
 
+# ══ EL TOPE Y LA CANTIDAD SE LEEN DE LA BASE ═════════════════════════════
+# La ronda 2 de estrés destapó que `verificar_mejoras` llevaba el «+2» y el
+# tope de 20 CABLEADOS con literales, mientras 42 de las 43 dotes generales ya
+# traían `mejora_caracteristica: {cantidad, maximo, entre}` estructurado. La
+# que faltaba era «Mejora de característica», justo la que el esquema designa
+# para cada entrada de `mejoras:`.
+#
+# Estas mutaciones no prueban «que salte»: prueban que el número que aplica
+# SALE DE LA BASE. Un chequeo con el 20 cableado pasaría las dos primeras.
+
+def m_tope_de_la_dote_bajado(r):
+    """Se baja el tope de la dote a 19 SIN tocar la ficha. Las dos fichas de
+    nivel 20 tienen una característica en 20 exacto, así que un verificador
+    que lea la base tiene que rechazarlas ahora, y uno con el 20 cableado
+    seguiría en verde."""
+    _sust(r, "dotes/generales.yaml",
+          "mejora_caracteristica: {cantidad: 2, maximo: 20, entre: cualquiera}",
+          "mejora_caracteristica: {cantidad: 2, maximo: 19, entre: cualquiera}")
+    return ("el tope de «Mejora de característica» bajado a 19 en la BASE: la "
+            "ficha no se toca, y su 20 exacto deja de ser legal")
+
+
+def m_cantidad_de_la_dote_cambiada(r):
+    """Ídem con la cantidad: si sube a 3, los repartos de +2 de las fichas
+    dejan de cuadrar. Un `!= 2` cableado no lo notaría."""
+    _sust(r, "dotes/generales.yaml",
+          "mejora_caracteristica: {cantidad: 2, maximo: 20, entre: cualquiera}",
+          "mejora_caracteristica: {cantidad: 3, maximo: 20, entre: cualquiera}")
+    return ("la cantidad de «Mejora de característica» puesta en 3 en la BASE: "
+            "los repartos de +2 de las fichas dejan de cuadrar")
+
+
+def m_estructura_de_la_dote_borrada(r):
+    """Sin `mejora_caracteristica` no hay cantidad ni tope que aplicar. El
+    verificador tiene que NEGARSE, no suponer los que llevaba cableados."""
+    _sust(r, "dotes/generales.yaml",
+          "    mejora_caracteristica: {cantidad: 2, maximo: 20, entre: cualquiera}\n",
+          "")
+    return ("borrada la `mejora_caracteristica` de la dote: el verificador se "
+            "queda sin fuente y tiene que negarse, no suponer")
+
+
+def m_mejora_sin_ref(r):
+    """Una entrada de `mejoras:` que no dice de qué dote sale. Antes daba
+    igual —se suponía la genérica—; ahora es lo que ata la entrada a su
+    autoridad."""
+    _editar(r, MONJE, lambda d: d["mejoras"][0].pop("ref", None))
+    return "una mejora sin `ref`: no dice de qué dote saca su cantidad y su tope"
+
+
+def m_reparto_con_parte_negativa(r):
+    """`{sab: 3, des: -1}` suma 2 y NO es ninguna de las dos formas que el
+    texto permite. El chequeo viejo solo miraba la suma y la forma [2]/[1,1]
+    sobre los valores, así que este caso se le colaba."""
+    def f(d):
+        d["mejoras"][0]["sube"] = {"sab": 3, "des": -1}
+        d["caracteristicas"]["final"]["sab"] = 21
+        d["caracteristicas"]["final"]["des"] = 17
+    _editar(r, MONJE, f)
+    return ("un reparto de {sab: 3, des: -1}: suma 2 pero ninguna parte puede "
+            "ser 0 ni negativa")
+
+
 # ══ CONJUROS ═════════════════════════════════════════════════════════════
 
 def c_truco_de_mas(r):
@@ -118,11 +187,60 @@ def c_extra_sin_fuente(r):
 
 # ══ Controles negativos ══════════════════════════════════════════════════
 
+def e_veredicto_desfasado(r):
+    """Fase 2.0 del `PLAN_22`. Una ficha con `_origen: agente-manual` afirma
+    que un agente derivó sus números a ciegas. Hasta el 2026-09-08 eso se
+    comprobaba UNA VEZ, a ojo, el día que se escribió el informe, y nunca más:
+    el censo miraba que el papel existiera, no que siguiera diciendo lo mismo.
+
+    O sea que el motor podía cambiar —y cambió mucho en tres días— y la ficha
+    seguiría declarando «lo verificó un agente» con una derivación que ya no
+    cuadra. Aquí se fabrica justo eso: el informe dice un `pg_max` y el motor
+    da otro."""
+    _sust(r, "_verificacion/_aritmetica/enano_clerigo_n5-calculista-ciego.md",
+          "pg_max: 44", "pg_max: 45")
+    return ("el `veredicto` de una derivación deja de cuadrar con el motor: la "
+            "lectura independiente ha caducado y la ficha sigue diciendo que "
+            "la tiene")
+
+
+def e_veredicto_borrado(r):
+    """La otra dirección: el informe existe pero ya no dice qué números dio.
+    Sin bloque `veredicto` no se puede volver a contrastar nunca, que es
+    exactamente el estado del que venimos."""
+    _sust(r, "_verificacion/_aritmetica/goliat_druida-calculista-ciego.md",
+          "```veredicto", "```veredicto-desactivado")
+    return ("una derivación sin bloque `veredicto`: su lectura independiente "
+            "no se puede volver a comprobar")
+
+
+def n_prosa_de_la_derivacion_reescrita(r):
+    """Control negativo: una derivación es un informe en prosa y tiene que
+    poder editarse —corregir una cita, aclarar un paso— sin que nada salte.
+    Lo que se contrasta son sus NÚMEROS, no su redacción."""
+    _sust(r, "_verificacion/_aritmetica/enano_clerigo_n5-calculista-ciego.md",
+          "## Veredicto", "## Veredicto (números derivados a mano)")
+    return ("se reescribe la prosa de una derivación sin tocar un solo número: "
+            "un informe tiene que poder editarse")
+
+
 def n_otro_reparto_legal(r):
     def f(d):
-        d["mejoras"][0]["sube"] = {"des": 1, "con": 1}
-        d["caracteristicas"]["final"]["des"] = 18
-        d["caracteristicas"]["final"]["con"] = 15
+        # El reparto nuevo se DERIVA del que había, en vez de escribir los dos
+        # números a mano. Iban cableados («des: 18, con: 15») y se quedaron
+        # obsoletos el 2026-09-06, cuando «Cuerpo y mente» —el rasgo de nivel
+        # 20 del Monje— pasó a sumar +4 a Destreza y Sabiduría: este control
+        # negativo empezó a saltar sin que el chequeo tuviera nada malo. Es la
+        # lección de siempre, en una mutación: un número copiado se desincroniza
+        # en silencio.
+        viejo = dict(d["mejoras"][0]["sube"])
+        nuevo = {"des": 1, "con": 1}
+        d["mejoras"][0]["sube"] = nuevo
+        fin = d["caracteristicas"]["final"]
+        for k, v in viejo.items():
+            fin[k] = fin.get(k, 0) - v
+        for k, v in nuevo.items():
+            fin[k] = fin.get(k, 0) + v
     _editar(r, MONJE, f)
     return ("repartir +1 y +1 en vez de +2, con `final` actualizado: la dote lo "
             "permite y las cuentas cuadran")
@@ -186,11 +304,364 @@ def e_escudo_sin_entrenamiento(r):
 
 
 MEJORAS = [m_caracteristica_regalada, m_mejora_borrada, m_mejora_de_tres,
-           m_mejora_en_nivel_falso, m_supera_veinte]
+           m_mejora_en_nivel_falso, m_supera_veinte,
+           m_tope_de_la_dote_bajado, m_cantidad_de_la_dote_cambiada,
+           m_estructura_de_la_dote_borrada, m_mejora_sin_ref,
+           m_reparto_con_parte_negativa]
 CONJUROS = [c_truco_de_mas, c_preparado_de_menos, c_extra_sin_fuente]
+# ══ MULTICLASE · el «✅» que mentía (fase 1 del PLAN_19, 2026-09-02) ══════
+# Hasta hoy CUATRO chequeos de `verificar_personaje.py` se degradaban a aviso
+# en cuanto la ficha traía más de una clase —recomputar `calculado`, justificar
+# las mejoras de característica, contar los conjuros, y las dotes y subclases—
+# y la ficha terminaba imprimiendo «✅ FICHA VERIFICADA — 0 problemas».
+#
+# El cuarto era el peor: se saltaba justo los tres huecos que el estrés con
+# agentes había destapado, así que una ficha multiclase esquivaba en silencio
+# los chequeos escritos para cazar lo que se colaba en silencio.
+#
+# Estas mutaciones prueban las dos mitades: que una ficha multiclase se
+# RECHACE, y que las monoclase sigan pasando.
+
+def m_dos_clases(r):
+    def edita(d):
+        d["nivel_total"] = 2
+        d["clases"] = list(d["clases"]) + [
+            {"ref": "clases/paladin.yaml", "clase": "Paladín", "nivel": 1,
+             "subclase": None}]
+    _editar(r, CLERIGO, edita)
+    return ("el clérigo pasa a ser clérigo 1/paladín 1: la ficha tiene que "
+            "RECHAZARSE, no aprobarse con un aviso")
+
+
+def m_dos_clases_nivel_alto(r):
+    def edita(d):
+        d["clases"] = list(d["clases"]) + [
+            {"ref": "clases/guerrero.yaml", "clase": "Guerrero", "nivel": 2,
+             "subclase": None}]
+        d["nivel_total"] = 22
+    _editar(r, MONJE, edita)
+    return ("el monje de nivel 20 gana 2 niveles de guerrero: ni siquiera con "
+            "una ficha que verifica 55 referencias se aprueba lo que no se mira")
+
+
+def n_una_sola_clase_sigue_pasando(r):
+    """Control: lo que se cierra es la multiclase, no las fichas de siempre.
+
+    Perturbaba con un campo extra (`_nota_prueba`) hasta el 2026-09-05, y
+    entonces `verificar_claves()` —que cierra el hueco nº 5 de la ronda 2—
+    empezó a rechazar, con razón, cualquier clave que el esquema no
+    contemple. El control no era falso: era su VEHÍCULO el que dejó de ser
+    legal. Se cambia por uno que sí lo es y la intención no se toca."""
+    def edita(d):
+        d["jugador"] = "Lara"
+    _editar(r, CLERIGO, edita)
+    return ("rellenar `jugador` en una ficha de UNA clase: el cierre de la "
+            "multiclase no puede llevarse por delante lo que ya funcionaba")
+
+
+# ══ Ronda 2 de estrés (2026-09-05) ═══════════════════════════════════════
+# Los dos FALSOS POSITIVOS que encontró, arreglados AFINANDO y no relajando,
+# más los controles negativos que prueban que siguen afinados. La ficha que
+# los sostiene es `enano_clerigo_n5.yaml`, que entró en la base por esto: era
+# la única superficie —una subclase que concede conjuros— que no ejercitaba
+# ninguna de las 17 anteriores, y por eso el falso positivo pudo vivir.
+
+def e_conjuro_de_subclase_inventado(r):
+    """El arreglo del falso positivo NO es «acepta `subclase` y calla»: la
+    base trae `conjuros_siempre_preparados`, así que el origen se COMPRUEBA."""
+    _sust(r, CLERIGO_N5, '"hechizos.json#Arma espiritual", origen: {subclase',
+          '"hechizos.json#Bola de fuego", origen: {subclase')
+    return ("un conjuro que dice venir del Dominio de la Guerra y no está en "
+            "su tabla de siempre preparados")
+
+
+def e_conjuro_de_subclase_a_destiempo(r):
+    """El nivel también se comprueba: `Espíritus guardianes` lo concede el
+    dominio en el nivel 5, no en el 3."""
+    _sust(r, CLERIGO_N5,
+          '"hechizos.json#Espíritus guardianes", origen: {subclase: "Dominio de la Guerra", nivel: 5}',
+          '"hechizos.json#Espíritus guardianes", origen: {subclase: "Dominio de la Guerra", nivel: 3}')
+    return ("un conjuro de dominio que declara un nivel distinto del que la "
+            "tabla de la subclase dice")
+
+
+def e_conjuro_de_otra_subclase(r):
+    _sust(r, CLERIGO_N5,
+          '"hechizos.json#Arma mágica", origen: {subclase: "Dominio de la Guerra"',
+          '"hechizos.json#Arma mágica", origen: {subclase: "Dominio de la Vida"')
+    return ("un conjuro que dice venir de una subclase que no es la del "
+            "personaje")
+
+
+def n_conjuros_de_subclase_bien_declarados(r):
+    """CONTROL NEGATIVO, y es el falso positivo que destapó la ronda 2: los
+    seis conjuros de dominio del Clérigo, declarados exactamente como manda
+    el esquema, se rechazaban uno a uno porque `subclase` no estaba en la
+    lista de orígenes que el chequeo sabía reconocer."""
+    _sust(r, CLERIGO_N5, "nombre: \"Doran Piedrafría\"",
+          "nombre: \"Doran Piedrafría el Sereno\"")
+    return ("la ficha con sus 6 conjuros de dominio bien declarados: es "
+            "LEGAL y tiene que pasar")
+
+
+def n_categoria_con_mayuscula(r):
+    """CONTROL NEGATIVO, el otro falso positivo: la base guarda la
+    herramienta del trasfondo en minúscula y la categoría de la clase con
+    mayúscula. Escribirla con la mayúscula natural del castellano es legal;
+    la capitalización es ortografía, no dato."""
+    _sust(r, CLERIGO_N5, 'categoria: "suministros de calígrafo"',
+          'categoria: "Suministros de calígrafo"')
+    return ("la herramienta del trasfondo escrita con mayúscula inicial: "
+            "es la misma herramienta")
+
+
+def e_categoria_con_tilde_cambiada(r):
+    """Y la contraprueba de que normalizar mayúsculas no se llevó por delante
+    las TILDES, que en castellano sí son dato — este proyecto ya perdió
+    tiempo con la tilde de `Clérigo`."""
+    _sust(r, CLERIGO_N5, 'categoria: "suministros de calígrafo"',
+          'categoria: "suministros de caligrafo"')
+    return ("la herramienta sin la tilde de «calígrafo»: la tilde SÍ es dato")
+
+
+# ── Hueco nº 2 de la ronda 2: `pg_por_nivel` sin contrastar ──────────────
+# Tres caras del mismo defecto, las tres declaradas por agentes distintos.
+# El valor se SUMABA sin mirar si podía salir del dado, y la autoridad ya
+# estaba leída desde la Fase 14b-1 en `calculo.valor_establecido_pg()`.
+
+def e_pg_tirada_fuera_del_dado(r):
+    _sust(r, CLERIGO_N5, "metodo: tirada, valor: 6", "metodo: tirada, valor: 9")
+    return "una tirada de 9 en un d8: el dado no puede darla"
+
+
+def e_pg_valor_establecido_de_otra_clase(r):
+    """El más fino de los tres: el método es correcto y el número existe —es
+    el del Bárbaro—, solo que en la tabla de otra clase."""
+    _sust(r, CLERIGO_N5, "- {nivel: 4, clase: Clérigo, metodo: valor_establecido, valor: 5,",
+          "- {nivel: 4, clase: Clérigo, metodo: valor_establecido, valor: 7,")
+    return ("un `valor_establecido` de 7 en un Clérigo, que es el del "
+            "Bárbaro: el número existe, en la tabla de otra clase")
+
+
+def e_pg_maximo_dado_fuera_del_nivel_1(r):
+    _sust(r, CLERIGO_N5, "- {nivel: 3, clase: Clérigo, metodo: valor_establecido, valor: 5,",
+          "- {nivel: 3, clase: Clérigo, metodo: maximo_dado, valor: 8,")
+    return ("`metodo: maximo_dado` en el nivel 3: es la regla del nivel 1, y "
+            "vive en otra página")
+
+
+def n_pg_tirada_al_minimo(r):
+    """CONTROL NEGATIVO: un 1 en el dado es legal, por deprimente que sea.
+    Un chequeo que exigiera «un valor razonable» sería un chequeo que opina."""
+    def edita(d):
+        for e in d["pg_por_nivel"]:
+            if e["nivel"] == 5:
+                e["valor"] = 1
+        d["calculado"]["pg_max"] = 39
+        # Y pierde su lectura independiente, que es lo correcto y lo que este
+        # control aprendió el 2026-09-08: la derivación a ciegas de esta ficha
+        # se hizo sobre OTRAS tiradas, así que ya no dice nada sobre esta.
+        # Cambiar las entradas invalida la lectura independiente hasta que
+        # alguien la rehaga; `verificar_veredicto` lo caza, y tiene razón.
+        # Lo que este control sigue afirmando es lo suyo: un 1 en el dado es
+        # legal. No se relaja el chequeo nuevo, se deja de mentir aquí.
+        d["calculado"]["_origen"] = {"metodo": "motor", "informe": None,
+                                     "fecha": "2026-09-08"}
+    _editar(r, CLERIGO_N5, edita)
+    return "una tirada de 1 en el d8: es el peor resultado posible, y es legal"
+
+
+# ── Huecos nº 1 y nº 4: qué hay DENTRO de la lista de conjuros ───────────
+# Los dos son el mismo descuido con dos caras: el chequeo contaba la longitud
+# de la lista y no miraba qué había dentro.
+
+def e_conjuro_de_otra_clase(r):
+    """Hueco nº 1. Lo predijo el agente A con «Tañido por los muertos» en un
+    Hechicero, y resultó ser REAL en una ficha de la base: el mismo día se
+    encontró «Descarga sobrenatural» —conjuro de Brujo— entre los trucos de
+    `draconido_hechicero_n4.yaml`. Los 391 conjuros traen `clases`."""
+    _sust(r, MAGO, "- ref: hechizos.json#Amistad",
+          "- ref: hechizos.json#Descarga sobrenatural")
+    return ("un truco de Brujo entre los de un Mago: los 391 conjuros dicen "
+            "de qué listas son y nadie lo miraba")
+
+
+def e_truco_entre_los_preparados(r):
+    """Hueco nº 4, el que estaba VIVO en la base: un conjuro de nivel 0 entre
+    los preparados infla el recuento de la tabla sin que nada lo note."""
+    _sust(r, CLERIGO_N5, '- {ref: "hechizos.json#Disipar magia", origen: {clase: Clérigo}}',
+          '- {ref: "hechizos.json#Reparar", origen: {clase: Clérigo}}')
+    return ("un truco (nivel 0) entre los preparados: cuenta contra la tabla "
+            "sin ser un conjuro preparado de verdad")
+
+
+def e_conjuro_repetido_en_las_dos_listas(r):
+    """La otra cara: el mismo conjuro en `trucos` y en `preparados`, que es
+    exactamente lo que llevaba `draconido_hechicero_n4.yaml`."""
+    _sust(r, CLERIGO_N5, '- {ref: "hechizos.json#Disipar magia", origen: {clase: Clérigo}}',
+          '- {ref: "hechizos.json#Guía", origen: {clase: Clérigo}}')
+    return ("el mismo conjuro en `trucos` y en `preparados`: contaba dos veces")
+
+
+def n_conjuro_de_dote_de_otra_lista(r):
+    """CONTROL NEGATIVO, y es la razón por la que el chequeo del hueco nº 1
+    solo mira los conjuros que CUENTAN contra la tabla: «Iniciado en la
+    magia» concede conjuros de una lista ELEGIDA —clérigo, druida o mago—,
+    que por diseño puede no ser la del personaje."""
+    _sust(r, CLERIGO_N5,
+          '- {ref: "hechizos.json#Detectar el bien y el mal", origen: {dote: "Iniciado en la magia"}}',
+          '- {ref: "hechizos.json#Grasa", origen: {dote: "Iniciado en la magia"}}')
+    return ("un conjuro de la lista de MAGO concedido por «Iniciado en la "
+            "magia» a un Clérigo: la dote lo permite y no cuenta contra la tabla")
+
+
+# ── Hueco nº 3: los idiomas, que no llevan `ref:` y por eso nadie miraba ──
+
+def e_idioma_por_especie(r):
+    """Lo que dos agentes inventaron por separado, uno con el señuelo de que
+    el idioma se llama igual que la especie. Ninguna de las 10 especies de
+    esta base concede idiomas."""
+    _sust(r, CLERIGO_N5, "    - {nombre: Enano}",
+          "    - {nombre: Enano, origen: {especie: Enano}}")
+    return ("un idioma que dice venir de la especie: ninguna especie de esta "
+            "base concede idiomas")
+
+
+def e_idioma_fuera_de_tabla(r):
+    """El nombre no canónico. Estaba VIVO en dos fichas de la base —«Élfico»
+    en vez de «Elfo»—, y el propio `_ejemplo_aerin.yaml` llevaba escrito que
+    era un bug real que ningún validador pillaba «porque `idiomas` no lleva
+    `ref:`». Se arregló en el ejemplo y se quedó en las otras dos."""
+    _sust(r, CLERIGO_N5, "    - {nombre: Gigante}", "    - {nombre: Gigántico}")
+    return "un idioma que no está en la tabla: «Gigántico» en vez de «Gigante»"
+
+
+def e_idioma_de_rasgo_inexistente(r):
+    _sust(r, CLERIGO_N5, "    - {nombre: Gigante}",
+          "    - {nombre: Gigante, origen: {clase: Clérigo, rasgo: \"Lengua divina\"}}")
+    return ("un idioma que dice venir de un rasgo que su clase no tiene")
+
+
+def e_idiomas_de_mas_por_eleccion(r):
+    _sust(r, CLERIGO_N5, "    - {nombre: Gigante}",
+          "    - {nombre: Gigante}\n    - {nombre: Goblin, origen: {regla: \"reglas/idiomas.yaml#nota\"}}\n"
+          "    - {nombre: Orco, origen: {regla: \"reglas/idiomas.yaml#nota\"}}\n"
+          "    - {nombre: Gnomo, origen: {regla: \"reglas/idiomas.yaml#nota\"}}")
+    return ("tres idiomas elegidos de la tabla estándar, y la nota concede "
+            "«común y otros dos»")
+
+
+def n_idioma_de_rasgo_de_clase(r):
+    """CONTROL NEGATIVO: «Druídico» del Druida y «Jerga de ladrones» del
+    Pícaro SÍ son idiomas que un rasgo de clase concede, y las fichas de la
+    base los declaran así. El chequeo no puede llevárselos por delante."""
+    _sust(r, DRUIDA, "eleccion:", "eleccion:", n=1)
+    return ("el Druida con «Druídico» por su rasgo de clase, verificado de "
+            "verdad: es legítimo y tiene que seguir pasando")
+
+
+# ── Hueco nº 5: las claves que el esquema no contempla ───────────────────
+# La tentación era rechazar las tres claves que los agentes inventaron. Eso
+# habría sido el parche puntual, y la cuarta se colaría igual. La lista de
+# claves válidas se LEE de `personajes/_ESQUEMA.md`, así que estas tres
+# mutaciones prueban la misma máquina, no tres remiendos.
+
+def e_clave_raza(r):
+    _sust(r, CLERIGO_N5, "nivel_total: 5", "nivel_total: 5\nraza: \"Enano\"")
+    return "una clave `raza:` duplicando `especie:`, que el esquema no tiene"
+
+
+def e_clave_en_singular(r):
+    """La más traicionera de las tres: `caracteristica` en singular no es una
+    clave de más, es el bloque OBLIGATORIO enmascarado — con ella presente,
+    quien lea por encima ve un bloque de características que no existe."""
+    _sust(r, CLERIGO_N5, "caracteristicas:\n  metodo:",
+          "caracteristica:\n  metodo:")
+    return ("`caracteristica` en singular: no sobra una clave, falta el "
+            "bloque obligatorio")
+
+
+def e_clave_nunca_vista(r):
+    """La que ningún agente probó, y es la que justifica hacerlo por
+    descubrimiento: si la lista se hubiera escrito a mano con las tres que
+    aparecieron, esta se colaría."""
+    _sust(r, CLERIGO_N5, "nivel_total: 5", "nivel_total: 5\ninventario_secreto: 3")
+    return ("una clave que nadie había inventado todavía: la lista sale del "
+            "esquema, no de los casos que ya se vieron")
+
+
+def n_clave_de_prosa_libre(r):
+    """CONTROL NEGATIVO: `historia` y `personalidad` no están en el bloque de
+    ejemplo del esquema, sino en su sección «Prosa libre». Las dos fuentes
+    cuentan, y un chequeo que solo leyera el ejemplo rechazaría fichas
+    legítimas de la propia base."""
+    _sust(r, CLERIGO_N5, "nivel_total: 5",
+          "nivel_total: 5\nhistoria: \"Creció entre yunques y letanías.\"")
+    return ("un campo `historia:`, que el esquema permite en «Prosa libre» "
+            "aunque no salga en su bloque de ejemplo")
+
+
+# ── Fase 1.2 de la auditoría: de dónde sale el bloque `calculado` ────────
+# El muro entre quien escribe el número y quien lo verifica. No arregla la
+# aritmética —eso es el mandato «el calculista»—, hace visible si un número
+# lo escribió el motor o una lectura independiente de la página.
+
+def e_calculado_sin_origen(r):
+    def edita(d):
+        d["calculado"].pop("_origen", None)
+    _editar(r, CLERIGO_N5, edita)
+    return "`calculado` sin `_origen`: no dice de dónde sale"
+
+
+def e_origen_agente_sin_informe(r):
+    """Firmar como lectura independiente sin decir dónde está la lectura."""
+    def edita(d):
+        d["calculado"]["_origen"] = {"metodo": "agente-manual", "informe": None,
+                                     "fecha": "2026-09-05"}
+    _editar(r, CLERIGO_N5, edita)
+    return ("`_origen: agente-manual` sin `informe:`: una firma que no se "
+            "puede ir a leer no vale")
+
+
+def e_origen_informe_inexistente(r):
+    def edita(d):
+        d["calculado"]["_origen"] = {
+            "metodo": "agente-manual",
+            "informe": "_verificacion/_aritmetica/no-existe.md",
+            "fecha": "2026-09-05"}
+    _editar(r, CLERIGO_N5, edita)
+    return "`_origen.informe` apunta a un fichero que no existe"
+
+
+def e_campo_de_mas_en_calculado(r):
+    """Un número en `calculado` que el verificador no recalcula es un número
+    inventado: hasta hoy sobraba en silencio."""
+    def edita(d):
+        d["calculado"]["iniciativa"] = 3
+    _editar(r, CLERIGO_N5, edita)
+    return "un campo en `calculado` que nadie recalcula"
+
+
 ESTRES = [e_dote_sin_prerrequisito, e_subclase_de_otra_clase,
-          e_competencia_como_ref, e_escudo_sin_entrenamiento]
-NO_DEBEN = [n_otro_reparto_legal, n_otro_conjuro, n_prosa_de_decisiones]
+          e_competencia_como_ref, e_escudo_sin_entrenamiento,
+          e_conjuro_de_subclase_inventado, e_conjuro_de_subclase_a_destiempo,
+          e_conjuro_de_otra_subclase, e_categoria_con_tilde_cambiada,
+          e_pg_tirada_fuera_del_dado, e_pg_valor_establecido_de_otra_clase,
+          e_pg_maximo_dado_fuera_del_nivel_1,
+          e_conjuro_de_otra_clase, e_truco_entre_los_preparados,
+          e_conjuro_repetido_en_las_dos_listas,
+          e_idioma_por_especie, e_idioma_fuera_de_tabla,
+          e_idioma_de_rasgo_inexistente, e_idiomas_de_mas_por_eleccion,
+          e_clave_raza, e_clave_en_singular, e_clave_nunca_vista,
+          e_calculado_sin_origen, e_origen_agente_sin_informe,
+          e_origen_informe_inexistente, e_campo_de_mas_en_calculado, e_veredicto_desfasado, e_veredicto_borrado]
+NO_DEBEN = [n_otro_reparto_legal, n_otro_conjuro, n_prosa_de_decisiones,
+            n_una_sola_clase_sigue_pasando,
+            n_conjuros_de_subclase_bien_declarados, n_categoria_con_mayuscula,
+            n_pg_tirada_al_minimo, n_conjuro_de_dote_de_otra_lista,
+            n_idioma_de_rasgo_de_clase, n_clave_de_prosa_libre,
+            n_prosa_de_la_derivacion_reescrita]
+MULTICLASE = [m_dos_clases, m_dos_clases_nivel_alto]
 
 
 def _falla(raiz, ficha):
@@ -200,7 +671,53 @@ def _falla(raiz, ficha):
 
 
 def _falla_cualquiera(raiz):
-    return _falla(raiz, MONJE) or _falla(raiz, MAGO) or _falla(raiz, CLERIGO)
+    return any(_falla(raiz, f)
+               for f in (MONJE, MAGO, CLERIGO, CLERIGO_N5, DRUIDA))
+
+
+# ── Robustez: un fallo no puede llevarse por delante el informe ──────────
+# Los dos defectos de robustez de la ronda 2 no son reglas nuevas: son sobre
+# CÓMO se informa. Por eso no valen las mutaciones normales, que solo miran
+# el código de salida —un traceback también «falla»—. Estas miran la SALIDA.
+ROBUSTEZ = []
+
+
+def _robustez(fn):
+    ROBUSTEZ.append(fn)
+    return fn
+
+
+@_robustez
+def rb_bloque_ausente_se_explica(raiz):
+    """Una ficha sin `caracteristicas` moría con un `KeyError` en
+    `buscar.py:174` sin imprimir una sola línea. Rechazaba, pero no decía qué
+    faltaba."""
+    _sust(raiz, CLERIGO_N5, "caracteristicas:\n  metodo:", "caracteristica:\n  metodo:")
+    r = subprocess.run([sys.executable, "verificar_personaje.py", CLERIGO_N5],
+                       cwd=raiz, capture_output=True, text=True)
+    salida = r.stdout + r.stderr
+    bien = (r.returncode != 0 and "Traceback" not in salida
+            and "caracteristica" in salida)
+    return bien, ("una ficha sin el bloque `caracteristicas`: tiene que "
+                  "EXPLICARLO, no reventar con un traceback mudo")
+
+
+@_robustez
+def rb_un_fallo_no_tapa_los_demas(raiz):
+    """`calculo` cortaba con `sys.exit` ante un `pg_por_nivel` con un hueco, y
+    con él se iban los chequeos que venían detrás: la ficha 3 del agente B
+    declaraba CINCO defectos y solo se veía UNO."""
+    def edita(d):
+        d["pg_por_nivel"] = [e for e in d["pg_por_nivel"] if e["nivel"] != 3]
+        d["competencias"]["idiomas"].append({"nombre": "Gigántico"})
+    _editar(raiz, CLERIGO_N5, edita)
+    r = subprocess.run([sys.executable, "verificar_personaje.py", CLERIGO_N5],
+                       cwd=raiz, capture_output=True, text=True)
+    salida = r.stdout + r.stderr
+    bien = (r.returncode != 0 and "pg_por_nivel" in salida
+            and "Gigántico" in salida)
+    return bien, ("dos defectos independientes a la vez: el hueco en "
+                  "`pg_por_nivel` no puede tapar el idioma inventado")
 
 
 def main():
@@ -216,6 +733,7 @@ def main():
             ("MEJORAS · características que nadie justificaba", MEJORAS, True),
             ("CONJUROS · cuántos lleva la ficha contra la tabla", CONJUROS, True),
             ("ESTRÉS · los huecos que destaparon los agentes", ESTRES, True),
+            ("MULTICLASE · rechazar, no aprobar sin mirar", MULTICLASE, True),
             ("Controles negativos: NO deben saltar", NO_DEBEN, False)):
         print(f"\n {etiqueta}")
         for mut in muts:
@@ -232,7 +750,18 @@ def main():
                     print("        ↑ " + ("NO DETECTADA" if esperado
                                            else "FALSO POSITIVO"))
 
-    total = len(MEJORAS) + len(CONJUROS) + len(ESTRES) + len(NO_DEBEN)
+    print("\n Robustez · el informe no se pierde por el primer fallo")
+    for fn in ROBUSTEZ:
+        with tempfile.TemporaryDirectory() as tmp:
+            raiz = pathlib.Path(tmp) / "base"
+            shutil.copytree(BASE, raiz, symlinks=True,
+                            ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+            bien, desc = fn(raiz)
+            ok += bien
+            print(f"   {'✅' if bien else '❌'} {desc}")
+
+    total = (len(MEJORAS) + len(CONJUROS) + len(ESTRES) + len(MULTICLASE)
+             + len(NO_DEBEN) + len(ROBUSTEZ))
     print("\n" + "═" * 74)
     print(f"{'✅' if ok == total else '❌'} {ok}/{total}")
     return 0 if ok == total else 1

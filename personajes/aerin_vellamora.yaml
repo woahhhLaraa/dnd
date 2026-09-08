@@ -1,0 +1,235 @@
+nombre: "Aerin Vellamora"
+jugador: null
+nivel_total: 5
+
+alineamiento: "Caótico bueno"
+
+notas: >
+  Reconstruida el 2026-09-08 a partir de una hoja en Markdown que traía la
+  aritmética y las fuentes mezcladas. Objetos de la hoja original sin registro
+  mecánico en la base (el anillo de la casa Vellamora y la carta de
+  presentación) quedan aquí como prosa, no como equipo: no tienen reglas.
+  El "libro del archifae" y la "daga de plata" son el nombre de mesa del libro
+  de conocimiento oculto y de una de las dos dagas del equipo inicial.
+
+especie:
+  ref: "especies/especies.yaml#Elfo"
+  rasgos_elegidos:
+    linaje_elfico: "Alto elfo"
+    aptitud_magica_linaje: Carisma
+    sentidos_agudos: "Percepción"
+
+trasfondo:
+  ref: "trasfondos/trasfondos.yaml#Noble"
+
+clases:
+  - clase: Brujo
+    ref: "clases/brujo.yaml"
+    nivel: 5
+    subclase: "clases/subclases/brujo.yaml#Patrón Feérico"
+
+caracteristicas:
+  # La hoja original declaraba {8, 15, 14, 14, 8, 19}: ni sale del conjunto
+  # estándar (dos 8 y ningún 10) ni de compra de puntos (14/19 con el 27 ya
+  # gastado). Los modificadores que la propia hoja usaba en ataques, CA e
+  # iniciativa —Des +2, Con +1, Int +1— reconstruyen esta base, que cuesta
+  # exactamente 27 puntos.
+  metodo: compra_puntos
+  base: {fue: 8, des: 15, con: 13, int: 12, sab: 8, car: 15}
+  ajuste_trasfondo: {car: 2, int: 1}
+  final: {fue: 8, des: 15, con: 13, int: 13, sab: 8, car: 19}
+
+competencias:
+  salvaciones: [Sabiduría, Carisma]
+  habilidades:
+    - {nombre: Engaño, origen: {clase: Brujo}}
+    - {nombre: Religión, origen: {clase: Brujo}}
+    - {nombre: Historia, origen: {trasfondo: Noble}}
+    - {nombre: Persuasión, origen: {trasfondo: Noble}}
+    - {nombre: Percepción, origen: {especie: Elfo, rasgo: "Sentidos agudos"}}
+    - {nombre: Investigación, origen: {dote: Habilidoso}}
+  armas: [{categoria: "Armas sencillas", origen: {clase: Brujo}}]
+  armaduras: [{categoria: "Armaduras ligeras", origen: {clase: Brujo}}]
+  herramientas:
+    - {categoria: "Juego", origen: {trasfondo: Noble, variante: "naipes feéricos"}}
+    - {categoria: "Suministros de calígrafo", origen: {dote: Habilidoso}}
+    - {categoria: "Herramientas de navegante", origen: {dote: Habilidoso}}
+  idiomas:
+    - {nombre: Común}
+    - {nombre: Elfo, origen: {regla: "reglas/idiomas.yaml: todo personaje elige 2 además de Común"}}
+    - {nombre: Gnomo, origen: {regla: "reglas/idiomas.yaml: todo personaje elige 2 además de Común"}}
+
+equipo:
+  - {ref: "equipo/armaduras.yaml#Armadura de cuero", origen: {clase: Brujo, opcion: A}}
+  - {ref: "equipo/armas.yaml#Hoz", origen: {clase: Brujo, opcion: A}}
+  - {ref: "equipo/armas.yaml#Daga", origen: {clase: Brujo, opcion: A, cantidad: 2}}
+  - {ref: "equipo/aventureros.yaml#Orbe", origen: {clase: Brujo, opcion: A, nota: "canalizador arcano"}}
+  - {ref: "equipo/aventureros.yaml#Libro", origen: {clase: Brujo, opcion: A, nota: "de conocimiento oculto"}}
+  - {ref: "equipo/aventureros.yaml#Paquete de erudito", origen: {clase: Brujo, opcion: A}}
+  - {ref: "equipo/herramientas.yaml#Juego", origen: {trasfondo: Noble, opcion: A}}
+  - {ref: "equipo/aventureros.yaml#Perfume", origen: {trasfondo: Noble, opcion: A}}
+  - {ref: "equipo/aventureros.yaml#Ropas de calidad", origen: {trasfondo: Noble, opcion: A}}
+
+conjuros:
+  trucos:
+    - {ref: "hechizos.json#Descarga sobrenatural"}
+    - {ref: "hechizos.json#Amistad"}
+    - {ref: "hechizos.json#Guardia de cuchillas"}
+    - {ref: "hechizos.json#Prestidigitación",
+       origen: {especie: Elfo, rasgo: "Linaje élfico", linaje: "Alto elfo", nivel: 1}}
+  preparados:
+    - {ref: "hechizos.json#Maleficio"}
+    - {ref: "hechizos.json#Patrón hipnótico"}
+    - {ref: "hechizos.json#Armadura de Agathys"}
+    - {ref: "hechizos.json#Nube de dagas"}
+    - {ref: "hechizos.json#Sugestión"}
+    - {ref: "hechizos.json#Contrahechizo"}
+    - {ref: "hechizos.json#Detectar magia",
+       origen: {especie: Elfo, rasgo: "Linaje élfico", linaje: "Alto elfo", nivel: 3}}
+    - {ref: "hechizos.json#Calmar emociones",
+       origen: {subclase: "Patrón Feérico", rasgo: "Conjuros del señor feérico"}}
+    - {ref: "hechizos.json#Dormir",
+       origen: {subclase: "Patrón Feérico", rasgo: "Conjuros del señor feérico"}}
+    - {ref: "hechizos.json#Fuego feérico",
+       origen: {subclase: "Patrón Feérico", rasgo: "Conjuros del señor feérico"}}
+    - {ref: "hechizos.json#Fuerza fantasmal",
+       origen: {subclase: "Patrón Feérico", rasgo: "Conjuros del señor feérico"}}
+    - {ref: "hechizos.json#Paso brumoso",
+       origen: {subclase: "Patrón Feérico", rasgo: "Conjuros del señor feérico"}}
+    - {ref: "hechizos.json#Crecimiento vegetal",
+       origen: {subclase: "Patrón Feérico", rasgo: "Conjuros del señor feérico", nivel: 5}}
+    - {ref: "hechizos.json#Desplazamiento",
+       origen: {subclase: "Patrón Feérico", rasgo: "Conjuros del señor feérico", nivel: 5}}
+
+dotes:
+  - {ref: "dotes/origen.yaml#Habilidoso", origen: {trasfondo: Noble}}
+
+mejoras:
+  - {nivel: 4, sube: {car: 2}, ref: "dotes/generales.yaml#Mejora de característica"}
+
+pg_por_nivel:
+  # Regla de mesa: en esta partida los PG de cada nivel son el máximo del dado.
+  # La base solo admite `tirada` o `valor_establecido` para los niveles 2+
+  # (`puntos_golpe.niveles_siguientes_al_1.metodos`), así que el máximo se
+  # anota como la tirada que es —un 8 en un d8— y queda dicho aquí de dónde
+  # sale el número.
+  - {nivel: 1, clase: Brujo, metodo: maximo_dado, valor: 8,
+     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.nivel_1"}}
+  - {nivel: 2, clase: Brujo, metodo: tirada, valor: 8,
+     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.metodos[tirar]"}}
+  - {nivel: 3, clase: Brujo, metodo: tirada, valor: 8,
+     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.metodos[tirar]"}}
+  - {nivel: 4, clase: Brujo, metodo: tirada, valor: 8,
+     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.metodos[tirar]"}}
+  - {nivel: 5, clase: Brujo, metodo: tirada, valor: 8,
+     cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1.metodos[tirar]"}}
+
+calculado:
+  # Lo escribió el motor (`verificar_personaje.py --calcular`), no una lectura
+  # independiente de la página.
+  _origen: {metodo: motor, informe: null, fecha: "2026-09-08"}
+  pg_max: 45
+  ca: 13
+  bonif_competencia: 3
+  cd_conjuros: 15
+  bonif_ataque_conjuros: 7
+  velocidad: 9
+
+decisiones:
+  - en: "nivel 5"
+    eleccion: "PG: máximo del dado (8 en el d8), regla de mesa"
+    cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1"}
+  - en: "nivel 5"
+    eleccion: "sexto conjuro preparado: Contrahechizo, ahora que los espacios son de nivel 3"
+    cita: {archivo: "clases/brujo.yaml", campo: "progresion[n=5].prep"}
+  - en: "nivel 5"
+    eleccion: >
+      sustitución del conjuro preparado que permite Magia del pacto al subir de
+      nivel: Sirviente invisible sale y entra Patrón hipnótico.
+    cita: {archivo: "clases/rasgos/brujo.yaml", rasgo: "Magia del pacto"}
+  - en: "nivel 5"
+    eleccion: >
+      conjuros siempre preparados que el Patrón Feérico añade en el nivel 5:
+      Crecimiento vegetal y Desplazamiento. No cuentan contra los 6 de la tabla.
+    cita: {archivo: "clases/subclases/brujo.yaml", registro: "Patrón Feérico", campo: "conjuros_siempre_preparados[5]"}
+  - en: "nivel 5"
+    eleccion: >
+      el linaje Alto elfo concede Paso brumoso en el nivel 5, pero el Patrón
+      Feérico ya se lo daba en el nivel 3. No se duplica la entrada: lo que suma
+      el linaje es un lanzamiento gratis por descanso largo, no un conjuro nuevo.
+    cita: {archivo: "especies/especies.yaml", registro: Elfo, campo: "linajes[Alto elfo].nivel_5"}
+  - en: "nivel 5"
+    eleccion: >
+      las invocaciones sobrenaturales pasan de 3 a 5, pero la base NO las modela
+      una a una (`_verificacion/censo_exenciones.yaml`, bloque H: las 28 del SRD
+      quedaron fuera). Las dos nuevas quedan sin declarar aquí a propósito, en
+      vez de inventarles una `ref` que no existe.
+    cita: {archivo: "clases/brujo.yaml", campo: "progresion[n=5].invocaciones"}
+  - en: "corrección 2026-09-08"
+    eleccion: >
+      La subclase no era «Archifae» sino Patrón Feérico, y sus rasgos de nivel 3
+      son Conjuros del señor feérico y Pasos feéricos. La hoja traía en su lugar
+      Bendición del oscuro y los conjuros del Patrón Infernal (Manos ardientes,
+      Orden imperiosa, Rayo abrasador, Sugestión), que son de otra subclase.
+    cita: {archivo: "clases/subclases/brujo.yaml", registro: "Patrón Feérico", campo: rasgos}
+  - en: "corrección 2026-09-08"
+    eleccion: >
+      Competencia en salvaciones: solo Sabiduría y Carisma. La hoja marcaba
+      cinco (Des, Con, Int, Sab, Car).
+    cita: {archivo: "clases/brujo.yaml", campo: "atributos_basicos.salvaciones"}
+  - en: "corrección 2026-09-08"
+    eleccion: >
+      Conjuros ilegales retirados por no estar en la lista de Brujo: Disfrazarse,
+      Manos ardientes, Orden imperiosa y Rayo abrasador. Sugestión aparecía dos
+      veces y queda una.
+    cita: {archivo: "hechizos.json", campo: "clases"}
+  - en: "corrección 2026-09-08"
+    eleccion: >
+      Sentidos agudos concede UNA competencia entre Percepción, Perspicacia y
+      Supervivencia; se elige Percepción, que es la que la hoja ya usaba en su
+      percepción pasiva de 11.
+    cita: {archivo: "especies/especies.yaml", registro: Elfo, campo: "rasgos[Sentidos agudos]"}
+  - en: "corrección 2026-09-08"
+    eleccion: >
+      El trasfondo Noble concede Historia, Persuasión, un tipo de juego y la
+      dote Habilidoso. La hoja atribuía a un inexistente rasgo «Habilidad noble»
+      la religión y dos herramientas: eso es Habilidoso, y sus tres elecciones
+      se declaran (Investigación, suministros de calígrafo, herramientas de
+      navegante).
+    cita: {archivo: "trasfondos/trasfondos.yaml", registro: Noble}
+  - en: "nivel 3"
+    eleccion: "subclase: Patrón Feérico"
+    cita: {archivo: "clases/brujo.yaml", campo: "progresion[n=3].rasgos"}
+  - en: "nivel 3"
+    eleccion: "conjuro del linaje Alto elfo al nivel 3: Detectar magia (siempre preparado)"
+    cita: {archivo: "especies/especies.yaml", registro: Elfo, campo: "linajes[Alto elfo].nivel_3"}
+  - en: "nivel 4"
+    eleccion: >
+      Mejora de característica: +2 Carisma (17 → 19). Estaba sin gastar: la hoja
+      ponía «Dotes: Vacío» y a la vez una tabla de conjuros con CD 14 y ataque
+      +6, que son justamente los de Carisma 19.
+    cita: {archivo: "dotes/generales.yaml", registro: "Mejora de característica", campo: mejora_caracteristica}
+  - en: "nivel 4"
+    eleccion: "tercer truco de clase: Guardia de cuchillas"
+    cita: {archivo: "clases/brujo.yaml", campo: "progresion[n=4].trucos"}
+  - en: "nivel 4"
+    eleccion: "quinto conjuro preparado: Armadura de Agathys"
+    cita: {archivo: "clases/brujo.yaml", campo: "progresion[n=4].prep"}
+  - en: "niveles 1-4"
+    eleccion: "PG: máximo del dado en cada nivel (regla de mesa); un 8 de d8 por nivel"
+    cita: {archivo: "reglas/generacion_personaje.yaml", campo: "puntos_golpe.niveles_siguientes_al_1"}
+  - en: "creación"
+    eleccion: "método de características: compra de puntos (27)"
+    cita: {archivo: "reglas/generacion_personaje.yaml", campo: "metodos_generacion_caracteristicas.coste_en_puntos"}
+  - en: "creación"
+    eleccion: "ajuste de trasfondo: +2 Carisma, +1 Inteligencia"
+    cita: {archivo: "trasfondos/trasfondos.yaml", registro: Noble, campo: caracteristicas}
+  - en: "creación"
+    eleccion: "habilidades de clase: Engaño, Religión"
+    cita: {archivo: "clases/brujo.yaml", campo: "atributos_basicos.habilidades"}
+  - en: "creación"
+    eleccion: "equipo inicial opción A (clase y trasfondo)"
+    cita: {archivo: "clases/brujo.yaml", campo: "atributos_basicos.equipo_inicial.a"}
+  - en: "creación"
+    eleccion: "trucos: Descarga sobrenatural, Amistad; conjuros preparados: Maleficio, Sirviente invisible"
+    cita: {archivo: "clases/rasgos/brujo.yaml", rasgo: "Magia del pacto"}
