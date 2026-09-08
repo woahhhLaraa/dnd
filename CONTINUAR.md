@@ -55,8 +55,8 @@ python3 validar.py            # 0 errores
 python3 verificar_srd.py      # 646 valores · 0 discrepancias
 python3 verificar_foundry.py  # 3749 valores · 0 discrepancias
 python3 cobertura.py          # 0 preguntas sin responder
-python3 censo.py              # 983 unidades · 0 sin declarar · 588 pendientes
-for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 26/26
+python3 censo.py              # 984 unidades · 0 sin declarar · 589 pendientes
+for f in personajes/*.yaml; do python3 verificar_personaje.py "$f"; done   # 27/27
 python3 generar_ficha.py --barrido --exhaustivo   # 240/240
 python3 verificar_documentos.py   # ¿CONTINUAR.md y FODA.md dicen la verdad?
 python3 verificar_chequeos.py     # ¿algún chequeo abandona un registro en silencio?
@@ -84,7 +84,7 @@ van en prosa y no dentro del bloque de comandos de arriba.
 
 - `verificar_srd.py` -> 646 valores contrastados · 0 discrepancias
 - `verificar_foundry.py` -> 3749 valores contrastados · 0 discrepancias
-- INTEGRIDAD: 684 dados · 436 conversiones · 391 conjuros en `tirada` · 677
+- INTEGRIDAD: 687 dados · 436 conversiones · 391 conjuros en `tirada` · 677
   pares de vecindad · 782 campos de ortografía · 391 citas de conjuro · 52
   costes sin fuente externa · 25 efectos
 - 55 mejoras de dote estructuradas, leídas de `dotes/*.yaml`
