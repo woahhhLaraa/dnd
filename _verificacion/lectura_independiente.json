@@ -13,6 +13,7 @@
  },
  "entradas": {
   "aasimar_clerigo.yaml": "Clérigo 1",
+  "aerin_vellamora.yaml": "Brujo 5",
   "draconido_hechicero.yaml": "Hechicero 1",
   "draconido_hechicero_n4.yaml": "Hechicero 4",
   "draconido_monje.yaml": "Monje 1",
@@ -28,6 +29,7 @@
  "elenco": [
   "_ejemplo_aerin.yaml",
   "aasimar_clerigo.yaml",
+  "aerin_vellamora.yaml",
   "barbaro_berserker_n20.yaml",
   "bardo_danza_n3.yaml",
   "bardo_valor_n3.yaml",
